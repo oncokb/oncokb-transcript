@@ -25,6 +25,7 @@ export const REVIEW_PAGE_ID = 'review-page';
 export const RCT_MODAL_BUTTON_ID = 'relevant-cancer-types-button';
 export const RCT_MODAL_ID = 'relevant-cancer-type-modal';
 
+// add mutation modal
 export const DEFAULT_ADD_MUTATION_MODAL_ID = 'default-add-mutation-modal';
 export const ADD_MUTATION_MODAL_INPUT_ID = 'add-mutation-modal-input';
 

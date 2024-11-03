@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import * as styles from './styles.module.scss';
 import classNames from 'classnames';
+import { getTabDataTestId } from 'app/shared/util/test-id-utils';
 
 export type Tab = {
   id?: string;
@@ -15,9 +16,10 @@ export interface ITabsProps {
   isCollapsed?: boolean;
   className?: string;
   contentClassName?: string;
+  dataTestIdPrefix?: string;
 }
 
-const Tabs = ({ tabs, isCollapsed = false, defaultOpenTabIndex = 0, className, contentClassName }: ITabsProps) => {
+const Tabs = ({ tabs, isCollapsed = false, defaultOpenTabIndex = 0, className, contentClassName, dataTestIdPrefix }: ITabsProps) => {
   const [openTabIndex, setOpenTabIndex] = useState(defaultOpenTabIndex);
 
   useEffect(() => {
@@ -37,6 +39,7 @@ const Tabs = ({ tabs, isCollapsed = false, defaultOpenTabIndex = 0, className, c
               key={index}
               style={{ marginRight: index !== tabs.length - 1 ? 16 : 0 }}
               className={`${styles.tab} ${index === openTabIndex ? styles.selected : ''} col-sm-auto`}
+              data-testid={getTabDataTestId(index, dataTestIdPrefix)}
             >
               <h6>{tab.title}</h6>
             </div>

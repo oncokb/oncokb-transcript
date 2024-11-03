@@ -14,8 +14,14 @@ import {
 import { BASE_URL, DATABASE_EMULATOR_URL, MOCK_DATA_JSON_FILE_PATH, PUB_MED_ARTICLE_TITLE, PUB_MED_PMID } from '../constants';
 import * as fs from 'fs';
 import * as admin from 'firebase-admin';
-import { createMutationOnCurationPage } from '../shared/utils';
-import { CollapsibleDataTestIdType, getCollapsibleDataTestId } from '../../../main/webapp/app/shared/util/test-id-utils';
+import { addMutationInAddMutationModal, createMutationOnCurationPage } from '../shared/utils';
+import {
+  AddMutationModalFieldTestIdType,
+  CollapsibleDataTestIdType,
+  getAddMuationModalFieldDataTestId,
+  getCollapsibleDataTestId,
+  getTabDataTestId,
+} from '../../../main/webapp/app/shared/util/test-id-utils';
 
 describe('End to end tests', () => {
   let adminApp: admin.app.App;
@@ -137,5 +143,67 @@ describe('End to end tests', () => {
     // Review is not required when deleting newly created mutations
     const reviewButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_BUTTON_ID}"]`);
     expect(await reviewButton.isExisting()).toBe(false);
+  });
+
+  it('should add mutation with name, comment, and excluding', async () => {
+    await browser.url(`${BASE_URL}/curation/EMPTYGENE/somatic`);
+
+    const addMutationButton = await $('button=Add Mutation');
+    await addMutationButton.waitForDisplayed();
+    await addMutationButton.click();
+
+    await addMutationInAddMutationModal('V600E/G [name] {excluding V600E} (comment)');
+
+    let alterationField = await $(
+      `input[data-testid='${getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.ALTERATION, 0, undefined)}']`,
+    );
+    expect(await alterationField.getValue()).toBe('V600E [name] {excluding V600E} (comment)');
+
+    let nameField = await $(
+      `input[data-testid='${getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.NAME, 0, undefined)}']`,
+    );
+    expect(await nameField.getValue()).toBe('name');
+
+    let commentField = await $(
+      `input[data-testid='${getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.COMMENT, 0, undefined)}']`,
+    );
+    expect(await commentField.getValue()).toBe('comment');
+
+    let excludingAlterationField = await $(
+      `input[data-testid='${getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.NAME, 0, 0)}']`,
+    );
+    expect(await excludingAlterationField.getValue()).toBe('V600E');
+
+    const secondTab = await $(`div[data-testid='${getTabDataTestId(1)}']`);
+    await secondTab.click();
+
+    alterationField = await $(
+      `input[data-testid='${getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.ALTERATION, 1, undefined)}']`,
+    );
+    expect(await alterationField.getValue()).toBe('V600G [name] {excluding V600E} (comment)');
+
+    nameField = await $(`input[data-testid='${getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.NAME, 1, undefined)}']`);
+    expect(await nameField.getValue()).toBe('name');
+
+    commentField = await $(
+      `input[data-testid='${getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.COMMENT, 1, undefined)}']`,
+    );
+    expect(await commentField.getValue()).toBe('comment');
+
+    excludingAlterationField = await $(
+      `input[data-testid='${getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.NAME, 1, 0)}']`,
+    );
+    expect(await excludingAlterationField.getValue()).toBe('V600E');
+
+    alterationField.setValue('V600E');
+    await commentField.waitUntil(async () => !(await commentField.getValue()));
+
+    nameField = await $(`input[data-testid='${getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.NAME, 1, undefined)}']`);
+    expect(await nameField.getValue()).toBe('V600E');
+
+    const nonExistantExcludingAlterationField = await $(
+      `input[data-testid='${getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.ALTERATION, 1, 0)}']`,
+    );
+    expect(await nonExistantExcludingAlterationField.isExisting()).toBeFalsy();
   });
 });
