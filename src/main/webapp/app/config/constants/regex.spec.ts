@@ -87,8 +87,14 @@ describe('Regex constants test', () => {
       ['Exon 4 Deletion + Exon 5 Deletion + Exon 6 Deletion', true],
       ['Exon 4-8 Deletion + Exon 10 Deletion', true],
       ['Exon 4 Deletion+Exon 5 Deletion', true],
+      ['Any Exon 2-4 Deletion', true],
+      ['Any Exon 2-4 Deletion + Exon 5 Deletion', true],
+      ['Any Exon 2-4 Deletion + Any Exon 7-9 Deletion', true],
       ['Exon 14 Del', false],
       ['Exon 4 8 Insertion', false],
+      ['Exon 4 Deletion +', false],
+      ['Exon 2-4 Deletion + Any', false],
+      ['Exon 4 Insertion + Exon 6', false],
     ])('should return %b for %s', (alteration, expected) => {
       expect(EXON_ALTERATION_REGEX.test(alteration)).toEqual(expected);
     });

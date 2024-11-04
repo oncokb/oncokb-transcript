@@ -312,9 +312,12 @@ export function getFullAlterationName(alterationData: AlterationData, includeVar
   return buildAlterationName(alterationData.alteration, variantName, excluding, comment);
 }
 
+export function getMutationRenameValueFromName(name: string) {
+  return name.match(/\[([^\]]+)\]/)?.[1];
+}
+
 export function convertEntityStatusAlterationToAlterationData(
   entityStatusAlteration: AlterationAnnotationStatus,
-  alterationName: string,
   excluding: AlterationData[],
   comment: string,
   variantName?: string,
@@ -322,7 +325,7 @@ export function convertEntityStatusAlterationToAlterationData(
   const alteration = entityStatusAlteration.entity;
   const alterationData: AlterationData = {
     type: alteration?.type ?? AlterationTypeEnum.Unknown,
-    alteration: alterationName,
+    alteration: alteration?.alteration ?? '',
     name: (variantName || alteration?.name) ?? '',
     consequence: alteration?.consequence?.name ?? '',
     comment,
@@ -336,11 +339,6 @@ export function convertEntityStatusAlterationToAlterationData(
     warning: entityStatusAlteration.warning ? entityStatusAlteration.message : undefined,
     error: entityStatusAlteration.error ? entityStatusAlteration.message : undefined,
   };
-
-  // if the backend's response is different from the frontend response, set them equal to each other.
-  if (alteration?.alteration !== alterationName) {
-    alterationData.alteration = alteration?.alteration ?? '';
-  }
 
   return alterationData;
 }

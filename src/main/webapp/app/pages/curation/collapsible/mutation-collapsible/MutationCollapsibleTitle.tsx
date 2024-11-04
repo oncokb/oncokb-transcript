@@ -3,13 +3,19 @@ import InfoIcon from 'app/shared/icons/InfoIcon';
 import { Alteration, AlterationCategories } from 'app/shared/model/firebase/firebase.model';
 import { getAlterationName, isFlagEqualToIFlag } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
-import { buildAlterationName, getAlterationNameComponent, parseAlterationName } from 'app/shared/util/utils';
+import {
+  buildAlterationName,
+  getAlterationNameComponent,
+  getMutationRenameValueFromName,
+  parseAlterationName,
+} from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import React from 'react';
 import * as styles from './styles.module.scss';
 import classNames from 'classnames';
 import WithSeparator from 'react-with-separator';
+import { EXON_ALTERATION_REGEX } from 'app/config/constants/regex';
 
 export interface IMutationCollapsibleTitle extends StoreProps {
   name: string | undefined;
@@ -39,6 +45,16 @@ const MutationCollapsibleTitle = ({ name, mutationAlterations, alterationCategor
         })}
         {tooltipOverlay ? <InfoIcon className="me-1" overlay={tooltipOverlay} /> : undefined}
       </div>
+    );
+  }
+
+  const mutationRenameValue = getMutationRenameValueFromName(name ?? '');
+  if (EXON_ALTERATION_REGEX.test(mutationRenameValue ?? '')) {
+    return (
+      <>
+        <span>{mutationRenameValue}</span>
+        {stringMutationBadges}
+      </>
     );
   }
 

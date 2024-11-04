@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTextareaAutoHeight } from 'app/hooks/useTextareaAutoHeight';
 import { useRef } from 'react';
-import { Col, Spinner } from 'reactstrap';
+import { Col, Row, Spinner } from 'reactstrap';
 import classNames from 'classnames';
 import { InputType } from 'reactstrap/types/lib/Input';
 import { Input } from 'reactstrap';
@@ -22,12 +22,10 @@ const AddMutationModalField = ({ label, value: value, placeholder, onChange, isL
   useTextareaAutoHeight(inputRef, type);
 
   return (
-    <div className="d-flex align-items-center mb-3">
+    <Row className="d-flex align-items-center mb-3 g-0">
       <Col className="px-0 col-3 me-3 align-items-center">
-        <div className="d-flex align-items-center">
-          <span className="me-2">{label}</span>
-          {isLoading && <Spinner color="primary" size="sm" />}
-        </div>
+        <span className="me-2">{label}</span>
+        {isLoading && <Spinner color="primary" size="sm" />}
       </Col>
       <Col className="px-0">
         <Input
@@ -42,7 +40,7 @@ const AddMutationModalField = ({ label, value: value, placeholder, onChange, isL
           className={classNames(type === 'textarea' ? 'alteration-modal-textarea-field' : undefined)}
         />
       </Col>
-    </div>
+    </Row>
   );
 };
 

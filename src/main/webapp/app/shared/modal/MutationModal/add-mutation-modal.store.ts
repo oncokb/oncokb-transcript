@@ -24,6 +24,7 @@ export class AddMutationModalStore {
   public selectedExcludedAlterationIndex = -1;
 
   public showModifyExonForm = false;
+  public hasUncommitedExonFormChanges = false;
 
   public isFetchingAlteration = false;
   public isFetchingExcludingAlteration = false;
@@ -41,6 +42,7 @@ export class AddMutationModalStore {
       selectedAlterationStateIndex: observable,
       selectedExcludedAlterationIndex: observable,
       showModifyExonForm: observable,
+      hasUncommitedExonFormChanges: observable,
       isFetchingAlteration: observable,
       isFetchingExcludingAlteration: observable,
       selectedAlterationCategoryFlags: observable,
@@ -52,6 +54,7 @@ export class AddMutationModalStore {
       setVusList: action.bound,
       setGeneEntity: action.bound,
       setShowModifyExonForm: action.bound,
+      setHasUncommitedExonFormChanges: action.bound,
       setAlterationStates: action.bound,
       setSelectedAlterationStateIndex: action.bound,
       setSelectedExcludedAlterationIndex: action.bound,
@@ -71,8 +74,8 @@ export class AddMutationModalStore {
     });
   }
 
-  setMutationToEdit(mutationtoEdit: Mutation | null) {
-    this.mutationToEdit = mutationtoEdit;
+  setMutationToEdit(mutationToEdit: Mutation | null) {
+    this.mutationToEdit = mutationToEdit;
   }
 
   setVusList(vusList: VusObjList | null) {
@@ -86,6 +89,10 @@ export class AddMutationModalStore {
   setShowModifyExonForm(show: boolean) {
     this.showModifyExonForm = show;
     this.selectedAlterationStateIndex = -1;
+  }
+
+  setHasUncommitedExonFormChanges(value: boolean) {
+    this.hasUncommitedExonFormChanges = value;
   }
 
   setAlterationStates(newAlterationStates: AlterationData[]) {
@@ -127,12 +134,11 @@ export class AddMutationModalStore {
     ]);
 
     const newExcludingAlterations = newEntityStatusExcludingAlterations.map((alt, index) =>
-      convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[0].excluding[index], [], ''),
+      convertEntityStatusAlterationToAlterationData(alt, [], ''),
     );
     const newAlterations = newEntityStatusAlterations.map((alt, index) =>
       convertEntityStatusAlterationToAlterationData(
         alt,
-        newParsedAlteration[index].alteration,
         _.cloneDeep(newExcludingAlterations),
         newParsedAlteration[index].comment,
         newParsedAlteration[index].name,
@@ -172,7 +178,7 @@ export class AddMutationModalStore {
     const newEntityStatusAlterations = await this.fetchAlterations(parsedAlterations.map(alt => alt.alteration));
 
     const newAlterations = newEntityStatusAlterations.map((alt, index) =>
-      convertEntityStatusAlterationToAlterationData(alt, parsedAlterations[index].alteration, [], newComment, newVariantName),
+      convertEntityStatusAlterationToAlterationData(alt, [], newComment, newVariantName),
     );
 
     const newAlterationStates = _.cloneDeep(this.alterationStates);
@@ -251,16 +257,7 @@ export class AddMutationModalStore {
     newAlterations = [
       ...newAlterations,
       ...(await Promise.all(alterationPromises))
-        .map((alt, index) =>
-          alt
-            ? convertEntityStatusAlterationToAlterationData(
-                alt,
-                newParsedAlteration[index].alteration,
-                [],
-                newParsedAlteration[index].comment,
-              )
-            : undefined,
-        )
+        .map((alt, index) => (alt ? convertEntityStatusAlterationToAlterationData(alt, [], newParsedAlteration[index].comment) : undefined))
         .filter(hasValue),
     ];
 
@@ -320,10 +317,7 @@ export class AddMutationModalStore {
       newExcluding = this.alterationStates[alterationIndex].excluding;
     } else {
       const excludingEntityStatusAlterations = await this.fetchAlterations(newParsedAlteration[0].excluding);
-      newExcluding =
-        excludingEntityStatusAlterations?.map((ex, index) =>
-          convertEntityStatusAlterationToAlterationData(ex, newParsedAlteration[0].excluding[index], [], ''),
-        ) ?? [];
+      newExcluding = excludingEntityStatusAlterations?.map((ex, index) => convertEntityStatusAlterationToAlterationData(ex, [], '')) ?? [];
     }
 
     const alterationPromises: Promise<AlterationAnnotationStatus | undefined>[] = [];
@@ -346,15 +340,7 @@ export class AddMutationModalStore {
       ...newAlterations,
       ...(await Promise.all(alterationPromises))
         .filter(hasValue)
-        .map((alt, index) =>
-          convertEntityStatusAlterationToAlterationData(
-            alt,
-            newParsedAlteration[index + newAlterations.length].alteration,
-            newExcluding,
-            newComment,
-            newVariantName,
-          ),
-        ),
+        .map((alt, index) => convertEntityStatusAlterationToAlterationData(alt, newExcluding, newComment, newVariantName)),
     ];
     newAlterations[0].alterationFieldValueWhileFetching = undefined;
 
@@ -426,6 +412,7 @@ export class AddMutationModalStore {
     this.selectedAlterationStateIndex = -1;
     this.selectedExcludedAlterationIndex = -1;
     this.showModifyExonForm = false;
+    this.hasUncommitedExonFormChanges = false;
     this.isFetchingAlteration = false;
     this.isFetchingExcludingAlteration = false;
     this.selectedAlterationCategoryFlags = [];

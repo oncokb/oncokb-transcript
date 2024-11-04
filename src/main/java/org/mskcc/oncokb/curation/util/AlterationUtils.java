@@ -103,7 +103,10 @@ public class AlterationUtils {
         Pattern pattern = Pattern.compile(EXON_ALT_REGEX, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(alteration);
         List<String> splitResults = new ArrayList<>();
-        Set<String> consequenceTermSet = new HashSet<>();
+        Map<SVConsequence, Set<String>> exonsByConsequence = new HashMap<>();
+        exonsByConsequence.put(SVConsequence.SV_INSERTION, new HashSet<>());
+        exonsByConsequence.put(SVConsequence.SV_DELETION, new HashSet<>());
+        exonsByConsequence.put(SVConsequence.SV_DUPLICATION, new HashSet<>());
 
         while (matcher.find()) {
             Boolean isAnyExon = false;
@@ -114,27 +117,22 @@ public class AlterationUtils {
             String startExonStr = matcher.group(2); // The start exon number
             String endExonStr = matcher.group(4); // The end exon number (if present)
             String consequenceTerm = matcher.group(5); // consequence term
-
+            SVConsequence svConsequence = SVConsequence.SV_UNKNOWN;
             switch (consequenceTerm.toLowerCase()) {
                 case "insertion":
-                    consequenceTerm = "Insertion";
+                    svConsequence = SVConsequence.SV_INSERTION;
                     consequence.setTerm(SVConsequence.SV_INSERTION.name());
                     break;
                 case "duplication":
-                    consequenceTerm = "Duplication";
+                    svConsequence = SVConsequence.SV_DUPLICATION;
                     consequence.setTerm(SVConsequence.SV_DUPLICATION.name());
                     break;
                 case "deletion":
-                    consequenceTerm = "Deletion";
+                    svConsequence = SVConsequence.SV_DELETION;
                     consequence.setTerm(SVConsequence.SV_DELETION.name());
                     break;
                 default:
                     break;
-            }
-
-            consequenceTermSet.add(consequenceTerm);
-            if (consequenceTermSet.size() > 1) {
-                consequence.setTerm(SVConsequence.SV_UNKNOWN.name());
             }
 
             if (isAnyExon) {
@@ -146,12 +144,57 @@ public class AlterationUtils {
             int endExon = (endExonStr != null) ? Integer.parseInt(endExonStr) : startExon;
 
             for (int exon = startExon; exon <= endExon; exon++) {
-                splitResults.add("Exon " + exon + " " + consequenceTerm);
+                String exonAlteration = "Exon " + exon + " " + consequenceTerm;
+                splitResults.add(exonAlteration);
+                exonsByConsequence.get(svConsequence).add(exonAlteration);
             }
         }
 
         alt.setAlteration(splitResults.stream().collect(Collectors.joining(" + ")));
-        alt.setName(alteration);
+
+        StringBuilder formattedName = new StringBuilder();
+        for (SVConsequence consequenceKey : new SVConsequence[] {
+            SVConsequence.SV_INSERTION,
+            SVConsequence.SV_DELETION,
+            SVConsequence.SV_DUPLICATION,
+        }) {
+            List<String> sortedExonAlterations = new ArrayList<>(exonsByConsequence.get(consequenceKey));
+            sortedExonAlterations.sort(Comparator.comparingInt(exon -> Integer.parseInt(exon.split(" ")[1])));
+            String consequenceTerm = consequenceKey.getName();
+
+            List<String> result = new ArrayList<>();
+            int start = -1;
+            int end = -1;
+
+            for (int i = 0; i < sortedExonAlterations.size(); i++) {
+                String exon = sortedExonAlterations.get(i);
+                int exonNumber = Integer.parseInt(exon.split(" ")[1]);
+
+                if (start == -1) {
+                    start = exonNumber;
+                    end = exonNumber;
+                } else if (exonNumber == end + 1) {
+                    end = exonNumber;
+                } else {
+                    if (start == end) {
+                        result.add("Exon " + start + " " + consequenceTerm);
+                    } else {
+                        result.add("Exon " + start + "-" + end + " " + consequenceTerm);
+                    }
+                    start = exonNumber;
+                    end = exonNumber;
+                }
+            }
+            if (start != -1) {
+                if (start == end) {
+                    result.add("Exon " + start + " " + consequenceTerm);
+                } else {
+                    result.add("Exon " + start + "-" + end + " " + consequenceTerm);
+                }
+            }
+            formattedName.append(result.stream().collect(Collectors.joining(" + ")));
+        }
+        alt.setName(formattedName.toString());
 
         return alt;
     }

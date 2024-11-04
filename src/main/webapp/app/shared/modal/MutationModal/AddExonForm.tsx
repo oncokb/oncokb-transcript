@@ -4,7 +4,7 @@ import { flow } from 'mobx';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { ReferenceGenome } from 'app/shared/model/enumerations/reference-genome.model';
 import { ProteinExonDTO } from 'app/shared/api/generated/curation';
-import { Button, Col, Row } from 'reactstrap';
+import { Col, Row } from 'reactstrap';
 import { components, OptionProps } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import _ from 'lodash';
@@ -15,9 +15,8 @@ import { EXON_ALTERATION_REGEX } from 'app/config/constants/regex';
 import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import classNames from 'classnames';
 import InfoIcon from 'app/shared/icons/InfoIcon';
-import { FaArrowLeft, FaStar } from 'react-icons/fa';
-import { faArrowLeft, faCross, faX } from '@fortawesome/free-solid-svg-icons';
-import ActionIcon from 'app/shared/icons/ActionIcon';
+import { FaArrowLeft } from 'react-icons/fa';
+import * as styles from './styles.module.scss';
 
 export interface IAddExonMutationModalBody extends StoreProps {
   hugoSymbol: string;
@@ -38,6 +37,7 @@ const AddExonForm = ({
   getProteinExons,
   updateAlterationStateAfterAlterationAdded,
   setShowModifyExonForm,
+  setHasUncommitedExonFormChanges,
 }: IAddExonMutationModalBody) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [selectedExons, setSelectedExons] = useState<ProteinExonDropdownOption[]>([]);
@@ -98,6 +98,13 @@ const AddExonForm = ({
     getProteinExons?.(hugoSymbol, ReferenceGenome.GRCh37).then(value => setProteinExons(value));
   }, []);
 
+  useEffect(() => {
+    const updateDisabled = isPendingAddAlteration || selectedExons.length === 0 || _.isEqual(defaultSelectedExons, selectedExons);
+    if (!updateDisabled) {
+      setHasUncommitedExonFormChanges?.(true);
+    }
+  }, [isPendingAddAlteration, selectedExons, defaultSelectedExons]);
+
   const standardizeExonInputString = (createValue: string) => {
     if (EXON_ALTERATION_REGEX.test(createValue)) {
       return createValue
@@ -130,12 +137,22 @@ const AddExonForm = ({
 
   return (
     <>
+      <Row className="mb-3">
+        <Col>
+          <div
+            onClick={() => {
+              setShowModifyExonForm?.(false);
+              setHasUncommitedExonFormChanges?.(false);
+            }}
+            className={classNames('d-inline-flex align-items-center', styles.link)}
+          >
+            <FaArrowLeft className="me-1" /> Mutation List
+          </div>
+        </Col>
+      </Row>
       <Row className="mb-2">
         <Col>
           <div className="h5">{isUpdate ? 'Modify Selected Exons' : 'Selected Exons'}</div>
-        </Col>
-        <Col className="text-end">
-          <ActionIcon icon={faX} onClick={() => setShowModifyExonForm?.(false)} tooltipProps={{ overlay: 'Cancel' }} />
         </Col>
       </Row>
       <Row className="d-flex align-items-center mb-3">
@@ -193,7 +210,7 @@ const EXON_CREATE_INFO = (
     <div>
       <ul>
         <li className="text-primary">
-          {'Any Exon start-end (Deletion|Insertion|Duplication)'}
+          {`Any Exon start-end (${EXON_CONSEQUENCES.join('|')})`}
           <InfoIcon
             className="ms-1"
             overlay={
@@ -202,7 +219,7 @@ const EXON_CREATE_INFO = (
           />
         </li>
         <li className="text-primary">
-          {'Exon start-end (Deletion|Insertion|Duplication)'}
+          {`Exon start-end (${EXON_CONSEQUENCES.join('|')})`}
           <InfoIcon
             className="ms-1"
             overlay={
@@ -242,6 +259,7 @@ const mapStoreToProps = ({ transcriptStore, addMutationModalStore }: IRootStore)
   getProteinExons: flow(transcriptStore.getProteinExons),
   updateAlterationStateAfterAlterationAdded: addMutationModalStore.updateAlterationStateAfterAlterationAdded,
   setShowModifyExonForm: addMutationModalStore.setShowModifyExonForm,
+  setHasUncommitedExonFormChanges: addMutationModalStore.setHasUncommitedExonFormChanges,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

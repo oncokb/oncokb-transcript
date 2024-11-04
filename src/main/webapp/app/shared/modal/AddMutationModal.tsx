@@ -113,6 +113,7 @@ function AddMutationModal({
   setGeneEntity,
   updateAlterationStateAfterAlterationAdded,
   selectedAlterationStateIndex,
+  hasUncommitedExonFormChanges,
 }: IAddMutationModalProps) {
   const [inputValue, setInputValue] = useState('');
   const [mutationAlreadyExists, setMutationAlreadyExists] = useState<MutationExistsMeta>({
@@ -203,14 +204,7 @@ function AddMutationModal({
         for (let i = 0; i < parsedAlterations.length; i++) {
           const excluding: AlterationData[] = [];
           for (let exIndex = 0; exIndex < parsedAlterations[i].excluding.length; exIndex++) {
-            excluding.push(
-              convertEntityStatusAlterationToAlterationData(
-                entityStatusExcludingAlterations[i][exIndex],
-                parsedAlterations[i].excluding[exIndex],
-                [],
-                '',
-              ),
-            );
+            excluding.push(convertEntityStatusAlterationToAlterationData(entityStatusExcludingAlterations[i][exIndex], [], ''));
           }
           excludingAlterations.push(excluding);
         }
@@ -220,7 +214,6 @@ function AddMutationModal({
         const newAlerationStates = entityStatusAlterations.map((alt, index) =>
           convertEntityStatusAlterationToAlterationData(
             alt,
-            parsedAlterations[index].alteration,
             excludingAlterations[index] || [],
             parsedAlterations[index].comment,
             parsedAlterations[index].name,
@@ -266,6 +259,7 @@ function AddMutationModal({
     } finally {
       setErrorMessagesEnabled(true);
       setIsConfirmPending(false);
+      cleanup?.();
     }
   }
 
@@ -424,9 +418,12 @@ function AddMutationModal({
 
   const modalErrorMessage = getModalErrorMessage(mutationAlreadyExists);
 
-  let modalWarningMessage: string | undefined = undefined;
+  const modalWarningMessage: string[] = [];
   if (convertOptions?.isConverting && !isEqualIgnoreCase(convertOptions.alteration, (currentMutationNames ?? []).join(', '))) {
-    modalWarningMessage = 'Name differs from original VUS name';
+    modalWarningMessage.push('Name differs from original VUS name');
+  }
+  if (hasUncommitedExonFormChanges) {
+    modalWarningMessage.push('You made some changes to Exon dropdown. Please click update button.');
   }
 
   return (
@@ -437,14 +434,15 @@ function AddMutationModal({
       onCancel={handleCancel}
       onConfirm={handleConfirm}
       errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : undefined}
-      warningMessages={modalWarningMessage ? [modalWarningMessage] : undefined}
+      warningMessages={modalWarningMessage ? modalWarningMessage : undefined}
       confirmButtonDisabled={
         alterationStates?.length === 0 ||
         mutationAlreadyExists.exists ||
         isFetchingAlteration ||
         isFetchingExcludingAlteration ||
         alterationStates?.some(tab => tab.error || tab.excluding.some(ex => ex.error)) ||
-        isConfirmPending
+        isConfirmPending ||
+        (hasUncommitedExonFormChanges ?? false)
       }
       isConfirmPending={isConfirmPending}
     />
@@ -489,6 +487,7 @@ const mapStoreToProps = ({
   setGeneEntity: addMutationModalStore.setGeneEntity,
   updateAlterationStateAfterAlterationAdded: addMutationModalStore.updateAlterationStateAfterAlterationAdded,
   selectedAlterationStateIndex: addMutationModalStore.selectedAlterationStateIndex,
+  hasUncommitedExonFormChanges: addMutationModalStore.hasUncommitedExonFormChanges,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

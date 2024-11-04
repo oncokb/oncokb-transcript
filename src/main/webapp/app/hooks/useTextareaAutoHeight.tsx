@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
-import { InputType } from 'zlib';
 
 export const useTextareaAutoHeight = (
   inputRef: React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | null>,
-  type: InputType | undefined,
+  type: string | undefined,
 ) => {
   useEffect(() => {
     const input = inputRef.current;

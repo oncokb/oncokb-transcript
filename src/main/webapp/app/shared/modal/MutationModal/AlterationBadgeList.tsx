@@ -5,7 +5,7 @@ import * as styles from './styles.module.scss';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { AlterationData } from '../AddMutationModal';
-import { getFullAlterationName } from 'app/shared/util/utils';
+import { getFullAlterationName, getMutationRenameValueFromName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { FaExclamationCircle, FaExclamationTriangle } from 'react-icons/fa';
@@ -14,6 +14,7 @@ import { BS_BORDER_COLOR } from 'app/config/colors';
 import _ from 'lodash';
 import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
 import { FaCircleCheck } from 'react-icons/fa6';
+import { EXON_ALTERATION_REGEX } from 'app/config/constants/regex';
 
 export interface IAlterationBadgeList extends StoreProps {
   isExclusionList?: boolean;
@@ -56,6 +57,10 @@ const AlterationBadgeList = ({
   };
 
   const handleAlterationClick = (index: number) => {
+    const currentIndex = isExclusionList ? selectedExcludedAlterationIndex : selectedAlterationStateIndex;
+    if (currentIndex === index) {
+      index = -1;
+    }
     isExclusionList ? setSelectedExcludedAlterationIndex?.(index) : setSelectedAlterationStateIndex?.(index);
   };
 
@@ -80,7 +85,7 @@ const AlterationBadgeList = ({
             isSelected={index === (isExclusionList ? selectedExcludedAlterationIndex : selectedAlterationStateIndex)}
             onClick={() => handleAlterationClick(index)}
             onDelete={() => handleAlterationDelete(value)}
-            isExludedAlteration={isExclusionList}
+            isExcludedAlteration={isExclusionList}
           />
         );
       })}
@@ -118,7 +123,7 @@ interface IAlterationBadge {
   isSelected: boolean;
   onClick: () => void;
   onDelete: () => void;
-  isExludedAlteration?: boolean;
+  isExcludedAlteration?: boolean;
 }
 
 const AlterationBadge = ({
@@ -127,7 +132,7 @@ const AlterationBadge = ({
   isSelected,
   onClick,
   onDelete,
-  isExludedAlteration = false,
+  isExcludedAlteration = false,
 }: IAlterationBadge) => {
   const { ref, overflow } = useOverflowDetector({ handleHeight: false });
 
@@ -138,11 +143,11 @@ const AlterationBadge = ({
     if (alterationData.warning) {
       return 'warning';
     }
-    if (isExludedAlteration) {
+    if (isExcludedAlteration) {
       return 'secondary';
     }
     return 'success';
-  }, [alterationData, isExludedAlteration]);
+  }, [alterationData, isExcludedAlteration]);
 
   const statusIcon = useMemo(() => {
     let icon = <FaCircleCheck size={16} />;

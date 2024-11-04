@@ -80,7 +80,7 @@ const MutationDetails = ({
           onChange={newValue => handleFieldChange(newValue, 'refResidues')}
         />
         <AddMutationModalField
-          label="Var residues"
+          label="Var Residues"
           value={alterationData.varResidues || ''}
           placeholder="Input var residues"
           onChange={newValue => handleFieldChange(newValue, 'varResidues')}

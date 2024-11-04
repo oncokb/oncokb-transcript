@@ -10,4 +10,5 @@ export const WHOLE_NUMBER_REGEX = new RegExp('^\\d+$');
 
 export const INTEGER_REGEX = /^-?\d+$/;
 
-export const EXON_ALTERATION_REGEX = /^(Any\s+)?(Exon\s+(\d+)(-(\d+))?\s+(Deletion|Insertion|Duplication))(\s*\+\s*(\1))*/i;
+export const EXON_ALTERATION_REGEX =
+  /^(Any\s+)?(Exon\s+(\d+)(-(\d+))?\s+(Deletion|Insertion|Duplication))(\s*\+\s*(Any\s+)?Exon\s+\d+(-\d+)?\s+(Deletion|Insertion|Duplication))*$/i;
