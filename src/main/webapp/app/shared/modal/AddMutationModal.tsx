@@ -179,7 +179,9 @@ function AddMutationModal({
   useEffect(() => {
     async function setExistingAlterations() {
       if (mutationToEdit?.alterations?.length !== undefined && mutationToEdit.alterations.length > 0) {
+        // Use the alteration model in Firebase instead of annotation from API
         setAlterationStates?.(mutationToEdit?.alterations?.map(alt => convertAlterationToAlterationData(alt)) ?? []);
+        return;
       }
 
       // at this point can be sure each alteration name does not have / character
