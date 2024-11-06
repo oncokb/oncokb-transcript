@@ -97,6 +97,7 @@ const pathogenicityCheck = (pathogenicity: string): DataImportStatus => {
 export const geneCheck = async (
   firebaseGeneService: FirebaseGeneService,
   isGermline: boolean,
+  createGene: boolean,
   hugoSymbol: string,
   onGeneExists: () => Promise<DataImportStatus>,
 ) => {
@@ -108,8 +109,13 @@ export const geneCheck = async (
     if (geneData.exists()) {
       return onGeneExists();
     } else {
-      status.status = 'error';
-      status.message = 'Gene does not exist. Please create before importing';
+      if (createGene) {
+        await firebaseGeneService.createGene(hugoSymbol, isGermline);
+        return onGeneExists();
+      } else {
+        status.status = 'error';
+        status.message = 'Gene does not exist. Please create before importing';
+      }
     }
   } else {
     status.status = 'error';
@@ -122,13 +128,14 @@ export const saveGenericGeneData = async (
   firebaseGeneService: FirebaseGeneService,
   firebaseGeneReviewService: FirebaseGeneReviewService,
   isGermline: boolean,
+  createGene: boolean,
   genePropKey: string,
   dataRow: DataRow<GenericDI>,
 ): Promise<DataImportStatus> => {
   const data = dataRow.data;
   const hugoSymbol = data.hugo_symbol.trim();
   const propValue = data.value.trim();
-  return geneCheck(firebaseGeneService, isGermline, hugoSymbol, async () => {
+  return geneCheck(firebaseGeneService, isGermline, createGene, hugoSymbol, async () => {
     const genePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const valPath = genePath + '/' + genePropKey;
     const valData = await firebaseGeneService.getObject(valPath);
@@ -156,8 +163,9 @@ export const saveGenomicIndicator = async (
   dataRow: DataRow<GenomicIndicatorDI>,
   hugoSymbol: string,
   isGermline: boolean,
+  createGene: boolean,
 ) => {
-  return geneCheck(firebaseGeneService, isGermline, hugoSymbol, async () => {
+  return geneCheck(firebaseGeneService, isGermline, createGene, hugoSymbol, async () => {
     const genomicIndicatorName = dataRow.data.genomic_indicator.trim();
     const genePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const gipath = genePath + '/genomic_indicators';
@@ -215,6 +223,7 @@ export const saveMutation = async (
   firebaseMetaService: FirebaseMetaService,
   alterationStore: AlterationStore,
   isGermline: boolean,
+  createGene: boolean,
   dataRow: DataRow<GermlineMutationDI | SomaticMutationDI>,
   mutationList: Mutation[],
   vusList: VusObjList,
@@ -224,113 +233,115 @@ export const saveMutation = async (
   const mutation = new Mutation(dataRow.data.alteration);
   let mutationImpactStatusUpdated = false;
 
-  const request: AnnotateAlterationBody[] = [
-    {
-      referenceGenome: REFERENCE_GENOME.GRCH37,
-      alteration: { alteration: mutation.name, genes: [{ hugoSymbol } as Gene] } as ApiAlteration,
-    },
-  ];
-  try {
-    const annotatedAlterations = await flowResult(flow(alterationStore.annotateAlterations)(request));
-    const annotatedAlteration: Alteration = annotatedAlterations[0].entity;
-    let proteinChange = annotatedAlteration.proteinChange;
-    if (dataRow.data.protein_change) {
-      proteinChange = dataRow.data.protein_change.replace('p.', '').trim();
-    }
-    mutation.alterations = [
+  return geneCheck(firebaseGeneService, isGermline, createGene, hugoSymbol, async () => {
+    const request: AnnotateAlterationBody[] = [
       {
-        type: annotatedAlteration.type ?? AlterationTypeEnum.Unknown,
-        alteration: dataRow.data.alteration,
-        name: dataRow.data.name ?? annotatedAlteration.name,
-        consequence: annotatedAlteration.consequence?.name ?? '',
-        comment: '',
-        excluding: [],
-        genes: annotatedAlteration.genes || [],
-        proteinChange,
-        proteinStart: annotatedAlteration.start,
-        proteinEnd: annotatedAlteration.end,
-        refResidues: annotatedAlteration.refResidues || '',
-        varResidues: annotatedAlteration.variantResidues || '',
+        referenceGenome: REFERENCE_GENOME.GRCH37,
+        alteration: { alteration: mutation.name, genes: [{ hugoSymbol } as Gene] } as ApiAlteration,
       },
     ];
-  } catch (e) {
-    return {
-      status: 'error',
-      message: "We aren't able to annotate the alteration. Please reach out to dev team.",
-    };
-  }
-
-  const isGermlineData = (data: GermlineMutationDI | SomaticMutationDI): data is GermlineMutationDI => {
-    return isGermline;
-  };
-  if (isGermlineData(dataRow.data)) {
-    const data = dataRow.data;
-    if (data.pathogenicity) {
-      const importStatus: DataImportStatus = pathogenicityCheck(data.pathogenicity);
-      if (importStatus.status === 'error') {
-        return importStatus;
+    try {
+      const annotatedAlterations = await flowResult(flow(alterationStore.annotateAlterations)(request));
+      const annotatedAlteration: Alteration = annotatedAlterations[0].entity;
+      let proteinChange = annotatedAlteration.proteinChange;
+      if (dataRow.data.protein_change) {
+        proteinChange = dataRow.data.protein_change.replace('p.', '').trim();
       }
-    }
-    mutation.mutation_effect.pathogenic = data.pathogenicity as PATHOGENICITY;
-    mutation.mutation_effect.pathogenic_review = new Review(authStore.fullName, '');
-    mutationImpactStatusUpdated = true;
-  } else {
-    const data = dataRow.data;
-    if (data.oncogenicity) {
-      const importStatus: DataImportStatus = oncogenicityCheck(data.oncogenicity);
-      if (importStatus.status === 'error') {
-        return importStatus;
-      }
-    }
-    mutation.mutation_effect.oncogenic = data.oncogenicity as FIREBASE_ONCOGENICITY;
-    mutation.mutation_effect.oncogenic_review = new Review(authStore.fullName, '');
-    mutationImpactStatusUpdated = true;
-  }
-
-  const existingMuts = getDuplicateMutations([mutation.name], mutationList, vusList, {
-    useFullAlterationName: true,
-    exact: true,
-  });
-
-  let mutIsVus = false;
-
-  // Delete existing VUS before importing
-  for (const mut of existingMuts) {
-    if (mut.inVusList) {
-      mutIsVus = true;
-      await firebaseGeneService.firebaseRepository.delete(`${getFirebaseVusPath(isGermline, hugoSymbol)}/${mut.duplicate}`);
-    } else {
-      // if alteration exists in the Mutation list, we return and give error
+      mutation.alterations = [
+        {
+          type: annotatedAlteration.type ?? AlterationTypeEnum.Unknown,
+          alteration: dataRow.data.alteration,
+          name: dataRow.data.name ?? annotatedAlteration.name,
+          consequence: annotatedAlteration.consequence?.name ?? '',
+          comment: '',
+          excluding: [],
+          genes: annotatedAlteration.genes || [],
+          proteinChange,
+          proteinStart: annotatedAlteration.start,
+          proteinEnd: annotatedAlteration.end,
+          refResidues: annotatedAlteration.refResidues || '',
+          varResidues: annotatedAlteration.variantResidues || '',
+        },
+      ];
+    } catch (e) {
       return {
         status: 'error',
-        message: 'Mutation exists in gene, we cannot overwrite automatically. Please update manually.',
+        message: "We aren't able to annotate the alteration. Please reach out to dev team.",
       };
     }
-  }
 
-  try {
-    await firebaseGeneService
-      .addMutation(`${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`, mutation, isGermline, mutIsVus, dataRow.data.description)
-      .then(async () => {
-        if (mutationImpactStatusUpdated) {
-          let uuid: string;
-          if (isGermline) {
-            uuid = mutation.mutation_effect.pathogenic_uuid;
-          } else {
-            uuid = mutation.mutation_effect.oncogenic_uuid;
-          }
-          // I can't use updateReviewableContent here due to lacking of the firebase path
-          await firebaseMetaService.updateMeta(hugoSymbol, uuid, true, isGermline);
+    const isGermlineData = (data: GermlineMutationDI | SomaticMutationDI): data is GermlineMutationDI => {
+      return isGermline;
+    };
+    if (isGermlineData(dataRow.data)) {
+      const data = dataRow.data;
+      if (data.pathogenicity) {
+        const importStatus: DataImportStatus = pathogenicityCheck(data.pathogenicity);
+        if (importStatus.status === 'error') {
+          return importStatus;
         }
-      });
-    return {
-      status: 'complete',
-      message: '',
-    };
-  } catch (error) {
-    return {
-      status: 'error',
-      message: 'Failed to add mutation into gene.',
-    };
-  }
+      }
+      mutation.mutation_effect.pathogenic = data.pathogenicity as PATHOGENICITY;
+      mutation.mutation_effect.pathogenic_review = new Review(authStore.fullName, '');
+      mutationImpactStatusUpdated = true;
+    } else {
+      const data = dataRow.data;
+      if (data.oncogenicity) {
+        const importStatus: DataImportStatus = oncogenicityCheck(data.oncogenicity);
+        if (importStatus.status === 'error') {
+          return importStatus;
+        }
+      }
+      mutation.mutation_effect.oncogenic = data.oncogenicity as FIREBASE_ONCOGENICITY;
+      mutation.mutation_effect.oncogenic_review = new Review(authStore.fullName, '');
+      mutationImpactStatusUpdated = true;
+    }
+
+    const existingMuts = getDuplicateMutations([mutation.name], mutationList, vusList, {
+      useFullAlterationName: true,
+      exact: true,
+    });
+
+    let mutIsVus = false;
+
+    // Delete existing VUS before importing
+    for (const mut of existingMuts) {
+      if (mut.inVusList) {
+        mutIsVus = true;
+        await firebaseGeneService.firebaseRepository.delete(`${getFirebaseVusPath(isGermline, hugoSymbol)}/${mut.duplicate}`);
+      } else {
+        // if alteration exists in the Mutation list, we return and give error
+        return {
+          status: 'error',
+          message: 'Mutation exists in gene, we cannot overwrite automatically. Please update manually.',
+        };
+      }
+    }
+
+    try {
+      await firebaseGeneService
+        .addMutation(`${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`, mutation, isGermline, mutIsVus, dataRow.data.description)
+        .then(async () => {
+          if (mutationImpactStatusUpdated) {
+            let uuid: string;
+            if (isGermline) {
+              uuid = mutation.mutation_effect.pathogenic_uuid;
+            } else {
+              uuid = mutation.mutation_effect.oncogenic_uuid;
+            }
+            // I can't use updateReviewableContent here due to lacking of the firebase path
+            await firebaseMetaService.updateMeta(hugoSymbol, uuid, true, isGermline);
+          }
+        });
+      return {
+        status: 'complete',
+        message: '',
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Failed to add mutation into gene.',
+      };
+    }
+  });
 };
