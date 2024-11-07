@@ -29,6 +29,8 @@ import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, isUui
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { hasReview } from './firebase-review-utils';
+import { Database, ref, get } from 'firebase/database';
+import { FirebaseGeneService } from 'app/service/firebase/firebase-gene-service';
 
 export const getValueByNestedKey = (obj: any, nestedKey = '') => {
   return nestedKey.split('/').reduce((currObj, currKey) => {
@@ -960,4 +962,17 @@ export function areCancerTypePropertiesEqual(a: string | undefined, b: string | 
 
 export function isStringEmpty(string: string | undefined | null) {
   return string === '' || _.isNil(string);
+}
+
+export async function createGeneIfDoesNotExist(
+  hugoSymbol: string,
+  isGermline: boolean,
+  firebaseDb: Database,
+  createGene: typeof FirebaseGeneService.prototype.createGene,
+) {
+  const genePath = getFirebasePath(isGermline ? 'GERMLINE_GENE' : 'GENE', hugoSymbol);
+  const snapshot = await get(ref(firebaseDb, genePath));
+  if (!snapshot.exists()) {
+    await createGene?.(hugoSymbol, isGermline);
+  }
 }

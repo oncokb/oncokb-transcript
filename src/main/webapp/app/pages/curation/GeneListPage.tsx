@@ -3,8 +3,8 @@ import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { Col, Row } from 'reactstrap';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
-import { geneNeedsReview } from 'app/shared/util/firebase/firebase-utils';
-import { Link, RouteComponentProps, generatePath } from 'react-router-dom';
+import { createGeneIfDoesNotExist, geneNeedsReview } from 'app/shared/util/firebase/firebase-utils';
+import { Link, RouteComponentProps, generatePath, useHistory } from 'react-router-dom';
 import { APP_DATETIME_FORMAT, GERMLINE_PATH, PAGE_ROUTE } from 'app/config/constants/constants';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword } from 'app/shared/util/utils';
@@ -22,6 +22,7 @@ const getCurationPageLink = (hugoSymbol: string, isGermline: boolean) => {
 };
 import CurationDataImportTab from 'app/components/tabs/curation-data-import-tab/CurationDataImportTab';
 import { DATA_IMPORT_TAB_ID, GENE_LIST_TABLE_ID } from 'app/config/constants/html-id';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 type GeneMetaInfo = {
   hugoSymbol: string;
@@ -33,6 +34,8 @@ type GeneMetaInfo = {
 export interface IGeneListPage extends StoreProps, RouteComponentProps {}
 
 const GeneListPage = (props: IGeneListPage) => {
+  const history = useHistory();
+
   const pathname = props.location.pathname;
   const isGermline = pathname.includes(GERMLINE_PATH);
 
@@ -67,7 +70,26 @@ const GeneListPage = (props: IGeneListPage) => {
       accessor: 'hugoSymbol',
       Header: 'Hugo Symbol',
       Cell(cell: { value: string }): any {
-        return <Link to={getCurationPageLink(cell.value, isGermline)}>{cell.value}</Link>;
+        const link = getCurationPageLink(cell.value, isGermline);
+
+        return (
+          <Link
+            to={undefined}
+            onClick={async event => {
+              event.preventDefault();
+              if (props.firebaseDb) {
+                try {
+                  await createGeneIfDoesNotExist(cell.value, isGermline, props.firebaseDb, props.createGene);
+                  history.push(link);
+                } catch (error) {
+                  notifyError(error);
+                }
+              }
+            }}
+          >
+            {cell.value}
+          </Link>
+        );
       },
       onFilter: (data: GeneMetaInfo, keyword) => (data.hugoSymbol ? filterByKeyword(data.hugoSymbol, keyword) : false),
     },
@@ -161,12 +183,14 @@ const GeneListPage = (props: IGeneListPage) => {
   );
 };
 
-const mapStoreToProps = ({ firebaseMetaStore, firebaseAppStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseMetaStore, firebaseAppStore, firebaseGeneService }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
   firebaseReady: firebaseAppStore.firebaseReady,
   firebaseInitError: firebaseAppStore.firebaseInitError,
   firebaseLoginError: firebaseAppStore.firebaseLoginError,
   addMetaListener: firebaseMetaStore.addListener,
   metaData: firebaseMetaStore.data,
+  createGene: firebaseGeneService.createGene,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
