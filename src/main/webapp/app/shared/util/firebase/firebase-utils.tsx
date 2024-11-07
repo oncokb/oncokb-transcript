@@ -966,13 +966,13 @@ export function isStringEmpty(string: string | undefined | null) {
 
 export async function createGeneIfDoesNotExist(
   hugoSymbol: string,
-  isSomatic: boolean,
+  isGermline: boolean,
   firebaseDb: Database,
   createGene: typeof FirebaseGeneService.prototype.createGene,
 ) {
-  const genePath = getFirebasePath(isSomatic ? 'GENE' : 'GERMLINE_GENE', hugoSymbol);
+  const genePath = getFirebasePath(isGermline ? 'GERMLINE_GENE' : 'GENE', hugoSymbol);
   const snapshot = await get(ref(firebaseDb, genePath));
   if (!snapshot.exists()) {
-    await createGene?.(hugoSymbol, !isSomatic);
+    await createGene?.(hugoSymbol, isGermline);
   }
 }

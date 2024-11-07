@@ -77,7 +77,7 @@ const GeneListPage = (props: IGeneListPage) => {
               event.preventDefault();
               if (props.firebaseDb) {
                 try {
-                  await createGeneIfDoesNotExist(cell.value, !isGermline, props.firebaseDb, props.createGene);
+                  await createGeneIfDoesNotExist(cell.value, isGermline, props.firebaseDb, props.createGene);
                   window.location.href = link;
                 } catch (error) {
                   notifyError(error);
