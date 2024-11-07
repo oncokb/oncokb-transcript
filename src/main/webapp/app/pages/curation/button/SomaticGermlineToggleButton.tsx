@@ -32,7 +32,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
     if (hugoSymbol && createGene) {
       // On curation page
       try {
-        await createGeneIfDoesNotExist(hugoSymbol, isSomatic, firebaseDb, createGene);
+        await createGeneIfDoesNotExist(hugoSymbol, newVariantType === 'somatic', firebaseDb, createGene);
       } catch (error) {
         notifyError(error);
       }
