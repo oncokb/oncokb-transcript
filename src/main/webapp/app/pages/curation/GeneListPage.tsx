@@ -4,7 +4,7 @@ import { IRootStore } from 'app/stores';
 import { Col, Row } from 'reactstrap';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { createGeneIfDoesNotExist, geneNeedsReview } from 'app/shared/util/firebase/firebase-utils';
-import { Link, RouteComponentProps, generatePath } from 'react-router-dom';
+import { Link, RouteComponentProps, generatePath, useHistory } from 'react-router-dom';
 import { APP_DATETIME_FORMAT, GERMLINE_PATH, PAGE_ROUTE } from 'app/config/constants/constants';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword } from 'app/shared/util/utils';
@@ -34,6 +34,8 @@ type GeneMetaInfo = {
 export interface IGeneListPage extends StoreProps, RouteComponentProps {}
 
 const GeneListPage = (props: IGeneListPage) => {
+  const history = useHistory();
+
   const pathname = props.location.pathname;
   const isGermline = pathname.includes(GERMLINE_PATH);
 
@@ -78,7 +80,7 @@ const GeneListPage = (props: IGeneListPage) => {
               if (props.firebaseDb) {
                 try {
                   await createGeneIfDoesNotExist(cell.value, isGermline, props.firebaseDb, props.createGene);
-                  window.location.href = link;
+                  history.push(link);
                 } catch (error) {
                   notifyError(error);
                 }
