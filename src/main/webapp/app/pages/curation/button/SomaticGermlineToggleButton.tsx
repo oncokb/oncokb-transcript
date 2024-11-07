@@ -1,5 +1,5 @@
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { createGeneIfDoesNotExist, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { get, ref } from 'firebase/database';
@@ -29,14 +29,10 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
     if (!firebaseDb) {
       return;
     }
-    if (hugoSymbol) {
+    if (hugoSymbol && createGene) {
       // On curation page
-      const genePath = getFirebasePath(isSomatic ? 'GENE' : 'GERMLINE_GENE', hugoSymbol);
       try {
-        const snapshot = await get(ref(firebaseDb, genePath));
-        if (!snapshot.exists()) {
-          await createGene?.(hugoSymbol, !isSomatic);
-        }
+        await createGeneIfDoesNotExist(hugoSymbol, isSomatic, firebaseDb, createGene);
       } catch (error) {
         notifyError(error);
       }
