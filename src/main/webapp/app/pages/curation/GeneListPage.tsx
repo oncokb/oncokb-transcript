@@ -5,7 +5,7 @@ import { Col, Row } from 'reactstrap';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { geneNeedsReview } from 'app/shared/util/firebase/firebase-utils';
 import { Link, RouteComponentProps, generatePath, useHistory } from 'react-router-dom';
-import { APP_DATETIME_FORMAT, GERMLINE_PATH, PAGE_ROUTE } from 'app/config/constants/constants';
+import { APP_DATETIME_FORMAT, PAGE_ROUTE } from 'app/config/constants/constants';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword } from 'app/shared/util/utils';
 import { TextFormat } from 'react-jhipster';
@@ -35,9 +35,7 @@ export interface IGeneListPage extends StoreProps, RouteComponentProps {}
 
 const GeneListPage = (props: IGeneListPage) => {
   const history = useHistory();
-
-  const pathname = props.location.pathname;
-  const isGermline = pathname.includes(GERMLINE_PATH);
+  const isGermline = props.isGermline;
 
   useEffect(() => {
     if (props.firebaseReady) {
@@ -98,7 +96,7 @@ const GeneListPage = (props: IGeneListPage) => {
     const tabs = [
       {
         title: 'Tools',
-        content: <GeneListPageToolsTab metaData={props.metaData} isGermline={isGermline} />,
+        content: <GeneListPageToolsTab metaData={props.metaData} />,
       },
     ] as Tab[];
     if (!isGermline) {
@@ -114,7 +112,7 @@ const GeneListPage = (props: IGeneListPage) => {
     });
     tabs.push({
       title: 'History',
-      content: <ReviewHistoryTab isGermline={isGermline} />,
+      content: <ReviewHistoryTab />,
     });
     return tabs;
   }, [props.metaData]);
@@ -164,7 +162,7 @@ const GeneListPage = (props: IGeneListPage) => {
   );
 };
 
-const mapStoreToProps = ({ firebaseMetaStore, firebaseAppStore, firebaseGeneService }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseMetaStore, firebaseAppStore, firebaseGeneService, routerStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   firebaseReady: firebaseAppStore.firebaseReady,
   firebaseInitError: firebaseAppStore.firebaseInitError,
@@ -172,6 +170,7 @@ const mapStoreToProps = ({ firebaseMetaStore, firebaseAppStore, firebaseGeneServ
   addMetaListener: firebaseMetaStore.addListener,
   metaData: firebaseMetaStore.data,
   createGene: firebaseGeneService.createGene,
+  isGermline: routerStore.isGermline,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

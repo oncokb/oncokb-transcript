@@ -119,12 +119,13 @@ export function CurationToolsTab({
   }, []);
 
   function isReleasedFlag(flag: IFlag) {
-    return flag.type === 'GENE_PANEL' && flag.flag === 'ONCOKB';
+    const flagFlag = isGermline ? 'ONCOKB_GERMLINE' : 'ONCOKB_SOMATIC';
+    return flag.type === 'GENE_PANEL' && flag.flag === flagFlag;
   }
 
   useEffect(() => {
     const geneData = geneEntities?.find(entity => entity.hugoSymbol === geneName);
-    setIsReleased(geneData === undefined ? false : geneIsReleased(geneData));
+    setIsReleased(geneData === undefined ? false : geneIsReleased(geneData, isGermline));
     geneToUpdate.current = geneData;
   }, [geneEntities, geneName]);
 

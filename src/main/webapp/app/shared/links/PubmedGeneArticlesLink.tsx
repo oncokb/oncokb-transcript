@@ -1,8 +1,7 @@
 import React from 'react';
-import ExternalLinkIcon from '../icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 
-export const InlineDivider = <span className="ms-2"></span>;
+export const InlineDivider = <div className="mx-2 my-1" style={{ borderLeft: '1px solid grey' }}></div>;
 
 export const PubmedGeneArticlesLink: React.FunctionComponent<{ hugoSymbols: string[] }> = props => {
   return (
@@ -10,7 +9,7 @@ export const PubmedGeneArticlesLink: React.FunctionComponent<{ hugoSymbols: stri
       {props.hugoSymbols.map(gene => {
         return (
           <a href={`https://pubmed.ncbi.nlm.nih.gov/?term=${gene}`} target="_blank" rel="noopener noreferrer" key={gene}>
-            {gene} <ExternalLinkIcon />
+            {gene}
           </a>
         );
       })}

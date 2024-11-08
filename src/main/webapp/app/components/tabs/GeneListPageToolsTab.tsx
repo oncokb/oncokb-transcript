@@ -12,7 +12,6 @@ import SaveGeneButton from 'app/shared/button/SaveGeneButton';
 
 export interface IGeneListPageToolsTab extends StoreProps {
   metaData: MetaCollection | null;
-  isGermline: boolean;
 }
 
 function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGeneListPageToolsTab) {
@@ -76,9 +75,10 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGene
   );
 }
 
-const mapStoreToProps = ({ firebaseGeneService, authStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseGeneService, authStore, routerStore }: IRootStore) => ({
   createGene: firebaseGeneService.createGene,
   isDev: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.DEV]),
+  isGermline: routerStore.isGermline,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

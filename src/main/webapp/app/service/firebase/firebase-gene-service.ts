@@ -640,7 +640,7 @@ export class FirebaseGeneService {
     const args: Parameters<typeof getDriveAnnotations>[1] = {
       gene: nullableGene == null ? undefined : nullableGene,
       vus: nullableVus == null ? undefined : Object.values(nullableVus),
-      releaseGene: searchResponse.data.some(gene => geneIsReleased(gene)),
+      releaseGene: searchResponse.data.some(gene => geneIsReleased(gene, isGermlineProp)),
     };
     const driveAnnotation = getDriveAnnotations(drugLookup, args);
     await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);

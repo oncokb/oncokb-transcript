@@ -4,18 +4,22 @@ import DefaultTooltip from '../tooltip/DefaultTooltip';
 
 export interface IDefaultBadgeProps {
   color: string;
-  text: string;
+  children: React.ReactNode;
   tooltipOverlay?: (() => React.ReactNode) | React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  square?: boolean;
 }
 
 const DefaultBadge: React.FunctionComponent<IDefaultBadgeProps> = props => {
-  const { className, style, color, text, tooltipOverlay } = props;
+  const { className, style, color, square, tooltipOverlay } = props;
 
   const badge = (
-    <span className={classNames(`badge rounded-pill text-bg-${color} mx-1`, className)} style={{ fontSize: '0.7rem', ...style }}>
-      {text}
+    <span
+      className={classNames(`badge ${!square ? 'rounded-pill' : undefined} text-bg-${color} mx-1`, className)}
+      style={{ fontSize: '0.7rem', ...style }}
+    >
+      {props.children}
     </span>
   );
 
@@ -28,8 +32,11 @@ const DefaultBadge: React.FunctionComponent<IDefaultBadgeProps> = props => {
   }
 
   return (
-    <span className={classNames(`badge rounded-pill text-bg-${color} mx-1`, className)} style={{ fontSize: '0.7rem', ...style }}>
-      {text}
+    <span
+      className={classNames(`badge ${!square ? 'rounded-pill' : undefined} text-bg-${color} mx-1`, className)}
+      style={{ fontSize: '0.7rem', ...style }}
+    >
+      {props.children}
     </span>
   );
 };

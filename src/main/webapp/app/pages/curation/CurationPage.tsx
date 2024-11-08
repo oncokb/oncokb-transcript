@@ -4,7 +4,6 @@ import { IRootStore } from 'app/stores';
 import { RouteComponentProps, useHistory } from 'react-router-dom';
 import { getFirebaseGenePath, getFirebaseHistoryPath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { Col, Row } from 'reactstrap';
-import { getSectionClassName } from 'app/shared/util/utils';
 import { GENE_TYPE, GENE_TYPE_KEY, INHERITANCE_MECHANISM_OPTIONS, READABLE_FIELD, PENETRANCE_OPTIONS } from 'app/config/constants/firebase';
 import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE, PAGE_ROUTE, RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import CommentIcon from 'app/shared/icons/CommentIcon';
@@ -24,17 +23,18 @@ import GeneRealtimeComponentHeader from './header/GeneRealtimeComponentHeader';
 import RelevantCancerTypesModal from 'app/shared/modal/RelevantCancerTypesModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
-import { FlattenedHistory, parseHistory } from 'app/shared/util/firebase/firebase-history-utils';
+import { parseHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
 import { Unsubscribe, get, ref } from 'firebase/database';
 import { getLocationIdentifier, getTooltipHistoryList } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
+import GeneticTypeTabs, { GENETIC_TYPE } from './geneticTypeTabs/GeneticTypeTabs';
+import GeneticTypeTabHeader from './header/GeneticTypeTabHeader';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
 export const CurationPage = (props: ICurationPageProps) => {
   const history = useHistory();
-  const pathname = props.location.pathname;
-  const isGermline = pathname.includes(GERMLINE_PATH);
+  const isGermline = props.isGermline;
   const hugoSymbolParam = props.match.params.hugoSymbol;
 
   const [firebaseGeneExists, setFirebaseGeneExists] = useState(false);
@@ -110,18 +110,21 @@ export const CurationPage = (props: ICurationPageProps) => {
     return getTooltipHistoryList(tabHistoryList);
   }, [tabHistoryList]);
 
-  return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 && !!geneEntity && firebaseGeneExists ? (
+  return props.firebaseInitSuccess &&
+    !props.loadingGenes &&
+    props.drugList.length > 0 &&
+    !!geneEntity &&
+    firebaseGeneExists &&
+    hugoSymbol ? (
     <>
       <div style={{ visibility: mutationListRendered ? 'visible' : 'hidden' }}>
-        <GeneHeader
-          hugoSymbol={hugoSymbol}
-          firebaseGenePath={firebaseGenePath}
-          geneEntity={geneEntity}
-          isGermline={isGermline}
-          isReviewing={false}
-        />
+        <GeneHeader firebaseGenePath={firebaseGenePath} geneEntity={geneEntity} isReviewing={false} />
+        <GeneticTypeTabs geneEntity={geneEntity} geneticType={isGermline ? GENETIC_TYPE.GERMLINE : GENETIC_TYPE.SOMATIC} />
+        <div className="d-flex justify-content-end mt-2 mb-2">
+          <GeneticTypeTabHeader hugoSymbol={hugoSymbol} isReviewing={false} />
+        </div>
         <div className="mb-4">
-          <Row className={`${getSectionClassName()} justify-content-between`}>
+          <Row className={'justify-content-between'}>
             <Col className="pb-2">
               <RealtimeCheckedInputGroup
                 groupHeader={
@@ -307,6 +310,7 @@ const mapStoreToProps = ({
   firebaseGeneService,
   openMutationCollapsibleStore,
   layoutStore,
+  routerStore,
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   firebaseInitSuccess: firebaseAppStore.firebaseInitSuccess,
@@ -324,6 +328,7 @@ const mapStoreToProps = ({
   createGene: firebaseGeneService.createGene,
   setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
   toggleOncoKBSidebar: layoutStore.toggleOncoKBSidebar,
+  isGermline: routerStore.isGermline,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
