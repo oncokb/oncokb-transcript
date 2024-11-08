@@ -3,7 +3,7 @@ import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { Col, Row } from 'reactstrap';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
-import { createGeneIfDoesNotExist, geneNeedsReview } from 'app/shared/util/firebase/firebase-utils';
+import { geneNeedsReview } from 'app/shared/util/firebase/firebase-utils';
 import { Link, RouteComponentProps, generatePath, useHistory } from 'react-router-dom';
 import { APP_DATETIME_FORMAT, GERMLINE_PATH, PAGE_ROUTE } from 'app/config/constants/constants';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
@@ -70,26 +70,7 @@ const GeneListPage = (props: IGeneListPage) => {
       accessor: 'hugoSymbol',
       Header: 'Hugo Symbol',
       Cell(cell: { value: string }): any {
-        const link = getCurationPageLink(cell.value, isGermline);
-
-        return (
-          <Link
-            to={undefined}
-            onClick={async event => {
-              event.preventDefault();
-              if (props.firebaseDb) {
-                try {
-                  await createGeneIfDoesNotExist(cell.value, isGermline, props.firebaseDb, props.createGene);
-                  history.push(link);
-                } catch (error) {
-                  notifyError(error);
-                }
-              }
-            }}
-          >
-            {cell.value}
-          </Link>
-        );
+        return <Link to={getCurationPageLink(cell.value, isGermline)}>{cell.value}</Link>;
       },
       onFilter: (data: GeneMetaInfo, keyword) => (data.hugoSymbol ? filterByKeyword(data.hugoSymbol, keyword) : false),
     },

@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps, useHistory } from 'react-router-dom';
 import { getFirebaseGenePath, getFirebaseHistoryPath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { Col, Row } from 'reactstrap';
 import { getSectionClassName } from 'app/shared/util/utils';
 import { GENE_TYPE, GENE_TYPE_KEY, INHERITANCE_MECHANISM_OPTIONS, READABLE_FIELD, PENETRANCE_OPTIONS } from 'app/config/constants/firebase';
-import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE, RADIO_OPTION_NONE } from 'app/config/constants/constants';
+import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE, PAGE_ROUTE, RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
 import MutationsSection from './mutation/MutationsSection';
@@ -26,16 +26,18 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { FlattenedHistory, parseHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
-import { Unsubscribe } from 'firebase/database';
+import { Unsubscribe, get, ref } from 'firebase/database';
 import { getLocationIdentifier, getTooltipHistoryList } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
 export const CurationPage = (props: ICurationPageProps) => {
+  const history = useHistory();
   const pathname = props.location.pathname;
   const isGermline = pathname.includes(GERMLINE_PATH);
   const hugoSymbolParam = props.match.params.hugoSymbol;
 
+  const [firebaseGeneExists, setFirebaseGeneExists] = useState(false);
   const [mutationListRendered, setMutationListRendered] = useState(false);
   const mutationsSectionRef = useRef<HTMLDivElement>(null);
 
@@ -47,6 +49,29 @@ export const CurationPage = (props: ICurationPageProps) => {
   const genomicIndicatorsPath = `${firebaseGenePath}/genomic_indicators`;
   const firebaseMetaGeneReviewPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`;
   const firebaseMetaCurrentReviewerPath = `${firebaseMetaGeneReviewPath}/currentReviewer`;
+
+  useEffect(() => {
+    async function checkIfGeneExists() {
+      if (props.firebaseDb && hugoSymbol) {
+        const snapshot = await get(ref(props.firebaseDb, firebaseGenePath));
+        if (!snapshot.exists()) {
+          try {
+            await props.createGene(hugoSymbol, isGermline);
+          } catch (error) {
+            notifyError(error);
+            if (isGermline) {
+              history.push(PAGE_ROUTE.CURATION_GERMLINE);
+            } else {
+              history.push(PAGE_ROUTE.CURATION_SOMATIC);
+            }
+          }
+        }
+        setFirebaseGeneExists(true);
+      }
+    }
+
+    checkIfGeneExists();
+  }, [firebaseGenePath, setFirebaseGeneExists, props.firebaseDb, hugoSymbol, isGermline]);
 
   useEffect(() => {
     props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
@@ -85,7 +110,7 @@ export const CurationPage = (props: ICurationPageProps) => {
     return getTooltipHistoryList(tabHistoryList);
   }, [tabHistoryList]);
 
-  return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 && !!geneEntity ? (
+  return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 && !!geneEntity && firebaseGeneExists ? (
     <>
       <div style={{ visibility: mutationListRendered ? 'visible' : 'hidden' }}>
         <GeneHeader
@@ -296,6 +321,7 @@ const mapStoreToProps = ({
   relevantCancerTypesModalStore,
   fullName: authStore.fullName,
   updateRelevantCancerTypes: firebaseGeneService.updateRelevantCancerTypes,
+  createGene: firebaseGeneService.createGene,
   setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
   toggleOncoKBSidebar: layoutStore.toggleOncoKBSidebar,
 });
