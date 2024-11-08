@@ -13,8 +13,9 @@ import { EXON_ALTERATION_REGEX } from 'app/config/constants/regex';
 import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import classNames from 'classnames';
 import InfoIcon from 'app/shared/icons/InfoIcon';
-import { FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft, FaRegLightbulb } from 'react-icons/fa';
 import * as styles from './styles.module.scss';
+import { flow } from 'mobx';
 
 export interface IAddExonMutationModalBody extends StoreProps {
   hugoSymbol: string;
@@ -26,6 +27,7 @@ type ProteinExonDropdownOption = {
   value: string;
   exon?: ProteinExonDTO;
   isSelected: boolean;
+  onMouseOverOption: (data: ProteinExonDropdownOption) => void;
 };
 
 const EXON_CONSEQUENCES = ['Deletion', 'Insertion', 'Duplication'];
@@ -42,13 +44,34 @@ const AddExonForm = ({
 
   const [isPendingAddAlteration, setIsPendingAddAlteration] = useState(false);
   const [didRemoveProblematicAlt, setDidRemoveProblematicAlt] = useState(false);
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
+
+  const onMouseOverOption = (option: ProteinExonDropdownOption) => {
+    if (isShiftPressed) {
+      setSelectedExons(prevSelected => {
+        const isAlreadySelected = prevSelected.some(selectedOption => selectedOption.label === option.label);
+        return isAlreadySelected ? prevSelected : [...prevSelected, option];
+      });
+    }
+  };
+
+  const MultiSelectOption = (props: OptionProps<ProteinExonDropdownOption>) => {
+    return (
+      <div onMouseOver={() => onMouseOverOption(props.data)}>
+        <components.Option {...props}>
+          {(props.data as any).__isNew__ ? <></> : <input type="checkbox" checked={props.isSelected} onChange={() => null} />}{' '}
+          <label>{props.label}</label>
+        </components.Option>
+      </div>
+    );
+  };
 
   const exonOptions = useMemo(() => {
     const options: ProteinExonDropdownOption[] = EXON_CONSEQUENCES.flatMap(consequence => {
       return (
         proteinExons?.map(exon => {
           const name = `Exon ${exon.exon} ${consequence}`;
-          return { label: `Exon ${exon.exon} ${consequence}`, value: name, exon, isSelected: false };
+          return { label: `Exon ${exon.exon} ${consequence}`, value: name, exon, isSelected: false, onMouseOverOption };
         }) ?? []
       );
     });
@@ -62,7 +85,12 @@ const AddExonForm = ({
       const match = exonString.match(EXON_ALTERATION_REGEX);
       if (match) {
         if (match[1]?.trim() === 'Any') {
-          acc.push({ label: exonString, value: exonString, isSelected: true });
+          acc.push({
+            label: exonString,
+            value: exonString,
+            isSelected: true,
+            onMouseOverOption,
+          });
           return acc;
         }
         const startExon = parseInt(match[3], 10);
@@ -111,7 +139,7 @@ const AddExonForm = ({
 
   const onCreateOption = (createInputValue: string) => {
     const value = standardizeExonInputString(createInputValue);
-    setSelectedExons(prevState => [...prevState, { label: value, value, isSelected: true }]);
+    setSelectedExons(prevState => [...prevState, { label: value, value, isSelected: true, onMouseOverOption }]);
   };
 
   async function handleAlterationAdded() {
@@ -142,6 +170,28 @@ const AddExonForm = ({
     );
   };
 
+  useEffect(() => {
+    window.addEventListener('keydown', handleShiftDown);
+    window.addEventListener('keyup', handleShiftUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleShiftDown);
+      window.removeEventListener('keyup', handleShiftUp);
+    };
+  }, []);
+
+  const handleShiftDown = (event: KeyboardEvent) => {
+    if (event.key === 'Control') {
+      setIsShiftPressed(true);
+    }
+  };
+
+  const handleShiftUp = (event: KeyboardEvent) => {
+    if (event.key === 'Control') {
+      setIsShiftPressed(false);
+    }
+  };
+
   return (
     <>
       {!defaultExonAlterationName ? (
@@ -162,6 +212,14 @@ const AddExonForm = ({
       <Row className="mb-2">
         <Col>
           <div className="h5">{isUpdate ? 'Modify Selected Exons' : 'Selected Exons'}</div>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <div className="text-info d-flex align-items-center mb-2" style={{ fontSize: '0.9rem' }}>
+            <FaRegLightbulb className="me-1" />
+            Tip: Hold control and drag to select multiple options
+          </div>
         </Col>
       </Row>
       <Row className="d-flex align-items-center mb-3">
@@ -254,7 +312,8 @@ const MultiSelectOption = (props: OptionProps<ProteinExonDropdownOption>) => {
   );
 };
 
-const mapStoreToProps = ({ addMutationModalStore }: IRootStore) => ({
+const mapStoreToProps = ({ transcriptStore, addMutationModalStore }: IRootStore) => ({
+  getProteinExons: flow(transcriptStore.getProteinExons),
   updateAlterationStateAfterAlterationAdded: addMutationModalStore.updateAlterationStateAfterAlterationAdded,
   setShowModifyExonForm: addMutationModalStore.setShowModifyExonForm,
   setHasUncommitedExonFormChanges: addMutationModalStore.setHasUncommitedExonFormChanges,
