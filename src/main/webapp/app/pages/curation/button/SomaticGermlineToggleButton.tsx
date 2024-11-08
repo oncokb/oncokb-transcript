@@ -1,8 +1,6 @@
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { createGeneIfDoesNotExist, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { get, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React from 'react';
 import { FaCheckCircle } from 'react-icons/fa';
@@ -25,18 +23,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
   const currentVariantType = isSomatic ? SOMATIC_PATH : GERMLINE_PATH;
   const newVariantType = isSomatic ? GERMLINE_PATH : SOMATIC_PATH;
 
-  async function handleToggle() {
-    if (!firebaseDb) {
-      return;
-    }
-    if (hugoSymbol && createGene) {
-      // On curation page
-      try {
-        await createGeneIfDoesNotExist(hugoSymbol, newVariantType === 'germline', firebaseDb, createGene);
-      } catch (error) {
-        notifyError(error);
-      }
-    }
+  function handleToggle() {
     localStorage.setItem(SOMATIC_GERMLINE_SETTING_KEY, newVariantType);
     window.location.href = pathname.replace(currentVariantType, newVariantType);
   }

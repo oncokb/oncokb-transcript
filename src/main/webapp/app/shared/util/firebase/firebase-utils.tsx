@@ -963,16 +963,3 @@ export function areCancerTypePropertiesEqual(a: string | undefined, b: string | 
 export function isStringEmpty(string: string | undefined | null) {
   return string === '' || _.isNil(string);
 }
-
-export async function createGeneIfDoesNotExist(
-  hugoSymbol: string,
-  isGermline: boolean,
-  firebaseDb: Database,
-  createGene: typeof FirebaseGeneService.prototype.createGene,
-) {
-  const genePath = getFirebasePath(isGermline ? 'GERMLINE_GENE' : 'GENE', hugoSymbol);
-  const snapshot = await get(ref(firebaseDb, genePath));
-  if (!snapshot.exists()) {
-    await createGene?.(hugoSymbol, isGermline);
-  }
-}
