@@ -147,11 +147,14 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     hugoSymbol &&
     !isAcceptingAll ? (
     <div data-testid="review-page">
-      <GeneHeader firebaseGenePath={firebaseGenePath} geneEntity={geneEntity} isReviewing={true} />
-      <GeneticTypeTabs geneEntity={geneEntity} geneticType={isGermline ? GENETIC_TYPE.GERMLINE : GENETIC_TYPE.SOMATIC} />
-      <div className="d-flex justify-content-end mt-2 mb-2">
-        <GeneticTypeTabHeader hugoSymbol={hugoSymbol} isReviewing={true} isReviewFinished={isReviewFinished} />
-      </div>
+      <Row>
+        <Col>
+          <GeneHeader firebaseGenePath={firebaseGenePath} geneEntity={geneEntity} isReviewing={true} />
+        </Col>
+        <Col className="d-flex justify-content-end">
+          <GeneticTypeTabHeader hugoSymbol={hugoSymbol} isReviewing={true} isReviewFinished={isReviewFinished} />
+        </Col>
+      </Row>
       <Row className={`${getSectionClassName()} justify-content-between`}>
         <Col>
           {isReviewFinished ? (

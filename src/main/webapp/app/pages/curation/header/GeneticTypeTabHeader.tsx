@@ -63,7 +63,7 @@ const GeneticTypeTabHeader = ({
       if (isReviewing || isReviewFinished) {
         button = (
           <Button color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID}>
-            Exit Review
+            Review Complete
           </Button>
         );
       } else {
@@ -84,7 +84,7 @@ const GeneticTypeTabHeader = ({
       if (isReviewFinished) {
         button = (
           <Button color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID}>
-            Exit Review
+            Review Complete
           </Button>
         );
       } else {
@@ -96,21 +96,23 @@ const GeneticTypeTabHeader = ({
 
   return (
     <div className="d-flex align-items-center">
-      <WithSeparator separator={InlineDivider}>
-        {meta?.lastModifiedAt && meta?.lastModifiedBy ? (
-          <div className="me-4 text-muted d-flex align-items-center" style={{ fontSize: '0.9rem' }}>
-            <FaPencil size={12} className="me-1" />{' '}
-            <div>
-              Last edit made by {meta?.lastModifiedBy} <TimeAgoText date={new Date(parseInt(meta.lastModifiedAt, 10))} />
+      {!isReviewing && (
+        <WithSeparator separator={InlineDivider}>
+          {meta?.lastModifiedAt && meta?.lastModifiedBy ? (
+            <div className="me-4 text-muted d-flex align-items-center" style={{ fontSize: '0.9rem' }}>
+              <FaPencil size={12} className="me-1" />{' '}
+              <div>
+                Last edit made by {meta?.lastModifiedBy} <TimeAgoText date={new Date(parseInt(meta.lastModifiedAt, 10))} />
+              </div>
             </div>
-          </div>
-        ) : undefined}
-        {meta?.review?.currentReviewer ? (
-          <div className="me-4 d-flex align-items-center text-danger" style={{ fontSize: '0.9rem' }}>
-            <FaEye size={12} className="me-1" /> <div>{meta.review.currentReviewer} is currently reviewing</div>
-          </div>
-        ) : undefined}
-      </WithSeparator>
+          ) : undefined}
+          {meta?.review?.currentReviewer ? (
+            <div className="me-4 d-flex align-items-center text-danger" style={{ fontSize: '0.9rem' }}>
+              <FaEye size={12} className="me-1" /> <div>{meta.review.currentReviewer} is currently reviewing</div>
+            </div>
+          ) : undefined}
+        </WithSeparator>
+      )}
       {getReviewButton()}
     </div>
   );
