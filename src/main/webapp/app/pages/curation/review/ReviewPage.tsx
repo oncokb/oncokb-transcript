@@ -27,6 +27,7 @@ import { Gene, MetaReview } from 'app/shared/model/firebase/firebase.model';
 import { SentryError } from 'app/config/sentry-error';
 import GeneticTypeTabHeader from '../header/GeneticTypeTabHeader';
 import GeneticTypeTabs, { GENETIC_TYPE } from '../geneticTypeTabs/GeneticTypeTabs';
+import GeneticTypeTag from '../geneticTypeTag.tsx/GeneticTypeTag';
 
 interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -148,8 +149,9 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     !isAcceptingAll ? (
     <div data-testid="review-page">
       <Row>
-        <Col>
+        <Col className="d-flex align-items-baseline">
           <GeneHeader firebaseGenePath={firebaseGenePath} geneEntity={geneEntity} isReviewing={true} />
+          <GeneticTypeTag geneticType={isGermline ? GENETIC_TYPE.GERMLINE : GENETIC_TYPE.SOMATIC} />
         </Col>
         <Col className="d-flex justify-content-end">
           <GeneticTypeTabHeader hugoSymbol={hugoSymbol} isReviewing={true} isReviewFinished={isReviewFinished} />
