@@ -10,7 +10,7 @@ import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/fi
 import { componentInject } from 'app/shared/util/typed-inject';
 import { getSectionClassName, useDrugListRef } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
-import { get, ref } from 'firebase/database';
+import { get, ref, set } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { Alert, Col, Row } from 'reactstrap';
@@ -26,7 +26,7 @@ import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
 import { Gene, MetaReview } from 'app/shared/model/firebase/firebase.model';
 import { SentryError } from 'app/config/sentry-error';
 import GeneticTypeTabHeader from '../header/GeneticTypeTabHeader';
-import GeneticTypeTabs, { GENETIC_TYPE } from '../geneticTypeTabs/GeneticTypeTabs';
+import { GENETIC_TYPE } from '../geneticTypeTabs/GeneticTypeTabs';
 import GeneticTypeTag from '../geneticTypeTag.tsx/GeneticTypeTag';
 
 interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
@@ -105,6 +105,23 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
       setIsReviewFinished(true);
     }
   }, [geneData, reviewUuids, props.drugList]);
+
+  useEffect(() => {
+    // Clear reviewer when user exits review or closes the tab/browser
+    const handleBeforeUnload = () => {
+      if (hugoSymbol && isGermline !== undefined && props.firebaseDb) {
+        set(ref(props.firebaseDb, `${firebaseMetaReviewPath}/currentReviewer`), '');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Clean up event listeners on component unmount
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      handleBeforeUnload();
+    };
+  }, [hugoSymbol, isGermline, props.firebaseDb]);
 
   const acceptAllChangesFromEditors = async (editors: string[]) => {
     if (hugoSymbol === undefined) {
@@ -272,7 +289,15 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   );
 };
 
-const mapStoreToProps = ({ firebaseAppStore, firebaseGeneReviewService, authStore, drugStore, geneStore, routerStore }: IRootStore) => ({
+const mapStoreToProps = ({
+  firebaseAppStore,
+  firebaseGeneReviewService,
+  authStore,
+  drugStore,
+  geneStore,
+  routerStore,
+  firebaseMetaService,
+}: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   fullName: authStore.fullName,
   acceptReviewChangeHandler: firebaseGeneReviewService.acceptChanges,
@@ -285,6 +310,7 @@ const mapStoreToProps = ({ firebaseAppStore, firebaseGeneReviewService, authStor
   loadingGenes: geneStore.loading,
   firebaseInitSuccess: firebaseAppStore.firebaseInitSuccess,
   isGermline: routerStore.isGermline,
+  updateCurrentReviewer: firebaseMetaService.updateGeneCurrentReviewer,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
