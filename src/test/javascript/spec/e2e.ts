@@ -39,7 +39,7 @@ describe('End to end tests', () => {
     const SOMATIC_SELECTED_COLOR = '#0968c3';
     const GERMLINE_SELECTED_COLOR = '#ffc107';
 
-    await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
+    await browser.url(`${BASE_URL}/curation`);
 
     let somaticButton = await $(`button[data-testid="${SOMATIC_TOGGLE_BUTTON_ID}"]`);
     let germlineButton = await $(`button[data-testid="${GERMLINE_TOGGLE_BUTTON_ID}"]`);
@@ -65,6 +65,7 @@ describe('End to end tests', () => {
 
     let openSidebarButton = await $(`span[data-testid="${OPEN_SIDEBAR_BUTTON_ID}"]`);
     let closeSidebarButton = await $(`span[data-testid="${CLOSE_SIDEBAR_BUTTON_ID}"]`);
+    await openSidebarButton.waitForDisplayed();
     expect(await openSidebarButton.isExisting()).toBe(true);
     expect(await closeSidebarButton.isExisting()).toBe(false);
 
@@ -85,6 +86,7 @@ describe('End to end tests', () => {
     await pubMedLink.moveTo();
 
     const pubMedTitle = await $(`h5[data-testid="${PUB_MED_PMID}-pub-med-title"]`);
+    await pubMedTitle.waitForDisplayed();
     expect(pubMedTitle).toHaveText(PUB_MED_ARTICLE_TITLE);
   });
 
@@ -102,6 +104,8 @@ describe('End to end tests', () => {
     const mutationBreadcrumbsName = await $(`span[data-testid="${MUTATION_NAME_BREADCRUMB_ID}"]`);
     const mutationList = await $(`div[data-testid="${MUTATION_LIST_ID}"]`);
     const singleMutationView = await $(`div[data-testid="${SINGLE_MUTATION_VIEW_ID}"]`);
+    await mutationBreadcrumbsName.waitForDisplayed();
+    await singleMutationView.waitForDisplayed();
     expect(mutationBreadcrumbsName).toHaveText(mutation);
     expect(await mutationList.isDisplayed()).toBe(false);
     expect(singleMutationView).toExist();
@@ -123,9 +127,11 @@ describe('End to end tests', () => {
     const mutationDeleteBtn = await $(`div[data-testid='${getCollapsibleDataTestId(CollapsibleDataTestIdType.CARD, mutation)}']`).$(
       "svg[data-icon='trash-can']",
     );
+    await mutationDeleteBtn.waitForDisplayed();
     await mutationDeleteBtn.click();
 
     const confirmDeleteBtn = await $(`div[id='${DELETION_SECTION_MODAL_BUTTON_ID}']`).$('button=Confirm');
+    await confirmDeleteBtn.waitForDisplayed();
     await confirmDeleteBtn.click();
 
     // The mutation should be deleted and should not be rendered

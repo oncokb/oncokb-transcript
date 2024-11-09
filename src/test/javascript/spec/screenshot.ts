@@ -89,6 +89,7 @@ describe('Screenshot Tests', () => {
       `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, `${mutation}-mutation-effect`)}"]`,
     );
     await mutationEffectNotCuratable.waitForDisplayed();
+    await mutationEffectNotCuratable.scrollIntoView();
 
     const result = await browser.checkElement(mutationEffectNotCuratable, 'mutation-effect-not-curatable', SCREENSHOT_METHOD_OPTIONS);
     assertScreenShotMatch(result);

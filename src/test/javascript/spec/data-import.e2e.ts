@@ -115,6 +115,5 @@ describe('Data Import Tests', () => {
     expect(tableRows).toHaveLength(5); // default page size
     expect(tableRows[0].$$('svg[class=fail]')).toExist();
     expect(tableRows[2].$$('svg[class=fail]')).toExist();
-    await browser.debug();
   });
 });
