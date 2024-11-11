@@ -3,7 +3,7 @@ import { Switch } from 'react-router-dom';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import ErrorBoundaryRoute from 'app/shared/error/error-boundary-route';
-
+import PrivateRoute from 'app/shared/auth/private-route';
 import Sequence from './sequence';
 import Transcript from './transcript';
 import Info from './info';
@@ -17,7 +17,7 @@ import FdaSubmissionType from './fda-submission-type';
 import FdaSubmission from './fda-submission';
 import Alteration from './alteration';
 import CancerType from './cancer-type';
-import { PAGE_ROUTE } from 'app/config/constants/constants';
+import { AUTHORITIES, PAGE_ROUTE } from 'app/config/constants/constants';
 import Article from './article';
 import CategoricalAlteration from './categorical-alteration';
 import Consequence from './consequence';
@@ -33,6 +33,7 @@ import GenomicIndicator from './genomic-indicator';
 import LevelOfEvidence from './level-of-evidence';
 import NciThesaurus from './nci-thesaurus';
 import Synonym from './synonym';
+import FeatureFlag from './feature-flag';
 import PageNotFound from 'app/shared/error/page-not-found';
 
 const Routes = ({ match }) => (
@@ -76,6 +77,7 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}level-of-evidence`} component={LevelOfEvidence} />
       <ErrorBoundaryRoute path={`${match.url}nci-thesaurus`} component={NciThesaurus} />
       <ErrorBoundaryRoute path={`${match.url}synonym`} component={Synonym} />
+      <PrivateRoute path={`${match.url}feature-flag`} component={FeatureFlag} hasAnyAuthorities={[AUTHORITIES.DEV]} />
       <ErrorBoundaryRoute exact component={PageNotFound} />
     </Switch>
   </div>

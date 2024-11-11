@@ -87,6 +87,7 @@ import GenomicIndicatorStore from 'app/entities/genomic-indicator/genomic-indica
 import LevelOfEvidenceStore from 'app/entities/level-of-evidence/level-of-evidence.store';
 import NciThesaurusStore from 'app/entities/nci-thesaurus/nci-thesaurus.store';
 import SynonymStore from 'app/entities/synonym/synonym.store';
+import FeatureFlagStore from 'app/entities/feature-flag/feature-flag.store';
 import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-review-service';
 import { FirebaseVusService } from 'app/service/firebase/firebase-vus-service';
 import { ModifyCancerTypeModalStore } from 'app/shared/modal/modify-cancer-type-modal.store';
@@ -145,6 +146,7 @@ export interface IRootStore {
   readonly levelOfEvidenceStore: LevelOfEvidenceStore;
   readonly nciThesaurusStore: NciThesaurusStore;
   readonly synonymStore: SynonymStore;
+  readonly featureFlagStore: FeatureFlagStore;
   readonly seqRegionStore: SeqRegionStore;
   readonly modifyCancerTypeModalStore: ModifyCancerTypeModalStore;
   readonly modifyTherapyModalStore: ModifyTherapyModalStore;
@@ -152,6 +154,7 @@ export interface IRootStore {
   readonly openMutationCollapsibleStore: OpenMutationCollapsibleStore;
   readonly flagStore: FlagStore;
   readonly commentStore: CommentStore;
+
   /* Firebase stores */
   readonly firebaseAppStore: FirebaseAppStore;
   readonly firebaseHistoryStore: FirebaseDataStore<HistoryList>;
@@ -213,6 +216,7 @@ export function createStores(history: History): IRootStore {
   rootStore.levelOfEvidenceStore = new LevelOfEvidenceStore(rootStore);
   rootStore.nciThesaurusStore = new NciThesaurusStore(rootStore);
   rootStore.synonymStore = new SynonymStore(rootStore);
+  rootStore.featureFlagStore = new FeatureFlagStore(rootStore);
   rootStore.seqRegionStore = new SeqRegionStore(rootStore);
   rootStore.flagStore = new FlagStore(rootStore);
   rootStore.modifyCancerTypeModalStore = new ModifyCancerTypeModalStore();

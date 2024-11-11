@@ -9,19 +9,19 @@
     <!--
         Added the entity FeatureFlag.
     -->
-    <changeSet id="20241024231608-1" author="jhipster">
+    <changeSet id="20241024231608-1" author="oncokb">
         <createTable tableName="feature_flag">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="name" type="varchar(50)">
+            <column name="name" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="description" type="varchar(200)">
+            <column name="description" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <column name="enabled" type="boolean">
-                <constraints nullable="true" />
+                <constraints nullable="false" default="false"/>
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>

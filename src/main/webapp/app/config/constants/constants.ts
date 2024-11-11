@@ -56,6 +56,7 @@ export enum ENTITY_TYPE {
   FDA_SUBMISSION = 'fda-submission',
   FDA_SUBMISSION_TYPE = 'fda-submission-type',
   FLAG = 'flag',
+  FEATURE_FLAG = 'feature-flag',
   GENE = 'gene',
   GENOME_FRAGMENT = 'genome-fragment',
   GENOMIC_INDICATOR = 'genomic-indicator',
@@ -87,6 +88,7 @@ export enum ENTITY_PAGE_ROUTE {
   FDA_SUBMISSION = '/fda-submission',
   FDA_SUBMISSION_TYPE = '/fda-submission-type',
   FLAG = '/flag',
+  FEATURE_FLAG = '/feature-flag',
   GENE = '/gene',
   GENOME_FRAGMENT = '/genome-fragment',
   GENOMIC_INDICATOR = '/genomic-indicator',
@@ -147,6 +149,7 @@ export enum ENTITY_RESOURCE_PATH {
   FDA_SUBMISSION = '/fda-submissions',
   FDA_SUBMISSION_TYPE = '/fda-submission-types',
   FLAG = '/flags',
+  FEATURE_FLAG = '/feature-flags',
   GENE = '/genes',
   GENOME_FRAGMENT = '/genome-fragments',
   GENOMIC_INDICATOR = '/genomic-indicators',
@@ -250,6 +253,10 @@ export const ENTITY_INFO: { [key in ENTITY_TYPE]: { pageRoute?: ENTITY_PAGE_ROUT
   [ENTITY_TYPE.FLAG]: {
     pageRoute: ENTITY_PAGE_ROUTE.FLAG,
     resourcePath: ENTITY_RESOURCE_PATH.FLAG,
+  },
+  [ENTITY_TYPE.FEATURE_FLAG]: {
+    pageRoute: ENTITY_PAGE_ROUTE.FEATURE_FLAG,
+    resourcePath: ENTITY_RESOURCE_PATH.FEATURE_FLAG,
   },
   [ENTITY_TYPE.GENE]: {
     pageRoute: ENTITY_PAGE_ROUTE.GENE,

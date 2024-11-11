@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity FeatureFlag.
     -->
-    <changeSet id="20241024231608-2" author="jhipster">
+    <changeSet id="20241024231608-2" author="oncokb">
 
         <addForeignKeyConstraint baseColumnNames="feature_flag_id"
                                  baseTableName="rel_feature_flag__user"

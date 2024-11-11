@@ -27,8 +27,8 @@ public class FeatureFlag implements Serializable {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "enabled")
-    private Boolean enabled;
+    @Column(name = "enabled", nullable = false, columnDefinition = "boolean default false")
+    private Boolean enabled = false;
 
     @ManyToMany
     @JoinTable(
