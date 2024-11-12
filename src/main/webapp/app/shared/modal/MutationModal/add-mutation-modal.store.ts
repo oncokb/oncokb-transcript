@@ -25,6 +25,7 @@ export class AddMutationModalStore {
 
   public showModifyExonForm = false;
   public hasUncommitedExonFormChanges = false;
+  public unCommittedExonFormChangesWarning = '';
 
   public isFetchingAlteration = false;
   public isFetchingExcludingAlteration = false;
@@ -43,6 +44,7 @@ export class AddMutationModalStore {
       selectedExcludedAlterationIndex: observable,
       showModifyExonForm: observable,
       hasUncommitedExonFormChanges: observable,
+      unCommittedExonFormChangesWarning: observable,
       isFetchingAlteration: observable,
       isFetchingExcludingAlteration: observable,
       selectedAlterationCategoryFlags: observable,
@@ -91,8 +93,11 @@ export class AddMutationModalStore {
     this.selectedAlterationStateIndex = -1;
   }
 
-  setHasUncommitedExonFormChanges(value: boolean) {
+  setHasUncommitedExonFormChanges(value: boolean, isUpdate: boolean) {
     this.hasUncommitedExonFormChanges = value;
+    if (value) {
+      this.unCommittedExonFormChangesWarning = `You made some changes to Exon dropdown. Please click ${isUpdate ? 'update' : 'add'} button.`;
+    }
   }
 
   setAlterationStates(newAlterationStates: AlterationData[]) {

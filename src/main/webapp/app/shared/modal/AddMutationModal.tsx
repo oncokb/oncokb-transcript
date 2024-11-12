@@ -21,7 +21,7 @@ import './add-mutation-modal.scss';
 import { Unsubscribe } from 'firebase/database';
 import InfoIcon from '../icons/InfoIcon';
 import { FlagTypeEnum } from '../model/enumerations/flag-type.enum.model';
-import AddExonForm from './MutationModal/AddExonForm';
+import AddExonForm, { ExonCreateInfo } from './MutationModal/AddExonForm';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { AsyncSaveButton } from '../button/AsyncSaveButton';
@@ -114,6 +114,7 @@ function AddMutationModal({
   updateAlterationStateAfterAlterationAdded,
   selectedAlterationStateIndex,
   hasUncommitedExonFormChanges,
+  unCommittedExonFormChangesWarning,
 }: IAddMutationModalProps) {
   const [inputValue, setInputValue] = useState('');
   const [mutationAlreadyExists, setMutationAlreadyExists] = useState<MutationExistsMeta>({
@@ -424,8 +425,8 @@ function AddMutationModal({
   if (convertOptions?.isConverting && !isEqualIgnoreCase(convertOptions.alteration, (currentMutationNames ?? []).join(', '))) {
     modalWarningMessage.push('Name differs from original VUS name');
   }
-  if (hasUncommitedExonFormChanges) {
-    modalWarningMessage.push('You made some changes to Exon dropdown. Please click update button.');
+  if (hasUncommitedExonFormChanges && unCommittedExonFormChangesWarning) {
+    modalWarningMessage.push(unCommittedExonFormChangesWarning);
   }
 
   return (
@@ -490,6 +491,7 @@ const mapStoreToProps = ({
   updateAlterationStateAfterAlterationAdded: addMutationModalStore.updateAlterationStateAfterAlterationAdded,
   selectedAlterationStateIndex: addMutationModalStore.selectedAlterationStateIndex,
   hasUncommitedExonFormChanges: addMutationModalStore.hasUncommitedExonFormChanges,
+  unCommittedExonFormChangesWarning: addMutationModalStore.unCommittedExonFormChangesWarning,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
@@ -524,6 +526,7 @@ const AddMutationInputOverlay = () => {
             Exon range - <span className="text-primary">Exon 4-8 Deletion</span>
           </li>
         </ul>
+        <ExonCreateInfo listView />
       </div>
     </div>
   );

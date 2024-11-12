@@ -100,9 +100,7 @@ const AddExonForm = ({
 
   useEffect(() => {
     const updateDisabled = isPendingAddAlteration || selectedExons.length === 0 || _.isEqual(defaultSelectedExons, selectedExons);
-    if (!updateDisabled) {
-      setHasUncommitedExonFormChanges?.(true);
-    }
+    setHasUncommitedExonFormChanges?.(!updateDisabled, isUpdate);
   }, [isPendingAddAlteration, selectedExons, defaultSelectedExons]);
 
   const standardizeExonInputString = (createValue: string) => {
@@ -127,6 +125,7 @@ const AddExonForm = ({
       await updateAlterationStateAfterAlterationAdded?.(parsedAlterations, isUpdate);
     } finally {
       setIsPendingAddAlteration(false);
+      setSelectedExons([]);
     }
     setShowModifyExonForm?.(false);
   }
@@ -142,7 +141,7 @@ const AddExonForm = ({
           <div
             onClick={() => {
               setShowModifyExonForm?.(false);
-              setHasUncommitedExonFormChanges?.(false);
+              setHasUncommitedExonFormChanges?.(false, isUpdate);
             }}
             className={classNames('d-inline-flex align-items-center', styles.link)}
           >
@@ -180,7 +179,7 @@ const AddExonForm = ({
               />
             </Col>
             <Col className="col-1 d-flex align-items-center p-0">
-              <InfoIcon overlay={EXON_CREATE_INFO} />
+              <InfoIcon overlay={<ExonCreateInfo />} />
             </Col>
           </Row>
         </Col>
@@ -204,33 +203,35 @@ const AddExonForm = ({
   );
 };
 
-const EXON_CREATE_INFO = (
-  <>
-    <div>You can create a new option that adheres to one of the formats:</div>
-    <div>
-      <ul>
-        <li className="text-primary">
-          {`Any Exon start-end (${EXON_CONSEQUENCES.join('|')})`}
-          <InfoIcon
-            className="ms-1"
-            overlay={
-              'This format refers to any combination of Exons between the range [start, end]. As long as one or more of the specified Exons are present, then the annotation will be pulled.'
-            }
-          />
-        </li>
-        <li className="text-primary">
-          {`Exon start-end (${EXON_CONSEQUENCES.join('|')})`}
-          <InfoIcon
-            className="ms-1"
-            overlay={
-              'This format refers to Exons in the range [start, end]. For instance "Exon 2-4 Deletion" is equivalent to "Exon 2 Deletion + Exon 3 Deletion + Exon 4 Deletion"'
-            }
-          />
-        </li>
-      </ul>
-    </div>
-  </>
-);
+export const ExonCreateInfo = ({ listView }: { listView?: boolean }) => {
+  return (
+    <>
+      {!listView ? <div>You can create a new option that adheres to one of the formats:</div> : undefined}
+      <div>
+        <ul>
+          <li className="text-primary">
+            {`Any Exon start-end (${EXON_CONSEQUENCES.join('|')})`}
+            <InfoIcon
+              className="ms-1"
+              overlay={
+                'This format refers to any combination of Exons between the range [start, end]. As long as one or more of the specified Exons are present, then the annotation will be pulled.'
+              }
+            />
+          </li>
+          <li className="text-primary">
+            {`Exon start-end (${EXON_CONSEQUENCES.join('|')})`}
+            <InfoIcon
+              className="ms-1"
+              overlay={
+                'This format refers to Exons in the range [start, end]. For instance "Exon 2-4 Deletion" is equivalent to "Exon 2 Deletion + Exon 3 Deletion + Exon 4 Deletion"'
+              }
+            />
+          </li>
+        </ul>
+      </div>
+    </>
+  );
+};
 
 const NoOptionsMessage = props => {
   return (
@@ -238,7 +239,7 @@ const NoOptionsMessage = props => {
       <div style={{ textAlign: 'left' }}>
         <div>No options matching text</div>
         <br></br>
-        {EXON_CREATE_INFO}
+        <ExonCreateInfo />
       </div>
     </components.NoOptionsMessage>
   );
