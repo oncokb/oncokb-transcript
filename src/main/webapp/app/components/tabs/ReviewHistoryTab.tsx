@@ -10,9 +10,7 @@ import { onValue, ref } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
 import { Button, Input, Label, Spinner } from 'reactstrap';
 
-export interface IReviewHistoryTab extends StoreProps {
-  isGermline: boolean;
-}
+export interface IReviewHistoryTab extends StoreProps {}
 
 function ReviewHistoryTab({ isGermline, firebaseDb, drugList, getDrugs }: IReviewHistoryTab) {
   const [historyCollection, setHistoryCollection] = useState<HistoryCollection>();
@@ -90,10 +88,11 @@ function ReviewHistoryTab({ isGermline, firebaseDb, drugList, getDrugs }: IRevie
   );
 }
 
-const mapStoreToProps = ({ firebaseAppStore, drugStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, drugStore, routerStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   drugList: drugStore.entities,
   getDrugs: drugStore.getEntities,
+  isGermline: routerStore.isGermline,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

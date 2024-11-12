@@ -123,6 +123,7 @@ module.exports = async options => {
             CustomDate.now = function() {
               return new OriginalDate(${DEFAULT_DATE}).getTime();
             };
+            CustomDate.UTC = OriginalDate.UTC;
             return CustomDate;
           })())`
             : 'Date',

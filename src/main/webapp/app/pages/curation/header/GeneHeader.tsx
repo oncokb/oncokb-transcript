@@ -1,178 +1,128 @@
-import { CBIOPORTAL, COSMIC, PAGE_ROUTE } from 'app/config/constants/constants';
+import { CBIOPORTAL, COSMIC, ENTITY_TYPE, REFERENCE_GENOME } from 'app/config/constants/constants';
 import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import { HgncLink } from 'app/shared/links/HgncLink';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
-import { componentInject } from 'app/shared/util/typed-inject';
-import { IRootStore } from 'app/stores';
-import { observer } from 'mobx-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import WithSeparator from 'react-with-separator';
-import { InlineDivider } from 'app/shared/links/PubmedGeneArticlesLink';
-import { onValue, ref } from 'firebase/database';
-import { geneMetaReviewHasUuids, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { IGene } from 'app/shared/model/gene.model';
-import { MetaReview } from 'app/shared/model/firebase/firebase.model';
-import { Button, Col, Row } from 'reactstrap';
+import { Col, Row } from 'reactstrap';
 import CommentIcon from 'app/shared/icons/CommentIcon';
-import SomaticGermlineToggleButton from '../button/SomaticGermlineToggleButton';
 import { getCbioportalResultsPageMutationTabUrl } from 'app/shared/util/url-utils';
-import { generatePath, useHistory } from 'react-router-dom';
-import { GENE_HEADER_REVIEW_BUTTON_ID, GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID } from 'app/config/constants/html-id';
-import { SentryError } from 'app/config/sentry-error';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import GeneAliasesDescription from 'app/oncokb-commons/components/texts/GeneAliasesDescription';
+import { GREY } from 'app/config/colors';
+import { ITranscript } from 'app/shared/model/transcript.model';
+import EnsemblIdText from 'app/shared/text/EnsemblIdText';
+import { ReferenceGenome } from 'app/shared/model/enumerations/reference-genome.model';
+import RefSeqText from 'app/shared/text/RefSeqText';
+import { InlineDivider } from 'app/shared/links/PubmedGeneArticlesLink';
+import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
+import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
+import axios from 'axios';
 
-export interface IGeneHeaderProps extends StoreProps {
-  hugoSymbol: string | undefined;
-  firebaseGenePath: string;
-  geneEntity: IGene | undefined;
-  isReviewing?: boolean;
-  isReviewFinished?: boolean;
-  isGermline?: boolean;
+const apiUrl = getEntityResourcePath(ENTITY_TYPE.TRANSCRIPT);
+
+async function fetchOncokbCanonicalTranscripts(ensemblGenes: IEnsemblGene[]) {
+  const requests = ensemblGenes?.map(async gene => {
+    const response = await axios.get<ITranscript[]>(`${apiUrl}?ensemblGeneId.equals=${gene.id}`);
+    const transcripts = response.data;
+    const canonicalTranscript = transcripts.find(transcript => transcript.canonical === true);
+    return canonicalTranscript;
+  });
+
+  const canonicalTranscripts = await Promise.all(requests);
+  return canonicalTranscripts.filter(ct => ct !== undefined) as ITranscript[];
 }
 
-const GeneHeader = ({
-  hugoSymbol,
-  updateCurrentReviewer,
-  firebaseDb,
-  firebaseGenePath,
-  geneEntity,
-  isReviewing,
-  isReviewFinished,
-  isGermline,
-}: IGeneHeaderProps) => {
-  const history = useHistory();
-  const firebaseMetaPath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
-  const [metaReview, setMetaReview] = useState<MetaReview>();
+export interface IGeneHeaderProps {
+  firebaseGenePath: string;
+  geneEntity: IGene;
+  isReviewing?: boolean;
+}
 
-  const reviewPageRoute = isGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE_REVIEW : PAGE_ROUTE.CURATION_GENE_SOMATIC_REVIEW;
-  const curationPageRoute = isGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE : PAGE_ROUTE.CURATION_GENE_SOMATIC;
+const GeneHeader = ({ firebaseGenePath, geneEntity, isReviewing }: IGeneHeaderProps) => {
+  const hideEntrezGeneId = geneEntity.hugoSymbol === 'Other Biomarkers';
+
+  const [loadingTranscripts, setLoadingTranscripts] = useState(false);
+  const [transcripts, setTranscripts] = useState<ITranscript[]>();
 
   useEffect(() => {
-    if (!firebaseDb) {
-      return;
-    }
-    const subscribe = onValue(ref(firebaseDb, `${firebaseMetaPath}/review`), snapshot => {
-      setMetaReview(snapshot.val());
-    });
-    return () => subscribe?.();
-  }, []);
+    if (!geneEntity?.ensemblGenes) return;
+    setLoadingTranscripts(true);
+    fetchOncokbCanonicalTranscripts(geneEntity?.ensemblGenes)
+      .then(results => setTranscripts(results))
+      .finally(() => setLoadingTranscripts(false));
+  }, [geneEntity]);
 
-  const handleReviewButtonClick = () => {
-    if (hugoSymbol === undefined) {
-      notifyError(new SentryError('hugoSymbol is undefined', {}));
-      return;
-    }
-    updateCurrentReviewer?.(hugoSymbol, !!isGermline, !isReviewing);
-    history.push(generatePath(isReviewing ? curationPageRoute : reviewPageRoute, { hugoSymbol }));
-  };
-
-  const getReviewButton = () => {
-    let button: JSX.Element;
-    if (geneMetaReviewHasUuids(metaReview)) {
-      if (isReviewing || isReviewFinished) {
-        button = (
-          <Button color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID}>
-            Review Complete
-          </Button>
-        );
-      } else {
-        button = (
-          <Button outline color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_BUTTON_ID}>
-            Review
-          </Button>
-        );
-      }
-    } else {
-      if (isReviewFinished) {
-        button = (
-          <Button color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID}>
-            Review Complete
-          </Button>
-        );
-      } else {
-        return undefined;
-      }
-    }
-    return <>{button}</>;
-  };
-
-  const hideEntrezGeneId = hugoSymbol === 'Other Biomarkers';
+  const transcriptInfoByReferenceGenome = useMemo(() => {
+    const grch37 = transcripts?.find(transcript => transcript?.referenceGenome === ReferenceGenome.GRCh37);
+    const grch38 = transcripts?.find(transcript => transcript?.referenceGenome === ReferenceGenome.GRCh38);
+    return {
+      [REFERENCE_GENOME.GRCH37]: {
+        ensemblTranscriptId: grch37?.ensemblTranscriptId ?? '',
+        referenceSequenceId: grch37?.referenceSequenceId ?? '',
+      },
+      [REFERENCE_GENOME.GRCH38]: {
+        ensemblTranscriptId: grch38?.ensemblTranscriptId ?? '',
+        referenceSequenceId: grch38?.referenceSequenceId ?? '',
+      },
+    };
+  }, [transcripts]);
 
   return (
     <Row className={'mb-2'}>
       <Col>
         <div style={{ width: '100%' }}>
           <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex align-items-center mb-1">
-              <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'me-3'}>
-                {hugoSymbol}
+            <div className="d-flex align-items-baseline mb-1">
+              <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'me-2'}>
+                {geneEntity.hugoSymbol}
               </span>
               {!isReviewing && (
                 <>
-                  <CommentIcon id={`${hugoSymbol}_curation_page`} path={`${firebaseGenePath}/name_comments`} />
-                  <div className="ms-3">
-                    <SomaticGermlineToggleButton hugoSymbol={hugoSymbol} />
-                  </div>
+                  <CommentIcon id={`${geneEntity.hugoSymbol}_curation_page`} path={`${firebaseGenePath}/name_comments`} />
+                  {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
+                    <GeneAliasesDescription geneAliases={geneEntity.synonyms.map(s => s.name)} className={'ms-2'} style={{ color: GREY }} />
+                  )}
                 </>
               )}
             </div>
-            {getReviewButton()}
           </div>
           {!isReviewing && (
             <>
-              <span>
-                {!hideEntrezGeneId && geneEntity?.entrezGeneId !== undefined && (
-                  <span>
-                    <span className="fw-bold text-nowrap">Entrez Gene:</span>
-                    <span className="ms-1">
-                      <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
-                    </span>
-                  </span>
-                )}
-                {geneEntity?.hgncId && (
-                  <span className="ms-2">
-                    <span className="fw-bold">HGNC:</span>
-                    <span className="ms-1">
-                      <HgncLink id={geneEntity.hgncId} />
-                    </span>
-                  </span>
-                )}
-                {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
-                  <span className="ms-2">
-                    <span className="fw-bold">Gene aliases:</span>
-                    <span className="ms-1">
-                      <WithSeparator separator={', '}>
-                        {geneEntity.synonyms.map(synonym => (
-                          <span className={'text-nowrap'} key={synonym.name}>
-                            {synonym.name}
-                          </span>
-                        ))}
-                      </WithSeparator>
-                    </span>
-                  </span>
-                )}
-                <span className="ms-2">
-                  <span className="fw-bold me-2">External Links:</span>
-                  <WithSeparator separator={InlineDivider}>
-                    <a
-                      href={hugoSymbol ? getCbioportalResultsPageMutationTabUrl(hugoSymbol) : undefined}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={hugoSymbol ? { cursor: 'default', pointerEvents: 'none' } : undefined}
-                    >
-                      {CBIOPORTAL} <ExternalLinkIcon />
-                    </a>
-                    <a
-                      href={hugoSymbol ? `http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${hugoSymbol}` : undefined}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={hugoSymbol ? { cursor: 'default', pointerEvents: 'none' } : undefined}
-                    >
-                      {COSMIC} <ExternalLinkIcon />
-                    </a>
-                  </WithSeparator>
-                </span>
-              </span>
+              <div className="d-flex">
+                <WithSeparator separator={InlineDivider}>
+                  {!hideEntrezGeneId && geneEntity?.entrezGeneId !== undefined && <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />}
+                  {geneEntity?.hgncId && <HgncLink id={geneEntity.hgncId} />}
+                  <ExternalLinkIcon link={getCbioportalResultsPageMutationTabUrl(geneEntity.hugoSymbol)}>{CBIOPORTAL}</ExternalLinkIcon>
+                  <ExternalLinkIcon link={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${geneEntity.hugoSymbol}`}>
+                    {COSMIC}
+                  </ExternalLinkIcon>
+                </WithSeparator>
+              </div>
+              {!loadingTranscripts ? (
+                <>
+                  {(transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH37].ensemblTranscriptId ||
+                    transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH38].ensemblTranscriptId) && (
+                    <div className="d-flex">
+                      <div>Ensembl Transcript: </div>
+                      <EnsemblIdText
+                        grch37={transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH37].ensemblTranscriptId}
+                        grch38={transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH38].ensemblTranscriptId}
+                      />
+                    </div>
+                  )}
+                  {(transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH37].referenceSequenceId ||
+                    transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH38].referenceSequenceId) && (
+                    <div className="d-flex">
+                      <div>Ref Seq:</div>
+                      <RefSeqText
+                        grch37={transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH37].referenceSequenceId}
+                        grch38={transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH38].referenceSequenceId}
+                      />
+                    </div>
+                  )}
+                </>
+              ) : undefined}
             </>
           )}
         </div>
@@ -181,11 +131,4 @@ const GeneHeader = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseAppStore, firebaseMetaService, routerStore }: IRootStore) => ({
-  firebaseDb: firebaseAppStore.firebaseDb,
-  updateCurrentReviewer: firebaseMetaService.updateGeneCurrentReviewer,
-});
-
-type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
-
-export default componentInject(mapStoreToProps)(observer(GeneHeader));
+export default GeneHeader;

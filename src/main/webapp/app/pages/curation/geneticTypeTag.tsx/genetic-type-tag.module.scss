@@ -1,0 +1,24 @@
+@import '../../../variables.scss';
+
+.geneticTypeTag {
+  font-weight: 500 !important;
+  display: inline-flex;
+  padding: 0 var(--radius-8, 8px);
+  justify-content: center;
+  align-items: center;
+  gap: var(--radius-8, 8px);
+  border-radius: 56px;
+}
+
+.germlineTag {
+  @extend .geneticTypeTag;
+  color: $primary;
+  border: var(--radius-2, 2px) solid var(--Color-11, $primary);
+  background: #f0f5ff;
+}
+
+.somaticTag {
+  @extend .geneticTypeTag;
+  color: #ffffff;
+  background: $primary;
+}

@@ -6,17 +6,17 @@ import {
   getCompactReviewInfo,
   getGenePathFromValuePath,
 } from 'app/shared/util/firebase/firebase-review-utils';
-import { getFirebaseGenePath, getFirebaseMetaGenePath, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { getSectionClassName, useDrugListRef } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
-import { get, ref } from 'firebase/database';
+import { get, ref, set } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { Alert, Col, Row } from 'reactstrap';
 import { RouteComponentProps } from 'react-router-dom';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
-import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
+import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import GeneHeader from '../header/GeneHeader';
 import _ from 'lodash';
@@ -25,12 +25,14 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
 import { Gene, MetaReview } from 'app/shared/model/firebase/firebase.model';
 import { SentryError } from 'app/config/sentry-error';
+import GeneticTypeTabHeader from '../header/GeneticTypeTabHeader';
+import { GENETIC_TYPE } from '../geneticTypeTabs/GeneticTypeTabs';
+import GeneticTypeTag from '../geneticTypeTag.tsx/GeneticTypeTag';
 
 interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
 const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPageProps) => {
-  const pathname = props.location.pathname;
-  const isGermline = pathname.includes(GERMLINE_PATH);
+  const isGermline = props.isGermline;
   const hugoSymbolParam = props.match.params.hugoSymbol;
 
   const { geneEntity, hugoSymbol } = useMatchGeneEntity(hugoSymbolParam, props.searchGeneEntities, props.geneEntities ?? []);
@@ -104,6 +106,23 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     }
   }, [geneData, reviewUuids, props.drugList]);
 
+  useEffect(() => {
+    // Clear reviewer when user exits review or closes the tab/browser
+    const handleBeforeUnload = () => {
+      if (hugoSymbol && isGermline !== undefined && props.firebaseDb) {
+        set(ref(props.firebaseDb, `${firebaseMetaReviewPath}/currentReviewer`), '');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Clean up event listeners on component unmount
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      handleBeforeUnload();
+    };
+  }, [hugoSymbol, isGermline, props.firebaseDb]);
+
   const acceptAllChangesFromEditors = async (editors: string[]) => {
     if (hugoSymbol === undefined) {
       notifyError(new SentryError('Cannot accept all changes because hugo symbol is unknown.', { hugoSymbol, geneData }));
@@ -121,7 +140,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
       await props.acceptReviewChangeHandler?.({
         hugoSymbol,
         reviewLevels,
-        isGermline,
+        isGermline: isGermline ?? false,
         isAcceptAll: true,
         gene: geneData,
         entrezGeneId: geneEntity?.entrezGeneId as number,
@@ -143,16 +162,18 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     props.drugList !== undefined &&
     props.drugList.length > 0 &&
     !!geneEntity &&
+    hugoSymbol &&
     !isAcceptingAll ? (
     <div data-testid="review-page">
-      <GeneHeader
-        hugoSymbol={hugoSymbol}
-        firebaseGenePath={firebaseGenePath}
-        geneEntity={geneEntity}
-        isGermline={isGermline}
-        isReviewFinished={isReviewFinished}
-        isReviewing={true}
-      />
+      <Row>
+        <Col className="d-flex align-items-baseline">
+          <GeneHeader firebaseGenePath={firebaseGenePath} geneEntity={geneEntity} isReviewing={true} />
+          <GeneticTypeTag geneticType={isGermline ? GENETIC_TYPE.GERMLINE : GENETIC_TYPE.SOMATIC} />
+        </Col>
+        <Col className="d-flex justify-content-end">
+          <GeneticTypeTabHeader hugoSymbol={hugoSymbol} isReviewing={true} isReviewFinished={isReviewFinished} />
+        </Col>
+      </Row>
       <Row className={`${getSectionClassName()} justify-content-between`}>
         <Col>
           {isReviewFinished ? (
@@ -217,8 +238,8 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
               gene={geneData as Gene}
               entrezGeneId={geneEntity.entrezGeneId}
               drugListRef={drugListRef}
-              hugoSymbol={hugoSymbol as string}
-              isGermline={isGermline}
+              hugoSymbol={hugoSymbol}
+              isGermline={isGermline ?? false}
               baseReviewLevel={rootReview}
               handleAccept={async args => {
                 setIsProcessingAction(true);
@@ -268,7 +289,15 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   );
 };
 
-const mapStoreToProps = ({ firebaseAppStore, firebaseGeneReviewService, authStore, drugStore, geneStore }: IRootStore) => ({
+const mapStoreToProps = ({
+  firebaseAppStore,
+  firebaseGeneReviewService,
+  authStore,
+  drugStore,
+  geneStore,
+  routerStore,
+  firebaseMetaService,
+}: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   fullName: authStore.fullName,
   acceptReviewChangeHandler: firebaseGeneReviewService.acceptChanges,
@@ -280,6 +309,8 @@ const mapStoreToProps = ({ firebaseAppStore, firebaseGeneReviewService, authStor
   geneEntities: geneStore.entities,
   loadingGenes: geneStore.loading,
   firebaseInitSuccess: firebaseAppStore.firebaseInitSuccess,
+  isGermline: routerStore.isGermline,
+  updateCurrentReviewer: firebaseMetaService.updateGeneCurrentReviewer,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

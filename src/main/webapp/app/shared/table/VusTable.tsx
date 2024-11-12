@@ -173,7 +173,13 @@ const VusTable = ({
         return (
           <>
             <TextFormat value={new Date(time)} type="date" format={APP_DATETIME_FORMAT} />
-            <span>{color && <DefaultBadge color={color} text={'Outdated'} style={{ fontSize: '0.8rem' }} />}</span>
+            <span>
+              {color && (
+                <DefaultBadge color={color} style={{ fontSize: '0.8rem' }}>
+                  Outdated
+                </DefaultBadge>
+              )}
+            </span>
           </>
         );
       },

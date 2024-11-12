@@ -43,7 +43,6 @@ const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ m
   return (
     <DefaultBadge
       color={'warning'}
-      text={'Not Curatable'}
       tooltipOverlay={
         <div>
           <span>{text}</span>
@@ -70,7 +69,9 @@ const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ m
           )}
         </div>
       }
-    />
+    >
+      Not Curatable
+    </DefaultBadge>
   );
 };
 
