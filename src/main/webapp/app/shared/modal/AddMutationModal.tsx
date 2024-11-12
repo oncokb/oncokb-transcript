@@ -185,8 +185,13 @@ function AddMutationModal({
         return;
       }
 
-      // at this point can be sure each alteration name does not have / character
-      const parsedAlterations = mutationToEdit?.name?.split(',').map(name => parseAlterationName(name.trim())[0]);
+      const parsedAlterations = mutationToEdit?.name?.split(',').reduce(
+        (acc, name) => {
+          const parsed = parseAlterationName(name.trim(), true);
+          return acc.concat(parsed);
+        },
+        [] as ReturnType<typeof parseAlterationName>,
+      );
 
       const entityStatusAlterationsPromise = fetchAlterations?.(parsedAlterations?.map(alt => alt.alteration) ?? []);
       if (!entityStatusAlterationsPromise) return;
