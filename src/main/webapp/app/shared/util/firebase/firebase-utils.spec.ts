@@ -1,11 +1,13 @@
 import 'jest-expect-message';
 import {
+  DuplicateMutationInfo,
   compareFirebaseOncogenicities,
   compareMutationsByCategoricalAlteration,
   compareMutationsByProteinChangePosition,
   compareMutationsBySingleAlteration,
   geneNeedsReview,
   getCancerTypeStats,
+  getDuplicateMutations,
   getFirebasePath,
   getMutationModifiedTimestamp,
   getMutationName,
@@ -30,6 +32,8 @@ import {
   TX_LEVELS,
   Treatment,
   Tumor,
+  Vus,
+  VusObjList,
 } from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -685,6 +689,100 @@ describe('FirebaseUtils', () => {
           pxLevels: {},
         };
         expect(JSON.stringify(getCancerTypeStats(null), null, 4)).toEqual(JSON.stringify(expected, null, 4));
+      });
+    });
+
+    describe('getDuplicateMutations', () => {
+      const currentMutations = ['V600', 'V600 {excluding V600E}', 'VUS1 {excluding VUS2}', 'VUS3'];
+      const mutationList: Partial<Mutation>[] = [
+        { name: 'V600', name_uuid: '1' },
+        { name: 'V600 {excluding V600E}', name_uuid: '2' },
+        { name: 'V600 {excluding V600G}', name_uuid: '3' },
+        { name: 'V600E, V600G', name_uuid: '3' },
+      ];
+      const vusList: { [uuid: string]: Partial<Vus> } = {
+        0: { name: 'VUS2' },
+        1: { name: 'VUS3' },
+      };
+
+      it('should match names by alteration when no options specified', () => {
+        const expectedDuplicateMutations: DuplicateMutationInfo[] = [
+          {
+            duplicate: 'V600',
+            inMutationList: true,
+            inVusList: false,
+          },
+          {
+            duplicate: 'VUS3',
+            inMutationList: false,
+            inVusList: true,
+          },
+        ];
+
+        const duplicateMutations = getDuplicateMutations(currentMutations, mutationList as readonly Mutation[], vusList as VusObjList, {});
+        expect(duplicateMutations).toEqual(expectedDuplicateMutations);
+      });
+
+      it('should match names exactly when useFullAlterationName is true', () => {
+        const expectedDuplicateMutations: DuplicateMutationInfo[] = [
+          {
+            duplicate: 'V600',
+            inMutationList: true,
+            inVusList: false,
+          },
+          {
+            duplicate: 'V600 {excluding V600E}',
+            inMutationList: true,
+            inVusList: false,
+          },
+          {
+            duplicate: 'VUS3',
+            inMutationList: false,
+            inVusList: true,
+          },
+        ];
+
+        const duplicateMutations = getDuplicateMutations(currentMutations, mutationList as readonly Mutation[], vusList as VusObjList, {
+          useFullAlterationName: true,
+        });
+        expect(duplicateMutations).toEqual(expectedDuplicateMutations);
+      });
+
+      it('should leave string mutations concatenated when exact is specified', () => {
+        const expectedDuplicateMutations: DuplicateMutationInfo[] = [
+          {
+            duplicate: 'V600E, V600G',
+            inMutationList: true,
+            inVusList: false,
+          },
+        ];
+
+        const duplicateMutations = getDuplicateMutations(['V600E', 'V600G'], mutationList as readonly Mutation[], vusList as VusObjList, {
+          exact: true,
+        });
+        expect(duplicateMutations).toEqual(expectedDuplicateMutations);
+      });
+
+      it('should split mutations by comma when exact is not specified', () => {
+        const expectedDuplicateMutations: DuplicateMutationInfo[] = [
+          {
+            duplicate: 'V600E',
+            inMutationList: true,
+            inVusList: false,
+          },
+          {
+            duplicate: 'V600G',
+            inMutationList: true,
+            inVusList: false,
+          },
+        ];
+        const duplicateMutations = getDuplicateMutations(
+          ['V600E', 'V600G'],
+          mutationList as readonly Mutation[],
+          vusList as VusObjList,
+          {},
+        );
+        expect(duplicateMutations).toEqual(expectedDuplicateMutations);
       });
     });
   });

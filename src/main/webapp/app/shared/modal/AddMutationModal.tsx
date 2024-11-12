@@ -30,6 +30,7 @@ import Select from 'react-select/dist/declarations/src/Select';
 import InfoIcon from '../icons/InfoIcon';
 import { Linkout } from '../links/Linkout';
 import { SopPageLink } from '../links/SopPageLink';
+import { AddMutationModalFieldTestIdType, getAddMuationModalFieldDataTestId } from '../util/test-id-utils';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -711,6 +712,7 @@ function AddMutationModal({
           isLoading={_.isNil(excludingIndex) ? isFetchingAlteration : isFetchingExcludingAlteration}
           placeholder="Input alteration"
           onChange={newValue => handleAlterationChange(newValue, alterationIndex, excludingIndex)}
+          dataTestId={getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.ALTERATION, alterationIndex, excludingIndex)}
         />
         {content}
         <AddMutationModalField
@@ -718,6 +720,7 @@ function AddMutationModal({
           value={alterationData.comment}
           placeholder="Input comment"
           onChange={newValue => handleFieldChange(newValue, 'comment', alterationIndex, excludingIndex)}
+          dataTestId={getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.COMMENT, alterationIndex, excludingIndex)}
         />
         {excludingSection}
       </>
@@ -732,6 +735,7 @@ function AddMutationModal({
           value={alterationData.name}
           placeholder="Input name"
           onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
+          dataTestId={getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.NAME, alterationIndex, excludingIndex)}
         />
         <AddMutationModalField
           label="Protein Change"
@@ -782,6 +786,7 @@ function AddMutationModal({
           value={alterationData.name}
           placeholder="Input name"
           onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
+          dataTestId={getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.NAME, alterationIndex, excludingIndex)}
         />
         <AddMutationModalField
           label="Protein Change"
@@ -801,6 +806,7 @@ function AddMutationModal({
           value={alterationData.name}
           placeholder="Input name"
           onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
+          dataTestId={getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.NAME, alterationIndex, excludingIndex)}
         />
         <AddMutationModalField
           label="Protein Change"
@@ -820,6 +826,7 @@ function AddMutationModal({
           value={alterationData.name}
           placeholder="Input name"
           onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
+          dataTestId={getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.NAME, alterationIndex, excludingIndex)}
         />
       </div>
     );
@@ -833,6 +840,7 @@ function AddMutationModal({
           value={alterationData.name}
           placeholder="Input name"
           onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
+          dataTestId={getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.NAME, alterationIndex, excludingIndex)}
         />
         <AddMutationModalField
           label="Genes"
@@ -853,6 +861,7 @@ function AddMutationModal({
           value={alterationData.name}
           placeholder="Input name"
           onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
+          dataTestId={getAddMuationModalFieldDataTestId(AddMutationModalFieldTestIdType.NAME, alterationIndex, excludingIndex)}
         />
       </div>
     );
@@ -922,6 +931,7 @@ function AddMutationModal({
                     content: getTabContent(ex, alterationIndex, index),
                   }))}
                   isCollapsed={excludingCollapsed}
+                  dataTestIdPrefix="excluding"
                 />
               </div>
             </Col>
@@ -1117,9 +1127,18 @@ interface IAddMutationModalFieldProps {
   onChange: (newValue: string) => void;
   isLoading?: boolean;
   disabled?: boolean;
+  dataTestId?: string;
 }
 
-function AddMutationModalField({ label, value: value, placeholder, onChange, isLoading, disabled }: IAddMutationModalFieldProps) {
+function AddMutationModalField({
+  label,
+  value: value,
+  placeholder,
+  onChange,
+  isLoading,
+  disabled,
+  dataTestId,
+}: IAddMutationModalFieldProps) {
   return (
     <div className="d-flex align-items-center mb-3">
       <Col className="px-0 col-3 me-3 align-items-center">
@@ -1130,6 +1149,7 @@ function AddMutationModalField({ label, value: value, placeholder, onChange, isL
       </Col>
       <Col className="px-0">
         <Input
+          data-testid={dataTestId}
           disabled={disabled}
           value={value}
           onChange={event => {
