@@ -48,23 +48,16 @@ const MutationCollapsibleTitle = ({ name, mutationAlterations, alterationCategor
     );
   }
 
-  const mutationRenameValue = getMutationRenameValueFromName(name ?? '');
-  if (EXON_ALTERATION_REGEX.test(mutationRenameValue ?? '')) {
-    return (
-      <>
-        <span>{mutationRenameValue}</span>
-        {stringMutationBadges}
-      </>
-    );
-  }
-
   if (mutationAlterations) {
     return (
       <>
         <WithSeparator separator={', '}>
-          {mutationAlterations.map((alteration, index) =>
-            getAlterationNameComponent(getAlterationName(alteration, true), alteration.comment),
-          )}
+          {mutationAlterations.map((alteration, index) => {
+            if (EXON_ALTERATION_REGEX.test(alteration.alteration)) {
+              return alteration.name ? getMutationRenameValueFromName(alteration.name) : alteration.alteration;
+            }
+            return getAlterationNameComponent(getAlterationName(alteration, true), alteration.comment);
+          })}
         </WithSeparator>
         {stringMutationBadges}
       </>
