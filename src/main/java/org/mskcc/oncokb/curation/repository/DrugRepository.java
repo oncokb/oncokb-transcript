@@ -52,6 +52,8 @@ public interface DrugRepository extends JpaRepository<Drug, Long>, JpaSpecificat
         "select distinct drug from Drug drug" +
         " left join fetch drug.flags" +
         " left join fetch drug.fdaDrugs" +
+        " left join fetch drug.nciThesaurus nci" +
+        " left join fetch nci.synonyms" +
         " left join fetch drug.associations da" +
         " left join fetch da.rules" +
         " left join fetch da.cancerTypes" +
