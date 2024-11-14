@@ -399,7 +399,7 @@ export class Meta {
   lastSavedAt?: number;
   lastSavedBy?: string;
   movingSection?: boolean;
-  review?: MetaReview;
+  review: MetaReview = new MetaReview();
 }
 
 export class MetaReview {
