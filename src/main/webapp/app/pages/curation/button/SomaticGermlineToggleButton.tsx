@@ -9,6 +9,8 @@ import { Button, ButtonGroup } from 'reactstrap';
 import * as styles from './styles.module.scss';
 import { GERMLINE_PATH, SOMATIC_GERMLINE_SETTING_KEY, SOMATIC_PATH } from 'app/config/constants/constants';
 import { GERMLINE_TOGGLE_BUTTON_ID, SOMATIC_TOGGLE_BUTTON_ID } from 'app/config/constants/html-id';
+import classnames from 'classnames';
+import { GERMLINE, PRIMARY, SOMATIC } from 'app/config/colors';
 
 const BUTTON_WIDTH = 130;
 
@@ -28,12 +30,24 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
     window.location.href = pathname.replace(currentVariantType, newVariantType);
   }
 
+  const somaticStyle = {
+    backgroundColor: SOMATIC,
+    borderColor: SOMATIC,
+  };
+
+  const germlineStyle = {
+    color: PRIMARY,
+    backgroundColor: GERMLINE,
+    borderColor: PRIMARY,
+    borderWidth: '2px',
+  };
+
   return (
     <ButtonGroup>
       <Button
         className={styles.btn}
         color={isSomatic ? 'primary' : 'secondary'}
-        style={{ width: BUTTON_WIDTH }}
+        style={Object.assign({ width: BUTTON_WIDTH }, isSomatic ? somaticStyle : {})}
         disabled={isSomatic}
         onClick={handleToggle}
         data-testid={SOMATIC_TOGGLE_BUTTON_ID}
@@ -43,8 +57,8 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
       </Button>
       <Button
         className={styles.btn}
-        color={isSomatic ? 'secondary' : 'warning'}
-        style={{ width: BUTTON_WIDTH }}
+        color={isSomatic ? 'secondary' : 'primary'}
+        style={Object.assign({ width: BUTTON_WIDTH }, isSomatic ? {} : germlineStyle)}
         disabled={!isSomatic}
         onClick={handleToggle}
         data-testid={GERMLINE_TOGGLE_BUTTON_ID}

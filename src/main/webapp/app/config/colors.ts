@@ -10,6 +10,9 @@ export const DANGER = '#dc3545';
 export const PRIMARY = ONCOKB_BLUE;
 export const SECONDARY = GREY;
 
+export const SOMATIC = ONCOKB_BLUE;
+export const GERMLINE = '#f0f5ff';
+
 export const LEVELS = {
   1: '#33A02C',
   2: '#1F78B4',
