@@ -16,6 +16,7 @@ import * as fs from 'fs';
 import * as admin from 'firebase-admin';
 import { createMutationOnCurationPage } from '../shared/utils';
 import { CollapsibleDataTestIdType, getCollapsibleDataTestId } from '../../../main/webapp/app/shared/util/test-id-utils';
+import { GERMLINE, SOMATIC } from '../../../main/webapp/app/config/colors.ts';
 
 describe('End to end tests', () => {
   let adminApp: admin.app.App;
@@ -36,8 +37,8 @@ describe('End to end tests', () => {
 
   it('should check somatic/germline toggle button colors', async () => {
     const UNSELECTED_COLOR = '#808080';
-    const SOMATIC_SELECTED_COLOR = '#0968c3';
-    const GERMLINE_SELECTED_COLOR = '#ffc107';
+    const SOMATIC_SELECTED_COLOR = SOMATIC;
+    const GERMLINE_SELECTED_COLOR = GERMLINE;
 
     await browser.url(`${BASE_URL}/curation`);
 
