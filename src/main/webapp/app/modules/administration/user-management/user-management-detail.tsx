@@ -6,6 +6,8 @@ import { TextFormat } from 'react-jhipster';
 import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
+import { ENTITY_PAGE_ROUTE, USER_AUTHORITY } from 'app/config/constants/constants';
+import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 
 export interface IUserManagementDetailProps extends StoreProps, RouteComponentProps<{ login: string }> {}
 
@@ -56,6 +58,28 @@ export const UserManagementDetail = (props: IUserManagementDetailProps) => {
                 : null}
             </ul>
           </dd>
+          {user?.authorities?.includes(USER_AUTHORITY.ROLE_DEV) && (
+            <>
+              <dt>Feature Flag</dt>
+              <dd>
+                {user.featureFlags
+                  ? user.featureFlags.map((featureFlag, i) => (
+                      <div key={`user-feature-flag-${i}`} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <p style={{ marginBottom: 0, marginRight: '0.5rem' }}>{featureFlag.name}</p>
+                        <a
+                          href={`${ENTITY_PAGE_ROUTE.FEATURE_FLAG}/${featureFlag.id}`}
+                          style={{ alignContent: 'flex-end' }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLinkIcon />
+                        </a>
+                      </div>
+                    ))
+                  : null}
+              </dd>
+            </>
+          )}
         </dl>
         <EntityActionButton color="primary" entityId={user.login} entityType={ENTITY_TYPE.USER} entityAction={ENTITY_ACTION.EDIT} />
       </Col>

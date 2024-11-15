@@ -75,7 +75,7 @@ export const ValidatedSelect = <Option, IsMulti extends boolean = false, Group e
     formState: { errors },
   } = useFormContext();
 
-  const { name, label, validate, ...selectProps } = props;
+  const { name, label, validate, onChange, ...selectProps } = props;
 
   const error = errors[props.name];
 
@@ -88,6 +88,12 @@ export const ValidatedSelect = <Option, IsMulti extends boolean = false, Group e
       )}
       <Controller
         render={({ field }) => {
+          const handleChange = (selectedOption: any, actionMeta: any) => {
+            field.onChange(selectedOption);
+            if (onChange) {
+              onChange(selectedOption, actionMeta);
+            }
+          };
           if (props.creatable) {
             return (
               <CreatableSelect
@@ -96,6 +102,7 @@ export const ValidatedSelect = <Option, IsMulti extends boolean = false, Group e
                 {...field}
                 {...selectProps}
                 id={props.name}
+                onChange={handleChange}
               />
             );
           }
@@ -106,6 +113,7 @@ export const ValidatedSelect = <Option, IsMulti extends boolean = false, Group e
               {...field}
               {...selectProps}
               id={props.name}
+              onChange={handleChange}
             />
           );
         }}

@@ -68,6 +68,15 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @BatchSize(size = 20)
     private Set<Authority> authorities = new HashSet<>();
 
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+        name = "rel_feature_flag__user",
+        joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") },
+        inverseJoinColumns = { @JoinColumn(name = "feature_flag_id", referencedColumnName = "id") }
+    )
+    private Set<FeatureFlag> featureFlags = new HashSet<>();
+
     public Long getId() {
         return id;
     }
@@ -139,6 +148,14 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     public void setAuthorities(Set<Authority> authorities) {
         this.authorities = authorities;
+    }
+
+    public Set<FeatureFlag> getFeatureFlags() {
+        return featureFlags;
+    }
+
+    public void setFeatureFlag(Set<FeatureFlag> featureFlags) {
+        this.featureFlags = featureFlags;
     }
 
     @Override

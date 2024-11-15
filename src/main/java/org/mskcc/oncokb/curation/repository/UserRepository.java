@@ -28,5 +28,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Cacheable(cacheResolver = "userCacheResolver")
     Optional<User> findOneWithAuthoritiesByEmailIgnoreCase(String email);
 
+    @EntityGraph(attributePaths = { "authorities", "featureFlags" })
+    @Cacheable(cacheResolver = "userCacheResolver")
+    Optional<User> findOneWithAuthoritiesAndFeatureFlagsByLogin(String login);
+
     Page<User> findAllByIdNotNullAndActivatedIsTrue(Pageable pageable);
 }

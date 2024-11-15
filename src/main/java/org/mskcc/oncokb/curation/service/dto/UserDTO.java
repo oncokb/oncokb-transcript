@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.config.Constants;
 import org.mskcc.oncokb.curation.domain.Authority;
+import org.mskcc.oncokb.curation.domain.FeatureFlag;
 import org.mskcc.oncokb.curation.domain.User;
 
 /**
@@ -51,6 +52,8 @@ public class UserDTO {
 
     private Set<String> authorities;
 
+    private Set<FeatureFlag> featureFlags;
+
     public UserDTO() {
         // Empty constructor needed for Jackson.
     }
@@ -69,6 +72,7 @@ public class UserDTO {
         this.lastModifiedBy = user.getLastModifiedBy();
         this.lastModifiedDate = user.getLastModifiedDate();
         this.authorities = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
+        this.featureFlags = user.getFeatureFlags();
     }
 
     public Long getId() {
@@ -175,6 +179,14 @@ public class UserDTO {
         this.authorities = authorities;
     }
 
+    public Set<FeatureFlag> getFeatureFlags() {
+        return featureFlags;
+    }
+
+    public void setFeatureFlags(Set<FeatureFlag> featureFlags) {
+        this.featureFlags = featureFlags;
+    }
+
     // prettier-ignore
     @Override
     public String toString() {
@@ -191,6 +203,7 @@ public class UserDTO {
             ", lastModifiedBy='" + lastModifiedBy + '\'' +
             ", lastModifiedDate=" + lastModifiedDate +
             ", authorities=" + authorities +
+            ", featureFlag=" + featureFlags +
             "}";
     }
 }

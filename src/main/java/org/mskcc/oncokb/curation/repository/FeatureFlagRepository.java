@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.FeatureFlag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the FeatureFlag entity.
  */
+@JaversSpringDataAuditable
 @Repository
 public interface FeatureFlagRepository extends JpaRepository<FeatureFlag, Long>, JpaSpecificationExecutor<FeatureFlag> {
     @Query(

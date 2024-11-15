@@ -1,3 +1,5 @@
+import { IFeatureFlag } from 'app/shared/model/feature-flag.model';
+
 // CrudStore needs Record<string, unknown> as a type so this cannot be an interface
 export type IUser = {
   id: any;
@@ -14,6 +16,7 @@ export type IUser = {
   lastModifiedBy: string;
   lastModifiedDate: Date | null;
   imageUrl: string;
+  featureFlags: IFeatureFlag[] | null;
 };
 
 export const defaultValue: Readonly<IUser> = {
@@ -30,4 +33,5 @@ export const defaultValue: Readonly<IUser> = {
   lastModifiedBy: '',
   lastModifiedDate: null,
   imageUrl: '',
+  featureFlags: [],
 };

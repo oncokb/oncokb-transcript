@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 import { Row, Col } from 'reactstrap';
@@ -15,6 +15,11 @@ const authorityOptions = Object.values(USER_AUTHORITY).map(auth => ({ label: aut
 
 export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.login);
+  const [isDev, setIsDev] = useState(false);
+
+  useEffect(() => {
+    props.getFeatureFlags({});
+  }, []);
 
   useEffect(() => {
     if (isNew) {
@@ -35,6 +40,7 @@ export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
       ...values,
       login: values.email,
       authorities: values.authorities.map(auth => auth.value),
+      featureFlags: (values.featureFlags || []).map(f => f.value),
     };
     if (isNew) {
       props.createUser(entity);
@@ -45,16 +51,23 @@ export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
   };
 
   const isInvalid = false;
-  const { user, loading, updating } = props;
+  const { user, loading, updating, featureFlags } = props;
 
-  const defaultValues = () => {
+  const defaultValues = useMemo(() => {
     return isNew
       ? {}
       : {
           ...user,
           authorities: user?.authorities?.map(auth => ({ label: auth, value: auth })),
+          featureFlags: user?.featureFlags?.map(f => ({ label: f.name, value: f })),
         };
-  };
+  }, [user]);
+
+  useEffect(() => {
+    setIsDev(props.user?.authorities?.includes(USER_AUTHORITY.ROLE_DEV));
+  }, [user]);
+
+  const featureFlagOptions = featureFlags.filter(f => f.enabled).map(f => ({ label: f.name, value: f }));
 
   return (
     <div>
@@ -68,7 +81,7 @@ export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
           {loading ? (
             <p>Loading...</p>
           ) : (
-            <ValidatedForm onSubmit={saveUser} defaultValues={defaultValues()}>
+            <ValidatedForm onSubmit={saveUser} defaultValues={defaultValues}>
               {user.id ? <ValidatedField type="text" name="id" required readOnly label={'ID'} validate={{ required: true }} /> : null}
               <ValidatedField
                 name="email"
@@ -110,7 +123,16 @@ export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
                 name={'authorities'}
                 options={authorityOptions}
                 defaultValue={[{ label: USER_AUTHORITY.ROLE_USER, value: USER_AUTHORITY.ROLE_USER }]}
+                onChange={(selectedOption, actionMeta) => {
+                  if (actionMeta.action === 'remove-value' && actionMeta.removedValue?.value === USER_AUTHORITY.ROLE_DEV) {
+                    setIsDev(false);
+                  }
+                  if (actionMeta.action === 'select-option' && selectedOption.some(option => option.value === USER_AUTHORITY.ROLE_DEV)) {
+                    setIsDev(true);
+                  }
+                }}
               />
+              {isDev && <ValidatedSelect isMulti label="Feature Flag" name={'featureFlags'} options={featureFlagOptions} />}
               <SaveButton disabled={isInvalid || updating} />
             </ValidatedForm>
           )}
@@ -124,10 +146,12 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   user: storeState.userStore.entity,
   loading: storeState.userStore.loading,
   updating: storeState.userStore.updating,
+  featureFlags: storeState.featureFlagStore.entities,
   getUser: storeState.userStore.getEntity,
   updateUser: storeState.userStore.updateEntity,
   createUser: storeState.userStore.createEntity,
   reset: storeState.userStore.reset,
+  getFeatureFlags: storeState.featureFlagStore.getEntities,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
