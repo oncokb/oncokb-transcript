@@ -14,7 +14,13 @@ import _ from 'lodash';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IRule } from 'app/shared/model/rule.model';
-import { INTEGER_REGEX, REFERENCE_LINK_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_REGEX } from 'app/config/constants/regex';
+import {
+  EXON_ALTERATION_REGEX,
+  INTEGER_REGEX,
+  REFERENCE_LINK_REGEX,
+  SINGLE_NUCLEOTIDE_POS_REGEX,
+  UUID_REGEX,
+} from 'app/config/constants/regex';
 import { AlterationAnnotationStatus, AlterationTypeEnum, ProteinExonDTO } from 'app/shared/api/generated/curation';
 import { IQueryParams } from './jhipster-types';
 import InfoIcon from '../icons/InfoIcon';
@@ -306,10 +312,16 @@ export function parseAlterationName(
 }
 
 export function getFullAlterationName(alterationData: AlterationData, includeVariantName = true) {
-  const variantName = includeVariantName && alterationData.name !== alterationData.alteration ? alterationData.name : '';
+  let alterationName = alterationData.alteration;
+  let variantName = includeVariantName && alterationData.name !== alterationData.alteration ? alterationData.name : '';
   const excluding = alterationData.excluding.length > 0 ? alterationData.excluding.map(ex => ex.alteration) : [];
   const comment = alterationData.comment ? alterationData.comment : '';
-  return buildAlterationName(alterationData.alteration, variantName, excluding, comment);
+  if (EXON_ALTERATION_REGEX.test(alterationData.alteration)) {
+    // Use the variant name as the display name for Exons
+    variantName = '';
+    alterationName = alterationData.name;
+  }
+  return buildAlterationName(alterationName, variantName, excluding, comment);
 }
 
 export function getMutationRenameValueFromName(name: string) {
@@ -361,7 +373,10 @@ export function convertAlterationDataToAlteration(alterationData: AlterationData
 }
 
 export function convertAlterationToAlterationData(alteration: Alteration): AlterationData {
-  const { name: variantName } = parseAlterationName(alteration.name)[0];
+  let variantName = alteration.name;
+  if (!EXON_ALTERATION_REGEX.test(alteration.name)) {
+    variantName = parseAlterationName(alteration.name)[0].name;
+  }
 
   return {
     type: alteration.type,

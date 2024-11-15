@@ -16,6 +16,7 @@ import * as styles from './styles.module.scss';
 import classNames from 'classnames';
 import WithSeparator from 'react-with-separator';
 import { EXON_ALTERATION_REGEX } from 'app/config/constants/regex';
+import _ from 'lodash';
 
 export interface IMutationCollapsibleTitle extends StoreProps {
   name: string | undefined;
@@ -54,7 +55,11 @@ const MutationCollapsibleTitle = ({ name, mutationAlterations, alterationCategor
         <WithSeparator separator={', '}>
           {mutationAlterations.map((alteration, index) => {
             if (EXON_ALTERATION_REGEX.test(alteration.alteration)) {
-              return alteration.name ? getMutationRenameValueFromName(alteration.name) : alteration.alteration;
+              if (alteration.name) {
+                const exonRangeName = getMutationRenameValueFromName(alteration.name);
+                return _.isEmpty(exonRangeName) ? alteration.name : exonRangeName;
+              }
+              return alteration.alteration;
             }
             return getAlterationNameComponent(getAlterationName(alteration, true), alteration.comment);
           })}

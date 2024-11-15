@@ -136,19 +136,21 @@ const AddExonForm = ({
 
   return (
     <>
-      <Row className="mb-3">
-        <Col>
-          <div
-            onClick={() => {
-              setShowModifyExonForm?.(false);
-              setHasUncommitedExonFormChanges?.(false, isUpdate);
-            }}
-            className={classNames('d-inline-flex align-items-center', styles.link)}
-          >
-            <FaArrowLeft className="me-1" /> Mutation List
-          </div>
-        </Col>
-      </Row>
+      {!defaultExonAlterationName ? (
+        <Row className="mb-3">
+          <Col>
+            <div
+              onClick={() => {
+                setShowModifyExonForm?.(false);
+                setHasUncommitedExonFormChanges?.(false, isUpdate);
+              }}
+              className={classNames('d-inline-flex align-items-center', styles.link)}
+            >
+              <FaArrowLeft className="me-1" /> Mutation List
+            </div>
+          </Col>
+        </Row>
+      ) : undefined}
       <Row className="mb-2">
         <Col>
           <div className="h5">{isUpdate ? 'Modify Selected Exons' : 'Selected Exons'}</div>

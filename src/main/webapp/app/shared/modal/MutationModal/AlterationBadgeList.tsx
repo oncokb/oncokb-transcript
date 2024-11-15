@@ -1,20 +1,18 @@
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import classNames from 'classnames';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import * as styles from './styles.module.scss';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { AlterationData } from '../AddMutationModal';
-import { getFullAlterationName, getMutationRenameValueFromName } from 'app/shared/util/utils';
+import { getFullAlterationName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { FaExclamationCircle, FaExclamationTriangle } from 'react-icons/fa';
 import { useOverflowDetector } from 'app/hooks/useOverflowDetector';
 import { BS_BORDER_COLOR } from 'app/config/colors';
 import _ from 'lodash';
-import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
 import { FaCircleCheck } from 'react-icons/fa6';
-import { EXON_ALTERATION_REGEX } from 'app/config/constants/regex';
 
 export interface IAlterationBadgeList extends StoreProps {
   isExclusionList?: boolean;

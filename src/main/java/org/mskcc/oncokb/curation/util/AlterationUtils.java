@@ -152,10 +152,10 @@ public class AlterationUtils {
 
         alt.setAlteration(splitResults.stream().collect(Collectors.joining(" + ")));
 
-        StringBuilder formattedName = new StringBuilder();
+        List<String> formattedNameByConsequence = new ArrayList<>();
         for (SVConsequence consequenceKey : new SVConsequence[] {
-            SVConsequence.SV_INSERTION,
             SVConsequence.SV_DELETION,
+            SVConsequence.SV_INSERTION,
             SVConsequence.SV_DUPLICATION,
         }) {
             List<String> sortedExonAlterations = new ArrayList<>(exonsByConsequence.get(consequenceKey));
@@ -192,9 +192,11 @@ public class AlterationUtils {
                     result.add("Exon " + start + "-" + end + " " + consequenceTerm);
                 }
             }
-            formattedName.append(result.stream().collect(Collectors.joining(" + ")));
+            if (!result.isEmpty()) {
+                formattedNameByConsequence.add(result.stream().collect(Collectors.joining(" + ")));
+            }
         }
-        alt.setName(formattedName.toString());
+        alt.setName(formattedNameByConsequence.stream().collect(Collectors.joining(" + ")));
 
         return alt;
     }
