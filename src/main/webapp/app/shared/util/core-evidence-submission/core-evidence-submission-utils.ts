@@ -83,6 +83,9 @@ export function getNewPriorities(list: Treatment[], unapprovedUuids: string | st
     unapprovedUuids = [];
   }
   _.each(list, function (treatmentSec, __) {
+    if (treatmentSec === undefined) {
+      return;
+    }
     const name =
       treatmentSec.name_review && treatmentSec.name_review.lastReviewed ? treatmentSec.name_review.lastReviewed : treatmentSec.name;
     const uuid = treatmentSec.name_uuid;
@@ -159,7 +162,9 @@ export function collectUUIDs({ type, obj, uuids = [], uuidType }: CollectUUIDsAr
         break;
     }
     _.each(obj.tumors, function (tumor) {
-      collectUUIDs({ type: 'tumor', obj: tumor, uuids, uuidType });
+      if (tumor !== undefined) {
+        collectUUIDs({ type: 'tumor', obj: tumor, uuids, uuidType });
+      }
     });
   } else if (type === 'tumor') {
     switch (uuidType) {
@@ -208,7 +213,9 @@ export function collectUUIDs({ type, obj, uuids = [], uuidType }: CollectUUIDsAr
         break;
     }
     _.each(obj.TIs, function (ti) {
-      collectUUIDs({ type: 'TI', obj: ti, uuids, uuidType });
+      if (ti !== undefined) {
+        collectUUIDs({ type: 'TI', obj: ti, uuids, uuidType });
+      }
     });
   } else if (type === 'TI') {
     switch (uuidType) {
@@ -223,7 +230,9 @@ export function collectUUIDs({ type, obj, uuids = [], uuidType }: CollectUUIDsAr
         break;
     }
     _.each(obj.treatments, function (treatment) {
-      collectUUIDs({ type: 'treatment', obj: treatment, uuids, uuidType });
+      if (treatment !== undefined) {
+        collectUUIDs({ type: 'treatment', obj: treatment, uuids, uuidType });
+      }
     });
   } else if (type === 'treatment') {
     switch (uuidType) {

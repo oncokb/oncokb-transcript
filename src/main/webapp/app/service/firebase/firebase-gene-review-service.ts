@@ -189,7 +189,8 @@ export class FirebaseGeneReviewService {
         hugoSymbol,
         reviewLevels,
         isGermline,
-        error,
+        errorMessage: (error as { message: string }).message,
+        errorStack: (error as { stack: string }).stack,
       });
       if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
         throw sentryError;
@@ -207,7 +208,8 @@ export class FirebaseGeneReviewService {
         hugoSymbol,
         reviewLevels,
         isGermline,
-        error,
+        errorMessage: (error as { message: string }).message,
+        errorStack: (error as { stack: string }).stack,
       });
       if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
         throw sentryError;
@@ -216,22 +218,22 @@ export class FirebaseGeneReviewService {
       }
     }
 
-    try {
-      if (hasEvidences) {
-        await this.evidenceClient.submitEvidences(evidences);
-      }
-    } catch (error) {
-      const sentryError = new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
-        hugoSymbol,
-        reviewLevels,
-        isGermline,
-        error,
+    if (hasEvidences) {
+      // this is slow so do this submission in parallel
+      this.evidenceClient.submitEvidences(evidences).catch(error => {
+        const sentryError = new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
+          hugoSymbol,
+          reviewLevels,
+          isGermline,
+          errorMessage: (error as { message: string }).message,
+          errorStack: (error as { stack: string }).stack,
+        });
+        if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
+          throw sentryError;
+        } else {
+          console.error(sentryError);
+        }
       });
-      if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
-        throw sentryError;
-      } else {
-        console.error(sentryError);
-      }
     }
 
     let updateObject = {};
