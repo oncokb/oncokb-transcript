@@ -16,7 +16,7 @@ export interface IGeneSelectProps<IsMulti extends boolean> extends SelectProps<G
 const sortParameter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.GENE] ?? '', DEFAULT_SORT_DIRECTION);
 
 export interface GeneSelectOption {
-  value?: number;
+  value?: IGene;
   synonyms?: ISynonym[];
   label?: string;
 }
@@ -42,7 +42,7 @@ const GeneSelect = <IsMulti extends boolean>(props: IGeneSelectProps<IsMulti>) =
     options =
       result?.data?.map(
         (entity: IGene): GeneSelectOption => ({
-          value: entity.id,
+          value: entity,
           synonyms: entity.synonyms ?? [],
           label: entity.hugoSymbol,
         }),

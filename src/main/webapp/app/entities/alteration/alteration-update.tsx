@@ -12,6 +12,7 @@ import { SaveButton } from 'app/shared/button/SaveButton';
 import GeneSelect, { GeneSelectOption } from 'app/shared/select/GeneSelect';
 import { REFERENCE_GENOME } from 'app/config/constants/constants';
 import { Alteration, Gene } from 'app/shared/api/generated/curation';
+import { IGene } from 'app/shared/model/gene.model';
 
 export interface IAlterationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -19,7 +20,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
   const [proteinChange, setProteinChange] = useState('');
   const [proteinChangeAlteration, setProteinChangeAlteration] = useState(null);
-  const [selectedGenes, setSelectedGenes] = useState<{ label: string | undefined; value: number | undefined }[]>([]);
+  const [selectedGenes, setSelectedGenes] = useState<{ label: string | undefined; value: IGene | undefined }[]>([]);
 
   const consequences = props.consequences;
   const alterationEntity = props.alterationEntity;
@@ -60,7 +61,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
       props.alterationEntity.genes && props.alterationEntity.genes.length > 0
         ? props.alterationEntity.genes.map(gene => ({
             label: gene.hugoSymbol,
-            value: gene.id,
+            value: gene,
           }))
         : [];
     setSelectedGenes(_genes);

@@ -158,7 +158,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
               <div style={{ flex: 1 }}>
                 <AlterationSelect
                   isMulti
-                  geneId={geneValue?.value?.toString() ?? ''}
+                  geneId={geneValue?.value?.id.toString() ?? ''}
                   onChange={setAlterationValue}
                   value={alterationValue}
                 />

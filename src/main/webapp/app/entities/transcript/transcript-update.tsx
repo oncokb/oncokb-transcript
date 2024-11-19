@@ -7,17 +7,17 @@ import { IRootStore } from 'app/stores';
 
 import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
-import GeneSelect from 'app/shared/select/GeneSelect';
+import GeneSelect, { GeneSelectOption } from 'app/shared/select/GeneSelect';
+import EnsemblGeneSelect, { EnsemblGeneSelectOption, getEnsemblGeneSelectLabel } from 'app/shared/select/EnsemblGeneSelect';
 
 export interface ITranscriptUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
-  const [selectedGeneId, setSelectedGeneId] = useState<number>();
+  const [geneValue, setGeneValue] = useState<GeneSelectOption | null>(null);
+  const [ensemblGeneValue, setEnsemblGeneValue] = useState<EnsemblGeneSelectOption | null>(null);
 
   const flags = props.flags;
-  const ensemblGenes = props.ensemblGenes;
-  const genes = props.genes;
   const transcriptEntity = props.transcriptEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -35,8 +35,6 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
     }
 
     props.getFlags({});
-    props.getEnsemblGenes({});
-    props.getGenes({});
     props.getAlterations({});
   }, []);
 
@@ -46,6 +44,22 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
     }
   }, [updateSuccess]);
 
+  useEffect(() => {
+    if (transcriptEntity?.gene) {
+      setGeneValue({
+        value: transcriptEntity.gene,
+        label: transcriptEntity.gene.hugoSymbol,
+        synonyms: transcriptEntity.gene.synonyms ?? [],
+      });
+    }
+    if (transcriptEntity?.ensemblGene) {
+      setEnsemblGeneValue({
+        value: transcriptEntity.ensemblGene,
+        label: getEnsemblGeneSelectLabel(transcriptEntity.ensemblGene),
+      });
+    }
+  }, [transcriptEntity]);
+
   // TYPE-ISSUE: is values supposed to be ITranscript?
   // The call setSelectedGeneId is setting as a number
   // onChange={option => { setSelectedGeneId(option?.value); }}
@@ -54,9 +68,8 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
       ...transcriptEntity,
       ...values,
       flags: mapIdList(values.flags),
-      ensemblGene: ensemblGenes.find(it => it.id.toString() === values.ensemblGeneId.toString()),
-      // TYPE-ISSUE: Is selectedGeneId a number or a string?
-      gene: genes.find(it => it.id.toString() === selectedGeneId?.toString()),
+      ensemblGene: ensemblGeneValue?.value,
+      gene: geneValue?.value,
     };
 
     if (isNew) {
@@ -73,8 +86,6 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
           ...transcriptEntity,
           referenceGenome: transcriptEntity.referenceGenome ?? 'GRCh37',
           flags: transcriptEntity?.flags?.map(e => e.id.toString()),
-          ensemblGeneId: transcriptEntity?.ensemblGene?.id,
-          geneId: transcriptEntity?.gene?.id,
         };
 
   return (
@@ -138,32 +149,10 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
                       ))
                   : null}
               </ValidatedField>
-              <ValidatedField id="transcript-ensemblGene" name="ensemblGeneId" data-cy="ensemblGene" label="Ensembl Gene" type="select">
-                <option value="" key="0" />
-                {ensemblGenes
-                  ? ensemblGenes.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.id}
-                      </option>
-                    ))
-                  : null}
-              </ValidatedField>
+              <Label>Ensembl Gene</Label>
+              <EnsemblGeneSelect onChange={setEnsemblGeneValue} className="mb-3" value={ensemblGeneValue} />
               <Label>Gene</Label>
-              <GeneSelect
-                onChange={option => {
-                  setSelectedGeneId(option?.value);
-                }}
-                className={'mb-3'}
-                defaultValue={
-                  props.transcriptEntity?.gene
-                    ? {
-                        value: props.transcriptEntity.gene.id,
-                        label: props.transcriptEntity.gene.hugoSymbol,
-                        synonyms: props.transcriptEntity.gene.synonyms ?? [],
-                      }
-                    : undefined
-                }
-              />
+              <GeneSelect onChange={setGeneValue} className={'mb-3'} value={geneValue} />
               <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
@@ -175,16 +164,12 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
 
 const mapStoreToProps = (storeState: IRootStore) => ({
   flags: storeState.flagStore.entities,
-  ensemblGenes: storeState.ensemblGeneStore.entities,
-  genes: storeState.geneStore.entities,
   alterations: storeState.alterationStore.entities,
   transcriptEntity: storeState.transcriptStore.entity,
   loading: storeState.transcriptStore.loading,
   updating: storeState.transcriptStore.updating,
   updateSuccess: storeState.transcriptStore.updateSuccess,
   getFlags: storeState.flagStore.getEntities,
-  getEnsemblGenes: storeState.ensemblGeneStore.getEntities,
-  getGenes: storeState.geneStore.getEntities,
   getAlterations: storeState.alterationStore.getEntities,
   getEntity: storeState.transcriptStore.getEntity,
   updateEntity: storeState.transcriptStore.updateEntity,
