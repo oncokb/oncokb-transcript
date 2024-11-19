@@ -15,6 +15,7 @@ import { FaEye, FaPencil } from 'react-icons/fa6';
 import TimeAgoText from 'app/shared/text/TimeAgoText';
 import WithSeparator from 'react-with-separator';
 import { InlineDivider } from 'app/shared/links/PubmedGeneArticlesLink';
+import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 
 export interface IGeneticTypeTabHeader extends StoreProps {
   hugoSymbol: string;
@@ -67,18 +68,29 @@ const GeneticTypeTabHeader = ({
           </Button>
         );
       } else {
-        const disabled = meta?.review?.currentReviewer !== '' && meta?.review?.currentReviewer.toLowerCase() !== fullName?.toLowerCase();
+        const isAnotherUserReviewing =
+          meta?.review?.currentReviewer !== '' && meta?.review?.currentReviewer.toLowerCase() !== fullName?.toLowerCase();
         button = (
           <Button
             outline
-            color={disabled ? 'secondary' : 'primary'}
+            color={isAnotherUserReviewing ? 'warning' : 'primary'}
             onClick={handleReviewButtonClick}
             data-testid={GENE_HEADER_REVIEW_BUTTON_ID}
-            disabled={disabled}
           >
             Review
           </Button>
         );
+        if (isAnotherUserReviewing) {
+          button = (
+            <DefaultTooltip
+              mouseEnterDelay={0}
+              placement="top"
+              overlay={<div>Another user is currently in review mode. If you proceed, they will be forced out of review mode.</div>}
+            >
+              {button}
+            </DefaultTooltip>
+          );
+        }
       }
     } else {
       if (isReviewFinished) {
