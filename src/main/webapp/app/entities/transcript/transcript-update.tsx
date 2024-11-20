@@ -47,14 +47,14 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
   useEffect(() => {
     if (transcriptEntity?.gene) {
       setGeneValue({
-        value: transcriptEntity.gene,
+        value: transcriptEntity.gene.id,
         label: transcriptEntity.gene.hugoSymbol,
         synonyms: transcriptEntity.gene.synonyms ?? [],
       });
     }
     if (transcriptEntity?.ensemblGene) {
       setEnsemblGeneValue({
-        value: transcriptEntity.ensemblGene,
+        value: transcriptEntity.ensemblGene.id,
         label: getEnsemblGeneSelectLabel(transcriptEntity.ensemblGene),
       });
     }
@@ -68,8 +68,8 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
       ...transcriptEntity,
       ...values,
       flags: mapIdList(values.flags),
-      ensemblGene: ensemblGeneValue?.value,
-      gene: geneValue?.value,
+      ensemblGene: ensemblGeneValue ? { id: ensemblGeneValue.value } : undefined,
+      gene: geneValue ? { id: geneValue.value } : undefined,
     };
 
     if (isNew) {

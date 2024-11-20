@@ -12,7 +12,7 @@ interface IEnsemblGeneSelect<IsMulti extends boolean> extends SelectProps<Ensemb
 
 export type EnsemblGeneSelectOption = {
   label: string;
-  value: IEnsemblGene;
+  value: number;
 };
 
 export const getEnsemblGeneSelectLabel = (ensemblGene: IEnsemblGene) => {
@@ -40,7 +40,7 @@ const EnsemblGeneSelect = <IsMulti extends boolean>(props: IEnsemblGeneSelect<Is
     options =
       result?.data?.map(
         (entity: IEnsemblGene): EnsemblGeneSelectOption => ({
-          value: entity,
+          value: entity.id,
           label: getEnsemblGeneSelectLabel(entity),
         }),
       ) ?? [];
