@@ -219,21 +219,28 @@ export class FirebaseGeneReviewService {
     }
 
     if (hasEvidences) {
-      // this is slow so do this submission in parallel
-      this.evidenceClient.submitEvidences(evidences).catch(error => {
-        const sentryError = new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
-          hugoSymbol,
-          reviewLevels,
-          isGermline,
-          errorMessage: (error as { message: string }).message,
-          errorStack: (error as { stack: string }).stack,
-        });
-        if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
-          throw sentryError;
-        } else {
-          console.error(sentryError);
+      const evidenceClient = this.evidenceClient;
+      const submitEvidences = async () => {
+        try {
+          await evidenceClient.submitEvidences(evidences);
+        } catch (error) {
+          const sentryError = new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
+            hugoSymbol,
+            reviewLevels,
+            isGermline,
+            errorMessage: (error as { message: string }).message,
+            errorStack: (error as { stack: string }).stack,
+          });
+          if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
+            throw sentryError;
+          } else {
+            console.error(sentryError);
+          }
         }
-      });
+      };
+      // this is slow so do this submission in parallel
+      // in other words, do not await
+      submitEvidences();
     }
 
     let updateObject = {};
