@@ -1346,7 +1346,19 @@
       }
     }
   ],
-  "identityProviderMappers": [],
+  "identityProviderMappers": [
+    {
+      "id": "4f2bdff6-b374-472a-9ede-afcc575c311b",
+      "name": "picture",
+      "identityProviderAlias": "google",
+      "identityProviderMapper": "google-user-attribute-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "jsonField": "picture",
+        "userAttribute": "picture"
+      }
+    }
+  ],
   "components": {
     "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy": [
       {
