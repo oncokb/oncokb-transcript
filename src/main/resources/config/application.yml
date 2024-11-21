@@ -211,7 +211,7 @@ jhipster:
     license: 'Terms of Use'
     license-url: 'https://www.oncokb.org/terms'
   security:
-    content-security-policy: "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com https://*.firebaseio.com https://www.googletagmanager.com https://*.heapanalytics.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https://*.google.com https://heapanalytics.com; font-src 'self' data: https://cdnjs.cloudflare.com; connect-src 'self' ws://*.firebaseio.com https://*;"
+    content-security-policy: "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com https://*.firebaseio.com https://www.googletagmanager.com https://*.heapanalytics.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https://*.google.com https://heapanalytics.com https://*.googleusercontent.com; font-src 'self' data: https://cdnjs.cloudflare.com; connect-src 'self' ws://*.firebaseio.com https://*;"
     oauth2:
       audience:
         - account
