@@ -50,6 +50,7 @@ function TherapyCollapsible({
   modifyTherapyModalStore,
   updateTreatmentName,
   deleteSection,
+  readOnly,
 }: ITherapyCollapsibleProps) {
   const [treatmentUuid, setTreatmentUuid] = useState<string | null>(null);
   const [treatmentName, setTreatmentName] = useState<string | null>(null);
@@ -108,13 +109,15 @@ function TherapyCollapsible({
         action={
           <>
             <CommentIcon id={treatmentUuid} path={`${therapyPath}/name_comments`} />
-            <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${therapyPath}`} />
+            <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${therapyPath}`} readOnly={readOnly} />
             <EditIcon
+              disabled={readOnly}
               onClick={() => {
                 modifyTherapyModalStore?.openModal(treatmentUuid);
               }}
             />
             <DeleteSectionButton
+              disabled={readOnly}
               sectionName={cancerTypeName}
               deleteHandler={handleDeleteTherapy}
               isRemovableWithoutReview={isRemovableWithoutReview}
@@ -126,6 +129,7 @@ function TherapyCollapsible({
       >
         <TherapyDropdownGroup treatmentPath={therapyPath} />
         <RealtimeTextAreaInput
+          disabled={readOnly}
           firebasePath={`${therapyPath}/description`}
           inputClass={styles.textarea}
           label="Description of Evidence"
@@ -145,6 +149,7 @@ function TherapyCollapsible({
           parseRefs
         />
         <RealtimeTextAreaInput
+          disabled={readOnly}
           firebasePath={`${therapyPath}/short`}
           inputClass={styles.shortTextarea}
           label="Additional Information (Optional)"
@@ -185,13 +190,14 @@ function TherapyCollapsible({
   );
 }
 
-const mapStoreToProps = ({ firebaseAppStore, drugStore, modifyTherapyModalStore, firebaseGeneService }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, drugStore, modifyTherapyModalStore, firebaseGeneService, curationPageStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   drugList: drugStore.entities,
   createDrug: drugStore.createEntity,
   updateTreatmentName: firebaseGeneService.updateTreatmentName,
   modifyTherapyModalStore,
   deleteSection: firebaseGeneService.deleteSection,
+  readOnly: curationPageStore.readOnly,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

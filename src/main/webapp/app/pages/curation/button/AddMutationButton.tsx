@@ -7,9 +7,11 @@ const AddMutationButton: React.FunctionComponent<{
   onClickHandler: (show: boolean) => void;
   showIcon?: boolean;
   showFullTitle?: boolean;
-}> = ({ showAddMutationModal, onClickHandler, showIcon = true, showFullTitle = false }) => {
+  disabled?: boolean;
+}> = ({ showAddMutationModal, onClickHandler, showIcon = true, showFullTitle = false, disabled = false }) => {
   return (
     <Button
+      disabled={disabled}
       className="d-flex align-items-center me-2"
       color="primary"
       outline

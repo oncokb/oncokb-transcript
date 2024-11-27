@@ -34,6 +34,7 @@ const GenomicIndicatorsTable = ({
   updateGeneReviewUuid,
   updateMeta,
   fetchGenomicIndicators,
+  readOnly,
 }: IGenomicIndicatorsTableProps) => {
   const [genomicIndicatorsLength, setGenomicIndicatorsLength] = useState<number>(0);
 
@@ -131,7 +132,7 @@ const GenomicIndicatorsTable = ({
                     style={{ height: '60px', marginBottom: isDuplicateName ? 0 : undefined }}
                     firebasePath={`${genomicIndicatorsPath}/${index}/name`}
                     label=""
-                    disabled={thisCellIndicator.name_review?.removed || false}
+                    disabled={thisCellIndicator.name_review?.removed || readOnly || false}
                     invalid={isDuplicateName}
                     invalidMessage="Name must be unique"
                   />
@@ -157,7 +158,7 @@ const GenomicIndicatorsTable = ({
               return (
                 <div style={{ lineHeight: 2 }}>
                   <RealtimeCheckedInputGroup
-                    disabled={genomicIndicator.name_review?.removed || false}
+                    disabled={genomicIndicator.name_review?.removed || readOnly || false}
                     groupHeader={''}
                     options={[ALLELE_STATE.MONOALLELIC, ALLELE_STATE.BIALLELIC, ALLELE_STATE.MOSAIC, ALLELE_STATE.CARRIER].map(label => {
                       return {
@@ -189,7 +190,7 @@ const GenomicIndicatorsTable = ({
                   style={{ height: '60px' }}
                   firebasePath={`${genomicIndicatorsPath}/${index}/description`}
                   label=""
-                  disabled={genomicIndicator.name_review?.removed || false}
+                  disabled={genomicIndicator.name_review?.removed || readOnly || false}
                 />
               );
             }}
@@ -217,7 +218,7 @@ const GenomicIndicatorsTable = ({
                   }}
                   placeholder="Select Variants"
                   isMulti
-                  isDisabled={genomicIndicator.name_review?.removed || false}
+                  isDisabled={genomicIndicator.name_review?.removed || readOnly || false}
                   value={
                     genomicIndicator.associationVariants?.map(variant => {
                       // remove when working on https://github.com/oncokb/oncokb-pipeline/issues/389
@@ -278,6 +279,7 @@ const GenomicIndicatorsTable = ({
                 </DefaultBadge>
               ) : (
                 <DeleteSectionButton
+                  disabled={readOnly}
                   sectionName={genomicIndicator.name}
                   deleteHandler={() => {
                     deleteGenomicIndicator(genomicIndicator, index);
@@ -320,6 +322,7 @@ const mapStoreToProps = ({
   firebaseMetaService,
   firebaseMutationListStore,
   firebaseGenomicIndicatorsStore,
+  curationPageStore,
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   authStore,
@@ -330,6 +333,7 @@ const mapStoreToProps = ({
   mutations: firebaseMutationListStore.data,
   fetchGenomicIndicators: firebaseGenomicIndicatorsStore.fetchData,
   updateMeta: firebaseMetaService.updateMeta,
+  readOnly: curationPageStore.readOnly,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

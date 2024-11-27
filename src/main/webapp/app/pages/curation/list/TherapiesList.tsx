@@ -45,6 +45,7 @@ const TherapiesList = ({
   addTreatment,
   modifyTherapyModalStore,
   isGermline,
+  readOnly,
 }: ITherapiesList) => {
   const [txObjects, setTxObjects] = useState<TxObject[]>([]);
   const [isSorted, setIsSorted] = useState(false);
@@ -112,6 +113,7 @@ const TherapiesList = ({
         );
       })}
       <Button
+        disabled={readOnly}
         data-testid={ADD_THERAPY_BUTTON_ID}
         className={txObjects.length > 0 ? `mt-2` : undefined}
         outline
@@ -141,13 +143,14 @@ const TherapiesList = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseAppStore, drugStore, modifyTherapyModalStore, firebaseGeneService }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, drugStore, modifyTherapyModalStore, firebaseGeneService, curationPageStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   drugList: drugStore.entities,
   getDrugs: drugStore.getEntities,
   createDrug: drugStore.createEntity,
   addTreatment: firebaseGeneService.addTreatment,
   modifyTherapyModalStore,
+  readOnly: curationPageStore.readOnly,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

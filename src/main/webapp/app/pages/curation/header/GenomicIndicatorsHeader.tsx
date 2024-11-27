@@ -18,6 +18,7 @@ function GenomicIndicatorsHeader({
   firebaseDb,
   addEmptyGenomicIndicator,
   fetchGenomicIndicators,
+  readOnly,
 }: IGenomicIndicatorsHeaderProps) {
   const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[]>([]);
 
@@ -43,7 +44,7 @@ function GenomicIndicatorsHeader({
       <AddButton
         className={classNames(isGenomicIndicator ? 'ms-2' : null)}
         title={!isGenomicIndicator ? 'Genomic Indicators' : undefined}
-        disabled={isEmptyIndicatorName}
+        disabled={isEmptyIndicatorName || readOnly}
         onClickHandler={async () => {
           await addEmptyGenomicIndicator?.(genomicIndicatorsPath);
           await fetchGenomicIndicators?.(genomicIndicatorsPath);
@@ -69,11 +70,18 @@ function GenomicIndicatorsHeader({
   );
 }
 
-const mapStoreToProps = ({ firebaseAppStore, authStore, firebaseGeneService, firebaseGenomicIndicatorsStore }: IRootStore) => ({
+const mapStoreToProps = ({
+  firebaseAppStore,
+  authStore,
+  firebaseGeneService,
+  firebaseGenomicIndicatorsStore,
+  curationPageStore,
+}: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   authStore,
   addEmptyGenomicIndicator: firebaseGeneService.addEmptyGenomicIndicator,
   fetchGenomicIndicators: firebaseGenomicIndicatorsStore.fetchData,
+  readOnly: curationPageStore.readOnly,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
