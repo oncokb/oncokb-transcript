@@ -109,7 +109,7 @@ function TherapyCollapsible({
         action={
           <>
             <CommentIcon id={treatmentUuid} path={`${therapyPath}/name_comments`} />
-            <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${therapyPath}`} readOnly={readOnly} />
+            <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${therapyPath}`} />
             <EditIcon
               disabled={readOnly}
               onClick={() => {

@@ -13,16 +13,9 @@ import { Button } from 'reactstrap';
 export interface IRCTButtonProps extends StoreProps {
   cancerTypePath: string;
   relevantCancerTypesInfoPath: string; // path to dx, px, or tx
-  readOnly?: boolean;
 }
 
-function RCTButton({
-  cancerTypePath,
-  relevantCancerTypesInfoPath,
-  firebaseDb,
-  relevantCancerTypesModalStore,
-  readOnly = false,
-}: IRCTButtonProps) {
+function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, relevantCancerTypesModalStore, readOnly }: IRCTButtonProps) {
   const [cancerType, setCancerType] = useState<Tumor>();
   const [relevantCancerTypesInfo, setRelevantCancerTypesInfo] = useState<Implication | Treatment>();
 

@@ -211,7 +211,7 @@ function CancerTypeCollapsible({
           action={
             <>
               <CommentIcon id={`${cancerTypesUuid}_diagnostic_comments`} path={`${cancerTypePath}/diagnostic_comments`} />
-              <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${cancerTypePath}/diagnostic`} readOnly={readOnly} />
+              <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${cancerTypePath}/diagnostic`} />
             </>
           }
           badge={<BadgeGroup firebasePath={`${cancerTypePath}/diagnostic`} />}
@@ -242,7 +242,7 @@ function CancerTypeCollapsible({
           action={
             <>
               <CommentIcon id={`${cancerTypesUuid}_prognostic_comments`} path={`${cancerTypePath}/prognostic_comments`} />
-              <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${cancerTypePath}/prognostic`} readOnly={readOnly} />
+              <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${cancerTypePath}/prognostic`} />
             </>
           }
           badge={<BadgeGroup firebasePath={`${cancerTypePath}/prognostic`} />}

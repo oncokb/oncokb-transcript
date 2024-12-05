@@ -29,6 +29,7 @@ import { Unsubscribe, get, ref, onValue } from 'firebase/database';
 import { getLocationIdentifier, getTooltipHistoryList } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 import GeneticTypeTabs, { GENETIC_TYPE } from './geneticTypeTabs/GeneticTypeTabs';
 import GeneticTypeTabHeader from './header/GeneticTypeTabHeader';
+import ReadOnlyBanner from './header/ReadOnlyBanner';
 import FlagStore from 'app/entities/flag/flag.store';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
@@ -123,6 +124,7 @@ export const CurationPage = (props: ICurationPageProps) => {
     firebaseGeneExists &&
     hugoSymbol ? (
     <>
+      {props.readOnly && <ReadOnlyBanner hugoSymbol={hugoSymbol} />}
       <div style={{ visibility: mutationListRendered ? 'visible' : 'hidden' }}>
         <GeneHeader firebaseGenePath={firebaseGenePath} geneEntity={geneEntity} isReviewing={false} />
         <GeneticTypeTabs geneEntity={geneEntity} geneticType={isGermline ? GENETIC_TYPE.GERMLINE : GENETIC_TYPE.SOMATIC} />
