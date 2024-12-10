@@ -108,6 +108,7 @@ public class AlterationUtils {
         exonsByConsequence.put(SVConsequence.SV_DELETION, new HashSet<>());
         exonsByConsequence.put(SVConsequence.SV_DUPLICATION, new HashSet<>());
 
+        List<String> anyExonAlterations = new ArrayList<>();
         while (matcher.find()) {
             Boolean isAnyExon = false;
             if (matcher.group(1) != null) {
@@ -136,7 +137,14 @@ public class AlterationUtils {
             }
 
             if (isAnyExon) {
-                splitResults.add(alteration);
+                String normalizedAnyExonName = buildExonName(
+                    Integer.parseInt(startExonStr),
+                    Integer.parseInt(endExonStr),
+                    consequenceTerm,
+                    true
+                );
+                splitResults.add(normalizedAnyExonName);
+                anyExonAlterations.add(normalizedAnyExonName);
                 continue;
             }
 
@@ -176,29 +184,40 @@ public class AlterationUtils {
                 } else if (exonNumber == end + 1) {
                     end = exonNumber;
                 } else {
-                    if (start == end) {
-                        result.add("Exon " + start + " " + consequenceTerm);
-                    } else {
-                        result.add("Exon " + start + "-" + end + " " + consequenceTerm);
-                    }
+                    result.add(buildExonName(start, end, consequenceTerm, false));
                     start = exonNumber;
                     end = exonNumber;
                 }
             }
             if (start != -1) {
-                if (start == end) {
-                    result.add("Exon " + start + " " + consequenceTerm);
-                } else {
-                    result.add("Exon " + start + "-" + end + " " + consequenceTerm);
-                }
+                result.add(buildExonName(start, end, consequenceTerm, false));
             }
             if (!result.isEmpty()) {
                 formattedNameByConsequence.add(result.stream().collect(Collectors.joining(" + ")));
             }
         }
+        formattedNameByConsequence.addAll(anyExonAlterations);
         alt.setName(formattedNameByConsequence.stream().collect(Collectors.joining(" + ")));
 
         return alt;
+    }
+
+    private String buildExonName(int start, int end, String consequenceTerm, Boolean isAny) {
+        StringBuilder nameBuilder = new StringBuilder();
+        if (isAny) {
+            nameBuilder.append("Any ");
+        }
+        nameBuilder.append("Exon ");
+        String range = "";
+        if (start == end) {
+            range = Integer.toString(start);
+        } else {
+            range = Integer.toString(start) + "-" + Integer.toString(end);
+        }
+        nameBuilder.append(range);
+        nameBuilder.append(" ");
+        nameBuilder.append(consequenceTerm);
+        return nameBuilder.toString();
     }
 
     public EntityStatus<Alteration> parseAlteration(String alteration) {

@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { IRootStore } from 'app/stores';
-import { flow } from 'mobx';
 import { componentInject } from 'app/shared/util/typed-inject';
-import { ReferenceGenome } from 'app/shared/model/enumerations/reference-genome.model';
 import { ProteinExonDTO } from 'app/shared/api/generated/curation';
 import { Col, Row } from 'reactstrap';
 import { components, OptionProps } from 'react-select';
@@ -32,26 +30,26 @@ type ProteinExonDropdownOption = {
 const EXON_CONSEQUENCES = ['Deletion', 'Insertion', 'Duplication'];
 
 const AddExonForm = ({
-  hugoSymbol,
   defaultExonAlterationName,
-  getProteinExons,
   updateAlterationStateAfterAlterationAdded,
   setShowModifyExonForm,
   setHasUncommitedExonFormChanges,
+  proteinExons,
 }: IAddExonMutationModalBody) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [selectedExons, setSelectedExons] = useState<ProteinExonDropdownOption[]>([]);
-  const [proteinExons, setProteinExons] = useState<ProteinExonDTO[]>([]);
 
   const [isPendingAddAlteration, setIsPendingAddAlteration] = useState(false);
   const [didRemoveProblematicAlt, setDidRemoveProblematicAlt] = useState(false);
 
   const exonOptions = useMemo(() => {
     const options: ProteinExonDropdownOption[] = EXON_CONSEQUENCES.flatMap(consequence => {
-      return proteinExons.map(exon => {
-        const name = `Exon ${exon.exon} ${consequence}`;
-        return { label: `Exon ${exon.exon} ${consequence}`, value: { exon, name }, isSelected: false };
-      });
+      return (
+        proteinExons?.map(exon => {
+          const name = `Exon ${exon.exon} ${consequence}`;
+          return { label: `Exon ${exon.exon} ${consequence}`, value: { exon, name }, isSelected: false };
+        }) ?? []
+      );
     });
     return options;
   }, [proteinExons]);
@@ -95,11 +93,8 @@ const AddExonForm = ({
   }, [selectedExons]);
 
   useEffect(() => {
-    getProteinExons?.(hugoSymbol, ReferenceGenome.GRCh37).then(value => setProteinExons(value));
-  }, []);
-
-  useEffect(() => {
-    const updateDisabled = isPendingAddAlteration || selectedExons.length === 0 || _.isEqual(defaultSelectedExons, selectedExons);
+    const updateDisabled =
+      isPendingAddAlteration || selectedExons.length === 0 || _.isEqual(defaultSelectedExons, selectedExons) || proteinExons?.length === 0;
     setHasUncommitedExonFormChanges?.(!updateDisabled, isUpdate);
   }, [isPendingAddAlteration, selectedExons, defaultSelectedExons]);
 
@@ -133,6 +128,18 @@ const AddExonForm = ({
   if (_.isNil(defaultSelectedExons)) {
     return <LoadingIndicator isLoading />;
   }
+
+  const NoOptionsMessage = props => {
+    return (
+      <components.NoOptionsMessage {...props}>
+        <div style={{ textAlign: 'left' }}>
+          <div>No options matching text</div>
+          <br></br>
+          <ExonCreateInfo />
+        </div>
+      </components.NoOptionsMessage>
+    );
+  };
 
   return (
     <>
@@ -235,18 +242,6 @@ export const ExonCreateInfo = ({ listView }: { listView?: boolean }) => {
   );
 };
 
-const NoOptionsMessage = props => {
-  return (
-    <components.NoOptionsMessage {...props}>
-      <div style={{ textAlign: 'left' }}>
-        <div>No options matching text</div>
-        <br></br>
-        <ExonCreateInfo />
-      </div>
-    </components.NoOptionsMessage>
-  );
-};
-
 const MultiSelectOption = (props: OptionProps<ProteinExonDropdownOption>) => {
   return (
     <div>
@@ -258,11 +253,11 @@ const MultiSelectOption = (props: OptionProps<ProteinExonDropdownOption>) => {
   );
 };
 
-const mapStoreToProps = ({ transcriptStore, addMutationModalStore }: IRootStore) => ({
-  getProteinExons: flow(transcriptStore.getProteinExons),
+const mapStoreToProps = ({ addMutationModalStore }: IRootStore) => ({
   updateAlterationStateAfterAlterationAdded: addMutationModalStore.updateAlterationStateAfterAlterationAdded,
   setShowModifyExonForm: addMutationModalStore.setShowModifyExonForm,
   setHasUncommitedExonFormChanges: addMutationModalStore.setHasUncommitedExonFormChanges,
+  proteinExons: addMutationModalStore.proteinExons,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

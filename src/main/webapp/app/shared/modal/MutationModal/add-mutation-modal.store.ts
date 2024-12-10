@@ -3,7 +3,13 @@ import { action, computed, flow, flowResult, makeObservable, observable } from '
 import { convertEntityStatusAlterationToAlterationData, getFullAlterationName, hasValue, parseAlterationName } from 'app/shared/util/utils';
 import _ from 'lodash';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { AlterationAnnotationStatus, AnnotateAlterationBody, Gene, Alteration as ApiAlteration } from 'app/shared/api/generated/curation';
+import {
+  AlterationAnnotationStatus,
+  AnnotateAlterationBody,
+  Gene,
+  Alteration as ApiAlteration,
+  ProteinExonDTO,
+} from 'app/shared/api/generated/curation';
 import { REFERENCE_GENOME } from 'app/config/constants/constants';
 import AlterationStore from 'app/entities/alteration/alteration.store';
 import { IGene } from 'app/shared/model/gene.model';
@@ -15,6 +21,7 @@ type SelectedFlag = IFlag | Omit<IFlag, 'id'>;
 export class AddMutationModalStore {
   private alterationStore: AlterationStore;
 
+  public proteinExons: ProteinExonDTO[] = [];
   public geneEntity: IGene | null = null;
   public mutationToEdit: Mutation | null = null;
   public vusList: VusObjList | null = null;
@@ -36,6 +43,7 @@ export class AddMutationModalStore {
   constructor(alterationStore: AlterationStore) {
     this.alterationStore = alterationStore;
     makeObservable(this, {
+      proteinExons: observable,
       geneEntity: observable,
       mutationToEdit: observable,
       vusList: observable,
@@ -73,7 +81,12 @@ export class AddMutationModalStore {
       fetchAlteration: action.bound,
       fetchAlterations: action.bound,
       cleanup: action.bound,
+      setProteinExons: action.bound,
     });
+  }
+
+  setProteinExons(proteinExons: ProteinExonDTO[]) {
+    this.proteinExons = proteinExons;
   }
 
   setMutationToEdit(mutationToEdit: Mutation | null) {
@@ -422,5 +435,6 @@ export class AddMutationModalStore {
     this.isFetchingExcludingAlteration = false;
     this.selectedAlterationCategoryFlags = [];
     this.alterationCategoryComment = '';
+    this.proteinExons = [];
   }
 }

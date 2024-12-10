@@ -30,6 +30,9 @@ import ExcludedAlterationContent from './MutationModal/ExcludedAlterationContent
 import { EXON_ALTERATION_REGEX } from 'app/config/constants/regex';
 import MutationListSection from './MutationModal/MutationListSection';
 import classNames from 'classnames';
+import { ReferenceGenome } from '../model/enumerations/reference-genome.model';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import DefaultTooltip from '../tooltip/DefaultTooltip';
 
 function getModalErrorMessage(mutationAlreadyExists: MutationExistsMeta) {
   let modalErrorMessage: string | undefined = undefined;
@@ -115,6 +118,9 @@ function AddMutationModal({
   selectedAlterationStateIndex,
   hasUncommitedExonFormChanges,
   unCommittedExonFormChangesWarning,
+  getProteinExons,
+  setProteinExons,
+  proteinExons,
 }: IAddMutationModalProps) {
   const [inputValue, setInputValue] = useState('');
   const [mutationAlreadyExists, setMutationAlreadyExists] = useState<MutationExistsMeta>({
@@ -162,6 +168,12 @@ function AddMutationModal({
       handleAlterationAdded();
     }
   }, [convertOptions?.isConverting]);
+
+  useEffect(() => {
+    if (hugoSymbol) {
+      getProteinExons?.(hugoSymbol, ReferenceGenome.GRCh37).then(value => setProteinExons?.(value));
+    }
+  }, [hugoSymbol]);
 
   useEffect(() => {
     const dupMutations = getDuplicateMutations(currentMutationNames ?? [], mutationList ?? [], vusList ?? {}, {
@@ -242,11 +254,17 @@ function AddMutationModal({
     if (convertOptions?.isConverting) {
       alterationString = convertOptions.alteration;
     }
-    try {
-      setIsAddAlterationPending(true);
-      await updateAlterationStateAfterAlterationAdded?.(parseAlterationName(alterationString));
-    } finally {
-      setIsAddAlterationPending(false);
+    if (EXON_ALTERATION_REGEX.test(alterationString) && proteinExons?.length === 0) {
+      notifyError(
+        new Error('Removed exons alterations because gene does not have an associated oncokb canonical transcript. Reach out to dev team.'),
+      );
+    } else {
+      try {
+        setIsAddAlterationPending(true);
+        await updateAlterationStateAfterAlterationAdded?.(parseAlterationName(alterationString));
+      } finally {
+        setIsAddAlterationPending(false);
+      }
     }
     setInputValue('');
   }
@@ -357,10 +375,24 @@ function AddMutationModal({
         <span className="fw-bold">OR</span>
       </Col>
       <Col className="col-auto d-flex">
-        <Button color="primary" outline className="ms-2" onClick={() => setShowModifyExonForm?.(true)}>
-          <FontAwesomeIcon icon={faPlus} className="me-1" />
-          Exon
-        </Button>
+        <DefaultTooltip
+          overlay={
+            'Gene does not have an associated oncokb canonical transcript, which is required for exon curation. Reach out to dev team.'
+          }
+        >
+          <span>
+            <Button
+              color="primary"
+              outline
+              className="ms-2"
+              onClick={() => setShowModifyExonForm?.(true)}
+              disabled={proteinExons?.length === 0}
+            >
+              <FontAwesomeIcon icon={faPlus} className="me-1" />
+              Exon
+            </Button>
+          </span>
+        </DefaultTooltip>
       </Col>
     </Row>
   );
@@ -466,6 +498,7 @@ const mapStoreToProps = ({
   firebaseMutationListStore,
   flagStore,
   addMutationModalStore,
+  transcriptStore,
 }: IRootStore) => ({
   annotateAlterations: flow(alterationStore.annotateAlterations),
   geneEntities: geneStore.entities,
@@ -497,6 +530,9 @@ const mapStoreToProps = ({
   selectedAlterationStateIndex: addMutationModalStore.selectedAlterationStateIndex,
   hasUncommitedExonFormChanges: addMutationModalStore.hasUncommitedExonFormChanges,
   unCommittedExonFormChangesWarning: addMutationModalStore.unCommittedExonFormChangesWarning,
+  getProteinExons: flow(transcriptStore.getProteinExons),
+  setProteinExons: addMutationModalStore.setProteinExons,
+  proteinExons: addMutationModalStore.proteinExons,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
