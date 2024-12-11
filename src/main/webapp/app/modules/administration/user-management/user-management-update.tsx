@@ -132,7 +132,15 @@ export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
                   }
                 }}
               />
-              {isDev && <ValidatedSelect isMulti label="Feature Flag" name={'featureFlags'} options={featureFlagOptions} />}
+              {isDev && (
+                <ValidatedSelect
+                  isMulti
+                  label="Feature Flag"
+                  name={'featureFlags'}
+                  options={featureFlagOptions}
+                  getOptionValue={option => String(option.value.id)} // Use featureflag.id as unique identifier
+                />
+              )}
               <SaveButton disabled={isInvalid || updating} />
             </ValidatedForm>
           )}

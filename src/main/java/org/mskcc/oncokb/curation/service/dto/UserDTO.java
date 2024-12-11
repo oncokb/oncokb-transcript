@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.service.dto;
 
 import jakarta.validation.constraints.*;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.config.Constants;
@@ -52,7 +53,7 @@ public class UserDTO {
 
     private Set<String> authorities;
 
-    private Set<FeatureFlag> featureFlags;
+    private Set<FeatureFlag> featureFlags = new HashSet<>();
 
     public UserDTO() {
         // Empty constructor needed for Jackson.
@@ -72,7 +73,7 @@ public class UserDTO {
         this.lastModifiedBy = user.getLastModifiedBy();
         this.lastModifiedDate = user.getLastModifiedDate();
         this.authorities = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
-        this.featureFlags = user.getFeatureFlags();
+        this.featureFlags = featureFlags;
     }
 
     public Long getId() {

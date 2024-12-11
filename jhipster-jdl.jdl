@@ -380,9 +380,6 @@ entity Transcript {
     description String
 }
 
-/**
- * Add FeatureFlag entity and more-to-more relationship with User
- */
 entity FeatureFlag {
     name String required
     description String
@@ -445,7 +442,7 @@ relationship ManyToMany {
     GenomicIndicator to Association
     NciThesaurus to Synonym
     Transcript to Flag
-    User to FeatureFlag
+    FeatureFlag to User
 }
 
 paginate Alteration, Article, CancerType, ClinicalTrial, ClinicalTrialArm,

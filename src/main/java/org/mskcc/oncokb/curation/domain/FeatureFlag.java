@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
@@ -30,11 +31,12 @@ public class FeatureFlag implements Serializable {
     @Column(name = "enabled", nullable = false, columnDefinition = "boolean default false")
     private Boolean enabled = false;
 
-    @ManyToMany
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_feature_flag__user",
-        joinColumns = @JoinColumn(name = "feature_flag_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
+        joinColumns = { @JoinColumn(name = "feature_flag_id", referencedColumnName = "id") },
+        inverseJoinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") }
     )
     private Set<User> users = new HashSet<>();
 

@@ -147,7 +147,10 @@ public class UserResource {
     @GetMapping("/users/{login}")
     public ResponseEntity<UserDTO> getUser(@PathVariable @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
         log.debug("REST request to get User : {}", login);
-        return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesAndFeatureFlagsByLogin(login).map(UserDTO::new));
+        return userService
+            .getUserWithAuthoritiesAndFeatureFlagsByLogin(login)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
     }
 
     /**
