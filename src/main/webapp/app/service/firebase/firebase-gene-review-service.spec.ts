@@ -244,6 +244,7 @@ describe('Firebase Gene Review Service', () => {
         entrezGeneId: 0,
       });
 
+      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledTimes(1);
       expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [0]);
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
@@ -739,6 +740,7 @@ describe('Firebase Gene Review Service', () => {
       });
       await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
 
+      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledTimes(1);
       expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [12]);
       // We expect both alterations (V600E and V600K) to be added to VUS list
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
