@@ -293,12 +293,10 @@ export class FirebaseGeneReviewService {
     try {
       // Todo: We should use multi-location updates for deletions once all our arrays use firebase auto-generated keys
       // instead of using sequential number indices.
-      this.processDeletion(reviewLevels.length, itemsToDelete);
+      return this.processDeletion(reviewLevels.length, itemsToDelete);
     } catch (error) {
       throw new SentryError('Failed to accept deletions in review mode', { hugoSymbol, reviewLevels, isGermline, itemsToDelete });
     }
-
-    return this.processDeletion(reviewLevels.length, itemsToDelete);
   };
 
   rejectChanges = async (
