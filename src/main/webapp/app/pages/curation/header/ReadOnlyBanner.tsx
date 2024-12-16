@@ -26,15 +26,13 @@ const ReadOnlyBanner = ({ isGermline, hugoSymbol, firebaseDb }: IReadOnlyBanner)
     return () => subscribe?.();
   }, []);
 
-  const handleClose = () => {
-    setIsVisible(false);
-  };
-
   return meta && isVisible ? (
     <div className="alert alert-primary alert-dismissible fade show d-flex align-items-center" role="alert">
       <BiInfoCircle size={25} className="me-2" />
-      <span>This page is currently in read-only mode because {meta.review.currentReviewer} is currently reviewing.</span>
-      <button type="button" className="btn-close" aria-label="Close" onClick={handleClose}></button>
+      <span>
+        {isGermline ? 'This Germline ' : 'This Somatic '}
+        is currently in read only mode because {meta.review.currentReviewer} is currently reviewing.
+      </span>
     </div>
   ) : null;
 };

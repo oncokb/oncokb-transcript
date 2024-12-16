@@ -124,13 +124,13 @@ export const CurationPage = (props: ICurationPageProps) => {
     firebaseGeneExists &&
     hugoSymbol ? (
     <>
-      {props.readOnly && <ReadOnlyBanner hugoSymbol={hugoSymbol} />}
       <div style={{ visibility: mutationListRendered ? 'visible' : 'hidden' }}>
         <GeneHeader firebaseGenePath={firebaseGenePath} geneEntity={geneEntity} isReviewing={false} />
         <GeneticTypeTabs geneEntity={geneEntity} geneticType={isGermline ? GENETIC_TYPE.GERMLINE : GENETIC_TYPE.SOMATIC} />
         <div className="d-flex justify-content-end mt-2 mb-2">
           <GeneticTypeTabHeader hugoSymbol={hugoSymbol} isReviewing={false} />
         </div>
+        {props.readOnly && <ReadOnlyBanner hugoSymbol={hugoSymbol} />}
         <div className="mb-4">
           <Row className={'justify-content-between'}>
             <Col className="pb-2">
