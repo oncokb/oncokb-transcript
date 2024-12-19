@@ -23,7 +23,8 @@ export interface IAddExonMutationModalBody extends StoreProps {
 
 type ProteinExonDropdownOption = {
   label: string;
-  value: { exon: ProteinExonDTO; name: string } | string;
+  value: string;
+  exon?: ProteinExonDTO;
   isSelected: boolean;
 };
 
@@ -47,7 +48,7 @@ const AddExonForm = ({
       return (
         proteinExons?.map(exon => {
           const name = `Exon ${exon.exon} ${consequence}`;
-          return { label: `Exon ${exon.exon} ${consequence}`, value: { exon, name }, isSelected: false };
+          return { label: `Exon ${exon.exon} ${consequence}`, value: name, exon, isSelected: false };
         }) ?? []
       );
     });

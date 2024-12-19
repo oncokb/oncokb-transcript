@@ -132,7 +132,7 @@ const AlterationBadge = ({
   onDelete,
   isExcludedAlteration = false,
 }: IAlterationBadge) => {
-  const { ref, overflow } = useOverflowDetector({ handleHeight: false });
+  const [isOverflow, ref] = useOverflowDetector({ detectHeight: false });
 
   const backgroundColor = useMemo(() => {
     if (alterationData.error) {
@@ -189,7 +189,7 @@ const AlterationBadge = ({
     </div>
   );
 
-  if (overflow) {
+  if (isOverflow) {
     return (
       <DefaultTooltip overlay={alterationName} placement="bottom">
         {badgeComponent}
