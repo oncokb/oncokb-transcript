@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.config.CRLFLogConverter;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.config.application.FrontendProperties;
+import org.mskcc.oncokb.curation.importer.CanonicalTranscriptFlagImporter;
 import org.mskcc.oncokb.curation.importer.CdxImporter;
 import org.mskcc.oncokb.curation.importer.Importer;
 import org.oncokb.ApiException;
@@ -42,6 +43,9 @@ public class OncokbCurationApp {
 
     @Autowired
     CdxImporter cdxImporter;
+
+    @Autowired
+    CanonicalTranscriptFlagImporter canonicalTranscriptFlagImporter;
 
     private static final Logger log = LoggerFactory.getLogger(OncokbCurationApp.class);
 
@@ -136,6 +140,16 @@ public class OncokbCurationApp {
         );
         if (activeProfiles.contains("cdx-importer")) {
             cdxImporter.importCdxMain();
+        }
+    }
+
+    @PostConstruct
+    public void importTranscriptFlags() {
+        Collection<String> activeProfiles = Arrays.asList(
+            env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()
+        );
+        if (activeProfiles.contains("transcript-flag-importer")) {
+            canonicalTranscriptFlagImporter.importCanonicalTranscripts();
         }
     }
 
