@@ -30,8 +30,8 @@ const ReadOnlyBanner = ({ isGermline, hugoSymbol, firebaseDb }: IReadOnlyBanner)
     <div className="alert alert-primary alert-dismissible fade show d-flex align-items-center" role="alert">
       <BiInfoCircle size={25} className="me-2" />
       <span>
-        {isGermline ? 'This Germline ' : 'This Somatic '}
-        is currently in read only mode because {meta.review.currentReviewer} is currently reviewing.
+        {isGermline ? 'The germline ' : 'The somatic '}
+        section is currently in read only mode because {meta.review.currentReviewer} is currently reviewing.
       </span>
     </div>
   ) : null;
