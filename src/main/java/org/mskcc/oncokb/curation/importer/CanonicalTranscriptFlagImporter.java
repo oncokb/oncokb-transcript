@@ -29,12 +29,8 @@ public class CanonicalTranscriptFlagImporter {
     final String ONCOKB_GENE_LIST_FILE_PATH = "data/oncokb_core/cancer_gene_list_v4_23.tsv";
 
     final GeneService geneService;
-    final GenomeNexusService genomeNexusService;
-    final EnsemblGeneService ensemblGeneService;
     final TranscriptService transcriptService;
     final FlagService flagService;
-    final InfoService infoService;
-    final MainService mainService;
 
     public CanonicalTranscriptFlagImporter(
         GeneService geneService,
@@ -46,12 +42,8 @@ public class CanonicalTranscriptFlagImporter {
         MainService mainService
     ) {
         this.geneService = geneService;
-        this.genomeNexusService = genomeNexusService;
-        this.ensemblGeneService = ensemblGeneService;
         this.transcriptService = transcriptService;
         this.flagService = flagService;
-        this.infoService = infoService;
-        this.mainService = mainService;
     }
 
     public void importCanonicalTranscripts() {
