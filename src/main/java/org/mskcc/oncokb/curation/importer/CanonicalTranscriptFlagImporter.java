@@ -114,7 +114,7 @@ public class CanonicalTranscriptFlagImporter {
             }
             log.info(String.format("Successfully saved transcript %s %s %s", isoform, refSeq, referenceGenome.toString()));
         } else {
-            log.info("Creating new");
+            log.warn("Transcript does not exist in database, skipping...");
         }
     }
 }
