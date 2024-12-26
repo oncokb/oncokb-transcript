@@ -15,6 +15,8 @@ import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,11 +24,12 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class CanonicalTranscriptFlagImporter {
+@Profile("transcript-flag-importer")
+public class CanonicalTranscriptFlagImporter implements CommandLineRunner {
 
     private final Logger log = LoggerFactory.getLogger(CanonicalTranscriptFlagImporter.class);
 
-    final String ONCOKB_GENE_LIST_FILE_PATH = "data/oncokb_core/cancer_gene_list_v4_23.tsv";
+    final String ONCOKB_GENE_LIST_FILE_PATH = "data/oncokb_core/cancer_gene_list_v4_24.tsv";
 
     final GeneService geneService;
     final TranscriptService transcriptService;
@@ -46,7 +49,14 @@ public class CanonicalTranscriptFlagImporter {
         this.flagService = flagService;
     }
 
-    public void importCanonicalTranscripts() {
+    @Override
+    public void run(String... args) throws Exception {
+        log.info("Running canonical transcript flag importer...");
+        importCanonicalTranscripts();
+        log.info("Finished importer.");
+    }
+
+    private void importCanonicalTranscripts() {
         URL geneListUrl = getClass().getClassLoader().getResource(ONCOKB_GENE_LIST_FILE_PATH);
         try {
             InputStream is = geneListUrl.openStream();
@@ -57,8 +67,7 @@ public class CanonicalTranscriptFlagImporter {
                 }
                 List<String> line = tsvFile.get(i);
                 if (line.size() < 8) {
-                    log.warn(String.format("Skipping line %i", i));
-                    continue;
+                    throw new IOException(String.format("Line %i has less than 8 columns", i));
                 }
                 Integer entrezGeneId;
                 if (StringUtils.isNumeric(line.get(1))) {

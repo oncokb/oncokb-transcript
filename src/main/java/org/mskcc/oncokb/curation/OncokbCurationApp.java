@@ -143,16 +143,6 @@ public class OncokbCurationApp {
         }
     }
 
-    @PostConstruct
-    public void importTranscriptFlags() {
-        Collection<String> activeProfiles = Arrays.asList(
-            env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()
-        );
-        if (activeProfiles.contains("transcript-flag-importer")) {
-            canonicalTranscriptFlagImporter.importCanonicalTranscripts();
-        }
-    }
-
     /**
      * Main method, used to run the application.
      *
