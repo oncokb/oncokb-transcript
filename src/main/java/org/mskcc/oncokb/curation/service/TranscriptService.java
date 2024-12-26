@@ -285,6 +285,11 @@ public class TranscriptService {
         return transcriptMapper.toDto(transcriptRepository.findByEnsemblGene(ensemblGene));
     }
 
+    @Transactional(readOnly = true)
+    public List<Transcript> findByEntrezGeneIdAndReferenceGenome(Integer entrezGeneId, ReferenceGenome referenceGenome) {
+        return transcriptRepository.findByEntrezGeneIdAndReferenceGenome(entrezGeneId, referenceGenome);
+    }
+
     public List<EnsemblTranscript> getTranscriptsWithMatchedResidue(
         ReferenceGenome referenceGenome,
         List<EnsemblTranscript> transcripts,

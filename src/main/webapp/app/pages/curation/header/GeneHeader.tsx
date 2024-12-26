@@ -104,7 +104,7 @@ const GeneHeader = ({ firebaseGenePath, geneEntity, isReviewing }: IGeneHeaderPr
                   {(transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH37].ensemblTranscriptId ||
                     transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH38].ensemblTranscriptId) && (
                     <div className="d-flex">
-                      <div>Ensembl Transcript: </div>
+                      <div className="me-1">Ensembl Transcript:</div>
                       <EnsemblIdText
                         grch37={transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH37].ensemblTranscriptId}
                         grch38={transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH38].ensemblTranscriptId}
@@ -114,7 +114,7 @@ const GeneHeader = ({ firebaseGenePath, geneEntity, isReviewing }: IGeneHeaderPr
                   {(transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH37].referenceSequenceId ||
                     transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH38].referenceSequenceId) && (
                     <div className="d-flex">
-                      <div>Ref Seq:</div>
+                      <div className="me-1">Ref Seq:</div>
                       <RefSeqText
                         grch37={transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH37].referenceSequenceId}
                         grch38={transcriptInfoByReferenceGenome[REFERENCE_GENOME.GRCH38].referenceSequenceId}

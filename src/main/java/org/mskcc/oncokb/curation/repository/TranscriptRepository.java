@@ -27,8 +27,10 @@ public interface TranscriptRepository extends JpaRepository<Transcript, Long>, J
 
     List<Transcript> findByEnsemblGene(EnsemblGene ensemblGene);
 
-    @Query("select distinct t from Transcript t join t.ensemblGene eg where eg.referenceGenome= ?1 and t.ensemblTranscriptId in ?2")
-    List<Transcript> findByEnsemblGeneId(Integer entrezGeneId);
+    @Query(
+        "select distinct t from Transcript t left join fetch t.flags left join t.gene g where t.referenceGenome=?2 and g.entrezGeneId=?1"
+    )
+    List<Transcript> findByEntrezGeneIdAndReferenceGenome(Integer entrezGeneId, ReferenceGenome referenceGenome);
 
     Optional<Transcript> findByEnsemblGeneAndEnsemblTranscriptId(EnsemblGene ensemblGene, String ensemblTranscriptId);
 
