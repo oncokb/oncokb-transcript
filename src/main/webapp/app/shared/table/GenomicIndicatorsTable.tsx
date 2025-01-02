@@ -262,6 +262,7 @@ const GenomicIndicatorsTable = ({
       },
     },
     {
+      disableHeaderFiltering: true,
       Header: 'Actions',
       width: 80,
       style: { padding: 0 },

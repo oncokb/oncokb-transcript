@@ -10,6 +10,7 @@ import { Button } from 'reactstrap';
 
 interface IFilterIconModalProps {
   id: string;
+  tableRef: React.RefObject<HTMLDivElement>;
   allSelections: Set<string>;
   currSelections: Set<string>;
   updateSelections: (selected: Set<string>) => void;
@@ -17,12 +18,13 @@ interface IFilterIconModalProps {
 
 interface FilterMenuProps {
   selections: Set<string>;
+  tableRef: React.RefObject<HTMLDivElement>;
   iconRef: React.RefObject<HTMLDivElement>;
   currSelections: Set<string>;
   updateSelections: (selected: Set<string>) => void;
 }
 
-const FilterMenu = ({ selections, iconRef, currSelections, updateSelections }: FilterMenuProps) => {
+const FilterMenu = ({ selections, tableRef, iconRef, currSelections, updateSelections }: FilterMenuProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const [newSelections, setNewSelections] = useState(new Set(currSelections));
@@ -62,31 +64,39 @@ const FilterMenu = ({ selections, iconRef, currSelections, updateSelections }: F
     updateSelections(new Set(newSelections));
   };
 
-  return createPortal(
-    <div className="filter-overlay" ref={setPopperElement} style={styles.popper} {...attributes.popper} onClick={e => e.stopPropagation()}>
-      <div style={{ marginTop: '10px' }}>
-        <Input placeholder="Search" value={searchTerm} onChange={handleSearchChange} />
-        <div className="checkbox-list">
-          <div>
-            <Input type="checkbox" onChange={e => handleSelectAll(e)} />
-            <label>Select All</label>
-          </div>
-          {SearchedSelections.map(selection => (
-            <div key={selection}>
-              <Input type="checkbox" checked={newSelections.has(selection)} onChange={e => handleCheckboxChange(selection, e)} />
-              <label>{selection}</label>
+  return tableRef.current
+    ? createPortal(
+        <div
+          className="filter-overlay"
+          ref={setPopperElement}
+          style={styles.popper}
+          {...attributes.popper}
+          onClick={e => e.stopPropagation()}
+        >
+          <div style={{ marginTop: '10px' }}>
+            <Input placeholder="Search" value={searchTerm} onChange={handleSearchChange} />
+            <div className="checkbox-list">
+              <div>
+                <Input type="checkbox" onChange={e => handleSelectAll(e)} />
+                <label>Select All</label>
+              </div>
+              {SearchedSelections.map(selection => (
+                <div key={selection}>
+                  <Input type="checkbox" checked={newSelections.has(selection)} onChange={e => handleCheckboxChange(selection, e)} />
+                  <label>{selection}</label>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
-      <div className="d-flex justify-content-end pt-2">
-        <Button onClick={applyFilter} color="primary" size="sm">
-          Filter
-        </Button>
-      </div>
-    </div>,
-    document.body,
-  );
+          </div>
+          <div className="d-flex justify-content-end pt-2">
+            <Button onClick={applyFilter} color="primary" size="sm">
+              Filter
+            </Button>
+          </div>
+        </div>,
+        tableRef.current,
+      )
+    : null;
 };
 
 export const FilterIconModal = observer((props: IFilterIconModalProps) => {
@@ -120,6 +130,7 @@ export const FilterIconModal = observer((props: IFilterIconModalProps) => {
         <div ref={menuRef}>
           <FilterMenu
             selections={props.allSelections}
+            tableRef={props.tableRef}
             iconRef={iconRef}
             currSelections={props.currSelections}
             updateSelections={props.updateSelections}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import ReactTable, { Column, TableProps } from 'react-table';
 import FilterIconModal from './FilterIconModal';
 
@@ -6,6 +6,7 @@ import FilterIconModal from './FilterIconModal';
 /* eslint-disable @typescript-eslint/ban-types */
 export type SearchColumn<T> = Column<T> & {
   onFilter?: (data: T, keyword: string) => boolean;
+  disableHeaderFiltering?: boolean;
 };
 
 export interface ITableWithSearchBox<T> extends Partial<TableProps<T>> {
@@ -23,6 +24,7 @@ export interface ITableWithSearchBox<T> extends Partial<TableProps<T>> {
 export const OncoKBTable = <T extends object>({ disableSearch = false, showPagination = false, ...props }: ITableWithSearchBox<T>) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<{ [columnId: string]: Set<string> }>({});
+  const tableRef = useRef(null);
 
   const filteredData = useMemo(() => {
     return props.data.filter((item: T) => {
@@ -78,12 +80,15 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
         Header: (
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <span>{column.Header}</span>
-            <FilterIconModal
-              id={columnId}
-              allSelections={allUniqColumnData[columnId]}
-              currSelections={selectedFilters[columnId] || new Set()}
-              updateSelections={newSelections => handleFilterChange(columnId, newSelections)}
-            />
+            {!column.disableHeaderFiltering && (
+              <FilterIconModal
+                id={columnId}
+                tableRef={tableRef}
+                allSelections={allUniqColumnData[columnId]}
+                currSelections={selectedFilters[columnId] || new Set()}
+                updateSelections={newSelections => handleFilterChange(columnId, newSelections)}
+              />
+            )}
           </div>
         ),
       };
@@ -91,7 +96,7 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
   }, [props.columns, props.data, selectedFilters]);
 
   return (
-    <div>
+    <div id="oncokb-table" ref={tableRef}>
       {props.filters === undefined && disableSearch ? (
         <></>
       ) : (
