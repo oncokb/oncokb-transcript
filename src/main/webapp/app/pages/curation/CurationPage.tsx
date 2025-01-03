@@ -90,7 +90,7 @@ export const CurationPage = (props: ICurationPageProps) => {
       const cleanupCallbacks: Unsubscribe[] = [];
       cleanupCallbacks.push(
         onValue(ref(props.firebaseDb, firebaseMetaCurrentReviewerPath), snapshot => {
-          props.setReadOnly(snapshot.val() ? true : false);
+          props.setReadOnly(!!snapshot.val());
         }),
       );
       cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));

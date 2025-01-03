@@ -1,6 +1,6 @@
 import { componentInject } from 'app/shared/util/typed-inject';
 import { Meta } from 'app/shared/model/firebase/firebase.model';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { observer } from 'mobx-react';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
@@ -12,9 +12,10 @@ export interface IReadOnlyBanner extends StoreProps {
 }
 
 const ReadOnlyBanner = ({ isGermline, hugoSymbol, firebaseDb }: IReadOnlyBanner) => {
-  const firebaseMetaPath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
   const [meta, setMeta] = useState<Meta>();
-  const [isVisible, setIsVisible] = useState(true);
+  const firebaseMetaPath = useMemo(() => {
+    return getFirebaseMetaGenePath(isGermline, hugoSymbol);
+  }, [isGermline, hugoSymbol]);
 
   useEffect(() => {
     if (!firebaseDb) {
@@ -26,7 +27,7 @@ const ReadOnlyBanner = ({ isGermline, hugoSymbol, firebaseDb }: IReadOnlyBanner)
     return () => subscribe?.();
   }, []);
 
-  return meta && isVisible ? (
+  return meta ? (
     <div className="alert alert-primary alert-dismissible fade show d-flex align-items-center" role="alert">
       <BiInfoCircle size={25} className="me-2" />
       <span>

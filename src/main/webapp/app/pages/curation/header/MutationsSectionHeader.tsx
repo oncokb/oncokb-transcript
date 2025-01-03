@@ -298,7 +298,6 @@ function MutationsSectionHeader({
         showAddMutationModal={showAddMutationModal}
         onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
         showFullTitle
-        disabled={readOnly}
       />
     );
   }
@@ -327,11 +326,7 @@ function MutationsSectionHeader({
     <div className={'d-flex align-items-center mb-2 mt-4'}>
       <div className={'d-flex align-items-center mb-2'}>
         <h5 className="mb-0 me-2">Mutations:</h5>
-        <AddMutationButton
-          showAddMutationModal={showAddMutationModal}
-          onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
-          disabled={readOnly}
-        />
+        <AddMutationButton showAddMutationModal={showAddMutationModal} onClickHandler={(show: boolean) => setShowAddMutationModal(!show)} />
       </div>
       <div style={{ width: '100%' }} className="d-flex align-items-center justify-content-between mb-2">
         {mutationsAreFiltered ? <span>{`Showing ${filteredIndices.length} of ${mutations.length} matching the search`}</span> : <span />}
