@@ -7,30 +7,48 @@ import { IRootStore } from 'app/stores/createStore';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
-import { USER_AUTHORITY } from 'app/config/constants/constants';
+import { USER_AUTHORITY, AUTHORITIES } from 'app/config/constants/constants';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
 
 export interface IUserManagementUpdateProps extends StoreProps, RouteComponentProps<{ login: string }> {}
 
 const authorityOptions = Object.values(USER_AUTHORITY).map(auth => ({ label: auth, value: auth }));
 
-export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
-  const [isNew] = useState(!props.match.params || !props.match.params.login);
-  const [isDev, setIsDev] = useState(false);
+export const UserManagementUpdate = ({
+  match,
+  history,
+  user,
+  loading,
+  updating,
+  featureFlags,
+  getUser,
+  createUser,
+  updateUser,
+  reset,
+  getFeatureFlags,
+  isDev: initialIsDev,
+}: IUserManagementUpdateProps) => {
+  const [isNew] = useState(!match.params || !match.params.login);
+  const [isDev, setIsDev] = useState(initialIsDev);
 
   useEffect(() => {
-    props.getFeatureFlags({});
+    setIsDev(initialIsDev);
+  }, [initialIsDev]);
+
+  useEffect(() => {
+    getFeatureFlags({});
   }, []);
 
   useEffect(() => {
     if (isNew) {
-      props.reset();
+      reset();
     } else {
-      props.getUser(props.match.params.login);
+      getUser(match.params.login);
     }
-  }, [props.match.params.login]);
+  }, [match.params.login]);
 
   const handleClose = () => {
-    props.history.push('/admin/user-management');
+    history.push('/admin/user-management');
   };
 
   // TYPE-ISSUE: Is values supposed to be IUser?
@@ -43,15 +61,14 @@ export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
       featureFlags: (values.featureFlags || []).map(f => f.value),
     };
     if (isNew) {
-      props.createUser(entity);
+      createUser(entity);
     } else {
-      props.updateUser(entity);
+      updateUser(entity);
     }
     handleClose();
   };
 
   const isInvalid = false;
-  const { user, loading, updating, featureFlags } = props;
 
   const defaultValues = useMemo(() => {
     return isNew
@@ -61,10 +78,6 @@ export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
           authorities: user?.authorities?.map(auth => ({ label: auth, value: auth })),
           featureFlags: user?.featureFlags?.map(f => ({ label: f.name, value: f })),
         };
-  }, [user]);
-
-  useEffect(() => {
-    setIsDev(props.user?.authorities?.includes(USER_AUTHORITY.ROLE_DEV));
   }, [user]);
 
   const featureFlagOptions = featureFlags.filter(f => f.enabled).map(f => ({ label: f.name, value: f }));
@@ -160,6 +173,7 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   createUser: storeState.userStore.createEntity,
   reset: storeState.userStore.reset,
   getFeatureFlags: storeState.featureFlagStore.getEntities,
+  isDev: hasAnyAuthority(storeState.authStore.account.authorities, [AUTHORITIES.DEV]),
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

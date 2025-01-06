@@ -65,14 +65,8 @@ export const UserManagementDetail = (props: IUserManagementDetailProps) => {
                 {user.featureFlags
                   ? user.featureFlags.map((featureFlag, i) => (
                       <div key={`user-feature-flag-${i}`} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-                        <p style={{ marginBottom: 0, marginRight: '0.5rem' }}>{featureFlag.name}</p>
-                        <a
-                          href={`${ENTITY_PAGE_ROUTE.FEATURE_FLAG}/${featureFlag.id}`}
-                          style={{ alignContent: 'flex-end' }}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ExternalLinkIcon />
+                        <a href={`${ENTITY_PAGE_ROUTE.FEATURE_FLAG}/${featureFlag.id}`} target="_blank" rel="noopener noreferrer">
+                          {featureFlag.name}
                         </a>
                       </div>
                     ))
