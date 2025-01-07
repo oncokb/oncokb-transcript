@@ -101,11 +101,19 @@ Generic styles
   margin-right: 0.5rem;
 }
 
+.error-message > svg {
+  flex-shrink: 0;
+}
+
 .warning-message {
   display: flex;
   align-items: center;
   color: $warning;
   margin-right: 0.5rem;
+}
+
+.warning-message > svg {
+  flex-shrink: 0;
 }
 
 .break {
@@ -439,4 +447,40 @@ a {
 .scrollbar-wrapper:hover,
 .scrollbar-wrapper:focus {
   visibility: visible;
+}
+
+// Custom badge outline styles
+@mixin badge-outline-variant(
+  $color,
+  $color-hover: color-contrast($color),
+  $active-background: $color,
+  $active-border: $color,
+  $active-color: color-contrast($active-background)
+) {
+  color: $color;
+  border: 1px solid;
+  border-color: $color;
+
+  &:hover {
+    color: $color-hover;
+    background-color: $active-background;
+    border-color: $active-border;
+  }
+
+  &.active {
+    color: $active-color;
+    background-color: $active-background;
+    border-color: $active-border;
+  }
+
+  &.disabled {
+    color: $color;
+    background-color: transparent;
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .badge-outline-#{$color} {
+    @include badge-outline-variant($value);
+  }
 }

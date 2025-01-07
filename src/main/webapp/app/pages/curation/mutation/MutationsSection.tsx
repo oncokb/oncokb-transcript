@@ -1,5 +1,4 @@
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import { Mutation } from 'app/shared/model/firebase/firebase.model';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import {
@@ -25,6 +24,7 @@ import MutationName from './MutationName';
 import { extractPositionFromSingleNucleotideAlteration } from 'app/shared/util/utils';
 import { MUTATION_LIST_ID, SINGLE_MUTATION_VIEW_ID } from 'app/config/constants/html-id';
 import { FlagTypeEnum } from 'app/shared/model/enumerations/flag-type.enum.model';
+import AddMutationModal from 'app/shared/modal/AddMutationModal';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
