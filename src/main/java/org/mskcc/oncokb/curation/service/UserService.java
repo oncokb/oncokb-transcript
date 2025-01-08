@@ -1,23 +1,21 @@
 package org.mskcc.oncokb.curation.service;
 
-import com.google.gson.Gson;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.config.Constants;
 import org.mskcc.oncokb.curation.config.cache.CacheCategory;
 import org.mskcc.oncokb.curation.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.curation.domain.Authority;
+import org.mskcc.oncokb.curation.domain.FeatureFlag;
 import org.mskcc.oncokb.curation.domain.User;
 import org.mskcc.oncokb.curation.repository.AuthorityRepository;
+import org.mskcc.oncokb.curation.repository.FeatureFlagRepository;
 import org.mskcc.oncokb.curation.repository.UserRepository;
-import org.mskcc.oncokb.curation.service.dto.KeycloakUserDTO;
 import org.mskcc.oncokb.curation.service.dto.UserDTO;
 import org.mskcc.oncokb.curation.service.mapper.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,6 +37,8 @@ public class UserService {
 
     private final AuthorityRepository authorityRepository;
 
+    private final FeatureFlagRepository featureFlagRepository;
+
     private final UserMapper userMapper;
 
     private final CacheNameResolver cacheNameResolver;
@@ -48,12 +48,14 @@ public class UserService {
     public UserService(
         UserRepository userRepository,
         AuthorityRepository authorityRepository,
+        FeatureFlagRepository featureFlagRepository,
         UserMapper userMapper,
         CacheNameResolver cacheNameResolver,
         Optional<CacheManager> optionalCacheManager
     ) {
         this.userRepository = userRepository;
         this.authorityRepository = authorityRepository;
+        this.featureFlagRepository = featureFlagRepository;
         this.userMapper = userMapper;
         this.cacheNameResolver = cacheNameResolver;
         this.optionalCacheManager = optionalCacheManager;
@@ -120,6 +122,11 @@ public class UserService {
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .forEach(managedAuthorities::add);
+                featureFlagRepository.deleteFeatureFlagsByUser(user.getId());
+                Set<FeatureFlag> newFeatureFlags = userDTO.getFeatureFlags();
+                for (FeatureFlag featureFlag : newFeatureFlags) {
+                    featureFlagRepository.addFeatureFlagsForUser(featureFlag.getId(), user.getId());
+                }
                 this.clearUserCaches(user);
                 log.debug("Changed Information for User: {}", user);
                 return user;
@@ -135,6 +142,18 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthoritiesByLogin(String login) {
         return userRepository.findOneWithAuthoritiesByLogin(login);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<UserDTO> getUserWithAuthoritiesAndFeatureFlagsByLogin(String login) {
+        Optional<User> userOptional = userRepository.findOneWithAuthoritiesByLogin(login);
+
+        return userOptional.map(user -> {
+            UserDTO userDTO = new UserDTO(user);
+            Set<FeatureFlag> featureFlags = getFeatureFlagsByUserId(user.getId());
+            userDTO.setFeatureFlags(featureFlags);
+            return userDTO;
+        });
     }
 
     /**
@@ -177,6 +196,11 @@ public class UserService {
             return Optional.of(userMapper.userToUserDTO(optionalUser.orElseThrow()));
         }
         return Optional.empty();
+    }
+
+    @Transactional(readOnly = true)
+    public Set<FeatureFlag> getFeatureFlagsByUserId(Long userId) {
+        return featureFlagRepository.findFeatureFlagByUserId(userId);
     }
 
     /**

@@ -45,6 +45,7 @@ const ENTITY_MENU_NAME: { [key in ENTITY_TYPE]?: string } = {
   [ENTITY_TYPE.ENSEMBL_GENE]: 'Ensembl Gene',
   [ENTITY_TYPE.FDA_DRUG]: 'FDA Drug',
   [ENTITY_TYPE.FDA_SUBMISSION]: 'FDA Submission',
+  [ENTITY_TYPE.FEATURE_FLAG]: 'Feature Flag',
   [ENTITY_TYPE.FLAG]: 'Flag',
   [ENTITY_TYPE.GENE]: 'Gene',
   [ENTITY_TYPE.GENOMIC_INDICATOR]: 'Genomic Indicator',
@@ -70,6 +71,7 @@ const DEFAULT_ENTITY_MENU_ORDER: ENTITY_TYPE[] = [
   ENTITY_TYPE.ENSEMBL_GENE,
   ENTITY_TYPE.FDA_DRUG,
   ENTITY_TYPE.FDA_SUBMISSION,
+  ENTITY_TYPE.FEATURE_FLAG,
   ENTITY_TYPE.FLAG,
   ENTITY_TYPE.GENE,
   ENTITY_TYPE.GENOMIC_INDICATOR,
@@ -257,11 +259,21 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
                   nav={<NavLink to={PAGE_ROUTE.SEARCH} />}
                 />
                 <SubMenu defaultOpen label="Entities" icon={<GoDatabase size={DEFAULT_NAV_ICON_SIZE} />}>
-                  {entityMenuOrder.map(entityType => (
-                    <PriorityEntityMenuItem key={entityType} type={entityType} handlePriorityMenuItemClick={handlePriorityMenuItemClick}>
-                      {ENTITY_MENU_NAME[entityType]}
-                    </PriorityEntityMenuItem>
-                  ))}
+                  {entityMenuOrder
+                    .filter(entityType => {
+                      return entityType !== ENTITY_TYPE.FEATURE_FLAG || props.isDev;
+                    })
+                    .map(entityType => {
+                      return (
+                        <PriorityEntityMenuItem
+                          key={entityType}
+                          type={entityType}
+                          handlePriorityMenuItemClick={handlePriorityMenuItemClick}
+                        >
+                          {ENTITY_MENU_NAME[entityType]}
+                        </PriorityEntityMenuItem>
+                      );
+                    })}
                 </SubMenu>
               </>
             )}
@@ -315,6 +327,7 @@ const mapStoreToProps = ({ layoutStore, authStore, managementStore }: IRootStore
   isAdmin: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.ADMIN]),
   isCurator: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.CURATOR]),
   isUser: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.USER]),
+  isDev: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.DEV]),
   account: authStore.account,
   managementVersion: managementStore.version,
   managementCommit: managementStore.commit,

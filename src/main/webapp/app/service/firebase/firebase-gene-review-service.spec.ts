@@ -79,6 +79,7 @@ describe('Firebase Gene Review Service', () => {
       lastModifiedBy: '',
       lastModifiedDate: null,
       imageUrl: '',
+      featureFlags: [],
     };
 
     MOCKED_ARRAY_KEYS = [];
