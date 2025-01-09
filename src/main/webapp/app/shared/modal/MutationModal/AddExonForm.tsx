@@ -44,10 +44,10 @@ const AddExonForm = ({
 
   const [isPendingAddAlteration, setIsPendingAddAlteration] = useState(false);
   const [didRemoveProblematicAlt, setDidRemoveProblematicAlt] = useState(false);
-  const [isShiftPressed, setIsShiftPressed] = useState(false);
+  const [isControlPressed, setIsControlPressed] = useState(false);
 
   const onMouseOverOption = (option: ProteinExonDropdownOption) => {
-    if (isShiftPressed) {
+    if (isControlPressed) {
       setSelectedExons(prevSelected => {
         const isAlreadySelected = prevSelected.some(selectedOption => selectedOption.label === option.label);
         return isAlreadySelected ? prevSelected : [...prevSelected, option];
@@ -59,7 +59,10 @@ const AddExonForm = ({
     return (
       <div onMouseOver={() => onMouseOverOption(props.data)}>
         <components.Option {...props}>
-          {(props.data as any).__isNew__ ? <></> : <input type="checkbox" checked={props.isSelected} onChange={() => null} />}{' '}
+          {
+            // Cast to any due to https://github.com/JedWatson/react-select/issues/5064
+            (props.data as any).__isNew__ ? <></> : <input type="checkbox" checked={props.isSelected} onChange={() => null} />
+          }{' '}
           <label>{props.label}</label>
         </components.Option>
       </div>
@@ -171,24 +174,24 @@ const AddExonForm = ({
   };
 
   useEffect(() => {
-    window.addEventListener('keydown', handleShiftDown);
-    window.addEventListener('keyup', handleShiftUp);
+    window.addEventListener('keydown', handleControlKeyDown);
+    window.addEventListener('keyup', handleControlKeyUp);
 
     return () => {
-      window.removeEventListener('keydown', handleShiftDown);
-      window.removeEventListener('keyup', handleShiftUp);
+      window.removeEventListener('keydown', handleControlKeyDown);
+      window.removeEventListener('keyup', handleControlKeyUp);
     };
   }, []);
 
-  const handleShiftDown = (event: KeyboardEvent) => {
+  const handleControlKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Control') {
-      setIsShiftPressed(true);
+      setIsControlPressed(true);
     }
   };
 
-  const handleShiftUp = (event: KeyboardEvent) => {
+  const handleControlKeyUp = (event: KeyboardEvent) => {
     if (event.key === 'Control') {
-      setIsShiftPressed(false);
+      setIsControlPressed(false);
     }
   };
 
@@ -298,17 +301,6 @@ export const ExonCreateInfo = ({ listView }: { listView?: boolean }) => {
         </ul>
       </div>
     </>
-  );
-};
-
-const MultiSelectOption = (props: OptionProps<ProteinExonDropdownOption>) => {
-  return (
-    <div>
-      <components.Option {...props}>
-        {(props.data as any).__isNew__ ? <></> : <input type="checkbox" checked={props.isSelected} onChange={() => null} />}{' '}
-        <label>{props.label}</label>
-      </components.Option>
-    </div>
   );
 };
 
