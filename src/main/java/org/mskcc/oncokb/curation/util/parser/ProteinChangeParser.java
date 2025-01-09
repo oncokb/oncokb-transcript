@@ -2,7 +2,6 @@ package org.mskcc.oncokb.curation.util.parser;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.mskcc.oncokb.curation.domain.enumeration.MutationConsequence.*;
-import static org.mskcc.oncokb.curation.domain.enumeration.MutationConsequence.INFRAME_DELETION;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -139,7 +138,10 @@ public class ProteinChangeParser {
             Alteration alteration = new Alteration();
             String revisedProteinChange = "";
             MutationConsequence term = UNKNOWN;
-            alteration.setRefResidues(m.group(1).toUpperCase());
+            if (m.group(1) != null && m.group(3) == null) {
+                // we only want to specify reference when it's one position ins/del
+                alteration.setRefResidues(m.group(1).toUpperCase());
+            }
             revisedProteinChange += alteration.getRefResidues();
             alteration.setStart(Integer.valueOf(m.group(2)));
             revisedProteinChange += alteration.getStart();
