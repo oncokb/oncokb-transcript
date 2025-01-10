@@ -22,6 +22,7 @@ const MutationConvertIcon = ({
   color,
   onClick,
   tooltipProps,
+  disabled,
   ...actionIconProps
 }: IMutationConvertIconProps) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -68,7 +69,7 @@ const MutationConvertIcon = ({
         }
       }}
       tooltipProps={tooltipProps}
-      disabled={!!errorMessage}
+      disabled={!!errorMessage || disabled}
     />
   );
 };

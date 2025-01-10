@@ -302,19 +302,40 @@ We use the [WebDriverIO](https://webdriver.io/) framework for our end-to-end tes
 
 1. Follow the [Set up](#set-up) instructions
 
-2. Start up just the local client
+2. Edit `initializeFirebase` function in firbase-app.store.ts
+
+```sh
+  initializeFirebase() {
+   // Add the code at the begin of the function, you can find parameter value at application-dev.yml
+    if (AppConfig.serverConfig.frontend) {
+      AppConfig.serverConfig.frontend.firebase = {
+        enabled: true,
+        apiKey: "api-key",
+        authDomain: "auth-domain",
+        databaseUrl: "database-url",
+        projectId: "project-id",
+        storageBucket: "storage-bucket",
+        messagingSenderId: "messageing-sender-id",
+        appId: "app-id",
+        measurementId: "measurement-id",
+        connectToFirebaseEmulators: false,
+      };
+    }
+```
+
+3. Start up just the local client
 
 ```sh
 yarn start
 ```
 
-3. Start the firebase emulator
+4. Start the firebase emulator
 
 ```sh
 yarn run firebase-emulator
 ```
 
-4. Run web driver IO
+5. Run web driver IO
 
 ```sh
 yarn run wdio

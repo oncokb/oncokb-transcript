@@ -79,6 +79,7 @@ const MutationCollapsible = ({
   genomicIndicators,
   showLastModified,
   handleFirebaseUpdate,
+  readOnly,
 }: IMutationCollapsibleProps) => {
   const firebaseMutationsPath = `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`;
 
@@ -317,6 +318,7 @@ const MutationCollapsible = ({
             <MutationConvertIcon
               mutationName={mutationName}
               mutationNameReview={mutationNameReview}
+              disabled={readOnly}
               tooltipProps={{ overlay: <div>Demote alteration(s) to VUS</div> }}
               onClick={() => setIsConvertingToVus(true)}
             />
@@ -329,7 +331,7 @@ const MutationCollapsible = ({
                   ? { overlay: <span>Cannot modify because mutation is associated with genomic indicator(s)</span> }
                   : null
               }
-              disabled={isAssociatedWithGenomicIndicator}
+              disabled={isAssociatedWithGenomicIndicator || readOnly}
             />
             <DeleteSectionButton
               sectionName={title}
@@ -340,7 +342,7 @@ const MutationCollapsible = ({
                   ? { overlay: <span>Cannot delete because mutation is associated with genomic indicator(s)</span> }
                   : null
               }
-              disabled={isAssociatedWithGenomicIndicator}
+              disabled={isAssociatedWithGenomicIndicator || readOnly}
             />
           </>
         }
@@ -369,7 +371,7 @@ const MutationCollapsible = ({
           }
           name="mutationSummary"
           parseRefs
-          disabled={oncogenicity === ''}
+          disabled={oncogenicity === '' || readOnly}
           disabledMessage={'Not curatable: mutation summary is only curatable when oncogenicity is specified.'}
         />
         <Collapsible
@@ -390,6 +392,7 @@ const MutationCollapsible = ({
         >
           {isGermline ? (
             <RealtimeCheckedInputGroup
+              disabled={readOnly}
               groupHeader={
                 <>
                   <span style={{ marginRight: '8px' }}>Pathogenicity</span>
@@ -416,6 +419,7 @@ const MutationCollapsible = ({
           ) : (
             <>
               <RealtimeCheckedInputGroup
+                disabled={readOnly}
                 groupHeader={
                   <>
                     <span style={{ marginRight: '8px' }}>Oncogenic</span>
@@ -444,6 +448,7 @@ const MutationCollapsible = ({
                 }))}
               />
               <RealtimeCheckedInputGroup
+                disabled={readOnly}
                 groupHeader={
                   <>
                     <span style={{ marginRight: '8px' }}>Mutation Effect</span>
@@ -470,6 +475,7 @@ const MutationCollapsible = ({
             </>
           )}
           <RealtimeTextAreaInput
+            disabled={readOnly}
             firebasePath={`${mutationPath}/mutation_effect/description`}
             inputClass={styles.textarea}
             label="Description of Evidence"
@@ -500,6 +506,7 @@ const MutationCollapsible = ({
             >
               <>
                 <RealtimeCheckedInputGroup
+                  disabled={readOnly}
                   groupHeader={
                     <>
                       <span style={{ marginRight: '8px' }}>Penetrance</span>
@@ -524,6 +531,7 @@ const MutationCollapsible = ({
                   }))}
                 />
                 <RealtimeTextAreaInput
+                  disabled={readOnly}
                   firebasePath={`${mutationPath}/mutation_specific_penetrance/description`}
                   inputClass={styles.textarea}
                   label="Description of Penetrance"
@@ -553,6 +561,7 @@ const MutationCollapsible = ({
             >
               <>
                 <RealtimeCheckedInputGroup
+                  disabled={readOnly}
                   groupHeader={
                     <>
                       <span style={{ marginRight: '8px' }}>Mechanism of Inheritance</span>
@@ -577,6 +586,7 @@ const MutationCollapsible = ({
                   }))}
                 />
                 <RealtimeTextAreaInput
+                  disabled={readOnly}
                   firebasePath={`${mutationPath}/mutation_specific_inheritance_mechanism/description`}
                   inputClass={styles.textarea}
                   label="Description of Inheritance Mechanism"
@@ -610,6 +620,7 @@ const MutationCollapsible = ({
         )}
         <FirebaseList path={`${mutationPath}/tumors`} pushDirection="back" itemBuilder={cancerTypeCollapsibleBuilder} />
         <Button
+          disabled={readOnly}
           className={'mt-2 mb-1'}
           outline
           color="primary"
@@ -698,6 +709,7 @@ const mapStoreToProps = ({
   annotatedAltsCache: curationPageStore.annotatedAltsCache,
   genomicIndicators: firebaseGenomicIndicatorsStore.data,
   handleFirebaseUpdate: firebaseGeneService.updateObject,
+  readOnly: curationPageStore.readOnly,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

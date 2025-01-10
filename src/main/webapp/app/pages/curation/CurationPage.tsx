@@ -25,10 +25,12 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { parseHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
-import { Unsubscribe, get, ref } from 'firebase/database';
+import { Unsubscribe, get, ref, onValue } from 'firebase/database';
 import { getLocationIdentifier, getTooltipHistoryList } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 import GeneticTypeTabs, { GENETIC_TYPE } from './geneticTypeTabs/GeneticTypeTabs';
 import GeneticTypeTabHeader from './header/GeneticTypeTabHeader';
+import ReadOnlyBanner from './header/ReadOnlyBanner';
+import FlagStore from 'app/entities/flag/flag.store';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -86,6 +88,11 @@ export const CurationPage = (props: ICurationPageProps) => {
     }
     if (geneEntity && props.firebaseInitSuccess) {
       const cleanupCallbacks: Unsubscribe[] = [];
+      cleanupCallbacks.push(
+        onValue(ref(props.firebaseDb, firebaseMetaCurrentReviewerPath), snapshot => {
+          props.setReadOnly(!!snapshot.val());
+        }),
+      );
       cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
       cleanupCallbacks.push(props.addMutationListListener(mutationsPath));
       return () => {
@@ -123,10 +130,12 @@ export const CurationPage = (props: ICurationPageProps) => {
         <div className="d-flex justify-content-end mt-2 mb-2">
           <GeneticTypeTabHeader hugoSymbol={hugoSymbol} isReviewing={false} />
         </div>
+        {props.readOnly && <ReadOnlyBanner hugoSymbol={hugoSymbol} />}
         <div className="mb-4">
           <Row className={'justify-content-between'}>
             <Col className="pb-2">
               <RealtimeCheckedInputGroup
+                disabled={props.readOnly}
                 groupHeader={
                   <>
                     <span className="me-2">Gene Type</span>
@@ -147,6 +156,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                 })}
               />
               <RealtimeTextAreaInput
+                disabled={props.readOnly}
                 firebasePath={`${firebaseGenePath}/summary`}
                 inputClass={styles.textarea}
                 label="Gene Summary"
@@ -169,6 +179,7 @@ export const CurationPage = (props: ICurationPageProps) => {
           <Row className="mb-3">
             <Col>
               <RealtimeTextAreaInput
+                disabled={props.readOnly}
                 firebasePath={`${firebaseGenePath}/background`}
                 inputClass={styles.textarea}
                 label="Background"
@@ -193,6 +204,7 @@ export const CurationPage = (props: ICurationPageProps) => {
             <>
               <div className="mb-3">
                 <RealtimeCheckedInputGroup
+                  disabled={props.readOnly}
                   groupHeader={
                     <GeneRealtimeComponentHeader
                       title="Penetrance"
@@ -215,6 +227,7 @@ export const CurationPage = (props: ICurationPageProps) => {
               </div>
               <div className="mb-3">
                 <RealtimeCheckedInputGroup
+                  disabled={props.readOnly}
                   groupHeader={
                     <GeneRealtimeComponentHeader
                       title="Mechanism of Inheritance"
@@ -311,6 +324,7 @@ const mapStoreToProps = ({
   openMutationCollapsibleStore,
   layoutStore,
   routerStore,
+  curationPageStore,
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   firebaseInitSuccess: firebaseAppStore.firebaseInitSuccess,
@@ -329,6 +343,8 @@ const mapStoreToProps = ({
   setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
   toggleOncoKBSidebar: layoutStore.toggleOncoKBSidebar,
   isGermline: routerStore.isGermline,
+  readOnly: curationPageStore.readOnly,
+  setReadOnly: curationPageStore.setReadOnly,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

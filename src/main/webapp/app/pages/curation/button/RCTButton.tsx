@@ -15,7 +15,7 @@ export interface IRCTButtonProps extends StoreProps {
   relevantCancerTypesInfoPath: string; // path to dx, px, or tx
 }
 
-function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, relevantCancerTypesModalStore }: IRCTButtonProps) {
+function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, relevantCancerTypesModalStore, readOnly }: IRCTButtonProps) {
   const [cancerType, setCancerType] = useState<Tumor>();
   const [relevantCancerTypesInfo, setRelevantCancerTypesInfo] = useState<Implication | Treatment>();
 
@@ -69,7 +69,7 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
       size="sm"
       color="primary"
       outline
-      disabled={disabled}
+      disabled={disabled || readOnly}
       onClick={handleClick}
       id={RCT_MODAL_BUTTON_ID}
     >
@@ -88,9 +88,10 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
   );
 }
 
-const mapStoreToProps = ({ firebaseAppStore, relevantCancerTypesModalStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, relevantCancerTypesModalStore, curationPageStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   relevantCancerTypesModalStore,
+  readOnly: curationPageStore.readOnly,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

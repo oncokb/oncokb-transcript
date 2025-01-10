@@ -1,6 +1,6 @@
 import { IRootStore } from 'app/stores/createStore';
 import { Alteration as ApiAlteration, AlterationAnnotationStatus, AnnotateAlterationBody } from 'app/shared/api/generated/curation';
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, action, observable } from 'mobx';
 import { REFERENCE_GENOME } from 'app/config/constants/constants';
 import { Alteration as FirebaseAlt } from 'app/shared/model/firebase/firebase.model';
 import { alterationControllerClient } from 'app/shared/api/clients';
@@ -73,9 +73,13 @@ export class CurationPageStore {
     get: (hugoSymbol: string, mutations: MutationQuery[]) => this.getAnnotatedAltsCache(hugoSymbol, mutations),
     fetch: (hugoSymbol: string, mutations: MutationQuery[]) => this.fetchAnnotatedAltsCache(hugoSymbol, mutations),
   };
+  public readOnly: boolean = false;
 
   constructor(protected rootStore: IRootStore) {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {
+      readOnly: observable,
+      setReadOnly: action.bound,
+    });
   }
 
   async annotateAlterations(queries: AnnotateAlterationBody[]) {
@@ -132,6 +136,10 @@ export class CurationPageStore {
     return queries
       .filter(query => query.queryId && this.annotatedAltsCache.cache[query.queryId] && this.annotatedAltsCache.cache[query.queryId].result)
       .map(query => (query.queryId !== undefined ? this.annotatedAltsCache.cache[query.queryId].result : undefined));
+  }
+
+  setReadOnly(isAnotherUserReviewing: boolean) {
+    this.readOnly = isAnotherUserReviewing ? true : false;
   }
 }
 

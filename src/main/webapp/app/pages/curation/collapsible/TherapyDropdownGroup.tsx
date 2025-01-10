@@ -29,7 +29,7 @@ export interface ITherapyDropdownGroup extends StoreProps {
 
 const PLACEHOLDER = 'You must select a level';
 
-const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGroup) => {
+const TherapyDropdownGroup = ({ firebaseDb, treatmentPath, readOnly }: ITherapyDropdownGroup) => {
   const [highestLevel, setHighestLevel] = useState<TX_LEVELS>();
   const [propOptions, setPropOptions] = useState<RealtimeDropdownOptions<LEVELS>[]>();
   const [propFdaLevel, setPropFdaLevel] = useState<FDA_LEVELS>();
@@ -70,6 +70,7 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
   return (
     <>
       <RealtimeLevelDropdownInput
+        isDisabled={readOnly}
         levelOfEvidenceType={LevelOfEvidenceType.HIGHEST_LEVEL}
         isSearchable={false}
         isClearable={false}
@@ -85,7 +86,7 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
             levelOfEvidenceType={LevelOfEvidenceType.PROPAGATED_SOLID}
             isSearchable={false}
             isClearable={false}
-            isDisabled={isPropagationLevelsDisabled}
+            isDisabled={isPropagationLevelsDisabled || readOnly}
             firebaseLevelPath={`${treatmentPath}/propagation`}
             label="Level of Evidence in other solid tumor types"
             name="propagationLevel"
@@ -97,7 +98,7 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
             levelOfEvidenceType={LevelOfEvidenceType.PROPAGATED_LIQUID}
             isSearchable={false}
             isClearable={false}
-            isDisabled={isPropagationLevelsDisabled}
+            isDisabled={isPropagationLevelsDisabled || readOnly}
             firebaseLevelPath={`${treatmentPath}/propagationLiquid`}
             label="Level of Evidence in other liquid tumor types"
             name="propagationLiquidLevel"
@@ -111,7 +112,7 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
         levelOfEvidenceType={LevelOfEvidenceType.PROPAGATED_FDA}
         isSearchable={false}
         isClearable={false}
-        isDisabled={isFdaPropagationLevelDisabled}
+        isDisabled={isFdaPropagationLevelDisabled || readOnly}
         firebaseLevelPath={`${treatmentPath}/fdaLevel`}
         label="FDA Level of Evidence"
         name="propagationFdaLevel"
@@ -123,8 +124,9 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
   );
 };
 
-const mapStoreToProps = ({ firebaseAppStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, curationPageStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
+  readOnly: curationPageStore.readOnly,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

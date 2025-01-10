@@ -48,6 +48,7 @@ function CancerTypeCollapsible({
   updateTumorName,
   deleteSection,
   isGermline,
+  readOnly,
 }: ICancerTypeCollapsibleProps) {
   const [cancerTypes, setCancerTypes] = useState<CancerType[]>();
   const [cancerTypesUuid, setCancerTypesUuid] = useState<string>();
@@ -124,11 +125,13 @@ function CancerTypeCollapsible({
             />
             <CommentIcon id={cancerTypesUuid} path={`${cancerTypePath}/cancerTypes_comments`} />
             <EditIcon
+              disabled={readOnly}
               onClick={() => {
                 modifyCancerTypeModalStore?.openModal(cancerTypesUuid);
               }}
             />
             <DeleteSectionButton
+              disabled={readOnly}
               sectionName={cancerTypeName}
               deleteHandler={handleDeleteCancerType}
               isRemovableWithoutReview={isRemovableWithoutReview}
@@ -139,6 +142,7 @@ function CancerTypeCollapsible({
         isPendingDelete={cancerTypesReview?.removed || false}
       >
         <RealtimeTextAreaInput
+          disabled={readOnly}
           firebasePath={`${cancerTypePath}/summary`}
           inputClass={styles.summaryTextarea}
           label="Therapeutic Summary (Optional)"
@@ -152,6 +156,7 @@ function CancerTypeCollapsible({
           name="txSummary"
         />
         <RealtimeTextAreaInput
+          disabled={readOnly}
           firebasePath={`${cancerTypePath}/diagnosticSummary`}
           inputClass={styles.summaryTextarea}
           label="Diagnostic Summary (Optional)"
@@ -165,6 +170,7 @@ function CancerTypeCollapsible({
           name="dxSummary"
         />
         <RealtimeTextAreaInput
+          disabled={readOnly}
           firebasePath={`${cancerTypePath}/prognosticSummary`}
           inputClass={styles.summaryTextarea}
           label="Prognostic Summary (Optional)"
@@ -193,6 +199,7 @@ function CancerTypeCollapsible({
             cancerTypePath={cancerTypePath}
             tisPath={`${cancerTypePath}/TIs`}
             isGermline={isGermline}
+            readOnly={readOnly}
           />
         </Collapsible>
         <Collapsible
@@ -210,6 +217,7 @@ function CancerTypeCollapsible({
           badge={<BadgeGroup firebasePath={`${cancerTypePath}/diagnostic`} />}
         >
           <RealtimeLevelDropdownInput
+            isDisabled={readOnly}
             firebaseLevelPath={`${cancerTypePath}/diagnostic/level`}
             levelOfEvidenceType={LevelOfEvidenceType.DIAGNOSTIC}
             label="Level of evidence"
@@ -217,6 +225,7 @@ function CancerTypeCollapsible({
             options={getLevelDropdownOptions(DIAGNOSTIC_LEVELS_ORDERING)}
           />
           <RealtimeTextAreaInput
+            disabled={readOnly}
             firebasePath={`${cancerTypePath}/diagnostic/description`}
             inputClass={styles.textarea}
             label="Description of Evidence"
@@ -239,6 +248,7 @@ function CancerTypeCollapsible({
           badge={<BadgeGroup firebasePath={`${cancerTypePath}/prognostic`} />}
         >
           <RealtimeLevelDropdownInput
+            isDisabled={readOnly}
             firebaseLevelPath={`${cancerTypePath}/prognostic/level`}
             levelOfEvidenceType={LevelOfEvidenceType.PROGNOSTIC}
             label="Level of evidence"
@@ -246,6 +256,7 @@ function CancerTypeCollapsible({
             options={getLevelDropdownOptions(PROGNOSTIC_LEVELS_ORDERING)}
           />
           <RealtimeTextAreaInput
+            disabled={readOnly}
             firebasePath={`${cancerTypePath}/prognostic/description`}
             inputClass={styles.textarea}
             label="Description of Evidence"
@@ -275,11 +286,12 @@ function CancerTypeCollapsible({
   );
 }
 
-const mapStoreToProps = ({ firebaseAppStore, firebaseGeneService, modifyCancerTypeModalStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, firebaseGeneService, modifyCancerTypeModalStore, curationPageStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   modifyCancerTypeModalStore,
   updateTumorName: firebaseGeneService.updateTumorName,
   deleteSection: firebaseGeneService.deleteSection,
+  readOnly: curationPageStore.readOnly,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

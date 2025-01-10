@@ -62,6 +62,7 @@ const VusTable = ({
   refreshVus,
   deleteVus,
   setOpenMutationCollapsibleIndex,
+  readOnly,
 }: IVusTableProps) => {
   const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
   const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
@@ -212,6 +213,7 @@ const VusTable = ({
           <div className={classNames('d-flex', 'align-items-center', 'all-children-margin')}>
             <CommentIcon id={cell.original.uuid} key={cell.original.uuid} path={`${firebaseVusPath}/${cell.original.uuid}/name_comments`} />
             <MutationConvertIcon
+              disabled={readOnly}
               mutationName={cell.original.name}
               tooltipProps={{ overlay: <div>Promote VUS to mutation</div> }}
               onClick={() => {
@@ -220,6 +222,7 @@ const VusTable = ({
               }}
             />
             <ActionIcon
+              disabled={readOnly}
               icon={faSync}
               color={PRIMARY}
               onClick={async () => {
@@ -228,6 +231,7 @@ const VusTable = ({
               tooltipProps={{ overlay: <div>After rechecking that the variant is still a VUS, click to update the date to today.</div> }}
             />
             <ActionIcon
+              disabled={readOnly}
               icon={faTrashAlt}
               color={DANGER}
               onClick={() => {
@@ -247,7 +251,7 @@ const VusTable = ({
         <div className={'justify-content-between align-items-center mt-5'} data-testid={VUS_TABLE_ID}>
           <div className={'d-flex align-items-center mb-2'}>
             <span style={{ fontSize: '1.25rem' }}>Variants of Unknown Significance (Investigated and data not found)</span>
-            <AddButton className="ms-2" onClickHandler={() => setShowAddVusModal(true)} />
+            <AddButton className="ms-2" onClickHandler={() => setShowAddVusModal(true)} disabled={readOnly} />
             <Button onClick={handleDownload} color="primary" size="sm" outline className={'ms-2'}>
               Download
             </Button>
@@ -321,6 +325,7 @@ const mapStoreToProps = ({
   firebaseGeneService,
   firebaseVusService,
   openMutationCollapsibleStore,
+  curationPageStore,
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   addVus: firebaseVusService.addVus,
@@ -331,6 +336,7 @@ const mapStoreToProps = ({
   addMutation: firebaseGeneService.addMutation,
   setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
   sendVusToCore: firebaseVusService.sendVusToCore.bind(firebaseVusService),
+  readOnly: curationPageStore.readOnly,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

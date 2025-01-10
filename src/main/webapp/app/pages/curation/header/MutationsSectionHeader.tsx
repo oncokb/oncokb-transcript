@@ -65,6 +65,7 @@ function MutationsSectionHeader({
   setSortMethod,
   firebaseDb,
   annotatedAltsCache,
+  readOnly,
 }: IMutationsSectionHeaderProps) {
   const [mutationsInitialized, setMutationsInitialized] = useState(false);
   const [mutations, setMutations] = useState<Mutation[]>([]);
@@ -486,6 +487,7 @@ function MutationsSectionHeader({
 const mapStoreToProps = ({ firebaseAppStore, curationPageStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   annotatedAltsCache: curationPageStore.annotatedAltsCache,
+  readOnly: curationPageStore.readOnly,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
