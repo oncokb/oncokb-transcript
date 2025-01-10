@@ -145,6 +145,7 @@ const RelevantCancerTypesModalContent = observer(
       {
         Header: 'Code',
         maxWidth: 120,
+        accessor: 'code',
         onFilter(data, keyword) {
           return data.code?.toLowerCase().includes(keyword) || false;
         },

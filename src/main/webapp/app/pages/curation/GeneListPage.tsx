@@ -22,7 +22,7 @@ const getCurationPageLink = (hugoSymbol: string, isGermline: boolean) => {
 };
 import CurationDataImportTab from 'app/components/tabs/curation-data-import-tab/CurationDataImportTab';
 import { DATA_IMPORT_TAB_ID, GENE_LIST_TABLE_ID } from 'app/config/constants/html-id';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import moment from 'moment';
 
 type GeneMetaInfo = {
   hugoSymbol: string;
@@ -75,6 +75,9 @@ const GeneListPage = (props: IGeneListPage) => {
     {
       accessor: 'lastModifiedAt',
       Header: 'Last modified at',
+      getRealData(data: GeneMetaInfo) {
+        return data.lastModifiedAt ? moment(parseInt(data.lastModifiedAt, 10)).format(APP_DATETIME_FORMAT) : '';
+      },
       Cell(cell: { value: string }): any {
         return cell.value ? <TextFormat value={new Date(parseInt(cell.value, 10))} type="date" format={APP_DATETIME_FORMAT} /> : '';
       },
@@ -86,6 +89,9 @@ const GeneListPage = (props: IGeneListPage) => {
     {
       accessor: 'needsReview',
       Header: 'Needs to be Reviewed',
+      getRealData(data: GeneMetaInfo) {
+        return data.needsReview ? 'Yes' : 'No';
+      },
       Cell(cell: { value: string }): any {
         return cell.value ? 'Yes' : 'No';
       },
