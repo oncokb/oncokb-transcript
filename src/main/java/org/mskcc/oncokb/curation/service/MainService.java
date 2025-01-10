@@ -214,6 +214,9 @@ public class MainService {
             alteration.setName(alteration.getAlteration());
         }
 
+        alterationWithStatus.setMessage(alterationWithEntityStatus.getMessage());
+        alterationWithStatus.setType(alterationWithEntityStatus.getType());
+
         // update reference genome
         if (alteration.getGenes().size() > 0 && PROTEIN_CHANGE.equals(alteration.getType())) {
             Gene gene = alteration.getGenes().iterator().next();
@@ -241,16 +244,12 @@ public class MainService {
                                     "The reference allele does not match with the transcript. It's supposed to be " + refRe
                                 );
                                 alterationWithStatus.setType(EntityStatusType.WARNING);
-                                return alterationWithStatus;
                             }
                         }
                     }
                 }
             }
         }
-
-        alterationWithStatus.setMessage(alterationWithEntityStatus.getMessage());
-        alterationWithStatus.setType(alterationWithEntityStatus.getType());
 
         // Provide annotation for the alteration
         // 1. check whether alteration is hotspot
