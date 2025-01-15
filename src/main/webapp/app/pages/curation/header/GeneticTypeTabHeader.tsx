@@ -69,7 +69,7 @@ const GeneticTypeTabHeader = ({
         );
       } else {
         const isAnotherUserReviewing =
-          meta?.review?.currentReviewer !== '' && meta?.review?.currentReviewer.toLowerCase() !== fullName?.toLowerCase();
+          meta?.review?.currentReviewer !== '' && meta?.review?.currentReviewer?.toLowerCase() !== fullName?.toLowerCase();
         button = (
           <Button
             outline
