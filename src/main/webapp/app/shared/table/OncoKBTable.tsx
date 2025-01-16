@@ -7,7 +7,7 @@ import FilterIconModal from './FilterIconModal';
 export type SearchColumn<T> = Column<T> & {
   onFilter?: (data: T, keyword: string) => boolean;
   disableHeaderFiltering?: boolean;
-  getRealData?: (data: T) => string;
+  getColumnFilterValue?: (data: T) => string;
 };
 
 export interface ITableWithSearchBox<T> extends Partial<TableProps<T>> {
@@ -35,8 +35,8 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
           return true;
         }
         const curColumn = props.columns.find(col => String(col.accessor || col.Header) === columnId)!;
-        if (curColumn.Cell && curColumn.getRealData) {
-          return selectedValues.has(curColumn.getRealData(item));
+        if (curColumn.Cell && curColumn.getColumnFilterValue) {
+          return selectedValues.has(curColumn.getColumnFilterValue(item));
         } else if (curColumn.accessor) {
           return selectedValues.has(item[String(curColumn.accessor)]);
         }
@@ -69,8 +69,8 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
     props.data.forEach(item => {
       props.columns.forEach(column => {
         const columnId = String(column.accessor || column.Header);
-        if (column.Cell && column.getRealData) {
-          allColumnData[columnId].add(column.getRealData(item));
+        if (column.Cell && column.getColumnFilterValue) {
+          allColumnData[columnId].add(column.getColumnFilterValue(item));
         } else if (column.accessor) {
           allColumnData[columnId].add(String(item[String(column.accessor)]));
         }

@@ -5,7 +5,6 @@ import { Input } from 'reactstrap';
 import { createPortal } from 'react-dom';
 import './filter-icon-modal.scss';
 import { usePopper } from 'react-popper';
-import useRootClose from 'react-overlays/useRootClose';
 import { Button } from 'reactstrap';
 
 interface IFilterIconModalProps {
@@ -27,7 +26,7 @@ interface FilterMenuProps {
 const FilterMenu = ({ selections, tableRef, iconRef, currSelections, updateSelections }: FilterMenuProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const [newSelections, setNewSelections] = useState(new Set(currSelections));
+  const [newSelections, setNewSelections] = useState(currSelections);
 
   const { styles, attributes } = usePopper(iconRef?.current, popperElement, {
     placement: 'bottom-start',
@@ -101,27 +100,29 @@ const FilterMenu = ({ selections, tableRef, iconRef, currSelections, updateSelec
 
 export const FilterIconModal = observer((props: IFilterIconModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const iconRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const handleRootClose = () => setIsOpen(false);
 
-  useRootClose(menuRef, handleRootClose, {
-    disabled: !isOpen || !menuRef.current,
-  });
+  useEffect(() => {
+    const handleClickOutside = event => {
+      if (menuRef.current && !menuRef.current.contains(event.target) && iconRef.current && !iconRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   return (
-    <div
-      ref={iconRef}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{ position: 'relative' }}
-      onClick={e => e.stopPropagation()}
-    >
+    <div className="filter-component" ref={iconRef} style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
       <VscFilterFilled
+        className={`filter-icon ${isOpen ? 'visible' : ''}`}
         color={'grey'}
         size={10}
-        style={{ marginLeft: '5px', visibility: isHovered || isOpen ? 'visible' : 'hidden' }}
         onClick={() => {
           setIsOpen(!isOpen);
         }}

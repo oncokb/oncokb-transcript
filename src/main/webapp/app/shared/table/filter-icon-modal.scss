@@ -10,6 +10,19 @@
   min-width: 200px;
 }
 
+.filter-icon {
+  margin-left: 5px;
+  visibility: hidden;
+
+  &.visible {
+    visibility: visible;
+  }
+}
+
+.filter-component:hover .filter-icon {
+  visibility: visible;
+}
+
 .checkbox-list {
   max-height: 200px;
   overflow-y: auto;

@@ -75,7 +75,7 @@ const GeneListPage = (props: IGeneListPage) => {
     {
       accessor: 'lastModifiedAt',
       Header: 'Last modified at',
-      getRealData(data: GeneMetaInfo) {
+      getColumnFilterValue(data: GeneMetaInfo) {
         return data.lastModifiedAt ? moment(parseInt(data.lastModifiedAt, 10)).format(APP_DATETIME_FORMAT) : '';
       },
       Cell(cell: { value: string }): any {
@@ -89,7 +89,7 @@ const GeneListPage = (props: IGeneListPage) => {
     {
       accessor: 'needsReview',
       Header: 'Needs to be Reviewed',
-      getRealData(data: GeneMetaInfo) {
+      getColumnFilterValue(data: GeneMetaInfo) {
         return data.needsReview ? 'Yes' : 'No';
       },
       Cell(cell: { value: string }): any {
