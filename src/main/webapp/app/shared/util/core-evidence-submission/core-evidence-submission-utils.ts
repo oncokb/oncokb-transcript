@@ -1,4 +1,14 @@
-import { DX_LEVELS, FDA_LEVELS, Mutation, PX_LEVELS, TI, TX_LEVELS, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
+import {
+  DX_LEVELS,
+  FDA_LEVELS,
+  Mutation,
+  PX_LEVELS,
+  TI,
+  TX_LEVELS,
+  Treatment,
+  TreatmentList,
+  Tumor,
+} from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
 import { ImplicationLevelOfEvidenceEnum } from '../../api/generated/core/api';
 
@@ -75,7 +85,7 @@ export function validateTimeFormat(updateTime: string | number | Date | undefine
   return updateTime.toString();
 }
 
-export function getNewPriorities(list: Treatment[], unapprovedUuids: string | string[]) {
+export function getNewPriorities(list: TreatmentList, unapprovedUuids: string | string[]) {
   const priorities: Record<string, Record<string, number>> = {};
   let count = 1;
 

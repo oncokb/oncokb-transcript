@@ -1,5 +1,6 @@
 import { Review } from 'app/shared/model/firebase/firebase.model';
 import { BaseReviewLevel, ReviewLevel } from '../firebase/firebase-review-utils';
+import { isFirebaseArray } from '../firebase/firebase-path-utils';
 
 /**
  * Determines whether the `path` should be protected based on the review path.
@@ -33,7 +34,7 @@ function isPathProtected(reviewPaths: string[], path: string): boolean {
  * @param [reviewPaths] - The paths used to determine if an element should be protected.
  * @returns - The filtered object or undefined if no elements are accepted.
  */
-export function useLastReviewedOnly<T extends object>(obj: T, ...reviewPaths: string[]): T | undefined {
+export function useLastReviewedOnly<T extends object>(obj: T, firebaseGenePath: string, ...reviewPaths: string[]): T | undefined {
   function processObjectRecursively(currentObj: T | null | undefined, parentPath: string): T | null | undefined {
     if (currentObj === null || currentObj === undefined) {
       return currentObj;
@@ -55,19 +56,32 @@ export function useLastReviewedOnly<T extends object>(obj: T, ...reviewPaths: st
           delete reviewData.lastReviewed;
         }
         (resultObj as Record<string, unknown>)[key] = reviewData;
-      } else if (Array.isArray(value)) {
+      } else if (isFirebaseArray(firebaseGenePath + '/' + currentPath)) {
         const reviewData: Review | undefined = currentObj[`${key}_review`] as Review;
         // If the object is new (indicated by `added`) and the parent path is not protected, exclude it from the result.
         if (reviewData?.added && !isParentPathProtected) {
           return undefined;
         }
-        const processedArray: (T | null | undefined)[] = [];
-        let i = 0;
-        for (const arrayElement of value) {
-          const processedElement = processObjectRecursively(arrayElement, `${currentPath}/${i}`);
+        const processedFirebaseArray: Record<string, T | null | undefined> = {};
+        for (const [vKey, vData] of Object.entries(value as Record<string, T>)) {
+          const processedElement = processObjectRecursively(vData, `${currentPath}/${vKey}`);
           // Preserve undefined values in the array to maintain the correct index structure,
           // ensuring paths like "mutation/11/..." are still valid even if some elements are omitted.
           // If the parent path is protected, push the element regardless of whether it's undefined.
+          if (processedElement !== undefined || isCurrentPathProtected) {
+            processedFirebaseArray[vKey] = processedElement;
+          }
+        }
+        (resultObj as Record<string, unknown>)[key] = processedFirebaseArray;
+      } else if (Array.isArray(value) && (currentPath.endsWith('TIs') || currentPath.endsWith('alterations'))) {
+        // [TODO] We are keeping TIs as an array for now because:
+        // 1. TIs is never modified, so it is fine for it to use index
+        // 2. We will remove this field in the near future
+        // [TODO] We are keeping alterations as an array for now because we are waiting for the refactored AddMutationModal to be merged
+        let i = 0;
+        const processedArray: (T | null | undefined)[] = [];
+        for (const arrayElement of value) {
+          const processedElement = processObjectRecursively(arrayElement, `${currentPath}/${i}`);
           if (processedElement !== undefined || isCurrentPathProtected) {
             processedArray.push(processedElement);
           }

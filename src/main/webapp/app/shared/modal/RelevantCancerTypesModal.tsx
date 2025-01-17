@@ -59,10 +59,10 @@ const RelevantCancerTypesModalContent = observer(
 
       async function setRelevantCancerTypes() {
         const relevantCancerTypeQueries: RelevantCancerTypeQuery[] = convertCancerTypesToRelevantCancerTypeQueries(
-          relevantCancerTypesModalStore?.tumor?.cancerTypes ?? [],
+          Object.values(relevantCancerTypesModalStore?.tumor?.cancerTypes ?? []),
         );
         const excludedRelevantCancerTypeQueries: RelevantCancerTypeQuery[] = convertCancerTypesToRelevantCancerTypeQueries(
-          relevantCancerTypesModalStore?.tumor?.excludedCancerTypes ?? [],
+          Object.values(relevantCancerTypesModalStore?.tumor?.excludedCancerTypes ?? []),
         );
 
         const fetchedRelevantCancerTypes = (
@@ -80,7 +80,7 @@ const RelevantCancerTypesModalContent = observer(
         }
 
         const rcts = fetchedRelevantCancerTypes.map(rct => {
-          for (const firebaseRct of relevantCancerTypesModalStore?.firebaseExcludedRCTs ?? []) {
+          for (const firebaseRct of Object.values(relevantCancerTypesModalStore?.firebaseExcludedRCTs ?? {})) {
             if ((rct.code && rct.code === firebaseRct.code) || (!rct.code && !firebaseRct.code && rct.mainType === firebaseRct.mainType)) {
               return convertFetchedCancerTypeToRelevantCancerType(rct, true);
             }

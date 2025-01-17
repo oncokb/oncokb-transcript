@@ -3,6 +3,8 @@ import { Drug, DrugCollection, Gene, Mutation, MutationEffect, TI, TX_LEVELS, Tr
 import { resolveTypeSpecificData } from './type-specific-resolvers';
 import { FDA_LEVEL_MAPPING, LEVEL_MAPPING, collectUUIDs, getNewPriorities, validateTimeFormat } from './core-evidence-submission-utils';
 import { Alteration, Evidence, EvidenceEvidenceTypeEnum } from '../../api/generated/core/api';
+import { isFirebaseArray } from '../firebase/firebase-path-utils';
+import { getFirebaseGenePath } from '../firebase/firebase-utils';
 
 export type GetEvidenceArgs = {
   type: EvidenceEvidenceTypeEnum | 'MUTATION_NAME_CHANGE' | 'TUMOR_NAME_CHANGE' | 'TREATMENT_NAME_CHANGE';
@@ -48,39 +50,39 @@ export function pathToGetEvidenceArgs({
     ...extractObjsInValuePath(gene, valuePath),
   };
 
-  const tiRegex = /^mutations\/\d+\/tumors\/\d+\/TIs\/\d+\/treatments\/(\d+)(?!\/short$|\/indication$)/;
+  const tiRegex = /^mutations\/[^/]+\/tumors\/[^/]+\/TIs\/[^/]+\/treatments\/([^/]+)(?!\/short$|\/indication$)/;
 
   let type: GetEvidenceArgs['type'] | undefined = undefined;
 
   if (valuePath === 'summary') {
     type = EvidenceEvidenceTypeEnum.GeneSummary;
-  } else if (/^mutations\/\d+\/tumors\/\d+\/summary/.test(valuePath)) {
+  } else if (/^mutations\/[^/]+\/tumors\/[^/]+\/summary/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.TumorTypeSummary;
-  } else if (/^mutations\/\d+\/tumors\/\d+\/prognosticSummary/.test(valuePath)) {
+  } else if (/^mutations\/[^/]+\/tumors\/[^/]+\/prognosticSummary/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.PrognosticSummary;
-  } else if (/^mutations\/\d+\/tumors\/\d+\/diagnosticSummary/.test(valuePath)) {
+  } else if (/^mutations\/[^/]+\/tumors\/[^/]+\/diagnosticSummary/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.DiagnosticSummary;
   } else if (valuePath === 'background') {
     type = EvidenceEvidenceTypeEnum.GeneBackground;
-  } else if (/^mutations\/\d+\/mutation_effect\/(effect|description)/.test(valuePath)) {
+  } else if (/^mutations\/[^/]+\/mutation_effect\/(effect|description)/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.MutationEffect;
-  } else if (/^mutations\/\d+\/tumors\/\d+\/prognostic\/.*/.test(valuePath)) {
+  } else if (/^mutations\/[^/]+\/tumors\/[^/]+\/prognostic\/.*/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.PrognosticImplication;
-  } else if (/^mutations\/\d+\/tumors\/\d+\/diagnostic\/.*/.test(valuePath)) {
+  } else if (/^mutations\/[^/]+\/tumors\/[^/]+\/diagnostic\/.*/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.DiagnosticImplication;
-  } else if (/^mutations\/\d+\/mutation_effect\/oncogenic/.test(valuePath)) {
+  } else if (/^mutations\/[^/]+\/mutation_effect\/oncogenic/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.Oncogenic;
-  } else if (/^mutations\/\d+\/summary/.test(valuePath)) {
+  } else if (/^mutations\/[^/]+\/summary/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.MutationSummary;
-  } else if (/^mutations\/\d+\/name/.test(valuePath)) {
+  } else if (/^mutations\/[^/]+\/name/.test(valuePath)) {
     type = 'MUTATION_NAME_CHANGE';
-  } else if (/^mutations\/\d+\/tumors\/\d+\/(cancerTypes|excludedCancerTypes)/.test(valuePath)) {
+  } else if (/^mutations\/[^/]+\/tumors\/[^/]+\/(cancerTypes|excludedCancerTypes)/.test(valuePath)) {
     type = 'TUMOR_NAME_CHANGE';
-  } else if (/^mutations\/\d+\/tumors\/\d+\/TIs\/\d+\/treatments\/\d+\/name$/.test(valuePath)) {
+  } else if (/^mutations\/[^/]+\/tumors\/[^/]+\/TIs\/[^/]+\/treatments\/[^/]+\/name$/.test(valuePath)) {
     type = 'TREATMENT_NAME_CHANGE';
   } else if (tiRegex.test(valuePath)) {
-    const treatmentIndex = +(tiRegex.exec(valuePath)?.[1] ?? 0);
-    const level = args.ti?.treatments[treatmentIndex]?.level;
+    const treatmentKey = tiRegex.exec(valuePath)?.[1] ?? '';
+    const level = args.ti?.treatments[treatmentKey]?.level;
 
     switch (level) {
       case TX_LEVELS.LEVEL_1:
@@ -114,20 +116,22 @@ export function pathToGetEvidenceArgs({
 }
 
 function extractObjsInValuePath(gene: Gene, valuePath: string) {
+  const firebaseGenePath = getFirebaseGenePath(false, gene.name);
   const args: Pick<Partial<GetEvidenceArgs>, 'mutation' | 'tumor' | 'ti' | 'treatment'> = {};
   let curObj: unknown = gene;
   let previousKey = '';
-  for (const key of valuePath.split('/')) {
-    const index = parseInt(key, 10);
+  const pathParts = valuePath.split('/');
+  for (const [index, key] of pathParts.entries()) {
+    const curPath = pathParts.slice(0, index).join('/');
     let propertyName = key;
-    if (_.isObject(curObj) && key in curObj) {
-      curObj = curObj[key];
-    } else if (_.isArray(curObj)) {
+    if (isFirebaseArray(firebaseGenePath + '/' + curPath)) {
       propertyName = previousKey;
-      curObj = curObj[index];
+      curObj = (curObj as object)[key];
       if (curObj === undefined) {
-        throw new Error(`Could not find index "${key}" for the array "${previousKey}" in the value path "${valuePath}"`);
+        throw new Error(`Could not find firebase array key "${key}" for the array "${previousKey}" in the value path "${valuePath}"`);
       }
+    } else if (_.isObject(curObj) && key in curObj) {
+      curObj = curObj[key];
     } else {
       throw new Error(`Could not find property "${key}" in the value path "${valuePath}"`);
     }

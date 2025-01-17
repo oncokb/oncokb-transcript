@@ -1,6 +1,6 @@
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
-import { Mutation } from 'app/shared/model/firebase/firebase.model';
+import { Mutation, MutationList } from 'app/shared/model/firebase/firebase.model';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import {
   compareMutationsByLastModified,
@@ -24,6 +24,8 @@ import * as styles from '../styles.module.scss';
 import MutationName from './MutationName';
 import { extractPositionFromSingleNucleotideAlteration } from 'app/shared/util/utils';
 import { MUTATION_LIST_ID, SINGLE_MUTATION_VIEW_ID } from 'app/config/constants/html-id';
+import { SentryError } from 'app/config/sentry-error';
+import { MutationQuery } from 'app/stores/curation-page.store';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -40,15 +42,15 @@ function MutationsSection({
   isGermline,
   parsedHistoryList,
   addMutation,
-  openMutationCollapsibleIndex,
-  setOpenMutationCollapsibleIndex,
+  openMutationCollapsibleListKey,
+  setOpenMutationCollapsibleListKey,
   firebaseDb,
   annotatedAltsCache,
   fetchMutationListForConvertIcon,
   setIsMutationListRendered,
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
-  const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
+  const [filteredMutationKeys, setFilteredMutationKeys] = useState<string[]>([]);
   const [sortMethod, setSortMethod] = useState<SortOptions>(SortOptions.DEFAULT);
 
   const mutationSectionRef = useRef<HTMLDivElement>(null);
@@ -59,20 +61,19 @@ function MutationsSection({
 
   useEffect(() => {
     if (!firebaseDb) {
-      return firebaseDb;
+      return;
     }
     onValue(
       ref(firebaseDb, `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`),
       snapshot => {
-        annotatedAltsCache?.fetch(
-          hugoSymbol,
-          (snapshot.val() || []).map((mut: Mutation) => {
-            return {
-              name: mut.name,
-              alterations: mut.alterations,
-            };
+        const mutationList: MutationList | null = snapshot.val();
+        const mutationQueries = Object.values(mutationList ?? {}).map(
+          (mut: Mutation): MutationQuery => ({
+            name: mut.name,
+            alterations: mut.alterations ?? null,
           }),
         );
+        annotatedAltsCache?.fetch(hugoSymbol, mutationQueries);
       },
       { onlyOnce: true },
     );
@@ -81,25 +82,25 @@ function MutationsSection({
   function getMutationCollapsibles() {
     return (
       <>
-        {!_.isNil(openMutationCollapsibleIndex) && (
+        {!_.isNil(openMutationCollapsibleListKey) && (
           // though a greater minHeight would reduce blinking more, need to choose a minHeight that looks good on the smallest possible mutation
           <div style={{ transition: 'height 0.5s, opacity 0.5s', minHeight: 400 }} className={'mb-2'} data-testid={SINGLE_MUTATION_VIEW_ID}>
             <MutationCollapsible
               open
-              mutationPath={`${mutationsPath}/${openMutationCollapsibleIndex}`}
+              mutationPath={`${mutationsPath}/${openMutationCollapsibleListKey}`}
               hugoSymbol={hugoSymbol}
               isGermline={isGermline}
               parsedHistoryList={parsedHistoryList}
               onToggle={() => {
-                setOpenMutationCollapsibleIndex?.(null);
+                setOpenMutationCollapsibleListKey?.(null);
               }}
             />
           </div>
         )}
         <div
           style={{
-            visibility: !_.isNil(openMutationCollapsibleIndex) ? 'hidden' : 'inherit',
-            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : undefined,
+            visibility: !_.isNil(openMutationCollapsibleListKey) ? 'hidden' : 'inherit',
+            maxHeight: !_.isNil(openMutationCollapsibleListKey) ? '0px' : undefined,
           }}
           data-testid={MUTATION_LIST_ID}
         >
@@ -108,8 +109,8 @@ function MutationsSection({
             pushDirection="front"
             sort={getSortFunction}
             itemBuilder={itemBuilder}
-            filter={index => {
-              return filteredIndices.includes(index);
+            filter={listKey => {
+              return filteredMutationKeys.includes(listKey);
             }}
             onRender={() => {
               setIsMutationListRendered?.(true);
@@ -152,18 +153,18 @@ function MutationsSection({
   );
 
   const itemBuilder = useCallback(
-    (index: number) => {
+    (itemKey: string) => {
       return (
         <div className="mb-2">
           <MutationCollapsible
             disableOpen
-            mutationPath={`${mutationsPath}/${index}`}
+            mutationPath={`${mutationsPath}/${itemKey}`}
             showLastModified={sortMethod === SortOptions.LAST_MODIFIED}
             hugoSymbol={hugoSymbol}
             isGermline={isGermline}
             parsedHistoryList={parsedHistoryList}
             onToggle={() => {
-              setOpenMutationCollapsibleIndex?.(index);
+              setOpenMutationCollapsibleListKey?.(itemKey);
               if (mutationSectionRef.current !== null && mutationSectionRef.current.getBoundingClientRect().top < 0) {
                 mutationSectionRef.current.scrollIntoView();
               }
@@ -172,35 +173,35 @@ function MutationsSection({
         </div>
       );
     },
-    [mutationsPath, sortMethod, hugoSymbol, isGermline, parsedHistoryList, setOpenMutationCollapsibleIndex],
+    [mutationsPath, sortMethod, hugoSymbol, isGermline, parsedHistoryList, setOpenMutationCollapsibleListKey],
   );
 
   return (
     <>
       <div ref={mutationSectionRef}>
         <Row
-          className={classNames(!_.isNil(openMutationCollapsibleIndex) ? 'mb-4' : null)}
+          className={classNames(!_.isNil(openMutationCollapsibleListKey) ? 'mb-4' : null)}
           style={{
-            visibility: !_.isNil(openMutationCollapsibleIndex) ? 'visible' : 'hidden',
-            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? undefined : '0px',
+            visibility: !_.isNil(openMutationCollapsibleListKey) ? 'visible' : 'hidden',
+            maxHeight: !_.isNil(openMutationCollapsibleListKey) ? undefined : '0px',
           }}
         >
           <Col>
             <div className="mt-4" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              <span className={styles.link} onClick={() => setOpenMutationCollapsibleIndex?.(null)}>
+              <span className={styles.link} onClick={() => setOpenMutationCollapsibleListKey?.(null)}>
                 Mutations
               </span>
               <span className="px-2" style={{ color: '#6c757d' }}>
                 /
               </span>
-              <MutationName mutationPath={`${mutationsPath}/${openMutationCollapsibleIndex}`} />
+              <MutationName mutationPath={`${mutationsPath}/${openMutationCollapsibleListKey}`} />
             </div>
           </Col>
         </Row>
         <Row
           style={{
-            visibility: !_.isNil(openMutationCollapsibleIndex) ? 'hidden' : 'inherit',
-            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : undefined,
+            visibility: !_.isNil(openMutationCollapsibleListKey) ? 'hidden' : 'inherit',
+            maxHeight: !_.isNil(openMutationCollapsibleListKey) ? '0px' : undefined,
           }}
         >
           <Col>
@@ -208,8 +209,8 @@ function MutationsSection({
               hugoSymbol={hugoSymbol}
               mutationsPath={mutationsPath}
               metaGeneReviewPath={metaGeneReviewPath}
-              filteredIndices={filteredIndices}
-              setFilteredIndices={setFilteredIndices}
+              filteredMutationKeys={filteredMutationKeys}
+              setFilteredMutationKeys={setFilteredMutationKeys}
               showAddMutationModal={showAddMutationModal}
               setShowAddMutationModal={setShowAddMutationModal}
               setSortMethod={setSortMethod}
@@ -222,11 +223,14 @@ function MutationsSection({
         <AddMutationModal
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
-          onConfirm={async (newMutation, newMutationIndex) => {
+          onConfirm={async newMutation => {
             try {
-              await addMutation?.(mutationsPath, newMutation, isGermline);
+              const addMutationResult = await addMutation?.(mutationsPath, newMutation, isGermline);
+              if (addMutationResult === undefined) {
+                throw new SentryError('Failed to add mutation', { newMutation, mutationsPath, isGermline });
+              }
               setShowAddMutationModal(show => !show);
-              setOpenMutationCollapsibleIndex?.(newMutationIndex);
+              setOpenMutationCollapsibleListKey?.(addMutationResult);
             } catch (error) {
               notifyError(error);
             }
@@ -248,8 +252,8 @@ const mapStoreToProps = ({
   firebaseMutationConvertIconStore,
 }: IRootStore) => ({
   addMutation: firebaseGeneService.addMutation,
-  openMutationCollapsibleIndex: openMutationCollapsibleStore.index,
-  setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
+  openMutationCollapsibleListKey: openMutationCollapsibleStore.listKey,
+  setOpenMutationCollapsibleListKey: openMutationCollapsibleStore.setOpenMutationCollapsibleListKey,
   firebaseDb: firebaseAppStore.firebaseDb,
   annotatedAltsCache: curationPageStore.annotatedAltsCache,
   fetchMutationListForConvertIcon: firebaseMutationConvertIconStore.fetchData,

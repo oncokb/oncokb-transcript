@@ -21,6 +21,7 @@ import {
 import { DrugCollection, FDA_LEVELS, FIREBASE_ONCOGENICITY, TI_TYPE, TX_LEVELS, Vus } from 'app/shared/model/firebase/firebase.model';
 import { getGeneData, getVUSData } from './core-drive-annotation-submission';
 import { MUTATION_EFFECT } from 'app/config/constants/constants';
+import { generateUuid } from '../utils';
 
 describe('Drive annotation to submit to core', () => {
   describe('getGeneData', () => {
@@ -44,13 +45,13 @@ describe('Drive annotation to submit to core', () => {
 const mockVus: Vus[] = [
   createMockVus({
     name: 'F888I',
-    name_comments: [
-      createMockComment({
+    name_comments: {
+      [generateUuid()]: createMockComment({
         userName: 'doej',
         content: 'comment',
         date: '1720646502304',
       }),
-    ],
+    },
     time: createMockVusTime({
       by: createMockVusBy({
         name: 'John Doe',
@@ -61,13 +62,13 @@ const mockVus: Vus[] = [
   }),
   createMockVus({
     name: 'F595I',
-    name_comments: [
-      createMockComment({
+    name_comments: {
+      [generateUuid()]: createMockComment({
         userName: 'doej',
         content: 'comment',
         date: '1720646502305',
       }),
-    ],
+    },
     time: createMockVusTime({
       by: createMockVusBy({
         name: 'John Doe',
@@ -118,8 +119,8 @@ const mockGene = createMockGene({
     }),
   }),
   mutations_uuid: '69e454db-db99-4979-a770-482f7937314b',
-  mutations: [
-    createMockMutation({
+  mutations: {
+    '-mKey1': createMockMutation({
       tumors_uuid: '8ba291c7-6565-45e8-9dfa-a185657886cc',
       alterations_uuid: '145c01a5-ac80-4bdd-9169-e51da638b5f8',
       mutation_effect: createMockMutationEffect({
@@ -169,7 +170,7 @@ const mockGene = createMockGene({
       }),
       name_uuid: 'b01b580f-d159-4c40-bf75-3c03704c2b3b',
     }),
-    createMockMutation({
+    '-mKey2': createMockMutation({
       tumors_uuid: '9672ea70-bde8-4149-80a5-d1983932b89b',
       alterations_uuid: '724b958c-57c5-40e8-b330-ab0d25539a49',
       mutation_effect: createMockMutationEffect({
@@ -221,7 +222,7 @@ const mockGene = createMockGene({
       summary: 'summary',
       summary_uuid: 'dec9f8ee-7c5d-4740-b17c-86331d867b15',
     }),
-    createMockMutation({
+    '-mKey3': createMockMutation({
       mutation_effect: createMockMutationEffect({
         description: 'The class I',
         description_review: createMockReview({ updateTime: 1717770480000, updatedBy: 'John Doe' }),
@@ -248,6 +249,7 @@ const mockGene = createMockGene({
       summary: 'summary',
       summary_uuid: '8cbccd95-caf6-4a33-837d-5c72d1d221d7',
       tumors_uuid: 'b9e062b0-a1ae-46ad-9fc6-5bb6ee6b3674',
+      alterations: [],
       alterations_uuid: '9eb7261b-74c8-463b-99cd-62815c416765',
       mutation_specific_cancer_risk: createMockCancerRisk({
         biallelic_uuid: 'a0cf2c62-9e86-4cc6-accf-7d4b6dbc5fbc',
@@ -262,9 +264,9 @@ const mockGene = createMockGene({
         description_uuid: 'b0a9729d-82b6-4f3a-ae5f-81a42c004f2f',
         penetrance_uuid: '91308253-0677-44db-bf89-97d79d7ec98a',
       }),
-      tumors: [
-        createMockTumor({
-          cancerTypes: [],
+      tumors: {
+        '-tKey1': createMockTumor({
+          cancerTypes: {},
           cancerTypes_review: createMockReview({
             added: true,
             updateTime: 1717770480000,
@@ -335,14 +337,14 @@ const mockGene = createMockGene({
           cancerTypes_uuid: '553284ea-01f2-48c4-936c-2efae797d6f5',
           excludedCancerTypes_uuid: '2b0384c4-5405-4478-bba8-0604bd0ef1b6',
         }),
-        createMockTumor({
+        '-tKey2': createMockTumor({
           TIs: [
             createMockTi({
               name: 'Standard implications for sensitivity to therapy',
               name_uuid: 'b728d209-492b-41cd-aaa5-a16c61a770ed',
               treatments_uuid: '6f8ed079-3b8b-437c-852c-c3c2a3c9a320',
-              treatments: [
-                createMockTreatment({
+              treatments: {
+                '-txKey1': createMockTreatment({
                   description: 'RAF inhibitor',
                   description_review: createMockReview({ updateTime: 1717770480000, updatedBy: 'John Doe' }),
                   description_uuid: 'd9c0bb27-9c2e-441a-abf3-9f0784943e1f',
@@ -366,7 +368,7 @@ const mockGene = createMockGene({
                   short: 'Effective against brain metastases',
                   excludedRCTs_uuid: '4fc7b249-8ae1-49d4-864e-4fdf971e1a6c',
                 }),
-                createMockTreatment({
+                '-txKey2': createMockTreatment({
                   description: 'Created test',
                   description_review: createMockReview({
                     updateTime: 1717770480000,
@@ -413,7 +415,7 @@ const mockGene = createMockGene({
                   short: '',
                   excludedRCTs_uuid: '9ba9e897-8476-4304-af8a-a3289ee96052',
                 }),
-                createMockTreatment({
+                '-txKey3': createMockTreatment({
                   description: 'inhibitor of V600-mutant BRAF',
                   description_review: createMockReview({
                     updateTime: 1717770480000,
@@ -461,7 +463,7 @@ const mockGene = createMockGene({
                   short: '',
                   excludedRCTs_uuid: '3a04990a-9b1f-4ceb-8896-4fd88ea2a02b',
                 }),
-              ],
+              },
               type: TI_TYPE.SS,
             }),
             createMockTi({
@@ -483,13 +485,13 @@ const mockGene = createMockGene({
               treatments_uuid: '52878ba2-b2ba-4f20-b357-f8d5ac1eda2e',
             }),
           ],
-          cancerTypes: [
-            createMockCancerType({
+          cancerTypes: {
+            '-ctKey1': createMockCancerType({
               code: 'MEL',
               mainType: 'Melanoma',
               subtype: 'Melanoma',
             }),
-          ],
+          },
           cancerTypes_uuid: '553284ea-01f2-48c4-936c-2efae797d6f5',
           diagnostic: createMockImplication({
             description: '',
@@ -507,7 +509,7 @@ const mockGene = createMockGene({
             }),
             level_uuid: '7afcbe32-1684-436e-b659-c37ada75bae2',
             short: '',
-            excludedRCTs: [],
+            excludedRCTs: {},
             excludedRCTs_uuid: '4a5ed610-72d6-4007-b68b-3913d9c01d38',
             excludedRCTs_review: createMockReview({
               updateTime: 1717770480000,
@@ -531,7 +533,7 @@ const mockGene = createMockGene({
               lastReviewed: 'description review',
             }),
             description_uuid: 'b190d68a-bd23-47e8-a7e7-b67f91c946dd',
-            excludedRCTs: [],
+            excludedRCTs: {},
             level: '',
             level_review: createMockReview({
               updateTime: 1717770480000,
@@ -563,9 +565,9 @@ const mockGene = createMockGene({
           }),
           summary_uuid: 'da67dbc0-7641-43db-a760-a3464e65a1c5',
         }),
-      ],
+      },
     }),
-  ],
+  },
 });
 
 const mockDrugList: DrugCollection = {
@@ -635,13 +637,13 @@ const mockDrugList: DrugCollection = {
 
 const expectedGeneDataNoCommentsAndReviewed = {
   name: 'BRAF',
-  name_comments: [],
+  name_comments: {},
   background: 'test',
   background_uuid: '16acb0f4-a01c-472e-b243-01560f92cf1e',
   dmp_refseq_id: 'NM_000000.0',
   isoform_override: 'ENST00000000000',
-  mutations: [
-    {
+  mutations: {
+    '-mKey2': {
       mutation_effect: {
         description: 'reviewed description',
         description_uuid: 'b020228d-8bbf-4d1f-842f-dda76b4e6630',
@@ -657,12 +659,12 @@ const expectedGeneDataNoCommentsAndReviewed = {
         oncogenic_review: { updatedBy: 'John Doe', updateTime: 1678309000000 },
       },
       mutation_effect_uuid: 'f5646eb4-a8b2-4967-9f8e-fba706538a03',
-      mutation_effect_comments: [],
+      mutation_effect_comments: {},
       name: 'reviewed name',
       alterations: [],
       alterations_uuid: '724b958c-57c5-40e8-b330-ab0d25539a49',
       name_uuid: '90061776-866f-40c1-819a-00dbad8213d0',
-      tumors: [],
+      tumors: {},
       tumors_uuid: '9672ea70-bde8-4149-80a5-d1983932b89b',
       mutation_specific_penetrance: {
         penetrance: '',
@@ -688,7 +690,7 @@ const expectedGeneDataNoCommentsAndReviewed = {
       summary: 'summary',
       summary_uuid: 'dec9f8ee-7c5d-4740-b17c-86331d867b15',
     },
-    {
+    '-mKey3': {
       mutation_effect: {
         description: 'The class I',
         description_uuid: '84e58cf7-a4f0-4cd5-ac01-d8397526d0e7',
@@ -704,21 +706,21 @@ const expectedGeneDataNoCommentsAndReviewed = {
         oncogenic_review: { updatedBy: 'John Doe', updateTime: 1678309000000 },
       },
       mutation_effect_uuid: '3ef57442-f50e-4305-adc6-22fbce9a532d',
-      mutation_effect_comments: [],
+      mutation_effect_comments: {},
       name: 'V600E',
       alterations: [],
       alterations_uuid: '9eb7261b-74c8-463b-99cd-62815c416765',
       name_uuid: 'ee5900b8-d984-49a6-b6db-940eb1d0e807',
       summary: 'summary',
       summary_uuid: '8cbccd95-caf6-4a33-837d-5c72d1d221d7',
-      tumors: [
-        {
+      tumors: {
+        '-tKey2': {
           TIs: [
             {
               name: 'Standard implications for sensitivity to therapy',
               name_uuid: 'b728d209-492b-41cd-aaa5-a16c61a770ed',
-              treatments: [
-                {
+              treatments: {
+                '-txKey1': {
                   description: 'RAF inhibitor',
                   description_uuid: 'd9c0bb27-9c2e-441a-abf3-9f0784943e1f',
                   indication: 'FDA-approved',
@@ -765,13 +767,13 @@ const expectedGeneDataNoCommentsAndReviewed = {
                       },
                     ],
                   ],
-                  name_comments: [],
+                  name_comments: {},
                   name_uuid: '9b798839-592a-4cb0-a85a-099c2662c8ef',
                   propagation: '3B',
                   propagationLiquid: 'no',
                   propagationLiquid_uuid: '6f1085c4-98b6-4d91-a210-b9f078849bbf',
                   propagation_uuid: 'be009470-ca82-47d3-9054-8b54701030cc',
-                  excludedRCTs: [],
+                  excludedRCTs: {},
                   excludedRCTs_uuid: '4fc7b249-8ae1-49d4-864e-4fdf971e1a6c',
                   short: 'Effective against brain metastases',
                   description_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
@@ -781,7 +783,7 @@ const expectedGeneDataNoCommentsAndReviewed = {
                   name_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
                   propagation_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
                 },
-                {
+                '-txKey3': {
                   description: 'description review',
                   description_uuid: '45a0d045-43fd-47db-a0a9-1a86d65799c3',
                   indication: 'indication Review',
@@ -819,13 +821,13 @@ const expectedGeneDataNoCommentsAndReviewed = {
                       },
                     ],
                   ],
-                  name_comments: [],
+                  name_comments: {},
                   name_uuid: '71cc9b4d-a636-4891-8d5d-56093a701280',
                   propagation: '1',
                   propagationLiquid: 'no',
                   propagationLiquid_uuid: '288e2f8e-2dd4-4771-ba8e-c63589640559',
                   propagation_uuid: '317bd394-7991-499e-a6a7-bcd415f821f6',
-                  excludedRCTs: [],
+                  excludedRCTs: {},
                   excludedRCTs_uuid: '3a04990a-9b1f-4ceb-8896-4fd88ea2a02b',
                   short: '',
                   description_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
@@ -838,43 +840,43 @@ const expectedGeneDataNoCommentsAndReviewed = {
                   },
                   propagation_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
                 },
-              ],
+              },
               treatments_uuid: '6f8ed079-3b8b-437c-852c-c3c2a3c9a320',
               type: 'SS',
             },
             {
               name: 'Standard implications for resistance to therapy',
               name_uuid: '389ba0a6-26d4-4754-aa0f-190d4f72b177',
-              treatments: [],
+              treatments: {},
               treatments_uuid: 'bc650bb2-65e7-4ca9-9b04-bc7961d8b135',
               type: 'SR',
             },
             {
               name: 'Investigational implications for sensitivity to therapy',
               name_uuid: '11d78588-9550-488a-a850-dd91e8614048',
-              treatments: [],
+              treatments: {},
               treatments_uuid: '92b55ca1-8ef8-44d7-aa90-f10e6c1f7bb0',
               type: 'IS',
             },
             {
               name: 'Investigational implications for resistance to therapy',
               name_uuid: '748852c0-a8ec-4824-af73-aa698bb5ff2f',
-              treatments: [],
+              treatments: {},
               treatments_uuid: '52878ba2-b2ba-4f20-b357-f8d5ac1eda2e',
               type: 'IR',
             },
           ],
-          cancerTypes: [{ code: 'MEL', mainType: 'Melanoma', subtype: 'Melanoma' }],
+          cancerTypes: { '-ctKey1': { code: 'MEL', mainType: 'Melanoma', subtype: 'Melanoma' } },
           cancerTypes_uuid: '553284ea-01f2-48c4-936c-2efae797d6f5',
-          cancerTypes_comments: [],
-          excludedCancerTypes: [],
+          cancerTypes_comments: {},
+          excludedCancerTypes: {},
           excludedCancerTypes_uuid: '2b0384c4-5405-4478-bba8-0604bd0ef1b6',
           diagnostic: {
             description: 'description review',
             description_uuid: '5c0856a1-1a56-4f01-8620-9518ebfb233e',
             level: 'level review',
             level_uuid: '7afcbe32-1684-436e-b659-c37ada75bae2',
-            excludedRCTs: [],
+            excludedRCTs: {},
             excludedRCTs_uuid: '4a5ed610-72d6-4007-b68b-3913d9c01d38',
             short: '',
             description_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
@@ -883,7 +885,7 @@ const expectedGeneDataNoCommentsAndReviewed = {
           },
           diagnosticSummary: 'summary review',
           diagnosticSummary_uuid: 'a601e863-3c0f-4c97-8037-b3aafd853aad',
-          diagnostic_comments: [],
+          diagnostic_comments: {},
           diagnostic_uuid: 'c3d5a2d6-34ef-4645-9d8e-96739e4a3cd6',
           prognostic: {
             description: 'description review',
@@ -895,11 +897,11 @@ const expectedGeneDataNoCommentsAndReviewed = {
             short: '',
             excludedRCTs_uuid: '1cf4d012-1335-4229-8da1-76ced0819211',
             excludedRCTs_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
-            excludedRCTs: [],
+            excludedRCTs: {},
           },
           prognosticSummary: 'summary review',
           prognosticSummary_uuid: 'c961a5e9-8c02-4b32-b001-9fc37f6c60c8',
-          prognostic_comments: [],
+          prognostic_comments: {},
           prognostic_uuid: 'a482d71c-0079-40bd-8d8b-a13d35e26fe3',
           summary: 'summary review',
           summary_uuid: 'da67dbc0-7641-43db-a760-a3464e65a1c5',
@@ -907,7 +909,7 @@ const expectedGeneDataNoCommentsAndReviewed = {
           prognosticSummary_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
           summary_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
         },
-      ],
+      },
       tumors_uuid: 'b9e062b0-a1ae-46ad-9fc6-5bb6ee6b3674',
       mutation_specific_penetrance: {
         penetrance: '',
@@ -931,16 +933,16 @@ const expectedGeneDataNoCommentsAndReviewed = {
       },
       name_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
     },
-  ],
+  },
   mutations_uuid: '69e454db-db99-4979-a770-482f7937314b',
   summary: 'test',
   summary_uuid: '616d02ba-6909-42b2-b145-f7b5627ad0a3',
   penetrance: '',
   penetrance_uuid: 'fc7ae593-7075-42de-b90f-ee132238274b',
-  penetrance_comments: [],
+  penetrance_comments: {},
   inheritanceMechanism: '',
   inheritanceMechanism_uuid: '99447f53-5908-4dd1-a6fd-732d5ccf0f62',
-  inheritanceMechanism_comments: [],
+  inheritanceMechanism_comments: {},
   type: {
     ocg: 'Tumor Suppressor',
     ocg_uuid: '1a233927-54d7-4921-97bf-08489a1e9c7d',
@@ -952,7 +954,7 @@ const expectedGeneDataNoCommentsAndReviewed = {
   type_uuid: 'ea4d7bd1-bc94-4877-987f-37f2f13e571b',
   dmp_refseq_id_grch38: 'NM_000000.0',
   isoform_override_grch38: 'ENST00000000000',
-  genomic_indicators: [],
+  genomic_indicators: {},
   background_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
   summary_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
 };

@@ -1,5 +1,5 @@
 import { ALLELE_STATE, PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
-import { GenomicIndicator, Mutation, Review } from 'app/shared/model/firebase/firebase.model';
+import { GenomicIndicator, GenomicIndicatorList, Mutation, MutationList, Review } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -19,6 +19,7 @@ import { getHexColorWithAlpha } from '../util/utils';
 import { parseFirebaseGenePath } from '../util/firebase/firebase-path-utils';
 import GenomicIndicatorsHeader from 'app/pages/curation/header/GenomicIndicatorsHeader';
 import { SentryError } from 'app/config/sentry-error';
+import _ from 'lodash';
 
 export interface IGenomicIndicatorsTableProps extends StoreProps {
   genomicIndicatorsPath: string;
@@ -29,19 +30,19 @@ const GenomicIndicatorsTable = ({
   firebaseDb,
   authStore,
   mutations,
-  deleteGenomicIndicators,
   updateReviewableContent,
   updateGeneReviewUuid,
   updateMeta,
   fetchGenomicIndicators,
   readOnly,
+  deleteFromArray,
 }: IGenomicIndicatorsTableProps) => {
-  const [genomicIndicatorsLength, setGenomicIndicatorsLength] = useState<number>(0);
+  const [genomicIndicatorKeys, setGenomicIndicatorKeys] = useState<string[]>([]);
 
-  async function deleteGenomicIndicator(genomicIndicator: GenomicIndicator, index: number) {
+  async function deleteGenomicIndicator(genomicIndicator: GenomicIndicator, arrayKey: string) {
     const name = authStore?.fullName ?? '';
 
-    const pathDetails = parseFirebaseGenePath(`${genomicIndicatorsPath}/${index}/name`);
+    const pathDetails = parseFirebaseGenePath(`${genomicIndicatorsPath}/${arrayKey}/name`);
     const hugoSymbol = pathDetails?.hugoSymbol;
     const pathFromGene = pathDetails?.pathFromGene;
 
@@ -56,13 +57,13 @@ const GenomicIndicatorsTable = ({
     if (removeWithoutReview) {
       const nestedUuids = findNestedUuids(genomicIndicator);
       try {
-        await deleteGenomicIndicators?.(genomicIndicatorsPath, [index]);
+        await deleteFromArray?.(genomicIndicatorsPath, [arrayKey]);
         for (const id of nestedUuids) {
           await updateGeneReviewUuid?.(hugoSymbol, id, false, true);
         }
         return await fetchGenomicIndicators?.(genomicIndicatorsPath);
       } catch (error) {
-        throw new SentryError('Failed to genomic indicator without review', { genomicIndicator, index });
+        throw new SentryError('Failed to genomic indicator without review', { genomicIndicator, arrayKey });
       }
     }
 
@@ -74,7 +75,7 @@ const GenomicIndicatorsTable = ({
       });
       await updateMeta?.(hugoSymbol, genomicIndicator.name_uuid, true, true);
     } catch (error) {
-      throw new SentryError('Failed to mark genomic indicator deletion for review', { genomicIndicator, index });
+      throw new SentryError('Failed to mark genomic indicator deletion for review', { genomicIndicator, arrayKey });
     }
   }
 
@@ -85,42 +86,41 @@ const GenomicIndicatorsTable = ({
     const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
-        const data = snapshot.val();
-        let newGenomicIndicatorsLength = 0;
+        const data = snapshot.val() as GenomicIndicatorList | null;
+        let newGenomicIndicatorKeys = [] as string[];
         if (data) {
-          newGenomicIndicatorsLength = typeof data === 'object' ? Object.keys(data).length : (data as []).length;
+          newGenomicIndicatorKeys = typeof data === 'object' ? Object.keys(data) : [];
         }
 
-        if (newGenomicIndicatorsLength !== genomicIndicatorsLength) {
-          setGenomicIndicatorsLength(newGenomicIndicatorsLength);
+        if (!_.isEqual(newGenomicIndicatorKeys, genomicIndicatorKeys)) {
+          setGenomicIndicatorKeys(newGenomicIndicatorKeys);
         }
       }),
     );
-
     fetchGenomicIndicators?.(genomicIndicatorsPath);
 
     return () => {
       callbacks.forEach(callback => callback?.());
     };
-  }, [genomicIndicatorsLength, genomicIndicatorsPath, firebaseDb]);
+  }, [genomicIndicatorKeys, genomicIndicatorsPath, firebaseDb]);
 
-  const columns: SearchColumn<GenomicIndicator>[] = [
+  const columns: SearchColumn<{ arrayKey: string }>[] = [
     {
       Header: 'Name',
       width: 200,
       style: { overflow: 'visible', padding: 0 },
-      Cell({ index }: CellInfo) {
+      Cell(cell: { original: { arrayKey: string } }) {
         return (
           <GenomicIndicatorNameCell
             genomicIndicatorsPath={genomicIndicatorsPath}
-            firebaseIndex={index}
+            firebaseArrayKey={cell.original.arrayKey}
             firebaseDb={firebaseDb!}
             buildCell={genomicIndicators => {
-              const thisCellIndicator = genomicIndicators[index];
+              const thisCellIndicator = genomicIndicators[cell.original.arrayKey];
 
               let isDuplicateName = false;
-              for (let i = 0; i < genomicIndicators.length; i++) {
-                if (i !== index && thisCellIndicator.name === genomicIndicators[i]?.name) {
+              for (const [giKey, gi] of Object.entries(genomicIndicators)) {
+                if (giKey !== cell.original.arrayKey && thisCellIndicator.name === gi?.name) {
                   isDuplicateName = true;
                   break;
                 }
@@ -130,7 +130,7 @@ const GenomicIndicatorsTable = ({
                 <>
                   <RealtimeTextAreaInput
                     style={{ height: '60px', marginBottom: isDuplicateName ? 0 : undefined }}
-                    firebasePath={`${genomicIndicatorsPath}/${index}/name`}
+                    firebasePath={`${genomicIndicatorsPath}/${cell.original.arrayKey}/name`}
                     label=""
                     disabled={thisCellIndicator.name_review?.removed || readOnly || false}
                     invalid={isDuplicateName}
@@ -147,8 +147,8 @@ const GenomicIndicatorsTable = ({
       Header: 'Allele State',
       style: { overflow: 'visible', padding: 0 },
       width: 200,
-      Cell({ index }: CellInfo) {
-        const genomicIndicatorPath = `${genomicIndicatorsPath}/${index}`;
+      Cell(cell: { original: { arrayKey: string } }) {
+        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.original.arrayKey}`;
 
         return (
           <GenomicIndicatorCell
@@ -177,8 +177,8 @@ const GenomicIndicatorsTable = ({
     {
       Header: 'Description',
       style: { overflow: 'visible', padding: 0 },
-      Cell({ index }: CellInfo) {
-        const genomicIndicatorPath = `${genomicIndicatorsPath}/${index}`;
+      Cell(cell: { original: { arrayKey: string } }) {
+        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.original.arrayKey}`;
 
         return (
           <GenomicIndicatorCell
@@ -188,7 +188,7 @@ const GenomicIndicatorsTable = ({
               return (
                 <RealtimeTextAreaInput
                   style={{ height: '60px' }}
-                  firebasePath={`${genomicIndicatorsPath}/${index}/description`}
+                  firebasePath={`${genomicIndicatorsPath}/${cell.original.arrayKey}/description`}
                   label=""
                   disabled={genomicIndicator.name_review?.removed || readOnly || false}
                 />
@@ -201,8 +201,8 @@ const GenomicIndicatorsTable = ({
     {
       Header: 'Association Variants',
       style: { overflow: 'visible', padding: 0 },
-      Cell({ index }: CellInfo) {
-        const genomicIndicatorPath = `${genomicIndicatorsPath}/${index}`;
+      Cell(cell: { original: { arrayKey: string } }) {
+        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.original.arrayKey}`;
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
@@ -220,13 +220,13 @@ const GenomicIndicatorsTable = ({
                   isMulti
                   isDisabled={genomicIndicator.name_review?.removed || readOnly || false}
                   value={
-                    genomicIndicator.associationVariants?.map(variant => {
-                      const associatedMutation = mutations?.find(mutation => mutation.name_uuid === variant.uuid);
+                    Object.values(genomicIndicator.associationVariants ?? {})?.map(variant => {
+                      const associatedMutation = Object.values(mutations ?? {})?.find(mutation => mutation.name_uuid === variant.uuid);
                       return { label: getMutationName(associatedMutation?.name, associatedMutation?.alterations), value: variant.uuid };
                     }) || []
                   }
                   options={[
-                    ...(mutations?.map(mutation => ({
+                    ...(Object.values(mutations ?? {})?.map(mutation => ({
                       label: getMutationName(mutation.name, mutation.alterations),
                       value: mutation.name_uuid,
                     })) || []),
@@ -257,8 +257,8 @@ const GenomicIndicatorsTable = ({
       Header: 'Actions',
       width: 80,
       style: { padding: 0 },
-      Cell({ index }: CellInfo) {
-        const genomicIndicatorPath = `${genomicIndicatorsPath}/${index}`;
+      Cell(cell: { original: { arrayKey: string } }) {
+        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.original.arrayKey}`;
 
         return (
           <GenomicIndicatorCell
@@ -274,7 +274,7 @@ const GenomicIndicatorsTable = ({
                   disabled={readOnly}
                   sectionName={genomicIndicator.name}
                   deleteHandler={() => {
-                    deleteGenomicIndicator(genomicIndicator, index);
+                    deleteGenomicIndicator(genomicIndicator, cell.original.arrayKey);
                   }}
                   isRemovableWithoutReview={genomicIndicator.name_review?.added || false}
                 />
@@ -289,11 +289,11 @@ const GenomicIndicatorsTable = ({
   return (
     <div className={'justify-content-between align-items-center mb-4'}>
       <GenomicIndicatorsHeader genomicIndicatorsPath={genomicIndicatorsPath} />
-      {genomicIndicatorsLength > 0 ? (
+      {genomicIndicatorKeys.length > 0 ? (
         <div className="genomic-indicators">
           <OncoKBTable
             minRows={1}
-            data={Array(genomicIndicatorsLength).fill(0)}
+            data={genomicIndicatorKeys.map(arrayKey => ({ arrayKey }))}
             columns={columns}
             disableSearch
             showPaginationBottom={false}
@@ -309,16 +309,15 @@ const GenomicIndicatorsTable = ({
 const mapStoreToProps = ({
   firebaseAppStore,
   authStore,
-  firebaseGeneService,
   firebaseGeneReviewService,
   firebaseMetaService,
   firebaseMutationListStore,
   firebaseGenomicIndicatorsStore,
   curationPageStore,
+  firebaseRepository,
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   authStore,
-  deleteGenomicIndicators: firebaseGeneService.deleteObjectsFromArray,
   updateReviewableContent: firebaseGeneReviewService.updateReviewableContent,
   updateGeneMetaContent: firebaseMetaService.updateGeneMetaContent,
   updateGeneReviewUuid: firebaseMetaService.updateGeneReviewUuid,
@@ -326,6 +325,7 @@ const mapStoreToProps = ({
   fetchGenomicIndicators: firebaseGenomicIndicatorsStore.fetchData,
   updateMeta: firebaseMetaService.updateMeta,
   readOnly: curationPageStore.readOnly,
+  deleteFromArray: firebaseRepository.deleteFromArray,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
@@ -334,7 +334,7 @@ export default componentInject(mapStoreToProps)(observer(GenomicIndicatorsTable)
 
 interface IGenomicIndicatorCellProps {
   genomicIndicatorPath: string;
-  mutations?: Mutation[];
+  mutations?: MutationList;
   firebaseDb: Database;
   buildCell: (genomicIndicator: GenomicIndicator) => React.ReactNode;
 }
@@ -377,13 +377,13 @@ function GenomicIndicatorCell({ genomicIndicatorPath, firebaseDb, buildCell }: I
 interface IGenomicIndicatorNameCellProps {
   // this exists so the name cell only can have data about all genomic indicators
   genomicIndicatorsPath: string;
-  firebaseIndex: number;
+  firebaseArrayKey: string;
   firebaseDb: Database;
-  buildCell: (genomicIndicators: GenomicIndicator[]) => React.ReactNode;
+  buildCell: (genomicIndicators: GenomicIndicatorList) => React.ReactNode;
 }
 
-function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseIndex, firebaseDb, buildCell }: IGenomicIndicatorNameCellProps) {
-  const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[] | null>(null);
+function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseArrayKey, firebaseDb, buildCell }: IGenomicIndicatorNameCellProps) {
+  const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicatorList | null>(null);
 
   useEffect(() => {
     const unsubscribe = onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
@@ -394,7 +394,7 @@ function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseIndex, fireba
   }, [genomicIndicatorsPath, firebaseDb]);
 
   function getCell() {
-    if (!genomicIndicators?.[firebaseIndex]) {
+    if (!genomicIndicators?.[firebaseArrayKey]) {
       return <></>;
     }
 
@@ -406,7 +406,7 @@ function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseIndex, fireba
       style={{
         padding: '7px 5px',
         height: '100%',
-        backgroundColor: genomicIndicators?.[firebaseIndex]?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : undefined,
+        backgroundColor: genomicIndicators?.[firebaseArrayKey]?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : undefined,
       }}
     >
       {getCell()}
