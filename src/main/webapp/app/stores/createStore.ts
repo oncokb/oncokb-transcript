@@ -161,6 +161,7 @@ export interface IRootStore {
   readonly firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>;
   readonly firebaseGenomicIndicatorsStore: FirebaseDataStore<GenomicIndicator[]>;
 
+  readonly firebaseRepository: FirebaseRepository;
   /* Firebase services */
   readonly firebaseGeneReviewService: FirebaseGeneReviewService;
   readonly firebaseGeneService: FirebaseGeneService;

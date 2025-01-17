@@ -453,8 +453,8 @@ export const findReviewRecursive = (
         const TIs = value as TI[];
         for (const [tiIndex, ti] of TIs.entries()) {
           if (!ti.treatments) continue;
-          for (const [treatmentIndex, treatment] of ti.treatments.entries()) {
-            const treatmentPath = joinPathParts(currValuePath, 'TIs', tiIndex.toString(), 'treatments', treatmentIndex.toString());
+          for (const [treatmentKey, treatment] of Object.entries(ti.treatments)) {
+            const treatmentPath = joinPathParts(currValuePath, 'TIs', tiIndex.toString(), 'treatments', treatmentKey);
             const treatmentNameReview = buildNameReview(treatment, treatmentPath, parentReview, uuids, editorReviewMap, drugList);
             parentReview.addChild(treatmentNameReview);
             const rctReview = buildRCTReview(treatment, treatmentPath, uuids, treatmentNameReview, editorReviewMap);
@@ -620,7 +620,11 @@ export const buildCancerTypeNameReview = (
   const excludedCancerTypesPath = [currValuePath, 'excludedCancerTypes'].join('/');
   const title = makeFirebaseKeysReadable([nameKey])[0];
 
-  const readableName = getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor?.excludedCancerTypes || [], true);
+  const readableName = getCancerTypesNameWithExclusion(
+    Object.values(tumor.cancerTypes),
+    Object.values(tumor?.excludedCancerTypes ?? []),
+    true,
+  );
 
   const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
   historyInfo.cancerType = {
@@ -655,10 +659,10 @@ export const buildCancerTypeNameReview = (
   } else if (cancerTypesReview?.lastReviewed || excludedCTReview?.lastReviewed || excludedCTReview?.initialUpdate) {
     nameUpdated = true;
     oldState = oldTumorName = getCancerTypesNameWithExclusion(
-      (cancerTypesReview?.lastReviewed as CancerType[] | undefined) || tumor.cancerTypes,
+      (cancerTypesReview?.lastReviewed as CancerType[] | undefined) || Object.values(tumor.cancerTypes ?? []),
       excludedCTReview?.initialUpdate
         ? []
-        : (excludedCTReview?.lastReviewed as CancerType[] | undefined) || tumor.excludedCancerTypes || [],
+        : (excludedCTReview?.lastReviewed as CancerType[] | undefined) || Object.values(tumor.excludedCancerTypes ?? []),
       true,
     );
     newState = newTumorName;
@@ -683,7 +687,7 @@ export const buildCancerTypeNameReview = (
       newState,
     },
     historyInfo,
-    currentExcludedCancerTypes: tumor.excludedCancerTypes,
+    currentExcludedCancerTypes: Object.values(tumor.excludedCancerTypes ?? []),
     excludedCancerTypesReviewInfo: {
       reviewPath: `${excludedCancerTypesPath}_review`,
       review: excludedCTReview!,
@@ -803,7 +807,7 @@ export const buildRCTReview = (
   const isInitialUpdate = implication.excludedRCTs_review?.initialUpdate || false;
   const hasLastReviewed = !!implication.excludedRCTs_review?.lastReviewed;
 
-  const newRCTString = implication.excludedRCTs ? getCancerTypesName(implication.excludedRCTs, true, '\t') : '';
+  const newRCTString = implication.excludedRCTs ? getCancerTypesName(Object.values(implication.excludedRCTs), true, '\t') : '';
   let oldRCTString = '';
   if (hasLastReviewed) {
     oldRCTString = getCancerTypesName(implication.excludedRCTs_review?.lastReviewed as CancerType[], true, '\t');

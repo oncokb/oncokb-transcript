@@ -110,7 +110,7 @@ export class FirebaseGeneService {
       mutations.forEach(mutation => {
         summary[mutation.name_uuid] = {};
         if (mutation.tumors) {
-          mutation.tumors.forEach(tumor => {
+          Object.values(mutation.tumors).forEach(tumor => {
             summary[mutation.name_uuid][tumor.cancerTypes_uuid] = {
               TT: 0,
               oncogenicity: '',
@@ -135,7 +135,7 @@ export class FirebaseGeneService {
             }
             tumor.TIs.forEach(ti => {
               if (ti.treatments) {
-                ti.treatments.forEach(treatment => {
+                Object.values(ti.treatments).forEach(treatment => {
                   const cancerTypeSummary = summary[mutation.name_uuid][tumor.cancerTypes_uuid];
                   cancerTypeSummary.txLevels.push(treatment.level);
 
@@ -175,7 +175,7 @@ export class FirebaseGeneService {
           pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
         };
         if (mutation.tumors) {
-          mutation.tumors.forEach(tumor => {
+          Object.values(mutation.tumors).forEach(tumor => {
             summary[mutation.name_uuid].TT++;
             if (tumor.summary) {
               summary[mutation.name_uuid].TTS++;
@@ -188,7 +188,7 @@ export class FirebaseGeneService {
             }
             tumor.TIs.forEach(ti => {
               if (ti.treatments) {
-                ti.treatments.forEach(treatment => {
+                Object.values(ti.treatments).forEach(treatment => {
                   if (isTxLevelPresent(treatment.level)) {
                     if (!summary[mutation.name_uuid].txLevels[treatment.level]) {
                       summary[mutation.name_uuid].txLevels[treatment.level] = 1;
@@ -645,5 +645,20 @@ export class FirebaseGeneService {
     };
     const driveAnnotation = getDriveAnnotations(drugLookup, args);
     await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);
+  };
+
+  /**
+   * Transforms an array to a firebase array
+   * @param items An array of items to convert to firebase array structure
+   * @returns An object, where key is autogenrated firebase array key and value is the item
+   */
+  transformJSArrayToFirebaseArray = <T>(items: T[]): Record<string, T> => {
+    return items.reduce((acc, item) => {
+      const newKey = this.firebaseRepository.getArrayKey();
+      if (newKey) {
+        acc[newKey] = item;
+      }
+      return acc;
+    }, {});
   };
 }

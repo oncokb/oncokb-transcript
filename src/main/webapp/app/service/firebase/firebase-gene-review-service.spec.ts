@@ -4,7 +4,7 @@ import { AuthStore } from 'app/stores';
 import { FirebaseMetaService } from './firebase-meta-service';
 import { FirebaseHistoryService } from './firebase-history-service';
 import { FirebaseVusService } from './firebase-vus-service';
-import { Gene, HistoryOperationType, Mutation, Review, Tumor } from 'app/shared/model/firebase/firebase.model';
+import { Gene, HistoryOperationType, Mutation, MutationList, Review, Tumor, TumorList } from 'app/shared/model/firebase/firebase.model';
 import { mock, mockReset } from 'jest-mock-extended';
 import { SentryError } from 'app/config/sentry-error';
 import { getTumorNameUuid, ReviewLevel, TumorReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
@@ -238,7 +238,7 @@ describe('Firebase Gene Review Service', () => {
         isGermline: false,
         gene: createMockGene({
           name: hugoSymbol,
-          mutations: [createMockMutation()],
+          mutations: { [generateUuid()]: createMockMutation() },
         }),
         drugListRef: {},
         entrezGeneId: 0,
@@ -293,7 +293,7 @@ describe('Firebase Gene Review Service', () => {
         isGermline: false,
         gene: createMockGene({
           name: hugoSymbol,
-          mutations: [createMockMutation()],
+          mutations: { [generateUuid()]: createMockMutation() },
         }),
         drugListRef: {},
         entrezGeneId: 0,
@@ -437,17 +437,15 @@ describe('Firebase Gene Review Service', () => {
         historyInfo: {},
       });
 
-      const mutations: Mutation[] = [];
+      const mutations: MutationList = {};
       for (let i = 0; i < 23; i++) {
-        const tumors: Tumor[] = [];
+        const tumors: TumorList = {};
         for (let j = 0; j < 2; j++) {
-          tumors.push(createMockTumor({}));
+          tumors[generateUuid()] = createMockTumor({});
         }
-        mutations.push(
-          createMockMutation({
-            tumors,
-          }),
-        );
+        mutations[generateUuid()] = createMockMutation({
+          tumors,
+        });
       }
 
       const gene = createMockGene({
@@ -617,12 +615,12 @@ describe('Firebase Gene Review Service', () => {
     it('should reject initial excluded cancer type', async () => {
       const mutation = new Mutation('V600E');
       const tumor = new Tumor();
-      tumor.cancerTypes = [{ code: '', subtype: '', mainType: 'Melanoma' }];
+      tumor.cancerTypes = { [generateUuid()]: { code: '', subtype: '', mainType: 'Melanoma' } };
       tumor.cancerTypes_review = new Review('User');
-      tumor.excludedCancerTypes = [{ code: 'OCM', subtype: 'Ocular Melanoma', mainType: 'Melanoma' }];
+      tumor.excludedCancerTypes = { [generateUuid()]: { code: 'OCM', subtype: 'Ocular Melanoma', mainType: 'Melanoma' } };
       tumor.excludedCancerTypes_review = new Review('User', undefined, false, false, true);
       tumor.excludedCancerTypes_uuid = generateUuid();
-      mutation.tumors.push(tumor);
+      mutation.tumors[generateUuid()] = tumor;
 
       const reviewLevel = new TumorReviewLevel({
         titleParts: ['Oncogenic Mutations', 'Breast Cancer {excluding Metaplastic Breast Cancer}', 'Name'],
@@ -676,12 +674,12 @@ describe('Firebase Gene Review Service', () => {
     it('should reject initial excluded cancer type', async () => {
       const mutation = new Mutation('V600E');
       const tumor = new Tumor();
-      tumor.cancerTypes = [{ code: '', subtype: '', mainType: 'Melanoma' }];
+      tumor.cancerTypes = { [generateUuid()]: { code: '', subtype: '', mainType: 'Melanoma' } };
       tumor.cancerTypes_review = new Review('User');
-      tumor.excludedCancerTypes = [{ code: 'OCM', subtype: 'Ocular Melanoma', mainType: 'Melanoma' }];
+      tumor.excludedCancerTypes = { [generateUuid()]: { code: 'OCM', subtype: 'Ocular Melanoma', mainType: 'Melanoma' } };
       tumor.excludedCancerTypes_review = new Review('User', undefined, false, false, true);
       tumor.excludedCancerTypes_uuid = generateUuid();
-      mutation.tumors.push(tumor);
+      mutation.tumors[generateUuid()] = tumor;
 
       const reviewLevel = new TumorReviewLevel({
         titleParts: ['Oncogenic Mutations', 'Breast Cancer {excluding Metaplastic Breast Cancer}', 'Name'],
@@ -735,11 +733,11 @@ describe('Firebase Gene Review Service', () => {
     it('should reject initial excluded RCT', async () => {
       const mutation = new Mutation('V600E');
       const tumor = new Tumor();
-      tumor.cancerTypes = [{ code: '', subtype: '', mainType: 'Melanoma' }];
-      tumor.diagnostic.excludedRCTs = [{ code: 'TEST', subtype: 'Melanoma Subtype', mainType: 'Melanoma' }];
+      tumor.cancerTypes = { [generateUuid()]: { code: '', subtype: '', mainType: 'Melanoma' } };
+      tumor.diagnostic.excludedRCTs = { [generateUuid()]: { code: 'TEST', subtype: 'Melanoma Subtype', mainType: 'Melanoma' } };
       tumor.diagnostic.excludedRCTs_review = new Review('User', undefined, false, false, true);
       tumor.diagnostic.excludedRCTs_uuid = generateUuid();
-      mutation.tumors.push(tumor);
+      mutation.tumors[generateUuid()] = tumor;
 
       const reviewLevel = new ReviewLevel({
         titleParts: ['Relevant Cancer Types'],

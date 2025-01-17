@@ -10,6 +10,7 @@ import {
   DX_LEVELS,
   FIREBASE_ONCOGENICITY,
   Gene,
+  Implication,
   Meta,
   MetaReview,
   Mutation,
@@ -220,7 +221,7 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
   // make our function always return isEmpty=False
   const implications: TI[] = [];
   if (path.match(/mutations\/\d+$/g)) {
-    for (const tumor of (sectionValue as Mutation).tumors || []) {
+    for (const tumor of Object.values((sectionValue as Mutation).tumors ?? {})) {
       implications.push(...tumor.TIs);
     }
   } else if (path.match(/tumors\/\d+$/g)) {
@@ -228,7 +229,7 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
   }
 
   for (const implication of implications) {
-    if (implication.treatments && implication.treatments.length > 0) {
+    if (implication.treatments && Object.keys(implication.treatments).length > 0) {
       return false;
     }
   }
@@ -707,7 +708,7 @@ export const getAllLevelSummaryStats = (mutations: Mutation[]) => {
   mutations.forEach(mutation => {
     summary[mutation.name_uuid] = {};
     if (mutation.tumors) {
-      mutation.tumors.forEach(tumor => {
+      Object.values(mutation.tumors).forEach(tumor => {
         summary[mutation.name_uuid][tumor.cancerTypes_uuid] = {
           TT: 0,
           oncogenicity: '',
@@ -732,7 +733,7 @@ export const getAllLevelSummaryStats = (mutations: Mutation[]) => {
         }
         tumor.TIs.forEach(ti => {
           if (ti.treatments) {
-            ti.treatments.forEach(treatment => {
+            Object.values(ti.treatments).forEach(treatment => {
               const cancerTypeSummary = summary[mutation.name_uuid][tumor.cancerTypes_uuid];
               cancerTypeSummary.txLevels.push(treatment.level);
 
@@ -781,7 +782,7 @@ export const getMutationStats = (
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
   if (mutation?.tumors) {
-    mutation.tumors.forEach(tumor => {
+    Object.values(mutation.tumors).forEach(tumor => {
       stats.TT++;
       if (tumor.summary) {
         stats.TTS++;
@@ -794,7 +795,7 @@ export const getMutationStats = (
       }
       tumor.TIs.forEach(ti => {
         if (ti.treatments) {
-          ti.treatments.forEach(treatment => {
+          Object.values(ti.treatments).forEach(treatment => {
             if (isTxLevelPresent(treatment.level)) {
               if (!stats.txLevels[treatment.level]) {
                 stats.txLevels[treatment.level] = 1;
@@ -847,7 +848,7 @@ export const getCancerTypeStats = (tumor?: Tumor | null) => {
     }
     tumor.TIs.forEach(ti => {
       if (ti.treatments) {
-        ti.treatments.forEach(treatment => {
+        Object.values(ti.treatments).forEach(treatment => {
           if (isTxLevelPresent(treatment.level)) {
             if (!stats.txLevels[treatment.level]) {
               stats.txLevels[treatment.level] = 1;

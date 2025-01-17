@@ -23,6 +23,7 @@ import { Gene, GeneType, Implication, MetaReview, Mutation, Review, Treatment, T
 import { IDrug } from 'app/shared/model/drug.model';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
 import { mutationNeedsReview } from './firebase-utils';
+import { generateUuid } from '../utils';
 
 describe('Firebase Review Utils', () => {
   describe('getRelevantKeysFromUuidKey', () => {
@@ -377,7 +378,7 @@ describe('Firebase Review Utils', () => {
 
       const implication = new Implication();
       implication.excludedRCTs_review = new Review('User', undefined, undefined, undefined, true);
-      implication.excludedRCTs = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
+      implication.excludedRCTs = { [generateUuid()]: { code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' } };
       const uuids = [implication.excludedRCTs_uuid as string];
 
       const rctReview = buildRCTReview(implication, parentReview.valuePath, uuids, parentReview, editorReviewMap);
@@ -415,12 +416,12 @@ describe('Firebase Review Utils', () => {
         historyInfo: {},
       });
 
-      const oldExclusions = [{ code: 'UM', mainType: 'Melanoma', subtype: 'Uveal Melanoma' }];
-      const newExclusions = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }, ...oldExclusions];
+      const oldExclusions = { [generateUuid()]: { code: 'UM', mainType: 'Melanoma', subtype: 'Uveal Melanoma' } };
+      const newExclusions = { [generateUuid()]: { code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }, ...oldExclusions };
 
       const implication = new Implication();
       // There is already an excluded CT
-      implication.excludedRCTs_review = new Review('User', oldExclusions);
+      implication.excludedRCTs_review = new Review('User', Object.values(oldExclusions));
       implication.excludedRCTs = newExclusions;
       const uuids = [implication.excludedRCTs_uuid as string];
 
@@ -474,7 +475,7 @@ describe('Firebase Review Utils', () => {
         uuids.push(gene.background_uuid);
 
         mutation = new Mutation('V600E');
-        gene.mutations.push(mutation);
+        gene.mutations[generateUuid()] = mutation;
         mutation.name_uuid = MUTATION_UUID;
         mutation.mutation_effect.description = 'new description';
         mutation.mutation_effect.description_review = new Review('User2', 'old description');
@@ -731,12 +732,12 @@ describe('Firebase Review Utils', () => {
 
         const tumor = new Tumor();
         tumor.cancerTypes_review = new Review('User');
-        tumor.TIs[0].treatments = [treatment];
+        tumor.TIs[0].treatments = { [generateUuid()]: treatment };
 
         const mutation = new Mutation('V600E');
         mutation.name_review = new Review('User');
         mutation.name_review.added = true;
-        mutation.tumors = [tumor];
+        mutation.tumors = { [generateUuid()]: tumor };
 
         const metaReview = new MetaReview();
         metaReview[mutation.name_uuid] = true;
@@ -752,12 +753,12 @@ describe('Firebase Review Utils', () => {
 
         const tumor = new Tumor();
         tumor.cancerTypes_review = new Review('User');
-        tumor.TIs[0].treatments = [treatment];
+        tumor.TIs[0].treatments = { [generateUuid()]: treatment };
 
         const mutation = new Mutation('V600E');
         mutation.name_review = new Review('User');
         mutation.name_review.added = true;
-        mutation.tumors = [tumor];
+        mutation.tumors = { [generateUuid()]: tumor };
 
         const metaReview = new MetaReview();
         metaReview[mutation.name_uuid] = true;

@@ -151,6 +151,8 @@ export class AlleleState {
   carrier_uuid = generateUuid();
   carrier_review?: Review;
 }
+
+export type MutationList = Record<string, Mutation>;
 export class Gene {
   name = '';
   name_comments?: Comment[] = [];
@@ -160,7 +162,7 @@ export class Gene {
   background_comments?: Comment[] = [];
   dmp_refseq_id = '';
   isoform_override = '';
-  mutations: Mutation[] = [];
+  mutations: MutationList = {};
   mutations_uuid: string = generateUuid();
   summary = '';
   summary_review?: Review;
@@ -211,6 +213,7 @@ export class Alteration {
   genes: OncoKBGene[] = [];
 }
 
+export type TumorList = Record<string, Tumor>;
 export class Mutation {
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
@@ -222,7 +225,7 @@ export class Mutation {
   alterations_uuid?: string = generateUuid();
   alterations_review?: Review;
   name_uuid: string = generateUuid();
-  tumors: Tumor[] = [];
+  tumors: TumorList = {};
   tumors_uuid: string = generateUuid();
   summary = '';
   summary_review?: Review;
@@ -286,14 +289,15 @@ export class CancerRisk {
   mosaic_uuid: string = generateUuid();
 }
 
+export type CancerTypeList = Record<string, CancerType>;
 export class Tumor {
   // We should remove this in future
   TIs: TI[] = [new TI(TI_TYPE.SS), new TI(TI_TYPE.SR), new TI(TI_TYPE.IS), new TI(TI_TYPE.IR)];
-  cancerTypes: CancerType[] = [];
+  cancerTypes: CancerTypeList = {};
   cancerTypes_review?: Review;
   cancerTypes_uuid: string = generateUuid();
   cancerTypes_comments?: Comment[] = [];
-  excludedCancerTypes?: CancerType[] = [];
+  excludedCancerTypes?: CancerTypeList = {};
   excludedCancerTypes_review?: Review;
   excludedCancerTypes_uuid?: string = generateUuid();
   diagnostic: Implication = new Implication();
@@ -313,10 +317,11 @@ export class Tumor {
   prognosticSummary_review?: Review;
 }
 
+export type TreatmentList = Record<string, Treatment>;
 export class TI {
   name = '';
   name_uuid: string = generateUuid();
-  treatments: Treatment[] = [];
+  treatments: TreatmentList = {};
   treatments_uuid: string = generateUuid();
   type?: TI_TYPE;
 
@@ -333,7 +338,7 @@ export class Implication {
   level: DX_LEVELS | PX_LEVELS | '' = '';
   level_review?: Review;
   level_uuid: string = generateUuid();
-  excludedRCTs?: CancerType[] = [];
+  excludedRCTs?: CancerTypeList = {};
   excludedRCTs_review?: Review;
   excludedRCTs_uuid?: string = generateUuid();
   short = '';

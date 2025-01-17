@@ -96,7 +96,7 @@ export class FirebaseRepository {
     }
   };
 
-  getArrayKey = (path: string) => {
+  getArrayKey = (path?: string) => {
     return push(ref(this.firebaseAppStore.firebaseDb!, path)).key;
   };
 }

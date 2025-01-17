@@ -71,6 +71,7 @@ const ModifyCancerTypeModalContent = observer(
     searchCancerTypes,
     modifyCancerTypeModalStore,
     firebaseDb,
+    getArrayKey,
   }: IModifyCancerTypeModalProps) => {
     const [cancerTypeToEdit, setCancerTypeToEdit] = useState<Tumor | null>(null);
     const [isConfirmPending, setIsConfirmPending] = useState(false);
@@ -141,8 +142,8 @@ const ModifyCancerTypeModalContent = observer(
         // add some delay so the user gets feedback
         modifyCancerTypeModalStore?.setIsErrorFetchingICancerTypes(false);
         await Promise.all([
-          setIncludedCancerTypes(cancerTypeToEdit?.cancerTypes ?? []),
-          setExcludedCancerTypes(cancerTypeToEdit?.excludedCancerTypes ?? []),
+          setIncludedCancerTypes(Object.values(cancerTypeToEdit?.cancerTypes ?? {})),
+          setExcludedCancerTypes(Object.values(cancerTypeToEdit?.excludedCancerTypes ?? {})),
         ]);
         modifyCancerTypeModalStore?.setIsRetryButtonClicked(false);
       }, 500);
@@ -173,11 +174,11 @@ const ModifyCancerTypeModalContent = observer(
     // There is a bug when 2 people edit the same cancer type at the same time,
     // the updates will not be reflected on each other's screens, possibly leading to data being overwritten
     useEffect(() => {
-      setIncludedCancerTypes(cancerTypeToEdit?.cancerTypes ?? []);
+      setIncludedCancerTypes(Object.values(cancerTypeToEdit?.cancerTypes ?? {}));
     }, [cancerTypeToEdit]);
 
     useEffect(() => {
-      setExcludedCancerTypes(cancerTypeToEdit?.excludedCancerTypes ?? []);
+      setExcludedCancerTypes(Object.values(cancerTypeToEdit?.excludedCancerTypes ?? {}));
     }, [cancerTypeToEdit]);
 
     const isConfirmButtonDisabled = useMemo(
@@ -205,7 +206,7 @@ const ModifyCancerTypeModalContent = observer(
       );
 
       const newTumor = cancerTypeToEdit ? _.cloneDeep(cancerTypeToEdit) : new Tumor();
-      newTumor.cancerTypes = includedCancerTypes ?? [];
+      newTumor.cancerTypes = includedCancerTypes;
       newTumor.excludedCancerTypes = excludedCancerTypes;
       if (!newTumor.excludedCancerTypes_uuid) {
         newTumor.excludedCancerTypes_uuid = generateUuid();
@@ -311,10 +312,11 @@ const ModifyCancerTypeModalContent = observer(
   },
 );
 
-const mapStoreToProps = ({ cancerTypeStore, modifyCancerTypeModalStore, firebaseAppStore }: IRootStore) => ({
+const mapStoreToProps = ({ cancerTypeStore, modifyCancerTypeModalStore, firebaseAppStore, firebaseRepository }: IRootStore) => ({
   searchCancerTypes: cancerTypeStore.searchEntities,
   modifyCancerTypeModalStore,
   firebaseDb: firebaseAppStore.firebaseDb,
+  getArrayKey: firebaseRepository.getArrayKey,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

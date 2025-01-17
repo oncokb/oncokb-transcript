@@ -365,7 +365,7 @@ describe('FirebaseUtils', () => {
       const firebasePath = getFirebasePath('MUTATIONS', 'BRAF', '0');
       const gene = new Gene('BRAF');
       const mutation = new Mutation('V600E');
-      gene.mutations.push(mutation);
+      gene.mutations[generateUuid()] = mutation;
 
       expect(isSectionEmpty(gene, firebasePath), 'mutation has a name').toBeTruthy();
     });
@@ -578,8 +578,8 @@ describe('FirebaseUtils', () => {
       treatment.description_review = new Review('');
       treatment.description_review.updateTime = OCT_1_2023;
 
-      tumor.TIs[0].treatments = [treatment];
-      mutation.tumors = [tumor];
+      tumor.TIs[0].treatments = { [generateUuid()]: treatment };
+      mutation.tumors = { TUMOR_KEY: tumor };
 
       expect(getMutationModifiedTimestamp(mutation)).toBe(JAN_1_2024);
     });
@@ -595,15 +595,15 @@ describe('FirebaseUtils', () => {
 
     const tumor1 = new Tumor();
     tumor1.diagnostic.level = DX_LEVELS.LEVEL_DX1;
-    tumor1.TIs[0].treatments = [treatment1];
+    tumor1.TIs[0].treatments = { [generateUuid()]: treatment1 };
     tumor1.summary = 'summary';
     tumor1.diagnosticSummary = 'diagnostic';
     tumor1.prognosticSummary = 'prognostic';
     const tumor2 = new Tumor();
     tumor2.diagnostic.level = DX_LEVELS.LEVEL_DX2;
     tumor2.prognostic.level = PX_LEVELS.LEVEL_PX1;
-    tumor2.TIs[1].treatments = [treatment2];
-    tumor2.TIs[3].treatments = [treatment3];
+    tumor2.TIs[1].treatments = { [generateUuid()]: treatment2 };
+    tumor2.TIs[3].treatments = { [generateUuid()]: treatment3 };
     tumor2.prognosticSummary = 'prognostic';
 
     describe('getMutationStats', () => {
@@ -612,7 +612,7 @@ describe('FirebaseUtils', () => {
         mutation.mutation_effect.oncogenic = FIREBASE_ONCOGENICITY.LIKELY;
         mutation.mutation_effect.effect = MUTATION_EFFECT.NEUTRAL;
 
-        mutation.tumors = [tumor1, tumor2];
+        mutation.tumors = { [generateUuid()]: tumor1, [generateUuid()]: tumor2 };
 
         const expected = {
           TT: 2,

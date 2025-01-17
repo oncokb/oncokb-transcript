@@ -59,10 +59,10 @@ const RelevantCancerTypesModalContent = observer(
 
       async function setRelevantCancerTypes() {
         const relevantCancerTypeQueries: RelevantCancerTypeQuery[] = convertCancerTypesToRelevantCancerTypeQueries(
-          relevantCancerTypesModalStore?.tumor?.cancerTypes ?? [],
+          Object.values(relevantCancerTypesModalStore?.tumor?.cancerTypes ?? []),
         );
         const excludedRelevantCancerTypeQueries: RelevantCancerTypeQuery[] = convertCancerTypesToRelevantCancerTypeQueries(
-          relevantCancerTypesModalStore?.tumor?.excludedCancerTypes ?? [],
+          Object.values(relevantCancerTypesModalStore?.tumor?.excludedCancerTypes ?? []),
         );
 
         const fetchedRelevantCancerTypes = (
