@@ -5,24 +5,22 @@ import React, { useCallback, useState } from 'react';
 import { ButtonProps } from 'reactstrap';
 import { AsyncSaveButton } from './AsyncSaveButton';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { useDrugListRef } from '../util/utils';
 
 type ISaveGeneButtonProps = StoreProps & {
   hugoSymbol?: string;
 } & ButtonProps &
   Omit<React.HTMLAttributes<HTMLButtonElement>, 'onClick' | 'disabled'>;
 
-function SaveGeneButton({ hugoSymbol, firebaseGeneService, ...buttonProps }: ISaveGeneButtonProps) {
+function SaveGeneButton({ hugoSymbol, firebaseGeneService, isGermline, ...buttonProps }: ISaveGeneButtonProps) {
   const [isSavePending, setIsSavePending] = useState(false);
   const onClickHandler = useCallback(async () => {
     setIsSavePending(true);
     try {
-      const isGermline = false;
       if (hugoSymbol === undefined) {
-        await firebaseGeneService?.saveAllGenes(isGermline);
+        await firebaseGeneService?.saveAllGenes(isGermline ?? false);
         notifySuccess('All genes saved!');
       } else {
-        await firebaseGeneService?.saveGene(isGermline, hugoSymbol);
+        await firebaseGeneService?.saveGene(isGermline ?? false, hugoSymbol);
         notifySuccess(`${hugoSymbol} was saved!`);
       }
     } catch (e) {
@@ -46,9 +44,10 @@ function SaveGeneButton({ hugoSymbol, firebaseGeneService, ...buttonProps }: ISa
   );
 }
 
-const mapStoreToProps = ({ firebaseGeneService, drugStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseGeneService, drugStore, routerStore }: IRootStore) => ({
   firebaseGeneService,
   drugList: drugStore.entities,
+  isGermline: routerStore.isGermline,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
