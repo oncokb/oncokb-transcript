@@ -117,12 +117,7 @@ export const CurationPage = (props: ICurationPageProps) => {
     return getTooltipHistoryList(tabHistoryList);
   }, [tabHistoryList]);
 
-  return props.firebaseInitSuccess &&
-    !props.loadingGenes &&
-    props.drugList.length > 0 &&
-    !!geneEntity &&
-    firebaseGeneExists &&
-    hugoSymbol ? (
+  return props.firebaseInitSuccess && !props.loadingGenes && !!geneEntity && firebaseGeneExists && hugoSymbol ? (
     <>
       <div style={{ visibility: mutationListRendered ? 'visible' : 'hidden' }}>
         <GeneHeader firebaseGenePath={firebaseGenePath} geneEntity={geneEntity} isReviewing={false} />

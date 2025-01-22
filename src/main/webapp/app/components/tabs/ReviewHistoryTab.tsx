@@ -1,5 +1,6 @@
 import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
+import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { HistoryCollection } from 'app/shared/model/firebase/firebase.model';
 import { downloadFile } from 'app/shared/util/file-utils';
@@ -12,7 +13,7 @@ import { Button, Input, Label, Spinner } from 'reactstrap';
 
 export interface IReviewHistoryTab extends StoreProps {}
 
-function ReviewHistoryTab({ isGermline, firebaseDb, drugList, getDrugs }: IReviewHistoryTab) {
+function ReviewHistoryTab({ isGermline, firebaseDb, drugList, getDrugs, isLoadingDrugList }: IReviewHistoryTab) {
   const [historyCollection, setHistoryCollection] = useState<HistoryCollection>();
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
@@ -68,6 +69,10 @@ function ReviewHistoryTab({ isGermline, firebaseDb, drugList, getDrugs }: IRevie
     }
   }
 
+  if (isLoadingDrugList) {
+    return <LoadingIndicator isLoading />;
+  }
+
   return (
     <div>
       <div className="mb-3">
@@ -92,6 +97,7 @@ const mapStoreToProps = ({ firebaseAppStore, drugStore, routerStore }: IRootStor
   firebaseDb: firebaseAppStore.firebaseDb,
   drugList: drugStore.entities,
   getDrugs: drugStore.getEntities,
+  isLoadingDrugList: drugStore.loading,
   isGermline: routerStore.isGermline,
 });
 

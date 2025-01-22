@@ -5,7 +5,6 @@ import React, { useCallback, useState } from 'react';
 import { ButtonProps } from 'reactstrap';
 import { AsyncSaveButton } from './AsyncSaveButton';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { useDrugListRef } from '../util/utils';
 
 type ISaveGeneButtonProps = StoreProps & {
   hugoSymbol?: string;
@@ -46,9 +45,8 @@ function SaveGeneButton({ hugoSymbol, firebaseGeneService, ...buttonProps }: ISa
   );
 }
 
-const mapStoreToProps = ({ firebaseGeneService, drugStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseGeneService }: IRootStore) => ({
   firebaseGeneService,
-  drugList: drugStore.entities,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
