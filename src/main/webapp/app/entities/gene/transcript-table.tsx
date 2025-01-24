@@ -76,7 +76,7 @@ const TranscriptTable = (props: IGeneTranscriptsProps) => {
     if (isCanonical) {
       updatedFlagIds = [...existingFlagIds, { id: oncokbCanonicalFlag.id }];
     } else {
-      updatedFlagIds = existingFlagIds.filter(flag => flag.id === oncokbCanonicalFlag.id);
+      updatedFlagIds = existingFlagIds.filter(flag => flag.id !== oncokbCanonicalFlag.id);
     }
 
     const newTranscript: ITranscript = {
