@@ -392,6 +392,11 @@ export const ReviewCollapsible = ({
     if (baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
       return getMultiSelectionReviewContent();
     } else if (children && children.length > 0) {
+      if (isDeleteReview(rootReview)) {
+        // If deleting a section, then don't render the child review levels.
+        // The firebase gene review service should automatically remove all nested reviews.
+        return undefined;
+      }
       return rootReview.children?.sort(reviewLevelSortMethod)?.map(childReview => (
         <ReviewCollapsible
           key={childReview.titleParts.join('/')}
