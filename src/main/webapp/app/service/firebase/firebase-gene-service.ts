@@ -554,13 +554,14 @@ export class FirebaseGeneService {
 
     await this.firebaseRepository.pushToArray(genomicIndicatorsPath, [newGenomicIndicator]).then(() => {
       const hugoSymbol = genePath?.hugoSymbol;
-      if (toReview && hugoSymbol) {
+      if (!hugoSymbol) {
+        throw new SentryError('Hugo symbol is missing', genePath ?? {});
+      }
+      if (toReview) {
         this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, true);
         uuidsToReview.forEach(uuid => {
           this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, true, true);
         });
-      } else {
-        throw new SentryError('Hugo symbol is missing', genePath ?? {});
       }
     });
   };

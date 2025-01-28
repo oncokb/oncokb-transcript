@@ -268,9 +268,7 @@ export const getCompactReviewInfo = <T extends BaseReviewLevel>(review: T): T =>
   }
   let childReview = review.children[0];
   if (childReview?.nestedUnderCreateOrDelete) {
-    if (isCreateReview(review)) {
-      return review;
-    }
+    return review;
   }
   childReview = getCompactReviewInfo(childReview);
   let titleParts = [...review.titleParts, ...childReview.titleParts].filter(part => part !== '');
@@ -719,7 +717,7 @@ export const buildStringReview = (
   let currentString: string;
   if (fieldKey === 'associationVariants') {
     lastReviewedString = (((obj[reviewKey] as Review).lastReviewed as any[]) || []).map(variant => variant.name).join(', ');
-    currentString = obj[fieldKey].map(variant => variant.name).join(', ');
+    currentString = (obj as GenomicIndicator).associationVariants?.map(variant => variant.name).join(', ') ?? '';
   } else {
     lastReviewedString = (obj[reviewKey] as Review).lastReviewed as string;
     currentString = obj[fieldKey] as string;
