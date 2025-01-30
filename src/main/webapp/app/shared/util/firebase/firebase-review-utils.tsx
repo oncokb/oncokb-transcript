@@ -563,7 +563,8 @@ export const buildNameReview = (
     newState = creatableObject;
   } else if (nameReview.removed || nameReview.demotedToVus) {
     oldState = creatableObject;
-  } else if (nameReview.lastReviewed) {
+  } else if (nameReview.lastReviewed || nameReview.lastReviewed === '') {
+    // lastReviewed can be empty string for Genomic Indicators
     // Name was edited, so we save the old and new name to history
     nameUpdated = true;
     if (drugList) {
