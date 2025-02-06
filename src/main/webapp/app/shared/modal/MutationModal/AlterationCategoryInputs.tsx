@@ -8,6 +8,7 @@ import { isFlagEqualToIFlag } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { DropdownOption } from './AddMutationModalDropdown';
+import { ADD_MUTATION_MODAL_FLAG_DROPDOWN_ID } from 'app/config/constants/html-id';
 
 const AlterationCategoryInputs = ({
   getFlagsByType,
@@ -86,7 +87,7 @@ const AlterationCategoryInputs = ({
             </Col>
             <Col className="px-0">
               <CreatableSelect
-                inputId="add-mutation-modal-flag-input"
+                inputId={ADD_MUTATION_MODAL_FLAG_DROPDOWN_ID}
                 isMulti
                 options={flagDropdownOptions}
                 onChange={newFlags => handleAlterationCategoriesField('flags', newFlags)}

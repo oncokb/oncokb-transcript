@@ -33,6 +33,7 @@ import classNames from 'classnames';
 import { ReferenceGenome } from '../model/enumerations/reference-genome.model';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import DefaultTooltip from '../tooltip/DefaultTooltip';
+import { ADD_MUTATION_MODAL_ADD_EXON_BUTTON_ID, ADD_MUTATION_MODAL_INPUT_ID } from 'app/config/constants/html-id';
 
 function getModalErrorMessage(mutationAlreadyExists: MutationExistsMeta) {
   let modalErrorMessage: string | undefined = undefined;
@@ -261,7 +262,7 @@ function AddMutationModal({
     } else {
       try {
         setIsAddAlterationPending(true);
-        await updateAlterationStateAfterAlterationAdded?.(parseAlterationName(alterationString));
+        await updateAlterationStateAfterAlterationAdded?.(parseAlterationName(alterationString, true));
       } finally {
         setIsAddAlterationPending(false);
       }
@@ -353,7 +354,8 @@ function AddMutationModal({
       <Col className="col-8">
         <InputGroup>
           <Input
-            placeholder="Enter alteration"
+            id={ADD_MUTATION_MODAL_INPUT_ID}
+            placeholder="Enter alteration(s)"
             onKeyDown={handleKeyDown}
             style={{ borderRight: '0' }}
             value={inputValue}
@@ -382,6 +384,7 @@ function AddMutationModal({
         >
           <span>
             <Button
+              id={ADD_MUTATION_MODAL_ADD_EXON_BUTTON_ID}
               color="primary"
               outline
               className="ms-2"

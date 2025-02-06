@@ -14,6 +14,12 @@ const getAlterationMockResponse = (requestBody: string, readFile = true) => {
     case 'v600k':
       filePath += alterationName;
       break;
+    case 'oncogenic mutations':
+      filePath += 'oncogenic-mutations';
+      break;
+    case 'exon 2-4 deletion':
+      filePath += 'exon-2-4-deletion';
+      break;
     default:
       break;
   }
@@ -136,6 +142,13 @@ export default async function setUpMocks() {
   const relevantCancerTypesPx3Mock = await browser.mock('**/api/cancer-types/relevant?levelOfEvidence=LEVEL_Px3');
   const relevantCancerTypesPx3 = JSON.parse(fs.readFileSync(`${DATA_DIR}api-cancer-types-relevant-px3.json`).toString());
   relevantCancerTypesPx3Mock.respond(relevantCancerTypesPx3, {
+    statusCode: 200,
+    fetchResponse: false,
+  });
+
+  const proteinExonMock = await browser.mock('**/api/transcripts/protein-exons**');
+  const proteinExon = JSON.parse(fs.readFileSync(`${DATA_DIR}api-protein-exons.json`).toString());
+  proteinExonMock.respond(proteinExon, {
     statusCode: 200,
     fetchResponse: false,
   });

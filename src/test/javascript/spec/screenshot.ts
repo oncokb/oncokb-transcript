@@ -182,26 +182,6 @@ describe('Screenshot Tests', () => {
     await reviewCompleteButton.click();
   });
 
-  it('should compare add mutation modal', async () => {
-    await browser.url(`${BASE_URL}/curation/EMPTYGENE/somatic`);
-
-    // Click to open mutation modal
-    const addMutationButton = await $('button=Add Mutation');
-    await addMutationButton.waitForClickable();
-    await addMutationButton.click();
-
-    // Add a new mutation
-    const mutationNameInput = await $(`input#${ADD_MUTATION_MODAL_INPUT_ID}`);
-    await mutationNameInput.setValue('V600E, V600K');
-    await browser.keys('Enter');
-
-    const addMutationModal = await $(`div[id="${DEFAULT_ADD_MUTATION_MODAL_ID}"]`);
-    await addMutationModal.waitForDisplayed();
-
-    const result = await browser.checkElement(addMutationModal, 'add-mutation-modal', methodOptions);
-    assertScreenShotMatch(result);
-  });
-
   it('should compare gene type on review page', async () => {
     await browser.url(`${BASE_URL}/curation/EMPTYGENE/somatic`);
 

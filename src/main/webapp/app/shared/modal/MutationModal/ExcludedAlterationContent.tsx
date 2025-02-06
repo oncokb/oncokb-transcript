@@ -7,6 +7,7 @@ import { parseAlterationName } from '../../util/utils';
 import MutationDetails from './MutationDetails';
 import _ from 'lodash';
 import AlterationBadgeList from './AlterationBadgeList';
+import { ADD_MUTATION_MODAL_ADD_EXCLUDED_ALTERATION_BUTTON_ID } from 'app/config/constants/html-id';
 
 export interface IExcludedAlterationContent extends StoreProps {}
 
@@ -41,15 +42,6 @@ const ExcludedAlterationContent = ({
       <div className="d-flex align-items-center mb-3">
         <Col className="col-3 me-3">
           <span className="me-2">Excluding</span>
-          {!isSectionEmpty && (
-            <>
-              {excludingCollapsed ? (
-                <FaChevronDown style={{ cursor: 'pointer' }} onClick={isSectionEmpty ? undefined : () => setExcludingCollapsed(false)} />
-              ) : (
-                <FaChevronUp style={{ cursor: 'pointer' }} onClick={() => setExcludingCollapsed(true)} />
-              )}
-            </>
-          )}
         </Col>
         <Col className="px-0">
           <AlterationBadgeList
@@ -61,7 +53,12 @@ const ExcludedAlterationContent = ({
           />
         </Col>
         <Col className="col-auto ps-2 pe-0">
-          <Button color="primary" disabled={!excludingInputValue} onClick={handleAlterationAddedExcluding}>
+          <Button
+            color="primary"
+            disabled={!excludingInputValue}
+            onClick={handleAlterationAddedExcluding}
+            id={ADD_MUTATION_MODAL_ADD_EXCLUDED_ALTERATION_BUTTON_ID}
+          >
             <FaPlus />
           </Button>
         </Col>

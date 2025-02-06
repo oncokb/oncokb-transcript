@@ -16,6 +16,7 @@ import InfoIcon from 'app/shared/icons/InfoIcon';
 import { FaArrowLeft, FaRegLightbulb } from 'react-icons/fa';
 import * as styles from './styles.module.scss';
 import { flow } from 'mobx';
+import { AddMutationModalDataTestIdType, getAddMutationModalDataTestId } from 'app/shared/util/test-id-utils';
 
 export interface IAddExonMutationModalBody extends StoreProps {
   hugoSymbol: string;
@@ -196,7 +197,7 @@ const AddExonForm = ({
   };
 
   return (
-    <>
+    <div data-testid={getAddMutationModalDataTestId(AddMutationModalDataTestIdType.EXON_FORM)}>
       {!defaultExonAlterationName ? (
         <Row className="mb-3">
           <Col>
@@ -270,7 +271,7 @@ const AddExonForm = ({
           </Col>
         </Row>
       )}
-    </>
+    </div>
   );
 };
 

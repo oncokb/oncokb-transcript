@@ -10,6 +10,7 @@ import { Alert } from 'reactstrap';
 import { READABLE_ALTERATION } from 'app/config/constants/constants';
 import { getFullAlterationName } from 'app/shared/util/utils';
 import AnnotatedAlterationErrorContent from './AnnotatedAlterationErrorContent';
+import { AddMutationModalDataTestIdType, getAddMutationModalDataTestId } from 'app/shared/util/test-id-utils';
 
 const ALTERATION_TYPE_OPTIONS: DropdownOption[] = [
   AlterationTypeEnum.ProteinChange,
@@ -220,7 +221,7 @@ const MutationDetails = ({
   }
 
   return (
-    <>
+    <div data-testid={getAddMutationModalDataTestId(AddMutationModalDataTestIdType.MUTATION_DETAILS, alterationData.name)}>
       <h5>{excludingIndex !== undefined && excludingIndex > -1 ? 'Excluded Mutation Details' : 'Mutation Details'}</h5>
       {alterationData.warning && (
         <Alert color="warning" className="alteration-message" fade={false}>
@@ -251,7 +252,7 @@ const MutationDetails = ({
         placeholder="Input comment"
         onChange={newValue => handleFieldChange(newValue, 'comment')}
       />
-    </>
+    </div>
   );
 };
 

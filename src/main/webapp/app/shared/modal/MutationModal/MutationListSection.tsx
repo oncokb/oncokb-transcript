@@ -9,6 +9,7 @@ import { faComment as farComment } from '@fortawesome/free-regular-svg-icons';
 import { faComment as fasComment } from '@fortawesome/free-solid-svg-icons';
 import AlterationCategoryInputs from './AlterationCategoryInputs';
 import AlterationBadgeList from './AlterationBadgeList';
+import { ADD_MUTATION_MODAL_FLAG_COMMENT_ID, ADD_MUTATION_MODAL_FLAG_COMMENT_INPUT_ID } from 'app/config/constants/html-id';
 
 const MutationListSection = ({
   alterationStates,
@@ -40,6 +41,7 @@ const MutationListSection = ({
               overlayInnerStyle={{ minWidth: '400px' }}
               overlay={
                 <Input
+                  id={ADD_MUTATION_MODAL_FLAG_COMMENT_INPUT_ID}
                   type="textarea"
                   placeholder={'Input string name comment'}
                   value={alterationCategoryComment}
@@ -48,6 +50,7 @@ const MutationListSection = ({
               }
             >
               <FontAwesomeIcon
+                id={ADD_MUTATION_MODAL_FLAG_COMMENT_ID}
                 icon={alterationCategoryComment === '' ? farComment : fasComment}
                 color={alterationCategoryComment === '' ? 'inherit' : 'green'}
               />

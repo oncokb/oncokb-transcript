@@ -13,6 +13,8 @@ import { useOverflowDetector } from 'app/hooks/useOverflowDetector';
 import { BS_BORDER_COLOR } from 'app/config/colors';
 import _ from 'lodash';
 import { FaCircleCheck } from 'react-icons/fa6';
+import { ADD_MUTATION_MODAL_EXCLUDED_ALTERATION_INPUT_ID } from 'app/config/constants/html-id';
+import { AddMutationModalDataTestIdType, getAddMutationModalDataTestId } from 'app/shared/util/test-id-utils';
 
 export interface IAlterationBadgeList extends StoreProps {
   isExclusionList?: boolean;
@@ -90,6 +92,7 @@ const AlterationBadgeList = ({
       {showInput && (
         <div className={styles.alterationBadgeListInputWrapper}>
           <input
+            id={ADD_MUTATION_MODAL_EXCLUDED_ALTERATION_INPUT_ID}
             ref={inputRef}
             className={styles.alterationBadgeListInput}
             onChange={event => onInputChange?.(event.target.value)}
@@ -164,6 +167,7 @@ const AlterationBadge = ({
       className={classNames('badge mx-1 my-1', `badge-outline-${backgroundColor}`, styles.alterationBadge, isSelected && 'active')}
     >
       <div
+        data-testid={getAddMutationModalDataTestId(AddMutationModalDataTestIdType.ALTERATION_BADGE_NAME, alterationName)}
         className={styles.alterationBadgeName}
         onClick={event => {
           event.stopPropagation();
@@ -183,7 +187,10 @@ const AlterationBadge = ({
           {alterationName}
         </div>
       </div>
-      <div className={styles.actionWrapper}>
+      <div
+        className={styles.actionWrapper}
+        data-testid={getAddMutationModalDataTestId(AddMutationModalDataTestIdType.ALTERATION_BADGE_DELETE, alterationName)}
+      >
         <FontAwesomeIcon icon={faXmark} className={styles.deleteButton} onClick={onDelete} />
       </div>
     </div>
