@@ -10,39 +10,38 @@
   min-width: 200px;
 }
 
+.filter-overlay input[placeholder='Search'] {
+  height: 28px;
+  line-height: 1.2;
+  padding: 4px 8px;
+  font-size: 1rem;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.checkbox-list input[type='checkbox'] {
+  margin-top: 5px;
+}
+
+.checkbox-list label {
+  padding-left: 5px;
+  font-size: 1rem;
+  padding-left: 5px;
+}
+
 .filter-icon {
   margin-left: 5px;
   visibility: hidden;
-
-  &.visible {
-    visibility: visible;
-  }
 }
 
 .filter-component:hover .filter-icon {
   visibility: visible;
 }
 
-.checkbox-list {
-  max-height: 200px;
-  overflow-y: auto;
-  margin-top: 10px;
-  padding: 5px;
-}
-
-.filter-overlay input[placeholder='Search'] {
-  height: 28px;
-  line-height: 1.2;
-  padding: 4px 8px;
-  font-size: 14px;
-}
-
-.filter-overlay .checkbox-list {
-  display: flex;
-  flex-direction: column;
-  margin-top: 10px;
-}
-
-.checklist label {
-  padding-left: 5px;
+.rc-tooltip-arrow {
+  display: none !important;
 }

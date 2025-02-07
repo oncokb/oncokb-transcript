@@ -82,7 +82,7 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
 
   const filterColumns = useMemo(() => {
     return props.columns.map(column => {
-      const columnId = String(column.accessor);
+      const columnId = String(column.accessor || column.Header);
       return {
         ...column,
         Header: (
@@ -91,7 +91,6 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
             {!column.disableHeaderFiltering && (
               <FilterIconModal
                 id={columnId}
-                tableRef={tableRef}
                 allSelections={allUniqColumnData[columnId]}
                 currSelections={selectedFilters[columnId] || new Set()}
                 updateSelections={newSelections => handleFilterChange(columnId, newSelections)}
