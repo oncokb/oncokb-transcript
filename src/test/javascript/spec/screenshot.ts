@@ -8,9 +8,7 @@ import * as admin from 'firebase-admin';
 import { assertScreenShotMatch } from '../shared/test-utils';
 import { CollapsibleDataTestIdType, getCollapsibleDataTestId } from '../../../main/webapp/app/shared/util/test-id-utils';
 import {
-  ADD_MUTATION_MODAL_INPUT_ID,
   ADD_THERAPY_BUTTON_ID,
-  DEFAULT_ADD_MUTATION_MODAL_ID,
   GENE_HEADER_REVIEW_BUTTON_ID,
   GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID,
   GENE_LIST_TABLE_ID,
