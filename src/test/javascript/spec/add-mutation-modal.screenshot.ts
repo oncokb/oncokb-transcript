@@ -144,13 +144,10 @@ describe('Add Mutation Modal Screenshot Tests', () => {
     const addExonButton = await $(`button[id="${ADD_MUTATION_MODAL_ADD_EXON_BUTTON_ID}"]`);
     await addExonButton.waitForClickable();
     await addExonButton.click();
-    await browser
-      .action('pointer')
-      .move({ x: -9999, y: -9999 }) // Moves cursor far outside the viewport
-      .perform();
 
     const addMutationModal = await $(`div[id="${DEFAULT_ADD_MUTATION_MODAL_ID}"]`);
     await addMutationModal.waitForDisplayed();
+    await addMutationModal.moveTo();
 
     const result = await browser.checkElement(addMutationModal, 'add-mutation-modal-add-exon-form', methodOptions);
     assertScreenShotMatch(result);
