@@ -1,5 +1,5 @@
 import { AlterationTypeEnum } from 'app/shared/api/generated/curation';
-import { GREY } from '../colors';
+import { BS_BORDER_COLOR, GREY } from '../colors';
 import { ToastOptions } from 'react-toastify';
 
 export const AUTHORITIES = {
@@ -455,3 +455,13 @@ export const SOMATIC_GERMLINE_SETTING_KEY = 'oncokbCuration-somaticGermlineSetti
 export const DUPLICATE_THERAPY_ERROR_MESSAGE = 'Each therapy must be unique';
 export const EMPTY_THERAPY_ERROR_MESSAGE = 'You must include at least one drug for each therapy';
 export const THERAPY_ALREADY_EXISTS_ERROR_MESSAGE = 'Therapy already exists';
+
+/**
+ * React select styles based on Bootstrap theme
+ */
+export const REACT_SELECT_STYLES = {
+  control: (base, state) => ({
+    ...base,
+    borderColor: BS_BORDER_COLOR,
+  }),
+};

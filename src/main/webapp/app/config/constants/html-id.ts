@@ -27,6 +27,12 @@ export const RCT_MODAL_ID = 'relevant-cancer-type-modal';
 
 export const DEFAULT_ADD_MUTATION_MODAL_ID = 'default-add-mutation-modal';
 export const ADD_MUTATION_MODAL_INPUT_ID = 'add-mutation-modal-input';
+export const ADD_MUTATION_MODAL_EXCLUDED_ALTERATION_INPUT_ID = 'add-mutation-modal-excluded-alteration-input';
+export const ADD_MUTATION_MODAL_ADD_EXCLUDED_ALTERATION_BUTTON_ID = 'add-mutation-modal-add-excluded-alteration-button';
+export const ADD_MUTATION_MODAL_ADD_EXON_BUTTON_ID = 'add-mutation-modal-add-exon-button';
+export const ADD_MUTATION_MODAL_FLAG_DROPDOWN_ID = 'add-mutation-modal-flag-input';
+export const ADD_MUTATION_MODAL_FLAG_COMMENT_ID = 'add-mutation-modal-flag-comment';
+export const ADD_MUTATION_MODAL_FLAG_COMMENT_INPUT_ID = 'add-mutation-modal-flag-comment-input';
 
 export const SIMPLE_CONFIRM_MODAL_CONTENT_ID = 'simple-confirm-modal-content';
 

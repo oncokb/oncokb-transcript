@@ -1,0 +1,46 @@
+[
+  {
+    "entity": {
+      "id": null,
+      "type": "ANY",
+      "name": "Oncogenic Mutations",
+      "alteration": "Oncogenic Mutations",
+      "proteinChange": "",
+      "start": null,
+      "end": null,
+      "refResidues": null,
+      "variantResidues": null,
+      "flags": [],
+      "genes": [
+        {
+          "id": 41135,
+          "entrezGeneId": null,
+          "hugoSymbol": null,
+          "hgncId": null
+        }
+      ],
+      "transcripts": [],
+      "consequence": {
+        "id": 3,
+        "term": "ANY",
+        "name": "Any",
+        "isGenerallyTruncating": false,
+        "description": "Any variant"
+      },
+      "associations": []
+    },
+    "message": "",
+    "type": "OK",
+    "queryId": null,
+    "annotation": {
+      "hotspot": {
+        "associatedHotspots": [],
+        "hotspot": false
+      },
+      "exons": []
+    },
+    "warning": false,
+    "ok": true,
+    "error": false
+  }
+]

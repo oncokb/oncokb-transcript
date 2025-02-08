@@ -9,14 +9,23 @@ import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
 import { IUser } from '../model/user.model';
-import { CancerType, DrugCollection } from '../model/firebase/firebase.model';
+import { Alteration, CancerType, Flag, DrugCollection } from '../model/firebase/firebase.model';
 import _ from 'lodash';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IRule } from 'app/shared/model/rule.model';
-import { INTEGER_REGEX, REFERENCE_LINK_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_REGEX } from 'app/config/constants/regex';
-import { ProteinExonDTO } from 'app/shared/api/generated/curation';
+import {
+  EXON_ALTERATION_REGEX,
+  INTEGER_REGEX,
+  REFERENCE_LINK_REGEX,
+  SINGLE_NUCLEOTIDE_POS_REGEX,
+  UUID_REGEX,
+} from 'app/config/constants/regex';
+import { AlterationAnnotationStatus, AlterationTypeEnum, ProteinExonDTO } from 'app/shared/api/generated/curation';
 import { IQueryParams } from './jhipster-types';
+import InfoIcon from '../icons/InfoIcon';
+import { IFlag } from '../model/flag.model';
+import { AlterationData } from '../modal/AddMutationModal';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   if (!cancerType) return '';
@@ -300,6 +309,119 @@ export function parseAlterationName(
     comment,
     name,
   }));
+}
+
+export function getFullAlterationName(alterationData: AlterationData, includeVariantName = true) {
+  let alterationName = alterationData.alteration;
+  let variantName = includeVariantName && alterationData.name !== alterationData.alteration ? alterationData.name : '';
+  const excluding = alterationData.excluding.length > 0 ? alterationData.excluding.map(ex => ex.alteration) : [];
+  const comment = alterationData.comment ? alterationData.comment : '';
+  if (EXON_ALTERATION_REGEX.test(alterationData.alteration)) {
+    // Use the variant name as the display name for Exons
+    variantName = '';
+    alterationName = alterationData.name;
+  }
+  return buildAlterationName(alterationName, variantName, excluding, comment);
+}
+
+export function getMutationRenameValueFromName(name: string) {
+  return name.match(/\[([^\]]+)\]/)?.[1];
+}
+
+export function convertEntityStatusAlterationToAlterationData(
+  entityStatusAlteration: AlterationAnnotationStatus,
+  excluding: AlterationData[],
+  comment: string,
+  variantName?: string,
+): AlterationData {
+  const alteration = entityStatusAlteration.entity;
+  const alterationData: AlterationData = {
+    type: alteration?.type ?? AlterationTypeEnum.Unknown,
+    alteration: alteration?.alteration ?? '',
+    name: (variantName || alteration?.name) ?? '',
+    consequence: alteration?.consequence?.name ?? '',
+    comment,
+    excluding,
+    genes: alteration?.genes,
+    proteinChange: alteration?.proteinChange,
+    proteinStart: alteration?.start,
+    proteinEnd: alteration?.end,
+    refResidues: alteration?.refResidues,
+    varResidues: alteration?.variantResidues,
+    warning: entityStatusAlteration.warning ? entityStatusAlteration.message : undefined,
+    error: entityStatusAlteration.error ? entityStatusAlteration.message : undefined,
+  };
+
+  return alterationData;
+}
+
+export function convertAlterationDataToAlteration(alterationData: AlterationData) {
+  const alteration = new Alteration();
+  alteration.type = alterationData.type;
+  alteration.alteration = alterationData.alteration;
+  alteration.name = getFullAlterationName(alterationData);
+  alteration.proteinChange = alterationData.proteinChange || '';
+  alteration.proteinStart = alterationData.proteinStart || -1;
+  alteration.proteinEnd = alterationData.proteinEnd || -1;
+  alteration.refResidues = alterationData.refResidues || '';
+  alteration.varResidues = alterationData.varResidues || '';
+  alteration.consequence = alterationData.consequence;
+  alteration.comment = alterationData.comment;
+  alteration.excluding = alterationData.excluding.map(ex => convertAlterationDataToAlteration(ex));
+  alteration.genes = alterationData.genes || [];
+  return alteration;
+}
+
+export function convertAlterationToAlterationData(alteration: Alteration): AlterationData {
+  let variantName = alteration.name;
+  if (!EXON_ALTERATION_REGEX.test(alteration.name)) {
+    variantName = parseAlterationName(alteration.name)[0].name;
+  }
+
+  return {
+    type: alteration.type,
+    alteration: alteration.alteration,
+    name: variantName || alteration.alteration,
+    consequence: alteration.consequence,
+    comment: alteration.comment,
+    excluding: alteration.excluding?.map(ex => convertAlterationToAlterationData(ex)) || [],
+    genes: alteration?.genes || [],
+    proteinChange: alteration?.proteinChange,
+    proteinStart: alteration?.proteinStart === -1 ? undefined : alteration?.proteinStart,
+    proteinEnd: alteration?.proteinEnd === -1 ? undefined : alteration?.proteinEnd,
+    refResidues: alteration?.refResidues,
+    varResidues: alteration?.varResidues,
+  };
+}
+
+export function convertIFlagToFlag(flagEntity: IFlag | Omit<IFlag, 'id'>): Flag {
+  return {
+    flag: flagEntity.flag,
+    type: flagEntity.type,
+  };
+}
+
+export function buildAlterationName(alteration: string, name = '', excluding = [] as string[], comment = '') {
+  if (name) {
+    name = ` [${name}]`;
+  }
+  let exclusionString = '';
+  if (excluding.length > 0) {
+    exclusionString = ` {excluding ${excluding.join('; ')}}`;
+  }
+  if (comment) {
+    comment = ` (${comment})`;
+  }
+  return `${alteration}${name}${exclusionString}${comment}`;
+}
+
+export function getAlterationNameComponent(alterationName: string, comment?: string) {
+  return (
+    <>
+      <span>{alterationName}</span>
+      {comment && <InfoIcon className="ms-1" overlay={comment} />}
+    </>
+  );
 }
 
 export function findIndexOfFirstCapital(str: string) {

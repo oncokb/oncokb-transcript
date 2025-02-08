@@ -1,5 +1,4 @@
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import { Mutation } from 'app/shared/model/firebase/firebase.model';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import {
@@ -8,7 +7,6 @@ import {
   compareMutationsByProteinChangePosition,
   compareMutationsDefault,
   getFirebaseGenePath,
-  getMutationName,
 } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -18,13 +16,15 @@ import _ from 'lodash';
 import { observer } from 'mobx-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'reactstrap';
-import MutationCollapsible from '../collapsible/MutationCollapsible';
+import MutationCollapsible from '../collapsible/mutation-collapsible/MutationCollapsible';
 import MutationsSectionHeader, { SortOptions } from '../header/MutationsSectionHeader';
 import FirebaseList from '../list/FirebaseList';
 import * as styles from '../styles.module.scss';
 import MutationName from './MutationName';
 import { extractPositionFromSingleNucleotideAlteration } from 'app/shared/util/utils';
 import { MUTATION_LIST_ID, SINGLE_MUTATION_VIEW_ID } from 'app/config/constants/html-id';
+import { FlagTypeEnum } from 'app/shared/model/enumerations/flag-type.enum.model';
+import AddMutationModal from 'app/shared/modal/AddMutationModal';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -48,12 +48,17 @@ function MutationsSection({
   firebaseDb,
   annotatedAltsCache,
   fetchMutationListForConvertIcon,
+  getFlagsByType,
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
   const [sortMethod, setSortMethod] = useState<SortOptions>(SortOptions.DEFAULT);
 
   const mutationSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    getFlagsByType?.(FlagTypeEnum.ALTERATION_CATEGORY);
+  }, []);
 
   useEffect(() => {
     fetchMutationListForConvertIcon?.(mutationsPath);
@@ -246,6 +251,7 @@ const mapStoreToProps = ({
   firebaseAppStore,
   curationPageStore,
   firebaseMutationConvertIconStore,
+  flagStore,
 }: IRootStore) => ({
   addMutation: firebaseGeneService.addMutation,
   openMutationCollapsibleIndex: openMutationCollapsibleStore.index,
@@ -253,6 +259,7 @@ const mapStoreToProps = ({
   firebaseDb: firebaseAppStore.firebaseDb,
   annotatedAltsCache: curationPageStore.annotatedAltsCache,
   fetchMutationListForConvertIcon: firebaseMutationConvertIconStore.fetchData,
+  getFlagsByType: flagStore.getFlagsByType,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

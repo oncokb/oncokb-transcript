@@ -1,0 +1,68 @@
+[
+  {
+    "entity": {
+      "id": null,
+      "type": "STRUCTURAL_VARIANT",
+      "name": "Exon 2-4 Deletion",
+      "alteration": "Exon 2 Deletion + Exon 3 Deletion + Exon 4 Deletion",
+      "proteinChange": "",
+      "start": 1,
+      "end": 150,
+      "refResidues": null,
+      "variantResidues": null,
+      "flags": [],
+      "genes": [
+        {
+          "id": 30432,
+          "entrezGeneId": 3845,
+          "hugoSymbol": "KRAS",
+          "hgncId": "6407"
+        }
+      ],
+      "transcripts": [],
+      "consequence": {
+        "id": 39,
+        "term": "UNKNOWN",
+        "name": "Unknown",
+        "isGenerallyTruncating": false,
+        "description": "Unknown status"
+      },
+      "associations": []
+    },
+    "message": "",
+    "type": "OK",
+    "queryId": null,
+    "annotation": {
+      "hotspot": {
+        "associatedHotspots": [],
+        "hotspot": false
+      },
+      "exons": [
+        {
+          "range": {
+            "start": 1,
+            "end": 37
+          },
+          "exon": 2
+        },
+        {
+          "range": {
+            "start": 38,
+            "end": 97
+          },
+          "exon": 3
+        },
+        {
+          "range": {
+            "start": 97,
+            "end": 150
+          },
+          "exon": 4
+        }
+      ]
+    },
+    "warning": false,
+    "ok": true,
+    "error": false
+  }
+]

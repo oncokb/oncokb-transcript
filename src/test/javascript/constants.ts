@@ -21,3 +21,8 @@ export const SCREENSHOT_METHOD_OPTIONS: WdioCheckElementMethodOptions = {
 };
 
 export const ALLOWED_MISMATCH_PERCENTAGE = 0;
+
+export const WDIO_DEFAULT_DIMENSIONS = {
+  width: 1920,
+  height: 1080,
+};

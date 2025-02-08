@@ -11,7 +11,14 @@ const getAlterationMockResponse = (requestBody: string, readFile = true) => {
   let filePath = `${DATA_DIR}api-annotate-alterations-`;
   switch (alterationName) {
     case 'v600e':
+    case 'v600k':
       filePath += alterationName;
+      break;
+    case 'oncogenic mutations':
+      filePath += 'oncogenic-mutations';
+      break;
+    case 'exon 2-4 deletion':
+      filePath += 'exon-2-4-deletion';
       break;
     default:
       break;
@@ -111,6 +118,13 @@ export default async function setUpMocks() {
     fetchResponse: false,
   });
 
+  const fetchAlterationCategoryFlagsMock = await browser.mock('**/api/flags?type.equals=ALTERATION_CATEGORY');
+  const alterationCategoryFlags = JSON.parse(fs.readFileSync(`${DATA_DIR}api-flags-type-alteration-category.json`).toString());
+  fetchAlterationCategoryFlagsMock.respond(alterationCategoryFlags, {
+    statusCode: 200,
+    fetchResponse: false,
+  });
+
   const pubMedArticleMock = await browser.mock('**/api/articles/pubmed/15520807');
   const pubmedArticle = JSON.parse(fs.readFileSync(`${DATA_DIR}api-articles-pubmed-15520807.json`).toString());
   pubMedArticleMock.respond(pubmedArticle, {
@@ -128,6 +142,13 @@ export default async function setUpMocks() {
   const relevantCancerTypesPx3Mock = await browser.mock('**/api/cancer-types/relevant?levelOfEvidence=LEVEL_Px3');
   const relevantCancerTypesPx3 = JSON.parse(fs.readFileSync(`${DATA_DIR}api-cancer-types-relevant-px3.json`).toString());
   relevantCancerTypesPx3Mock.respond(relevantCancerTypesPx3, {
+    statusCode: 200,
+    fetchResponse: false,
+  });
+
+  const proteinExonMock = await browser.mock('**/api/transcripts/protein-exons**');
+  const proteinExon = JSON.parse(fs.readFileSync(`${DATA_DIR}api-protein-exons.json`).toString());
+  proteinExonMock.respond(proteinExon, {
     statusCode: 200,
     fetchResponse: false,
   });
