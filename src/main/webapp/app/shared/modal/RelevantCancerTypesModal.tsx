@@ -115,9 +115,8 @@ const RelevantCancerTypesModalContent = observer(
                 <DefaultBadge
                   color="danger"
                   tooltipOverlay={<span>This RCT is deleted. Press the revert button to undo the deletion.</span>}
-                >
-                  Deleted
-                </DefaultBadge>
+                  text="Deleted"
+                />
               )}
             </div>
           );

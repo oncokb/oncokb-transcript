@@ -274,9 +274,7 @@ const GenomicIndicatorsTable = ({
             firebaseDb={firebaseDb!}
             buildCell={genomicIndicator => {
               return genomicIndicator.name_review?.removed ? (
-                <DefaultBadge color="danger" tooltipOverlay={DELETED_SECTION_TOOLTIP_OVERLAY}>
-                  Deleted
-                </DefaultBadge>
+                <DefaultBadge color="danger" text="Deleted" tooltipOverlay={DELETED_SECTION_TOOLTIP_OVERLAY} />
               ) : (
                 <DeleteSectionButton
                   disabled={readOnly}

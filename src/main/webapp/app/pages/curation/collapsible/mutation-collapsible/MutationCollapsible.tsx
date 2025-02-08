@@ -36,11 +36,6 @@ import _ from 'lodash';
 import { observer } from 'mobx-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from 'reactstrap';
-import BadgeGroup from '../BadgeGroup';
-import { DeleteSectionButton } from '../button/DeleteSectionButton';
-import FirebaseList from '../list/FirebaseList';
-import MutationLastModified from '../mutation/mutation-last-modified';
-import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import * as styles from '../styles.module.scss';
 import CancerTypeCollapsible from '../CancerTypeCollapsible';
 import Collapsible from '../Collapsible';
@@ -51,6 +46,11 @@ import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-hi
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
 import MutationCollapsibleTitle from './MutationCollapsibleTitle';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
+import BadgeGroup from '../../BadgeGroup';
+import { DeleteSectionButton } from '../../button/DeleteSectionButton';
+import FirebaseList from '../../list/FirebaseList';
+import MutationLastModified from '../../mutation/mutation-last-modified';
+import MutationLevelSummary from '../../nestLevelSummary/MutationLevelSummary';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
