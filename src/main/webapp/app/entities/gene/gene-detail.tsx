@@ -9,7 +9,7 @@ import EntityActionButton from 'app/shared/button/EntityActionButton';
 import * as styles from './gene.module.scss';
 import classnames from 'classnames';
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
-import { TranscriptTable } from 'app/entities/gene/transcript-table';
+import TranscriptTable from 'app/entities/gene/transcript-table';
 import GeneFlags from 'app/entities/gene/gene-flags';
 import { ITranscript } from 'app/shared/model/transcript.model';
 import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';

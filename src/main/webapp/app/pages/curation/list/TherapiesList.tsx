@@ -12,6 +12,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import TherapyCollapsible from '../collapsible/TherapyCollapsible';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { ADD_THERAPY_BUTTON_ID } from 'app/config/constants/html-id';
+import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 
 export interface ITherapiesList extends StoreProps {
   tisPath: string;
@@ -40,6 +41,7 @@ const TherapiesList = ({
   cancerTypePath,
   firebaseDb,
   drugList,
+  isLoadingDrugList,
   getDrugs,
   createDrug,
   addTreatment,
@@ -94,6 +96,10 @@ const TherapiesList = ({
     return () => unsubscribe?.();
   }, [txObjects, firebaseDb, tisPath]);
 
+  if (isLoadingDrugList) {
+    return <LoadingIndicator isLoading />;
+  }
+
   return (
     <>
       {txObjects.map((therapy, index) => {
@@ -146,6 +152,7 @@ const TherapiesList = ({
 const mapStoreToProps = ({ firebaseAppStore, drugStore, modifyTherapyModalStore, firebaseGeneService, curationPageStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   drugList: drugStore.entities,
+  isLoadingDrugList: drugStore.loading,
   getDrugs: drugStore.getEntities,
   createDrug: drugStore.createEntity,
   addTreatment: firebaseGeneService.addTreatment,

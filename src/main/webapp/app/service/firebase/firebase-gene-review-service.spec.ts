@@ -469,6 +469,67 @@ describe('Firebase Gene Review Service', () => {
         mockFirebaseRepository.deleteFromArray.mock.invocationCallOrder[0],
       );
     });
+
+    it('should remove nested review level uuids from meta collection when accepting a deletion', async () => {
+      const hugoSymbol = 'BRAF';
+      const gene = new Gene(hugoSymbol);
+      const mutationName = 'V600E';
+      const mutation = new Mutation(mutationName);
+      mutation.name_review = new Review('User', undefined, undefined, true);
+      const reviewLevel = new ReviewLevel({
+        titleParts: ['V600E'],
+        valuePath: 'mutations/0/name',
+        historyLocation: 'V600E',
+        currentVal: 'V600E',
+        reviewInfo: {
+          reviewPath: 'mutations/0/name_review',
+          review: mutation.name_review,
+          lastReviewedString: undefined,
+          uuid: mutation.name_uuid,
+          reviewAction: ReviewAction.DELETE,
+        },
+        historyData: {
+          oldState: mutation,
+        },
+        historyInfo: {},
+      });
+      mutation.summary_review = new Review('User', 'Old summary');
+      const childReview = new ReviewLevel({
+        titleParts: ['Summary'],
+        valuePath: 'mutations/0/summary',
+        historyLocation: 'V600E, Summary',
+        currentVal: 'Test summary',
+        reviewInfo: {
+          reviewPath: 'mutations/0/summary',
+          review: mutation.summary_review,
+          lastReviewedString: undefined,
+          uuid: mutation.summary_uuid,
+          reviewAction: ReviewAction.UPDATE,
+        },
+        historyData: {},
+        historyInfo: {},
+      });
+
+      reviewLevel.addChild(childReview);
+
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [reviewLevel],
+        isGermline: false,
+        gene,
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
+
+      expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
+      // We expect nested review level uuid to be remove if a deletion has been accepted.
+      expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
+        'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
+        'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
+        [`Meta/BRAF/review/${mutation.name_uuid}`]: null,
+        [`Meta/BRAF/review/${mutation.summary_uuid}`]: null,
+      });
+    });
   });
 
   describe('processDeletion', () => {

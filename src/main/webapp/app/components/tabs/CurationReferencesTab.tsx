@@ -1,3 +1,4 @@
+import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { ParsedRef } from 'app/oncokb-commons/components/RefComponent';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { Gene, Mutation } from 'app/shared/model/firebase/firebase.model';
@@ -36,7 +37,7 @@ type ReferenceData = {
   [referenceName: string]: DisplayedReferenceData[];
 };
 
-function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbstractsTabProps) {
+function CurationReferencesTab({ genePath, drugList, firebaseDb, isLoadingDrugList }: ICurationAbstractsTabProps) {
   const [gene, setGene] = useState<Gene>();
   const [geneInitialized, setGeneInitialized] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -76,7 +77,7 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
       notifyError(e);
       return {};
     }
-  }, [gene]);
+  }, [gene, drugList]);
 
   function findReferences(references: ReferenceData, obj, path = '', depth = 0) {
     for (const key in obj) {
@@ -182,6 +183,10 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
     setDisplayedReferences(newDisplayedReferences);
   }, [allReferences, inputValue]);
 
+  if (isLoadingDrugList) {
+    return <LoadingIndicator isLoading />;
+  }
+
   return (
     <div>
       <div className="mb-3">
@@ -216,6 +221,7 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
 
 const mapStoreToProps = ({ firebaseAppStore, drugStore }: IRootStore) => ({
   drugList: drugStore.entities,
+  isLoadingDrugList: drugStore.loading,
   firebaseDb: firebaseAppStore.firebaseDb,
 });
 

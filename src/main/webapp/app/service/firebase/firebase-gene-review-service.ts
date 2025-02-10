@@ -268,6 +268,8 @@ export class FirebaseGeneReviewService {
             .map(alt => alt.trim());
           updateObject = { ...updateObject, ...this.firebaseVusService.getVusUpdateObject(firebaseVusPath, variants) };
         }
+        // If a section is deleted, then all nested review uuids should be removed from Meta collection.
+        updateObject = { ...updateObject, ...this.getDeletedUuidUpdateObject(hugoSymbol, reviewLevel, isGermline) };
       } else if (isCreateReview(reviewLevel) && isAcceptAll) {
         const createUpdateObject = await this.getCreateUpdateObject(hugoSymbol, reviewLevel, isGermline, ActionType.ACCEPT);
         updateObject = { ...updateObject, ...createUpdateObject };

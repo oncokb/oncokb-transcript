@@ -34,7 +34,7 @@ const TabsDiff = (props: DiffViewerProps) => {
     if (typeof props.new !== 'string' && props.new !== undefined) {
       callbacks.push(
         onValue(ref(props.new.db, props.new.path), snapshot => {
-          setInputValue(snapshot.val());
+          setInputValue(snapshot.val() ?? '');
         }),
       );
     } else {
