@@ -263,10 +263,10 @@ export const CurationPage = (props: ICurationPageProps) => {
         <RelevantCancerTypesModal
           onConfirm={async (newExcludedRCTs, noneDeleted) => {
             try {
-              const newRCTs = noneDeleted ? [] : newExcludedRCTs;
+              const newRCTs = noneDeleted ? {} : newExcludedRCTs;
               await props.updateRelevantCancerTypes(
                 props.relevantCancerTypesModalStore.pathToRelevantCancerTypes ?? '',
-                noneDeleted ? [] : props.relevantCancerTypesModalStore.firebaseExcludedRCTs ?? [],
+                noneDeleted ? {} : props.relevantCancerTypesModalStore.firebaseExcludedRCTs ?? {},
                 newRCTs,
                 props.relevantCancerTypesModalStore.excludedRCTsReview!,
                 props.relevantCancerTypesModalStore.excludedRCTsUuid!,

@@ -114,7 +114,7 @@ export class Treatment {
   propagationLiquid_uuid: string = generateUuid();
   propagation_review?: Review;
   propagation_uuid: string = generateUuid();
-  excludedRCTs?: CancerType[] = [];
+  excludedRCTs?: CancerTypeList = {};
   excludedRCTs_review?: Review;
   excludedRCTs_uuid?: string = generateUuid();
   short = '';
@@ -124,6 +124,15 @@ export class Treatment {
   }
 }
 
+export type AssociationVariant = {
+  name: string;
+  uuid: string;
+};
+
+export type AssociationVariantList = {
+  [key: string]: AssociationVariant;
+};
+
 export class GenomicIndicator {
   name = '';
   name_uuid: string = generateUuid();
@@ -132,7 +141,7 @@ export class GenomicIndicator {
   description = '';
   description_uuid = generateUuid();
   description_review?: Review;
-  associationVariants?: { name: string; uuid: string }[] = [];
+  associationVariants?: AssociationVariantList = {};
   associationVariants_uuid: string = generateUuid();
   associationVariants_review?: Review;
 }
@@ -423,7 +432,7 @@ export class Comment {
 export class Review {
   updateTime: number;
   updatedBy = '';
-  lastReviewed?: string | ICancerType[] | CancerType[];
+  lastReviewed?: string | CancerTypeList;
   demotedToVus?: boolean;
   promotedToMutation?: boolean;
   // These three properties should not coexist
@@ -431,13 +440,7 @@ export class Review {
   removed?: boolean;
   initialUpdate?: boolean; // Used for excludedRCTs review
 
-  constructor(
-    updatedBy: string,
-    lastReviewed?: string | ICancerType[] | CancerType[],
-    added?: boolean,
-    removed?: boolean,
-    initialUpdate?: boolean,
-  ) {
+  constructor(updatedBy: string, lastReviewed?: string | CancerTypeList, added?: boolean, removed?: boolean, initialUpdate?: boolean) {
     this.updatedBy = updatedBy;
     this.updateTime = new Date().getTime();
     if (!_.isNil(lastReviewed)) {

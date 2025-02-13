@@ -50,7 +50,7 @@ function MutationsSection({
   fetchMutationListForConvertIcon,
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
-  const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
+  const [filteredMutationKeys, setFilteredMutationKeys] = useState<string[]>([]);
   const [sortMethod, setSortMethod] = useState<SortOptions>(SortOptions.DEFAULT);
 
   const mutationSectionRef = useRef<HTMLDivElement>(null);
@@ -110,8 +110,8 @@ function MutationsSection({
             pushDirection="front"
             sort={getSortFunction}
             itemBuilder={itemBuilder}
-            filter={index => {
-              return filteredIndices.includes(index);
+            filter={listKey => {
+              return listKey in filteredMutationKeys;
             }}
             onInitialRender={onMutationListRender}
             scrollOptions={{ viewportHeight: 1000, renderCount: 200 }}
@@ -208,8 +208,8 @@ function MutationsSection({
               hugoSymbol={hugoSymbol}
               mutationsPath={mutationsPath}
               metaGeneReviewPath={metaGeneReviewPath}
-              filteredIndices={filteredIndices}
-              setFilteredIndices={setFilteredIndices}
+              filteredMutationKeys={filteredMutationKeys}
+              setFilteredMutationKeys={setFilteredMutationKeys}
               showAddMutationModal={showAddMutationModal}
               setShowAddMutationModal={setShowAddMutationModal}
               setSortMethod={setSortMethod}

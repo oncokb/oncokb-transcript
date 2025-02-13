@@ -134,7 +134,7 @@ const MutationCollapsible = ({
 
     const associatedIndicators: string[] = [];
     for (const genomicIndicator of genomicIndicators) {
-      for (const variant of genomicIndicator.associationVariants || []) {
+      for (const variant of Object.values(genomicIndicator.associationVariants ?? {})) {
         if (mutationUuid === variant.uuid) {
           associatedIndicators.push(genomicIndicator.name_uuid);
         }

@@ -25,7 +25,7 @@ function handleTherapyExcludedRCTs({
   treatment,
 }: Pick<GetEvidenceArgs, 'treatment'> & { evidenceData: InitializeEvidenceDataRtn }) {
   if (treatment.excludedRCTs) {
-    evidenceData.data.excludedCancerTypes = treatment.excludedRCTs as TumorType[];
+    evidenceData.data.excludedCancerTypes = Object.values(treatment.excludedRCTs ?? {}) as TumorType[];
   }
 }
 
@@ -74,7 +74,7 @@ function handleDiagnosticImplication({
   evidenceData.data.description = tumor.diagnostic.description;
   evidenceData.data.levelOfEvidence = LEVEL_MAPPING[tumor.diagnostic.level];
   if (tumor.diagnostic.excludedRCTs) {
-    evidenceData.data.excludedCancerTypes = tumor.prognostic.excludedRCTs as TumorType[];
+    evidenceData.data.excludedCancerTypes = Object.values(tumor.prognostic.excludedRCTs ?? {}) as TumorType[];
   }
   evidenceData.dataUUID = tumor.diagnostic_uuid;
   evidenceData.data.lastEdit = validateTimeFormat(updateTime);
@@ -88,7 +88,7 @@ function handlePrognosticImplication({
   evidenceData.data.description = tumor.prognostic.description;
   evidenceData.data.levelOfEvidence = LEVEL_MAPPING[tumor.prognostic.level];
   if (tumor.prognostic.excludedRCTs) {
-    evidenceData.data.excludedCancerTypes = tumor.prognostic.excludedRCTs as TumorType[];
+    evidenceData.data.excludedCancerTypes = Object.values(tumor.prognostic.excludedRCTs ?? {}) as TumorType[];
   }
   evidenceData.dataUUID = tumor.prognostic_uuid;
   evidenceData.data.lastEdit = validateTimeFormat(updateTime);
@@ -124,15 +124,15 @@ function handleMutationSummary({
 }
 
 function handleTumorNameChange({ evidenceData, tumor }: Pick<GetEvidenceArgs, 'tumor'> & { evidenceData: InitializeEvidenceDataRtn }) {
-  evidenceData.data.cancerTypes = tumor.cancerTypes as TumorType[];
-  evidenceData.data.excludedCancerTypes = tumor.excludedCancerTypes as TumorType[];
+  evidenceData.data.cancerTypes = Object.values(tumor.cancerTypes) as TumorType[];
+  evidenceData.data.excludedCancerTypes = Object.values(tumor.excludedCancerTypes ?? {}) as TumorType[];
 }
 
 function handleTreatmentNameChange({
   evidenceData,
   treatment,
 }: Pick<GetEvidenceArgs, 'treatment'> & { evidenceData: InitializeEvidenceDataRtn }) {
-  evidenceData.data.excludedCancerTypes = treatment.excludedRCTs as TumorType[];
+  evidenceData.data.excludedCancerTypes = Object.values(treatment.excludedRCTs ?? {}) as TumorType[];
 }
 
 type InitializeEvidenceDataRtn = {
@@ -255,10 +255,10 @@ export function resolveTypeSpecificData({
     }
     if (tumor) {
       if (!evidenceData.data.cancerTypes) {
-        evidenceData.data.cancerTypes = tumor.cancerTypes as TumorType[];
+        evidenceData.data.cancerTypes = Object.values(tumor.cancerTypes) as TumorType[];
       }
       if (!evidenceData.data.excludedCancerTypes) {
-        evidenceData.data.excludedCancerTypes = tumor.excludedCancerTypes as TumorType[];
+        evidenceData.data.excludedCancerTypes = Object.values(tumor.excludedCancerTypes ?? {}) as TumorType[];
       }
     }
   }

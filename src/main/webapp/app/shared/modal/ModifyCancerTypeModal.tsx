@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import CancerTypeSelect, { CancerTypeSelectOption } from '../select/CancerTypeSelect';
-import { CancerType, Tumor } from '../model/firebase/firebase.model';
+import { CancerType, CancerTypeList, Tumor } from '../model/firebase/firebase.model';
 import { generateUuid, getCancerTypeName } from '../util/utils';
 import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
@@ -12,6 +12,7 @@ import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
 import { Unsubscribe, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import { AsyncSaveButton } from '../button/AsyncSaveButton';
+import { mapJSArrayToFirebaseArray } from '../util/firebase/firebase-utils';
 
 export interface IModifyCancerTypeModalProps extends StoreProps {
   cancerTypesUuid: string;
@@ -206,8 +207,23 @@ const ModifyCancerTypeModalContent = observer(
       );
 
       const newTumor = cancerTypeToEdit ? _.cloneDeep(cancerTypeToEdit) : new Tumor();
-      newTumor.cancerTypes = includedCancerTypes;
-      newTumor.excludedCancerTypes = excludedCancerTypes;
+      newTumor.cancerTypes =
+        includedCancerTypes?.reduce((acc, cancerType) => {
+          const ctKey = getArrayKey?.();
+          acc[ctKey!] = cancerType;
+          return acc;
+        }, {} as CancerTypeList) ?? {};
+      newTumor.cancerTypes = mapJSArrayToFirebaseArray<CancerType>(
+        includedCancerTypes,
+        getArrayKey!,
+        `${cancerTypesPathToEdit}/cancerTypes`,
+      );
+      newTumor.excludedCancerTypes =
+        excludedCancerTypes?.reduce((acc, cancerType) => {
+          const ctKey = getArrayKey?.();
+          acc[ctKey!] = cancerType;
+          return acc;
+        }, {} as CancerTypeList) ?? {};
       if (!newTumor.excludedCancerTypes_uuid) {
         newTumor.excludedCancerTypes_uuid = generateUuid();
       }

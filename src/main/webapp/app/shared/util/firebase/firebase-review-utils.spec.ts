@@ -19,7 +19,17 @@ import {
   ReviewSectionTitlePrefix,
   addSectionTitlePrefix,
 } from './firebase-review-utils';
-import { Gene, GeneType, Implication, MetaReview, Mutation, Review, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
+import {
+  CancerTypeList,
+  Gene,
+  GeneType,
+  Implication,
+  MetaReview,
+  Mutation,
+  Review,
+  Treatment,
+  Tumor,
+} from 'app/shared/model/firebase/firebase.model';
 import { IDrug } from 'app/shared/model/drug.model';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
 import { mutationNeedsReview } from './firebase-utils';
@@ -421,7 +431,7 @@ describe('Firebase Review Utils', () => {
 
       const implication = new Implication();
       // There is already an excluded CT
-      implication.excludedRCTs_review = new Review('User', Object.values(oldExclusions));
+      implication.excludedRCTs_review = new Review('User', oldExclusions);
       implication.excludedRCTs = newExclusions;
       const uuids = [implication.excludedRCTs_uuid as string];
 
@@ -679,19 +689,19 @@ describe('Firebase Review Utils', () => {
     describe('when working with relevant cancer types', () => {
       it('should detect reverted excluded RCTs when initialUpdate is true', () => {
         const oldReview = new Review('User', undefined, undefined, undefined, true);
-        const currentValue: Partial<ICancerType>[] = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
+        const currentValue: CancerTypeList = { [generateUuid()]: { code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' } };
         const { updatedReview, isChangeReverted } = getUpdatedReview(oldReview, currentValue, [], editorName);
         expect(updatedReview).not.toHaveProperty('lastReviewed');
         expect(isChangeReverted).toBeTruthy();
       });
 
       it('should detect reverted excluded cancer types when cancer type is already pending review', () => {
-        const excludedCancerTypes: Partial<ICancerType>[] = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
-        const currentValue: Partial<ICancerType>[] = [
-          { code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' },
-          { code: 'MEL', mainType: 'Melanoma', subtype: 'Melanoma' },
-        ];
-        const oldReview = new Review('User', excludedCancerTypes as ICancerType[]);
+        const excludedCancerTypes: CancerTypeList = { [generateUuid()]: { code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' } };
+        const currentValue: CancerTypeList = {
+          [generateUuid()]: { code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' },
+          [generateUuid()]: { code: 'MEL', mainType: 'Melanoma', subtype: 'Melanoma' },
+        };
+        const oldReview = new Review('User', excludedCancerTypes);
         const { updatedReview, isChangeReverted } = getUpdatedReview(oldReview, currentValue, excludedCancerTypes, editorName);
         expect(updatedReview).not.toHaveProperty('lastReviewed');
         expect(isChangeReverted).toBeTruthy();

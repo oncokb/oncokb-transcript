@@ -63,8 +63,8 @@ export class ModifyCancerTypeModalStore {
 
     for (const cancerType of allCancerTypes) {
       if (cancerType.cancerTypes_uuid !== cancerTypeToEditUuid) {
-        const currentCancerTypeIncluded = this.getSortedCancerTypeName(cancerType.cancerTypes);
-        const currentCancerTypeExcluded = this.getSortedCancerTypeName(cancerType.excludedCancerTypes || []);
+        const currentCancerTypeIncluded = this.getSortedCancerTypeName(Object.values(cancerType.cancerTypes));
+        const currentCancerTypeExcluded = this.getSortedCancerTypeName(Object.values(cancerType.excludedCancerTypes || {}));
 
         if (newCancerTypeIncluded === currentCancerTypeIncluded && newCancerTypeExcluded === currentCancerTypeExcluded) {
           this.isErrorDuplicate = true;

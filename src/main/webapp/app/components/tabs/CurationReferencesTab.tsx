@@ -117,7 +117,11 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb, isLoadingDrugLi
       parsedPath = parsedPath.replace(/tumors, (\d+)/g, (match, index: string) => {
         tumorIndex = Number(index);
         const tumor = gene?.mutations[mutationIndex].tumors[tumorIndex];
-        return getCancerTypesNameWithExclusion(tumor?.cancerTypes ?? [], tumor?.excludedCancerTypes ?? [], true);
+        return getCancerTypesNameWithExclusion(
+          Object.values(tumor?.cancerTypes ?? {}),
+          Object.values(tumor?.excludedCancerTypes ?? {}),
+          true,
+        );
       });
     }
 

@@ -1,5 +1,6 @@
 import { push, ref, remove, runTransaction, set, update, get, Database } from 'firebase/database';
 import FirebaseAppStore from './firebase-app.store';
+import { SentryError } from 'app/config/sentry-error';
 
 export const throwMissingFirebaseDBError = () => {
   throw new Error('No firebaseDb');
@@ -97,6 +98,16 @@ export class FirebaseRepository {
   };
 
   getArrayKey = (path?: string) => {
-    return push(ref(this.firebaseAppStore.firebaseDb!, path)).key;
+    if (this.firebaseAppStore.firebaseDb) {
+      if (path === '/') {
+        throw new SentryError('Cannot generate an array key at root level. Please use a child reference', { path });
+      }
+      const reference = ref(this.firebaseAppStore.firebaseDb, path);
+      // Array key cannot be null because we check if we're using the root reference already
+      const arrayKey = push(reference).key!;
+      return arrayKey;
+    } else {
+      throwMissingFirebaseDBError();
+    }
   };
 }

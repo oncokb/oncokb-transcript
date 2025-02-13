@@ -220,7 +220,7 @@ const GenomicIndicatorsTable = ({
                   isMulti
                   isDisabled={genomicIndicator.name_review?.removed || readOnly || false}
                   value={
-                    genomicIndicator.associationVariants?.map(variant => {
+                    Object.values(genomicIndicator.associationVariants ?? {})?.map(variant => {
                       const associatedMutation = mutations?.find(mutation => mutation.name_uuid === variant.uuid);
                       return { label: getMutationName(associatedMutation?.name, associatedMutation?.alterations), value: variant.uuid };
                     }) || []

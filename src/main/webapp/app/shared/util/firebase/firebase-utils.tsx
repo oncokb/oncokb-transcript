@@ -6,6 +6,7 @@ import { CategoricalAlterationType } from 'app/shared/model/enumerations/categor
 import {
   Alteration,
   CancerType,
+  CancerTypeList,
   Comment,
   DX_LEVELS,
   FIREBASE_ONCOGENICITY,
@@ -32,6 +33,7 @@ import { parseFirebaseGenePath } from './firebase-path-utils';
 import { hasReview } from './firebase-review-utils';
 import { Database, ref, get } from 'firebase/database';
 import { FirebaseGeneService } from 'app/service/firebase/firebase-gene-service';
+import { SentryError } from 'app/config/sentry-error';
 
 export const getValueByNestedKey = (obj: any, nestedKey = '') => {
   return nestedKey.split('/').reduce((currObj, currKey) => {
@@ -963,4 +965,22 @@ export function areCancerTypePropertiesEqual(a: string | undefined, b: string | 
 
 export function isStringEmpty(string: string | undefined | null) {
   return string === '' || _.isNil(string);
+}
+
+export function mapJSArrayToFirebaseArray<T>(
+  items: T[] | undefined,
+  getArrayKey: (path?: string) => string | undefined,
+  path?: string,
+): Record<string, T> {
+  const getArrayKeyPathParam = path === '/' ? undefined : path;
+  return (
+    items?.reduce(
+      (acc, item) => {
+        const key = getArrayKey(getArrayKeyPathParam);
+        acc[key!] = item; // Using non-null assertion on key because getArrayKey's path is guaranteed to not be the root reference
+        return acc;
+      },
+      {} as Record<string, T>,
+    ) ?? {}
+  );
 }

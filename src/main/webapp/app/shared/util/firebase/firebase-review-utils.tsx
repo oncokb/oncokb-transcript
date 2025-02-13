@@ -1,5 +1,7 @@
 import {
+  AssociationVariantList,
   CancerType,
+  CancerTypeList,
   Gene,
   GenomicIndicator,
   HistoryInfo,
@@ -723,8 +725,13 @@ export const buildStringReview = (
   let lastReviewedString: string;
   let currentString: string;
   if (fieldKey === 'associationVariants') {
-    lastReviewedString = (((obj[reviewKey] as Review).lastReviewed as any[]) || []).map(variant => variant.name).join(', ');
-    currentString = (obj as GenomicIndicator).associationVariants?.map(variant => variant.name).join(', ') ?? '';
+    lastReviewedString = Object.values(((obj[reviewKey] as Review).lastReviewed as AssociationVariantList) || {})
+      .map(variant => variant.name)
+      .join(', ');
+    currentString =
+      Object.values((obj as GenomicIndicator).associationVariants ?? {})
+        .map(variant => variant.name)
+        .join(', ') ?? '';
   } else {
     lastReviewedString = (obj[reviewKey] as Review).lastReviewed as string;
     currentString = obj[fieldKey] as string;
@@ -810,7 +817,9 @@ export const buildRCTReview = (
   const newRCTString = implication.excludedRCTs ? getCancerTypesName(Object.values(implication.excludedRCTs), true, '\t') : '';
   let oldRCTString = '';
   if (hasLastReviewed) {
-    oldRCTString = getCancerTypesName(implication.excludedRCTs_review?.lastReviewed as CancerType[], true, '\t');
+    const lastReviewedCancerTypeList = implication.excludedRCTs_review?.lastReviewed as CancerTypeList;
+    const lastReviewCancerTypeArray = Object.values(lastReviewedCancerTypeList);
+    oldRCTString = getCancerTypesName(lastReviewCancerTypeArray, true, '\t');
   }
 
   if (isInitialUpdate || hasLastReviewed) {
@@ -916,7 +925,7 @@ export const getUpdatedReview = (
   } else if (oldReview !== null && oldReview !== undefined && _.isEqual(oldReview.lastReviewed, newValue)) {
     isChangeReverted = true;
   } else if (isCancerType && oldReview !== null && oldReview !== undefined) {
-    isChangeReverted = areCancerTypeArraysEqual(oldReview.lastReviewed as CancerType[], newValue);
+    isChangeReverted = areCancerTypeArraysEqual(Object.values(oldReview.lastReviewed as CancerTypeList), newValue);
   }
 
   if (oldReview !== null && oldReview !== undefined && isChangeReverted && !oldReview.added) {

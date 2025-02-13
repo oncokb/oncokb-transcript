@@ -1,5 +1,6 @@
 import {
   CancerType,
+  CancerTypeList,
   DX_LEVELS,
   Drug,
   DrugCollection,
@@ -22,6 +23,7 @@ import {
   getFirebaseGenePath,
   getFirebaseVusPath,
   isSectionRemovableWithoutReview,
+  mapJSArrayToFirebaseArray,
 } from 'app/shared/util/firebase/firebase-utils';
 import AuthStore from '../../stores/authentication.store';
 import { FirebaseRepository } from '../../stores/firebase/firebase-repository';
@@ -456,8 +458,8 @@ export class FirebaseGeneService {
 
   updateRelevantCancerTypes = async (
     rctPath: string,
-    currentRelevantCancerTypes: CancerType[],
-    newRelevantCancerTypes: CancerType[],
+    currentRelevantCancerTypes: CancerTypeList,
+    newRelevantCancerTypes: CancerTypeList,
     review: Review,
     uuid: string | undefined,
     isGermline: boolean,
@@ -522,7 +524,11 @@ export class FirebaseGeneService {
       await this.addMutation(`${genePath?.genePath}/mutations`, newMut, true, false);
       pathogenicVariantsNameUuid = newMut.name_uuid;
     }
-    newGenomicIndicator.associationVariants = [{ name: PATHOGENIC_VARIANTS, uuid: pathogenicVariantsNameUuid }];
+    newGenomicIndicator.associationVariants = mapJSArrayToFirebaseArray(
+      [{ name: PATHOGENIC_VARIANTS, uuid: pathogenicVariantsNameUuid }],
+      this.firebaseRepository.getArrayKey,
+      `${genomicIndicatorsPath}/associationVariants`,
+    );
 
     const newReview = new Review(this.authStore.fullName);
     newReview.updateTime = new Date().getTime();
