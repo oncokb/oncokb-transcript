@@ -221,20 +221,11 @@ const GenomicIndicatorsTable = ({
                   isDisabled={genomicIndicator.name_review?.removed || readOnly || false}
                   value={
                     genomicIndicator.associationVariants?.map(variant => {
-                      // remove when working on https://github.com/oncokb/oncokb-pipeline/issues/389
-                      if (variant.uuid === PATHOGENIC_VARIANTS) {
-                        return { label: PATHOGENIC_VARIANTS, value: variant.uuid };
-                      }
-
                       const associatedMutation = mutations?.find(mutation => mutation.name_uuid === variant.uuid);
                       return { label: getMutationName(associatedMutation?.name, associatedMutation?.alterations), value: variant.uuid };
                     }) || []
                   }
                   options={[
-                    {
-                      label: PATHOGENIC_VARIANTS,
-                      value: PATHOGENIC_VARIANTS,
-                    },
                     ...(mutations?.map(mutation => ({
                       label: getMutationName(mutation.name, mutation.alterations),
                       value: mutation.name_uuid,
