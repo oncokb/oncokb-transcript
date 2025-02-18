@@ -102,6 +102,9 @@ const RelevantCancerTypesModalContent = observer(
     const columns: SearchColumn<RelevantCancerType>[] = [
       {
         Header: 'Cancer Type',
+        getColumnFilterValue(data: RelevantCancerType) {
+          return data.mainType ?? '';
+        },
         onFilter(data, keyword) {
           return data.mainType?.toLowerCase().includes(keyword) || false;
         },
@@ -125,6 +128,9 @@ const RelevantCancerTypesModalContent = observer(
       },
       {
         Header: 'Cancer Type Details',
+        getColumnFilterValue(data: RelevantCancerType) {
+          return data.subtype ?? '';
+        },
         onFilter(data, keyword) {
           return data.subtype?.toLowerCase().includes(keyword) || false;
         },
@@ -143,6 +149,7 @@ const RelevantCancerTypesModalContent = observer(
       {
         Header: 'Code',
         maxWidth: 120,
+        accessor: 'code',
         onFilter(data, keyword) {
           return data.code?.toLowerCase().includes(keyword) || false;
         },
@@ -159,6 +166,7 @@ const RelevantCancerTypesModalContent = observer(
         },
       },
       {
+        disableHeaderFiltering: true,
         Header: 'Actions',
         sortable: false,
         maxWidth: 70,

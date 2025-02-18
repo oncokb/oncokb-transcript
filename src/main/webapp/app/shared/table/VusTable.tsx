@@ -204,6 +204,7 @@ const VusTable = ({
       },
     },
     {
+      disableHeaderFiltering: true,
       id: 'actions',
       Header: 'Actions',
       width: 150,

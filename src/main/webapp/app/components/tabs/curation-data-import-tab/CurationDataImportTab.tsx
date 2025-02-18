@@ -3,7 +3,7 @@ import { IRootStore } from 'app/stores';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Col, Input, InputGroup, Label, Row } from 'reactstrap';
 import Select, { GroupBase, OptionsOrGroups } from 'react-select';
-import OncoKBTable from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword } from 'app/shared/util/utils';
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
 import { FirebaseGeneService } from 'app/service/firebase/firebase-gene-service';
@@ -441,8 +441,9 @@ const CurationDataImportTab = observer(
     };
 
     const getTableColumns = () => {
-      const columns: Column[] = [
+      const columns: SearchColumn<DataImportObj>[] = [
         {
+          disableHeaderFiltering: true,
           accessor: ROW_COLUMN_KEY,
           Header: 'Row #',
           maxWidth: 60,
@@ -450,6 +451,7 @@ const CurationDataImportTab = observer(
       ];
       if (importStatus === 'imported') {
         columns.push({
+          disableHeaderFiltering: true,
           accessor: IMPORT_STATUS_HEADER_KEY,
           Header: 'Import Status',
           maxWidth: 120,
@@ -465,6 +467,7 @@ const CurationDataImportTab = observer(
       columns.push(
         ...fileHeaders.map(header => {
           return {
+            disableHeaderFiltering: true,
             accessor: header,
             Header: header,
             onFilter: (data, keyword) => filterByKeyword(data[header], keyword),

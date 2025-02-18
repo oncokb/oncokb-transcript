@@ -1,0 +1,47 @@
+.filter-overlay {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  min-width: 200px;
+}
+
+.filter-overlay input[placeholder='Search'] {
+  height: 28px;
+  line-height: 1.2;
+  padding: 4px 8px;
+  font-size: 1rem;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.checkbox-list input[type='checkbox'] {
+  margin-top: 5px;
+}
+
+.checkbox-list label {
+  padding-left: 5px;
+  font-size: 1rem;
+  padding-left: 5px;
+}
+
+.filter-icon {
+  margin-left: 5px;
+  visibility: hidden;
+}
+
+.filter-component:hover .filter-icon {
+  visibility: visible;
+}
+
+.rc-tooltip-arrow {
+  display: none !important;
+}
