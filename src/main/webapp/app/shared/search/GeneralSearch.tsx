@@ -9,6 +9,10 @@ import axiosInstance from '../api/axiosInstance';
 import { SearchControllerApi, SearchResultDTO } from '../api/generated/curation';
 import DefaultTooltip from '../tooltip/DefaultTooltip';
 import { SearchOption } from './SearchOptions';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+
+type AsyncSelectProps = Parameters<typeof AsyncSelect<SearchResultOption>>[0];
+type AsyncSelectComponents = NonNullable<AsyncSelectProps['components']>;
 
 export const SearchResultKeys: { [key in keyof SearchResultDTO]: SearchOptionType } = {
   companionDiagnosticDevices: SearchOptionType.CDX,
@@ -20,12 +24,13 @@ export const SearchResultKeys: { [key in keyof SearchResultDTO]: SearchOptionTyp
 };
 
 type SearchResultOption = { value: unknown[]; type: SearchOptionType | undefined };
+type SearchResultGroup = { label: SearchOptionType; options: SearchResultOption[] };
 
 const getSearchResults = async (search: string) => {
   if (search) {
     const searchApiClient = new SearchControllerApi(undefined, '', axiosInstance);
     const searchResults: SearchResultDTO = (await searchApiClient.search(search)).data;
-    const searchOptions: { label: SearchOptionType; options: SearchResultOption[] }[] = [
+    const searchOptions: SearchResultGroup[] = [
       { label: SearchOptionType.GENE, options: [] },
       { label: SearchOptionType.ALTERATION, options: [] },
       { label: SearchOptionType.ARTICLE, options: [] },
@@ -41,15 +46,20 @@ const getSearchResults = async (search: string) => {
       });
     }
     return searchOptions;
+  } else {
+    return [];
   }
 };
 
-const debouncedSearch = _.debounce((searchTerm, callback) => {
+const debouncedSearch = _.debounce<NonNullable<AsyncSelectProps['loadOptions']>>((searchTerm, callback) => {
   getSearchResults(searchTerm)
     .then(result => {
       return callback(result);
     })
-    .catch((error: any) => callback(error, null));
+    .catch((error: Error) => {
+      notifyError(error, 'Error in global search');
+      return callback([]);
+    });
 }, 500);
 
 const SearchInfoIconOverlay: JSX.Element = (
@@ -79,17 +89,17 @@ const SearchInfoIconOverlay: JSX.Element = (
 export const GeneralSearch = () => {
   const [search, setSearch] = useState('');
 
-  const Option: React.FunctionComponent<any> = (optionProps: any) => {
+  const Option: AsyncSelectComponents['Option'] = optionProps => {
     return (
       <>
         <components.Option {...optionProps}>
-          <SearchOption search={search} type={optionProps.data.type as SearchOptionType} data={optionProps.data.value} />
+          <SearchOption search={search} type={optionProps.data.type!} data={optionProps.data.value} />
         </components.Option>
       </>
     );
   };
 
-  const GroupHeading: React.FunctionComponent<any> = (groupHeadingProps: any) => {
+  const GroupHeading: AsyncSelectComponents['GroupHeading'] = groupHeadingProps => {
     return (
       <>
         <components.GroupHeading {...groupHeadingProps}>
@@ -103,7 +113,7 @@ export const GeneralSearch = () => {
   return (
     <div style={{ display: 'flex' }}>
       <div style={{ flex: 1 }}>
-        <AsyncSelect
+        <AsyncSelect<SearchResultOption>
           placeholder={'Search Gene / Alteration / Article / Drug / CDx / Fda Submission'}
           styles={{
             input(styles) {

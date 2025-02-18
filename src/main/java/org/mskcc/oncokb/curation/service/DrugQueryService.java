@@ -1,7 +1,9 @@
 package org.mskcc.oncokb.curation.service;
 
 import jakarta.persistence.criteria.JoinType;
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
@@ -10,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,8 +99,10 @@ public class DrugQueryService extends QueryService<Drug> {
             if (criteria.getId() != null) {
                 specification = specification.or(buildRangeSpecification(criteria.getId(), Drug_.id));
             }
-            if (criteria.getName() != null) {
-                specification = specification.or(buildStringSpecification(criteria.getName(), Drug_.name));
+            if (criteria.getName() != null && criteria.getName().getContains() != null) {
+                specification = specification.or((root, _ignore, cb) -> {
+                    return cb.like(root.get(Drug_.name), "%" + criteria.getName().getContains() + "%");
+                });
             }
             if (criteria.getUuid() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getUuid(), Drug_.uuid));
