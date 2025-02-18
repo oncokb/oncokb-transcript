@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import CancerTypeSelect, { CancerTypeSelectOption } from '../select/CancerTypeSelect';
-import { CancerType, CancerTypeList, Tumor } from '../model/firebase/firebase.model';
+import { CancerType, CancerTypeList, Tumor, TumorList } from '../model/firebase/firebase.model';
 import { generateUuid, getCancerTypeName } from '../util/utils';
 import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
@@ -45,6 +45,7 @@ function ModifyCancerTypeModal({
   searchCancerTypes,
   modifyCancerTypeModalStore,
   firebaseDb,
+  getArrayKey,
 }: IModifyCancerTypeModalProps) {
   return modifyCancerTypeModalStore?.openCancerTypesUuid === cancerTypesUuid ? (
     <ModifyCancerTypeModalContent
@@ -56,6 +57,7 @@ function ModifyCancerTypeModal({
       searchCancerTypes={searchCancerTypes}
       modifyCancerTypeModalStore={modifyCancerTypeModalStore}
       firebaseDb={firebaseDb}
+      getArrayKey={getArrayKey}
     />
   ) : (
     <></>
@@ -76,7 +78,7 @@ const ModifyCancerTypeModalContent = observer(
   }: IModifyCancerTypeModalProps) => {
     const [cancerTypeToEdit, setCancerTypeToEdit] = useState<Tumor | null>(null);
     const [isConfirmPending, setIsConfirmPending] = useState(false);
-    const [allCancerTypes, setAllCancerTypes] = useState<Tumor[]>([]);
+    const [allCancerTypes, setAllCancerTypes] = useState<TumorList>({});
 
     async function getICancerTypeFromCancerType(cancerType: CancerType) {
       try {
@@ -213,11 +215,7 @@ const ModifyCancerTypeModalContent = observer(
           acc[ctKey!] = cancerType;
           return acc;
         }, {} as CancerTypeList) ?? {};
-      newTumor.cancerTypes = mapJSArrayToFirebaseArray<CancerType>(
-        includedCancerTypes,
-        getArrayKey!,
-        `${cancerTypesPathToEdit}/cancerTypes`,
-      );
+      newTumor.cancerTypes = mapJSArrayToFirebaseArray<CancerType>(includedCancerTypes, getArrayKey!, `${cancerTypesPathToEdit}`);
       newTumor.excludedCancerTypes =
         excludedCancerTypes?.reduce((acc, cancerType) => {
           const ctKey = getArrayKey?.();

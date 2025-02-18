@@ -1,5 +1,5 @@
 import { ALLELE_STATE, PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
-import { GenomicIndicator, Mutation, Review } from 'app/shared/model/firebase/firebase.model';
+import { GenomicIndicator, Mutation, MutationList, Review } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -221,12 +221,12 @@ const GenomicIndicatorsTable = ({
                   isDisabled={genomicIndicator.name_review?.removed || readOnly || false}
                   value={
                     Object.values(genomicIndicator.associationVariants ?? {})?.map(variant => {
-                      const associatedMutation = mutations?.find(mutation => mutation.name_uuid === variant.uuid);
+                      const associatedMutation = Object.values(mutations ?? {})?.find(mutation => mutation.name_uuid === variant.uuid);
                       return { label: getMutationName(associatedMutation?.name, associatedMutation?.alterations), value: variant.uuid };
                     }) || []
                   }
                   options={[
-                    ...(mutations?.map(mutation => ({
+                    ...(Object.values(mutations ?? {})?.map(mutation => ({
                       label: getMutationName(mutation.name, mutation.alterations),
                       value: mutation.name_uuid,
                     })) || []),
@@ -334,7 +334,7 @@ export default componentInject(mapStoreToProps)(observer(GenomicIndicatorsTable)
 
 interface IGenomicIndicatorCellProps {
   genomicIndicatorPath: string;
-  mutations?: Mutation[];
+  mutations?: MutationList;
   firebaseDb: Database;
   buildCell: (genomicIndicator: GenomicIndicator) => React.ReactNode;
 }

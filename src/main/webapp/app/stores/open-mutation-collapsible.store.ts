@@ -1,16 +1,16 @@
 import { action, makeObservable, observable } from 'mobx';
 
 export class OpenMutationCollapsibleStore {
-  index: number | null = null;
+  listKey: string | null = null;
 
   constructor() {
     makeObservable(this, {
-      index: observable,
-      setOpenMutationCollapsibleIndex: action.bound,
+      listKey: observable,
+      setOpenMutationCollapsibleListKey: action.bound,
     });
   }
 
-  setOpenMutationCollapsibleIndex(index: number | null) {
-    this.index = index;
+  setOpenMutationCollapsibleListKey(listKey: string | null) {
+    this.listKey = listKey;
   }
 }

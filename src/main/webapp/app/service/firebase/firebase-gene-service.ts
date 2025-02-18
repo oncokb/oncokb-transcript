@@ -1,13 +1,12 @@
 import {
-  CancerType,
   CancerTypeList,
   DX_LEVELS,
-  Drug,
   DrugCollection,
   FIREBASE_ONCOGENICITY,
   Gene,
   GenomicIndicator,
   Mutation,
+  MutationList,
   PX_LEVELS,
   Review,
   TX_LEVELS,
@@ -78,8 +77,8 @@ export class FirebaseGeneService {
   authStore: AuthStore;
   geneStore: GeneStore;
   drugStore: DrugStore;
-  firebaseMutationListStore: FirebaseDataStore<Mutation[]>;
-  firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>;
+  firebaseMutationListStore: FirebaseDataStore<MutationList>;
+  firebaseMutationConvertIconStore: FirebaseDataStore<MutationList>;
   firebaseMetaService: FirebaseMetaService;
   firebaseGeneReviewService: FirebaseGeneReviewService;
   driveAnnotationApi: DriveAnnotationApi;
@@ -89,8 +88,8 @@ export class FirebaseGeneService {
     authStore: AuthStore,
     geneStore: GeneStore,
     drugStore: DrugStore,
-    firebaseMutationListStore: FirebaseDataStore<Mutation[]>,
-    firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>,
+    firebaseMutationListStore: FirebaseDataStore<MutationList>,
+    firebaseMutationConvertIconStore: FirebaseDataStore<MutationList>,
     firebaseMetaService: FirebaseMetaService,
     firebaseGeneReviewService: FirebaseGeneReviewService,
     driveAnnotationApi: DriveAnnotationApi,
@@ -106,10 +105,10 @@ export class FirebaseGeneService {
     this.driveAnnotationApi = driveAnnotationApi;
   }
 
-  getAllLevelMutationSummaryStats = (mutations: Mutation[]) => {
+  getAllLevelMutationSummaryStats = (mutations: MutationList) => {
     const summary: AllLevelSummary = {};
     if (mutations) {
-      mutations.forEach(mutation => {
+      Object.values(mutations).forEach(mutation => {
         summary[mutation.name_uuid] = {};
         if (mutation.tumors) {
           Object.values(mutation.tumors).forEach(tumor => {
@@ -161,10 +160,10 @@ export class FirebaseGeneService {
     return summary;
   };
 
-  getMutationLevelMutationSummaryStats = (mutations: Mutation[]) => {
+  getMutationLevelMutationSummaryStats = (mutations: MutationList) => {
     const summary: MutationLevelSummary = {};
     if (mutations) {
-      mutations.forEach(mutation => {
+      Object.values(mutations).forEach(mutation => {
         summary[mutation.name_uuid] = {
           TT: 0,
           oncogenicity: mutation.mutation_effect.oncogenic,
@@ -316,8 +315,8 @@ export class FirebaseGeneService {
 
   updateTumorName = async (
     tumorPath: string,
-    currentCancerTypes: CancerType[] | undefined,
-    currentExcludedCancerTypes: CancerType[] | undefined,
+    currentCancerTypes: CancerTypeList | undefined,
+    currentExcludedCancerTypes: CancerTypeList | undefined,
     tumor: Tumor,
     isGermline: boolean,
   ) => {
@@ -432,6 +431,7 @@ export class FirebaseGeneService {
     isPromotedToMutation = false,
     mutationEffectDescription?: string,
   ) => {
+    let pushResult: Awaited<ReturnType<typeof this.firebaseRepository.push>> = undefined;
     const { hugoSymbol } = parseFirebaseGenePath(mutationsPath) ?? {};
     const name = this.authStore.fullName;
     newMutation.name_review = new Review(name, undefined, true, undefined);
@@ -444,16 +444,36 @@ export class FirebaseGeneService {
     }
 
     if (hugoSymbol !== undefined) {
-      await this.firebaseRepository.pushToArray(mutationsPath, [newMutation]).then(() => {
-        this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, false);
-        this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newMutation.name_uuid, true, isGermline);
-        if (mutationEffectDescription) {
-          this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newMutation.mutation_effect.description_uuid, true, isGermline);
-        }
-      });
+      let updateObject = {
+        ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, newMutation.name_uuid),
+      };
+      if (mutationEffectDescription) {
+        updateObject = {
+          ...updateObject,
+          ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, newMutation.mutation_effect.description_uuid),
+        };
+      }
+
+      pushResult = await this.firebaseRepository.push(mutationsPath, newMutation, false);
+      if (pushResult !== undefined) {
+        updateObject = { ...updateObject, ...pushResult.pushUpdateObject };
+      } else {
+        throw new SentryError('Failed to push to firebase array', {
+          mutationsPath,
+          newMutation,
+          isGermline,
+          isPromotedToMutation,
+          mutationEffectDescription,
+        });
+      }
+
+      // Inserting at root with multi-location updates ensures that all collections
+      // are updating in a transactional manner
+      await this.firebaseRepository.update('/', updateObject);
     }
 
     await this.firebaseMutationConvertIconStore.fetchData(mutationsPath);
+    return pushResult ? pushResult.pushKey : null;
   };
 
   updateRelevantCancerTypes = async (
@@ -516,7 +536,7 @@ export class FirebaseGeneService {
     const newGenomicIndicator = new GenomicIndicator();
     const uuidsToReview: string[] = [];
     const mutationList = this.firebaseMutationListStore.data;
-    const pathogenicVariants = mutationList?.find(mut => mut.name === PATHOGENIC_VARIANTS);
+    const pathogenicVariants = Object.values(mutationList ?? {}).find(mut => mut.name === PATHOGENIC_VARIANTS);
     let pathogenicVariantsNameUuid = pathogenicVariants?.name_uuid;
 
     if (pathogenicVariantsNameUuid === undefined) {

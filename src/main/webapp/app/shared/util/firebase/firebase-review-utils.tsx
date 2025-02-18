@@ -8,10 +8,12 @@ import {
   HistoryRecordState,
   Implication,
   Mutation,
+  MutationList,
   Review,
   TI,
   Treatment,
   Tumor,
+  TumorList,
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
 import { generateUuid, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
@@ -428,9 +430,9 @@ export const findReviewRecursive = (
       }
 
       if (key === 'mutations') {
-        const mutations = value as Mutation[];
-        mutations.forEach((mutation, index) => {
-          const mutationPath = joinPathParts(currValuePath, 'mutations', index.toString());
+        const mutations = value as MutationList;
+        Object.entries(mutations ?? {}).forEach(([mutationKey, mutation]) => {
+          const mutationPath = joinPathParts(currValuePath, 'mutations', mutationKey);
           const nameReview = buildNameReview(mutation, mutationPath, parentReview, uuids, editorReviewMap);
           parentReview.addChild(nameReview);
           findReviewRecursive(mutation, mutationPath, uuids, nameReview, editorReviewMap, drugList);
@@ -440,9 +442,9 @@ export const findReviewRecursive = (
       }
 
       if (key === 'tumors') {
-        const tumors = value as Tumor[];
-        tumors.forEach((tumor, index) => {
-          const tumorPath = joinPathParts(currValuePath, 'tumors', index.toString());
+        const tumors = value as TumorList;
+        Object.entries(tumors ?? {}).forEach(([tumorKey, tumor]) => {
+          const tumorPath = joinPathParts(currValuePath, 'tumors', tumorKey);
           const cancerTypeNameReview = buildCancerTypeNameReview(tumor, tumorPath, parentReview, uuids, editorReviewMap);
           parentReview.addChild(cancerTypeNameReview);
           findReviewRecursive(tumor, tumorPath, uuids, cancerTypeNameReview, editorReviewMap, drugList);
@@ -661,10 +663,11 @@ export const buildCancerTypeNameReview = (
   } else if (cancerTypesReview?.lastReviewed || excludedCTReview?.lastReviewed || excludedCTReview?.initialUpdate) {
     nameUpdated = true;
     oldState = oldTumorName = getCancerTypesNameWithExclusion(
-      (cancerTypesReview?.lastReviewed as CancerType[] | undefined) || Object.values(tumor.cancerTypes ?? []),
+      Object.values((cancerTypesReview?.lastReviewed as CancerTypeList | undefined) ?? {}) || Object.values(tumor.cancerTypes ?? {}),
       excludedCTReview?.initialUpdate
         ? []
-        : (excludedCTReview?.lastReviewed as CancerType[] | undefined) || Object.values(tumor.excludedCancerTypes ?? []),
+        : Object.values((excludedCTReview?.lastReviewed as CancerTypeList | undefined) ?? {}) ||
+            Object.values(tumor.excludedCancerTypes ?? {}),
       true,
     );
     newState = newTumorName;
@@ -909,7 +912,7 @@ export const getUpdatedReview = (
   if (oldReview !== null && oldReview !== undefined && !('lastReviewed' in oldReview)) {
     if (isCancerType) {
       // When just the cancer types ordering is changed, then a review should not be triggered.
-      shouldSetLastReviewed = currentValue && !areCancerTypeArraysEqual(currentValue, newValue);
+      shouldSetLastReviewed = currentValue && !areCancerTypeArraysEqual(Object.values(currentValue ?? {}), Object.values(newValue ?? {}));
     }
     if (shouldSetLastReviewed) {
       oldReview.lastReviewed = currentValue;
@@ -925,7 +928,7 @@ export const getUpdatedReview = (
   } else if (oldReview !== null && oldReview !== undefined && _.isEqual(oldReview.lastReviewed, newValue)) {
     isChangeReverted = true;
   } else if (isCancerType && oldReview !== null && oldReview !== undefined) {
-    isChangeReverted = areCancerTypeArraysEqual(Object.values(oldReview.lastReviewed as CancerTypeList), newValue);
+    isChangeReverted = areCancerTypeArraysEqual(Object.values(oldReview.lastReviewed ?? {}), Object.values(newValue ?? {}));
   }
 
   if (oldReview !== null && oldReview !== undefined && isChangeReverted && !oldReview.added) {

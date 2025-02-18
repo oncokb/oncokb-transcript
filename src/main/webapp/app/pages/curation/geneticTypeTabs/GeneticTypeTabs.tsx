@@ -22,7 +22,7 @@ export interface IGeneticTypeTabs extends StoreProps {
   geneticType: GENETIC_TYPE;
 }
 
-const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, createGene }: IGeneticTypeTabs) => {
+const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb }: IGeneticTypeTabs) => {
   const { pathname } = useLocation();
   const [selected, setSelected] = useState<GENETIC_TYPE>(geneticType || GENETIC_TYPE.SOMATIC);
   const [somaticMetaReview, setSomaticMetaReview] = useState<MetaReview>();
@@ -69,7 +69,7 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, createGene }: IG
     };
     if (needsReview[type]) {
       badges.push(
-        <DefaultBadge square color={'warning'} className={sharedClassname} style={sharedStyle}>
+        <DefaultBadge square color={'warning'} className={sharedClassname} style={sharedStyle} key={`${type}-needs-review-badge`}>
           Needs Review
         </DefaultBadge>,
       );
@@ -79,13 +79,13 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, createGene }: IG
     if (isGeneReleased) {
       // Todo: In tooltip show when gene was released
       badges.push(
-        <DefaultBadge square color="success" className={sharedClassname} style={sharedStyle}>
+        <DefaultBadge square color="success" className={sharedClassname} style={sharedStyle} key={`${type}-released-badge`}>
           Released
         </DefaultBadge>,
       );
     } else {
       badges.push(
-        <DefaultBadge square color={'warning'} className={sharedClassname} style={sharedStyle}>
+        <DefaultBadge square color={'warning'} className={sharedClassname} style={sharedStyle} key={`${type}-pending-release-badge`}>
           Pending Release
         </DefaultBadge>,
       );
@@ -119,9 +119,8 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, createGene }: IG
   );
 };
 
-const mapStoreToProps = ({ firebaseAppStore, firebaseGeneService }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
-  createGene: firebaseGeneService.createGene,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CreatableSelect from 'react-select/creatable';
-import { Mutation, VusObjList } from '../model/firebase/firebase.model';
+import { Mutation, MutationList, VusObjList } from '../model/firebase/firebase.model';
 import { parseAlterationName } from '../util/utils';
 import _ from 'lodash';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
@@ -39,7 +39,7 @@ const createOption = (label: string) => ({
 
 const AddVusModal = (props: IAddVusModalProps) => {
   const firebaseMutationPath = `${getFirebaseGenePath(props.isGermline, props.hugoSymbol)}/mutations`;
-  const [mutationList, setMutationList] = useState<Mutation[]>();
+  const [mutationList, setMutationList] = useState<MutationList>();
   const [duplicateAlterations, setDuplicateAlterations] = useState<DuplicateMutationInfo[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [variants, setVariants] = useState<readonly Option[]>([]);
@@ -66,7 +66,7 @@ const AddVusModal = (props: IAddVusModalProps) => {
     if (mutationList) {
       const dupAlts = getDuplicateMutations(
         variants.map(o => o.label),
-        mutationList,
+        Object.values(mutationList),
         props.vusList ?? {},
         { useFullAlterationName: false, exact: false, excludedMutationUuid: props.convertOptions?.mutationUuid },
       );

@@ -101,7 +101,7 @@ function MutationsSectionHeader({
   const sortSelectRef = useRef<HTMLDivElement>(null);
 
   const setMutationsDebounced = _.debounce((snapshot: DataSnapshot) => {
-    setMutations(snapshot.val());
+    setMutations(snapshot.val() ?? {});
   }, UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS);
 
   useEffect(() => {
@@ -115,7 +115,7 @@ function MutationsSectionHeader({
         if (mutationsInitialized) {
           setMutationsDebounced(snapshot);
         } else {
-          setMutations(snapshot.val());
+          setMutations(snapshot.val() ?? {});
           setMutationsInitialized(true);
         }
       }),
@@ -130,7 +130,7 @@ function MutationsSectionHeader({
   }, [mutationsInitialized, mutationsPath, metaGeneReviewPath]);
 
   useEffect(() => {
-    const newFilteredIndices =
+    const newFilteredArrayKeys =
       Object.entries(mutations ?? {}).reduce((accumulator: string[], [mutationKey, mutation]) => {
         const matchesName =
           !mutationFilter || getMutationName(mutation.name, mutation.alterations).toLowerCase().includes(mutationFilter.toLowerCase());
@@ -218,8 +218,8 @@ function MutationsSectionHeader({
         return accumulator;
       }, []) || [];
 
-    if (!_.isEqual(filteredMutationKeys, newFilteredIndices)) {
-      setFilteredMutationKeys(newFilteredIndices);
+    if (!_.isEqual(filteredMutationKeys, newFilteredArrayKeys)) {
+      setFilteredMutationKeys(newFilteredArrayKeys);
     }
   }, [
     mutations,

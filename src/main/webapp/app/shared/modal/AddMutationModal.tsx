@@ -52,7 +52,7 @@ type AlterationData = {
 interface IAddMutationModalProps extends StoreProps {
   hugoSymbol: string | undefined;
   isGermline: boolean;
-  onConfirm: (mutation: Mutation, mutationFirebaseIndex: number) => Promise<void>;
+  onConfirm: (mutation: Mutation) => Promise<void>;
   onCancel: () => void;
   mutationToEditPath?: string | null;
   convertOptions?: {
@@ -134,7 +134,7 @@ function AddMutationModal({
   }, [convertOptions?.isConverting]);
 
   useEffect(() => {
-    const dupMutations = getDuplicateMutations(currentMutationNames, mutationList ?? [], vusList ?? {}, {
+    const dupMutations = getDuplicateMutations(currentMutationNames, Object.values(mutationList ?? {}), vusList ?? {}, {
       useFullAlterationName: true,
       excludedMutationUuid: mutationToEdit?.name_uuid,
       excludedVusName: convertOptions?.isConverting ? convertOptions.alteration : '',
@@ -1095,7 +1095,7 @@ function AddMutationModal({
         setErrorMessagesEnabled(false);
         setIsConfirmPending(true);
         try {
-          await onConfirm(newMutation, mutationList?.length || 0);
+          await onConfirm(newMutation);
         } finally {
           setErrorMessagesEnabled(true);
           setIsConfirmPending(false);

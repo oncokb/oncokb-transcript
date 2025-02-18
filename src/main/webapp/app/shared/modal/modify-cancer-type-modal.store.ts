@@ -1,6 +1,6 @@
 import { action, makeObservable, observable } from 'mobx';
 import { CancerTypeSelectOption } from '../select/CancerTypeSelect';
-import { CancerType, Tumor } from '../model/firebase/firebase.model';
+import { CancerType, Tumor, TumorList } from '../model/firebase/firebase.model';
 import { getCancerTypeFromCancerTypeSelectOption } from './ModifyCancerTypeModal';
 import { getCancerTypesName } from '../util/utils';
 import _ from 'lodash';
@@ -52,7 +52,7 @@ export class ModifyCancerTypeModalStore {
   private setIsErrorDuplicate(
     included: readonly CancerTypeSelectOption[],
     excluded: readonly CancerTypeSelectOption[],
-    allCancerTypes: Tumor[],
+    allCancerTypes: TumorList,
     cancerTypeToEditUuid?: string,
   ) {
     const includedCancerTypes = included.map(option => getCancerTypeFromCancerTypeSelectOption(option));
@@ -61,7 +61,7 @@ export class ModifyCancerTypeModalStore {
     const excludedCancerTypes = excluded.map(option => getCancerTypeFromCancerTypeSelectOption(option));
     const newCancerTypeExcluded = this.getSortedCancerTypeName(excludedCancerTypes);
 
-    for (const cancerType of allCancerTypes) {
+    for (const cancerType of Object.values(allCancerTypes)) {
       if (cancerType.cancerTypes_uuid !== cancerTypeToEditUuid) {
         const currentCancerTypeIncluded = this.getSortedCancerTypeName(Object.values(cancerType.cancerTypes));
         const currentCancerTypeExcluded = this.getSortedCancerTypeName(Object.values(cancerType.excludedCancerTypes || {}));
@@ -75,13 +75,13 @@ export class ModifyCancerTypeModalStore {
     this.isErrorDuplicate = false;
   }
 
-  setIncludedCancerTypes(cancerTypes: readonly CancerTypeSelectOption[], allCancerTypes: Tumor[], cancerTypeToEditUuid?: string) {
+  setIncludedCancerTypes(cancerTypes: readonly CancerTypeSelectOption[], allCancerTypes: TumorList, cancerTypeToEditUuid?: string) {
     this.setIsErrorIncludedAndExcluded(cancerTypes, this.excludedCancerTypes);
     this.setIsErrorDuplicate(cancerTypes, this.excludedCancerTypes, allCancerTypes, cancerTypeToEditUuid);
     this.includedCancerTypes = cancerTypes;
   }
 
-  setExcludedCancerTypes(cancerTypes: readonly CancerTypeSelectOption[], allCancerTypes: Tumor[], cancerTypeToEditUuid?: string) {
+  setExcludedCancerTypes(cancerTypes: readonly CancerTypeSelectOption[], allCancerTypes: TumorList, cancerTypeToEditUuid?: string) {
     this.setIsErrorIncludedAndExcluded(this.includedCancerTypes, cancerTypes);
     this.setIsErrorDuplicate(this.includedCancerTypes, cancerTypes, allCancerTypes, cancerTypeToEditUuid);
     this.excludedCancerTypes = cancerTypes;

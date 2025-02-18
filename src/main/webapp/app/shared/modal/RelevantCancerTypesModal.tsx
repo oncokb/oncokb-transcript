@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import { CellInfo } from 'react-table';
 import { faUndo } from '@fortawesome/free-solid-svg-icons';
 import DefaultBadge from '../badge/DefaultBadge';
-import { CancerType, CancerTypeList } from '../model/firebase/firebase.model';
+import { CancerType } from '../model/firebase/firebase.model';
 import { RelevantCancerType } from './relevant-cancer-types-modal-store';
 import { CancerType as FetchedCancerType, RelevantCancerTypeQuery } from '../api/generated/curation';
 import { FaExclamationCircle } from 'react-icons/fa';
