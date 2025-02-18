@@ -101,10 +101,7 @@ public class DrugQueryService extends QueryService<Drug> {
             }
             if (criteria.getName() != null && criteria.getName().getContains() != null) {
                 specification = specification.or((root, _ignore, cb) -> {
-                    return cb.like(
-                        cb.lower(root.get(Drug_.name).as(String.class)),
-                        "%" + criteria.getName().getContains().toLowerCase() + "%"
-                    );
+                    return cb.like(root.get(Drug_.name), "%" + criteria.getName().getContains() + "%");
                 });
             }
             if (criteria.getUuid() != null) {
