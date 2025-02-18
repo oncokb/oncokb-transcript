@@ -268,7 +268,7 @@ export const getCompactReviewInfo = <T extends BaseReviewLevel>(review: T): T =>
   }
   let childReview = review.children[0];
   if (childReview?.nestedUnderCreateOrDelete) {
-    if (isCreateReview(review)) {
+    if (isCreateReview(review) || isDeleteReview(review)) {
       return review;
     }
   }
