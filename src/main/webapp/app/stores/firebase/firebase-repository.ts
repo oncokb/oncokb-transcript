@@ -1,4 +1,4 @@
-import { push, ref, remove, runTransaction, set, update, get, Database } from 'firebase/database';
+import { push, ref, remove, set, update, get, Database } from 'firebase/database';
 import FirebaseAppStore from './firebase-app.store';
 import { SentryError } from 'app/config/sentry-error';
 
@@ -61,51 +61,51 @@ export class FirebaseRepository {
     }
   };
 
-  pushMultiple = async (path: string, items: unknown[]) => {
-    if (this.firebaseAppStore.firebaseDb) {
-      const listRef = ref(this.firebaseAppStore.firebaseDb, path);
-      const pushUpdates = {};
-      items.forEach(item => {
-        const postKey = push(listRef).key;
-        if (postKey !== null) {
-          pushUpdates[postKey] = item;
-        }
-      });
-      return await update(listRef, pushUpdates);
-    } else {
-      throwMissingFirebaseDBError();
-    }
-  };
+  // pushMultiple = async (path: string, items: unknown[]) => {
+  //   if (this.firebaseAppStore.firebaseDb) {
+  //     const listRef = ref(this.firebaseAppStore.firebaseDb, path);
+  //     const pushUpdates = {};
+  //     items.forEach(item => {
+  //       const postKey = push(listRef).key;
+  //       if (postKey !== null) {
+  //         pushUpdates[postKey] = item;
+  //       }
+  //     });
+  //     return await update(listRef, pushUpdates);
+  //   } else {
+  //     throwMissingFirebaseDBError();
+  //   }
+  // };
 
-  pushToArray = async (path: string, values: any[]) => {
-    if (this.firebaseAppStore.firebaseDb) {
-      return await runTransaction(ref(this.firebaseAppStore.firebaseDb, path), (currentData: any[]) => {
-        if (!currentData) {
-          return values;
-        }
-        currentData.push(...values);
-        return currentData;
-      });
-    } else {
-      throwMissingFirebaseDBError();
-    }
-  };
+  // pushToArray = async (path: string, values: any[]) => {
+  //   if (this.firebaseAppStore.firebaseDb) {
+  //     return await runTransaction(ref(this.firebaseAppStore.firebaseDb, path), (currentData: any[]) => {
+  //       if (!currentData) {
+  //         return values;
+  //       }
+  //       currentData.push(...values);
+  //       return currentData;
+  //     });
+  //   } else {
+  //     throwMissingFirebaseDBError();
+  //   }
+  // };
 
-  deleteFromArray = async (path: string, indices: number[]) => {
-    if (this.firebaseAppStore.firebaseDb) {
-      return await runTransaction(ref(this.firebaseAppStore.firebaseDb, path), (currentData: unknown[]) => {
-        const newData: unknown[] = [];
-        for (let i = 0; currentData !== null && i < currentData.length; i++) {
-          if (!indices.includes(i)) {
-            newData.push(currentData[i]);
-          }
-        }
-        return newData;
-      });
-    } else {
-      throwMissingFirebaseDBError();
-    }
-  };
+  // deleteFromArray = async (path: string, indices: number[]) => {
+  //   if (this.firebaseAppStore.firebaseDb) {
+  //     return await runTransaction(ref(this.firebaseAppStore.firebaseDb, path), (currentData: unknown[]) => {
+  //       const newData: unknown[] = [];
+  //       for (let i = 0; currentData !== null && i < currentData.length; i++) {
+  //         if (!indices.includes(i)) {
+  //           newData.push(currentData[i]);
+  //         }
+  //       }
+  //       return newData;
+  //     });
+  //   } else {
+  //     throwMissingFirebaseDBError();
+  //   }
+  // };
 
   getArrayKey = (path?: string) => {
     if (this.firebaseAppStore.firebaseDb) {
