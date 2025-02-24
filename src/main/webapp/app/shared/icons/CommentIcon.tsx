@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Comment } from 'app/shared/model/firebase/firebase.model';
-import { Button, Col, Container, Input, InputGroup, ListGroup, ListGroupItem, Row } from 'reactstrap';
+import { Comment, CommentList } from 'app/shared/model/firebase/firebase.model';
+import { Button, Input, InputGroup, ListGroup, ListGroupItem } from 'reactstrap';
 import { SizeProp } from '@fortawesome/fontawesome-svg-core';
 import { APP_DATETIME_FORMAT, CLOSE_TOOLTIP_DURATION_MILLISECONDS } from 'app/config/constants/constants';
 import { observer } from 'mobx-react';
@@ -29,7 +29,7 @@ export interface ICommentIconProps extends StoreProps {
 }
 
 const CommentIcon = observer((props: ICommentIconProps) => {
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<CommentList>({});
 
   useEffect(() => {
     if (!props.firebaseDb) {
@@ -314,8 +314,6 @@ const mapStoreToProps = ({ commentStore, firebaseAppStore, authStore, firebaseGe
   firebaseDb: firebaseAppStore.firebaseDb,
   account: authStore.account,
   handleFirebaseUpdate: firebaseGeneService.updateObject,
-  handleFirebasePushToArray: firebaseGeneService.pushObjectsToArray,
-  deleteComments: firebaseGeneService.deleteObjectsFromArray,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

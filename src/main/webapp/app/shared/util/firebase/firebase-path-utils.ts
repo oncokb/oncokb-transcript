@@ -32,15 +32,14 @@ export const buildFirebaseGenePath = (hugoSymbol: string, fieldKey: string) => {
 export const extractArrayPath = (valuePath: string) => {
   const pathParts = valuePath.split('/');
   // First pop is to remove the field key that comes with the reviewLevel's valuePath.
-  // For instance, valuePath can be 'mutations/0/name'
+  // For instance, valuePath can be 'mutations/arrayKey/name'
   pathParts.pop();
-  const deleteIndexString = pathParts.pop();
-  if (!deleteIndexString) {
-    throw new Error('could not find delete index string');
+  const deleteArrayKey = pathParts.pop();
+  if (!deleteArrayKey) {
+    throw new Error('could not find array key string');
   }
-  const deleteIndex = parseInt(deleteIndexString, 10); // Remove index
   const firebaseArrayPath = pathParts.join('/');
-  return { firebaseArrayPath, deleteIndex };
+  return { firebaseArrayPath, deleteArrayKey };
 };
 
 export enum FIREBASE_LIST_PATH_TYPE {

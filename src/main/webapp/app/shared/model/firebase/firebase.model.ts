@@ -3,7 +3,6 @@ import { ALLELE_STATE, GENE_TYPE, READABLE_FIELD } from 'app/config/constants/fi
 import { AlterationTypeEnum, Gene as OncoKBGene } from 'app/shared/api/generated/curation';
 import { generateUuid } from 'app/shared/util/utils';
 import _ from 'lodash';
-import { ICancerType } from '../cancer-type.model';
 
 export type MetaCollection = {
   [hugoSymbol: string]: Meta;
@@ -11,8 +10,9 @@ export type MetaCollection = {
   collaborators?: MetaCollaborators;
 };
 
+export type MetaCollaboratorsGeneList = Record<string, string>;
 export type MetaCollaborators = {
-  [name: string]: string[];
+  [name: string]: MetaCollaboratorsGeneList;
 };
 
 export type DrugCollection = {
@@ -164,11 +164,11 @@ export class AlleleState {
 export type MutationList = Record<string, Mutation>;
 export class Gene {
   name = '';
-  name_comments?: Comment[] = [];
+  name_comments?: CommentList = {};
   background = '';
   background_review?: Review;
   background_uuid: string = generateUuid();
-  background_comments?: Comment[] = [];
+  background_comments?: CommentList = {};
   dmp_refseq_id = '';
   isoform_override = '';
   mutations: MutationList = {};
@@ -176,15 +176,15 @@ export class Gene {
   summary = '';
   summary_review?: Review;
   summary_uuid: string = generateUuid();
-  summary_comments?: Comment[] = [];
+  summary_comments?: CommentList = {};
   penetrance?: PENETRANCE | '' = '';
   penetrance_review?: Review;
   penetrance_uuid? = generateUuid();
-  penetrance_comments?: Comment[] = [];
+  penetrance_comments?: CommentList = {};
   inheritanceMechanism: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
   inheritanceMechanism_review?: Review;
   inheritanceMechanism_uuid: string = generateUuid();
-  inheritanceMechanism_comments?: Comment[] = [];
+  inheritanceMechanism_comments?: CommentList = {};
   type: GeneType = new GeneType();
   type_uuid: string = generateUuid();
   dmp_refseq_id_grch38 = '';
@@ -226,9 +226,9 @@ export type TumorList = Record<string, Tumor>;
 export class Mutation {
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
-  mutation_effect_comments?: Comment[] = []; // used for somatic
+  mutation_effect_comments?: CommentList = {}; // used for somatic
   name: string = '';
-  name_comments?: Comment[] = [];
+  name_comments?: CommentList = {};
   name_review?: Review;
   alterations?: Alteration[] = [];
   alterations_uuid?: string = generateUuid();
@@ -305,19 +305,19 @@ export class Tumor {
   cancerTypes: CancerTypeList = {};
   cancerTypes_review?: Review;
   cancerTypes_uuid: string = generateUuid();
-  cancerTypes_comments?: Comment[] = [];
+  cancerTypes_comments?: CommentList = {};
   excludedCancerTypes?: CancerTypeList = {};
   excludedCancerTypes_review?: Review;
   excludedCancerTypes_uuid?: string = generateUuid();
   diagnostic: Implication = new Implication();
   diagnosticSummary = '';
   diagnosticSummary_uuid: string = generateUuid();
-  diagnostic_comments?: Comment[] = [];
+  diagnostic_comments?: CommentList = {};
   diagnostic_uuid: string = generateUuid();
   prognostic: Implication = new Implication();
   prognosticSummary = '';
   prognosticSummary_uuid: string = generateUuid();
-  prognostic_comments?: Comment[] = [];
+  prognostic_comments?: CommentList = {};
   prognostic_uuid: string = generateUuid();
   summary = '';
   summary_review?: Review;
@@ -379,7 +379,7 @@ export class Drug {
 
 export class Vus {
   name = '';
-  name_comments?: Comment[] = [];
+  name_comments?: CommentList = {};
   time: VusTime;
 
   constructor(vusName: string, email: string, editorName: string) {
@@ -421,6 +421,7 @@ export class MetaReview {
   [key: string]: string | boolean;
 }
 
+export type CommentList = Record<string, Comment>;
 export class Comment {
   date: string = new Date().getTime().toString();
   userName = '';

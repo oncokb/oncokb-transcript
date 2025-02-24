@@ -61,6 +61,25 @@ export class FirebaseRepository {
     }
   };
 
+  deleteFromArray = async (arrayPath: string, arrayKeysToDelete: string[], commit = true) => {
+    if (this.firebaseAppStore.firebaseDb) {
+      const rootRef = ref(this.firebaseAppStore.firebaseDb, '/');
+      const updateObject = arrayKeysToDelete.reduce(
+        (acc, key) => {
+          acc[`${arrayPath}/${key}`] = null;
+          return acc;
+        },
+        {} as Record<string, null>,
+      );
+      if (commit) {
+        return await set(rootRef, updateObject);
+      }
+      return Promise.resolve({ updateObject });
+    } else {
+      throwMissingFirebaseDBError();
+    }
+  };
+
   // pushMultiple = async (path: string, items: unknown[]) => {
   //   if (this.firebaseAppStore.firebaseDb) {
   //     const listRef = ref(this.firebaseAppStore.firebaseDb, path);

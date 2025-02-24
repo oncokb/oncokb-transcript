@@ -245,25 +245,29 @@ export class FirebaseGeneService {
       review.demotedToVus = true;
     }
 
+    let updateObject = {};
     if (removeWithoutReview) {
-      const { firebaseArrayPath, deleteIndex } = extractArrayPath(path);
+      const { firebaseArrayPath, deleteArrayKey } = extractArrayPath(path);
       const nestedUuids = findNestedUuids(sectionObject);
-      try {
-        await this.firebaseRepository.deleteFromArray(firebaseArrayPath, [deleteIndex]);
-        for (const id of [...nestedUuids, uuid]) {
-          await this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, id, false, isGermline);
-        }
-      } catch (error) {
-        throw new SentryError('Failed to delete without review', { path, sectionObject, review, uuid, isDemotedToVus });
+      const deleteArrayReturnVal = await this.firebaseRepository.deleteFromArray(firebaseArrayPath, [deleteArrayKey], false);
+      if (deleteArrayReturnVal !== undefined) {
+        updateObject = { ...updateObject, ...deleteArrayReturnVal.updateObject };
+      }
+      for (const id of [...nestedUuids, uuid]) {
+        updateObject = { ...updateObject, ...this.firebaseMetaService.getUpdateObject(false, hugoSymbol, isGermline, [id]) };
       }
     } else {
-      // Let the deletion be reviewed
-      try {
-        await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), { [`${pathFromGene}_review`]: review });
-        await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, true, isGermline);
-      } catch (error) {
-        throw new SentryError('Failed to mark deletion for review', { path, sectionObject, review, uuid, isDemotedToVus });
-      }
+      updateObject = {
+        ...updateObject,
+        [`${getFirebaseGenePath(isGermline, hugoSymbol)}/${pathFromGene}_review`]: review,
+        ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, [uuid]),
+      };
+    }
+
+    try {
+      await this.firebaseRepository.update('/', updateObject);
+    } catch (e) {
+      throw new SentryError('Failed to delete section', { updateObject, path, sectionObject, review, uuid, isDemotedToVus });
     }
   };
 
@@ -307,10 +311,13 @@ export class FirebaseGeneService {
     if (hugoSymbol === undefined) {
       throw new SentryError('Could not resolve hugoSymbol', { tumorPath });
     }
-    return this.firebaseRepository.pushToArray(tumorPath, [newTumor]).then(() => {
-      this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
-      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumorNameUuid, true, isGermline);
-    });
+
+    let updateObject = { ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, [tumorNameUuid]) };
+    const pushResult = await this.firebaseRepository.push(tumorPath, newTumor, false);
+    if (pushResult !== undefined) {
+      updateObject = { ...updateObject, ...pushResult.pushUpdateObject };
+    }
+    return this.firebaseRepository.update('/', updateObject);
   };
 
   updateTumorName = async (
@@ -389,10 +396,14 @@ export class FirebaseGeneService {
     newTreatment.name_review = new Review(name, undefined, true, undefined);
 
     if (hugoSymbol !== undefined) {
-      return this.firebaseRepository.pushToArray(treatmentPath, [newTreatment]).then(() => {
-        this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
-        this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newTreatment.name_uuid, true, isGermline);
-      });
+      let updateObject = {
+        ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, [newTreatment.name_uuid]),
+      };
+      const pushResult = await this.firebaseRepository.push(treatmentPath, newTreatment, false);
+      if (pushResult !== undefined) {
+        updateObject = { ...updateObject, ...pushResult.pushUpdateObject };
+      }
+      return this.firebaseRepository.update('/', updateObject);
     }
   };
 
@@ -423,6 +434,7 @@ export class FirebaseGeneService {
    * @param isGermline  true/false to be added into Germline_Gene or Gene collections
    * @param isPromotedToMutation  will be used if the mutation is promoted from the VUS table
    * @param mutationEffectDescription description under the mutation_effect prop
+   * @returns returns the firebase key of the new mutation
    */
   addMutation = async (
     mutationsPath: string,
@@ -445,12 +457,12 @@ export class FirebaseGeneService {
 
     if (hugoSymbol !== undefined) {
       let updateObject = {
-        ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, newMutation.name_uuid),
+        ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, [newMutation.name_uuid]),
       };
       if (mutationEffectDescription) {
         updateObject = {
           ...updateObject,
-          ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, newMutation.mutation_effect.description_uuid),
+          ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, [newMutation.mutation_effect.description_uuid]),
         };
       }
 
@@ -499,7 +511,7 @@ export class FirebaseGeneService {
       updateObject[rctPath] = newRelevantCancerTypes;
       updateObject[`${rctPath}_review`] = new Review(this.authStore.fullName, undefined, undefined, undefined, true);
       updateObject[`${rctPath}_uuid`] = uuid;
-      const metaUpdateObject = this.firebaseMetaService.getUpdateObject(true, hugoSymbol!, isGermline, uuid);
+      const metaUpdateObject = this.firebaseMetaService.getUpdateObject(true, hugoSymbol!, isGermline, [uuid]);
       updateObject = { ...updateObject, ...metaUpdateObject };
     } else {
       const rctUpdateObject = await this.firebaseGeneReviewService.updateReviewableContent(
@@ -578,19 +590,26 @@ export class FirebaseGeneService {
       });
     }
 
-    await this.firebaseRepository.pushToArray(genomicIndicatorsPath, [newGenomicIndicator]).then(() => {
-      const hugoSymbol = genePath?.hugoSymbol;
-      if (!hugoSymbol) {
-        throw new SentryError('Hugo symbol is missing', genePath ?? {});
-      }
-      if (toReview) {
-        this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, true);
-        uuidsToReview.forEach(uuid => {
-          this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, true, true);
-        });
-      }
-    });
+    const hugoSymbol = genePath?.hugoSymbol;
+    if (!hugoSymbol) {
+      throw new SentryError('Hugo symbol is missing', genePath ?? {});
+    }
+
+    let updateObject = {};
+
+    const pushResult = await this.firebaseRepository.push(genomicIndicatorsPath, newGenomicIndicator, false);
+    if (pushResult !== undefined) {
+      updateObject = { ...updateObject, ...pushResult.pushUpdateObject };
+    }
+
+    if (toReview) {
+      updateObject = { ...updateObject, ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, true, uuidsToReview) };
+    }
+
+    await this.firebaseRepository.update('/', updateObject);
   };
+
+  deleteGenomicIndicator = async (genomicIndicatorsPath: string) => {};
 
   getObject = async (path: string) => {
     return await this.firebaseRepository.get(path);
@@ -598,14 +617,6 @@ export class FirebaseGeneService {
 
   deleteObject = async (path: string) => {
     await this.firebaseRepository.delete(path);
-  };
-
-  pushObjectsToArray = async (path: string, objects: any[]) => {
-    await this.firebaseRepository.pushToArray(path, objects);
-  };
-
-  deleteObjectsFromArray = async (path: string, indices: number[]) => {
-    await this.firebaseRepository.deleteFromArray(path, indices);
   };
 
   updateObject = async (path: string, value: any) => {

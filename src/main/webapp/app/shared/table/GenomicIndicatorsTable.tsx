@@ -29,7 +29,6 @@ const GenomicIndicatorsTable = ({
   firebaseDb,
   authStore,
   mutations,
-  deleteGenomicIndicators,
   updateReviewableContent,
   updateGeneReviewUuid,
   updateMeta,
@@ -309,7 +308,6 @@ const GenomicIndicatorsTable = ({
 const mapStoreToProps = ({
   firebaseAppStore,
   authStore,
-  firebaseGeneService,
   firebaseGeneReviewService,
   firebaseMetaService,
   firebaseMutationListStore,
@@ -318,7 +316,6 @@ const mapStoreToProps = ({
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   authStore,
-  deleteGenomicIndicators: firebaseGeneService.deleteObjectsFromArray,
   updateReviewableContent: firebaseGeneReviewService.updateReviewableContent,
   updateGeneMetaContent: firebaseMetaService.updateGeneMetaContent,
   updateGeneReviewUuid: firebaseMetaService.updateGeneReviewUuid,
