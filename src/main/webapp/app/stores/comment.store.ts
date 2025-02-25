@@ -1,12 +1,12 @@
-import { Comment } from 'app/shared/model/firebase/firebase.model';
+import { CommentList } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
 import { action, makeObservable, observable } from 'mobx';
 
 export class CommentStore {
   public openCommentsId: string | null = null;
-  public comments: Comment[] = [];
+  public comments: CommentList = {};
   public openCommentsScrollPosition: number | null = null;
-  public commentIndiciesToDelete: number[] = [];
+  public commentKeysToDelete: string[] = [];
   public commentInputValue = '';
 
   constructor() {
@@ -14,30 +14,32 @@ export class CommentStore {
       openCommentsId: observable,
       comments: observable,
       openCommentsScrollPosition: observable,
-      commentIndiciesToDelete: observable,
+      commentKeysToDelete: observable,
       commentInputValue: observable,
       setComments: action.bound,
-      addCommentToDeleteIndex: action.bound,
-      removeIndexToDelete: action.bound,
+      addCommentKeyToDelete: action.bound,
+      removeKeyToDelete: action.bound,
       clearCommentsToDelete: action.bound,
       setCommentInputValue: action.bound,
     });
   }
 
-  setComments(comments: Comment[]) {
+  setComments(comments: CommentList) {
     this.comments = comments;
   }
 
-  addCommentToDeleteIndex(index: number) {
-    this.commentIndiciesToDelete.push(index);
+  addCommentKeyToDelete(key: string) {
+    if (!this.commentKeysToDelete.includes(key)) {
+      this.commentKeysToDelete.push(key);
+    }
   }
 
-  removeIndexToDelete(index: number) {
-    _.remove(this.commentIndiciesToDelete, commentIndex => commentIndex === index);
+  removeKeyToDelete(key: string) {
+    _.remove(this.commentKeysToDelete, commentKey => commentKey === key);
   }
 
   clearCommentsToDelete() {
-    this.commentIndiciesToDelete = [];
+    this.commentKeysToDelete = [];
   }
 
   setOpenCommentsId(id: string | null) {

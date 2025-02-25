@@ -36,16 +36,18 @@ const CommentIcon = observer((props: ICommentIconProps) => {
       return;
     }
     const unsubscribe = onValue(ref(props.firebaseDb, props.path), snapshot => {
-      setComments(snapshot.val() || []);
+      setComments(snapshot.val() || {});
     });
 
     return () => unsubscribe?.();
   }, []);
 
+  const commentsArray = Object.values(comments);
+
   let color: string;
-  if (comments.length === 0) {
+  if (commentsArray.length === 0) {
     color = 'black';
-  } else if (comments.some(comment => !isCommentResolved(comment))) {
+  } else if (commentsArray.some(comment => !isCommentResolved(comment))) {
     color = 'gold';
   } else {
     color = 'green';
@@ -78,31 +80,31 @@ const CommentIcon = observer((props: ICommentIconProps) => {
     newComment.userName = getUserFullName(props.account);
 
     try {
-      await props.handleFirebasePushToArray?.(props.path, [newComment]);
+      await props.pushToArray?.(props.path, [newComment]);
     } catch (error) {
       notifyError(error);
     }
   }
 
-  async function handleDeleteComments(indices: number[]) {
+  async function handleDeleteComments(keys: string[]) {
     try {
-      await props.deleteComments?.(props.path, indices);
+      await props.deleteFromArray?.(props.path, keys);
     } catch (error) {
       notifyError(error);
     }
   }
 
-  async function handleResolveComment(index: number) {
+  async function handleResolveComment(key: string) {
     try {
-      await props.handleFirebaseUpdate?.(`${props.path}/${index}`, { resolved: true });
+      await props.handleFirebaseUpdate?.(`${props.path}/${key}`, { resolved: true });
     } catch (error) {
       notifyError(error);
     }
   }
 
-  async function handleUnresolveComment(index: number) {
+  async function handleUnresolveComment(key: string) {
     try {
-      await props.handleFirebaseUpdate?.(`${props.path}/${index}`, { resolved: false });
+      await props.handleFirebaseUpdate?.(`${props.path}/${key}`, { resolved: false });
     } catch (error) {
       notifyError(error);
     }
@@ -135,8 +137,8 @@ const CommentIcon = observer((props: ICommentIconProps) => {
           <FontAwesomeIcon
             size={props.size}
             id={props.id}
-            icon={comments.length > 0 ? fasComment : farComment}
-            color={comments.length > 0 ? color : GREY}
+            icon={commentsArray.length > 0 ? fasComment : farComment}
+            color={commentsArray.length > 0 ? color : GREY}
           />
         </div>
       </DefaultTooltip>
@@ -146,12 +148,12 @@ const CommentIcon = observer((props: ICommentIconProps) => {
 
 export interface ICommentBoxProps {
   commentStore: CommentStore;
-  comments: Comment[];
+  comments: CommentList;
   openCommentsId: string;
   onCreateComment: (content: string) => void;
-  onResolveComment: (index: number) => void;
-  onUnresolveComment: (index: number) => void;
-  onDeleteComments: (indices: number[]) => void;
+  onResolveComment: (arrayKey: string) => void;
+  onUnresolveComment: (arrayKey: string) => void;
+  onDeleteComments: (arrayKeys: string[]) => void;
 }
 
 const CommentBox = observer((props: ICommentBoxProps) => {
@@ -167,28 +169,28 @@ const CommentBox = observer((props: ICommentBoxProps) => {
   useEffect(() => {
     return () => {
       if (props.comments && props.commentStore.openCommentsId !== props.openCommentsId) {
-        props.onDeleteComments(props.commentStore.commentIndiciesToDelete);
+        props.onDeleteComments(props.commentStore.commentKeysToDelete);
         runInAction(() => props.commentStore.clearCommentsToDelete());
       }
     };
   }, []);
 
-  const sortedCommentItems = props.comments
-    ?.map((comment, index) => {
+  const sortedCommentItems = Object.entries(props.comments)
+    ?.map(([arrayKey, comment]) => {
       return [
         comment.date,
         <CommentItem
           commentStore={props.commentStore}
           key={`${comment.date}-${comment.email}`}
           comment={comment}
-          index={index}
+          arrayKey={arrayKey}
           onResolveComment={() => {
             runInAction(() => props.commentStore.setOpenCommentsScrollPosition(scrollContainerRef.current?.scrollTop ?? 0));
-            props.onResolveComment(index);
+            props.onResolveComment(arrayKey);
           }}
           onUnresolveComment={() => {
             runInAction(() => props.commentStore.setOpenCommentsScrollPosition(scrollContainerRef.current?.scrollTop ?? 0));
-            props.onUnresolveComment(index);
+            props.onUnresolveComment(arrayKey);
           }}
         />,
       ];
@@ -262,7 +264,7 @@ const CommentInput = observer((props: ICommentInputProps) => {
 interface ICommentItemProps {
   commentStore: CommentStore;
   comment: Comment;
-  index: number;
+  arrayKey: string;
   onResolveComment: () => void;
   onUnresolveComment: () => void;
 }
@@ -270,13 +272,13 @@ interface ICommentItemProps {
 const CommentItem = observer((props: ICommentItemProps) => {
   const isResolved = isCommentResolved(props.comment);
 
-  const isPendingDeletion = props.commentStore.commentIndiciesToDelete.includes(props.index);
+  const isPendingDeletion = props.commentStore.commentKeysToDelete.includes(props.arrayKey);
 
   function handleDelete() {
     if (isPendingDeletion) {
-      runInAction(() => props.commentStore.removeIndexToDelete(props.index));
+      runInAction(() => props.commentStore.removeKeyToDelete(props.arrayKey));
     } else {
-      runInAction(() => props.commentStore.addCommentToDeleteIndex(props.index));
+      runInAction(() => props.commentStore.addCommentKeyToDelete(props.arrayKey));
     }
   }
 
@@ -309,11 +311,13 @@ const CommentItem = observer((props: ICommentItemProps) => {
   );
 });
 
-const mapStoreToProps = ({ commentStore, firebaseAppStore, authStore, firebaseGeneService }: IRootStore) => ({
+const mapStoreToProps = ({ commentStore, firebaseAppStore, authStore, firebaseGeneService, firebaseRepository }: IRootStore) => ({
   commentStore,
   firebaseDb: firebaseAppStore.firebaseDb,
   account: authStore.account,
   handleFirebaseUpdate: firebaseGeneService.updateObject,
+  deleteFromArray: firebaseRepository.deleteFromArray,
+  pushToArray: firebaseRepository.push,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

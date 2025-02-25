@@ -8,6 +8,7 @@ import {
   CancerType,
   CancerTypeList,
   Comment,
+  CommentList,
   DX_LEVELS,
   FIREBASE_ONCOGENICITY,
   Gene,
@@ -160,9 +161,9 @@ export const getFirebaseMetaGeneReviewPath = (isGermline: boolean | undefined, h
   return getFirebasePath(isGermline ? 'GERMLINE_META_GENE_REVIEW' : 'META_GENE_REVIEW', hugoSymbol, uuid);
 };
 
-export function getMostRecentComment(comments: Comment[]) {
+export function getMostRecentComment(comments: CommentList) {
   let latestComment = comments[0];
-  for (const comment of comments) {
+  for (const comment of Object.values(comments)) {
     if (parseInt(comment.date, 10) > parseInt(latestComment.date, 10)) {
       latestComment = comment;
     }
@@ -914,8 +915,10 @@ export const getReviewInfo = (editor: string, action: string, updateTime?: strin
   );
 };
 
-export const getAllCommentsString = (comments: Comment[]) => {
-  return comments.map(comment => comment.content).join('\n');
+export const getAllCommentsString = (comments: CommentList) => {
+  return Object.values(comments)
+    .map(comment => comment.content)
+    .join('\n');
 };
 
 export function findNestedUuids(obj: any, uuids: string[] = []) {

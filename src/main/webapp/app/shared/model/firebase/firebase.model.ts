@@ -133,6 +133,7 @@ export type AssociationVariantList = {
   [key: string]: AssociationVariant;
 };
 
+export type GenomicIndicatorList = Record<string, GenomicIndicator>;
 export class GenomicIndicator {
   name = '';
   name_uuid: string = generateUuid();
@@ -191,7 +192,7 @@ export class Gene {
   isoform_override_grch38 = '';
 
   // Germline
-  genomic_indicators: GenomicIndicator[] = [];
+  genomic_indicators: GenomicIndicatorList = {};
 
   constructor(name: string) {
     this.name = name;

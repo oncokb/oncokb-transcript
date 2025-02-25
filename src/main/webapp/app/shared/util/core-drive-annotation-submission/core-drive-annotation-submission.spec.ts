@@ -45,13 +45,13 @@ describe('Drive annotation to submit to core', () => {
 const mockVus: Vus[] = [
   createMockVus({
     name: 'F888I',
-    name_comments: [
-      createMockComment({
+    name_comments: {
+      [generateUuid()]: createMockComment({
         userName: 'doej',
         content: 'comment',
         date: '1720646502304',
       }),
-    ],
+    },
     time: createMockVusTime({
       by: createMockVusBy({
         name: 'John Doe',
@@ -62,13 +62,13 @@ const mockVus: Vus[] = [
   }),
   createMockVus({
     name: 'F595I',
-    name_comments: [
-      createMockComment({
+    name_comments: {
+      [generateUuid()]: createMockComment({
         userName: 'doej',
         content: 'comment',
         date: '1720646502305',
       }),
-    ],
+    },
     time: createMockVusTime({
       by: createMockVusBy({
         name: 'John Doe',

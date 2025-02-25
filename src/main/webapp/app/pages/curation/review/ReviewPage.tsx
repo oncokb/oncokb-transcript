@@ -244,10 +244,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
               handleAccept={async args => {
                 setIsProcessingAction(true);
                 try {
-                  const returnVal = await props.acceptReviewChangeHandler?.(args);
-                  if (returnVal?.shouldRefresh) {
-                    await fetchFirebaseData();
-                  }
+                  await props.acceptReviewChangeHandler?.(args);
                 } finally {
                   setIsProcessingAction(false);
                 }
@@ -255,10 +252,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
               handleReject={async (hugoArg, reviewLevelsArg, isGermlineArg) => {
                 setIsProcessingAction(true);
                 try {
-                  const returnVal = await props.rejectReviewChangeHandler?.(hugoArg, reviewLevelsArg, isGermlineArg);
-                  if (returnVal?.shouldRefresh) {
-                    await fetchFirebaseData();
-                  }
+                  await props.rejectReviewChangeHandler?.(hugoArg, reviewLevelsArg, isGermlineArg);
                 } finally {
                   setIsProcessingAction(false);
                 }

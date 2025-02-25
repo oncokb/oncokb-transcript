@@ -294,7 +294,7 @@ const VusTable = ({
           isGermline={isGermline}
           onConfirm={async newMutation => {
             try {
-              const aggregateComments = getAllCommentsString(vusToPromote.name_comments || []);
+              const aggregateComments = getAllCommentsString(vusToPromote.name_comments || {});
               handleDelete();
               const addMutationResult = await addMutation?.(firebaseMutationsPath, newMutation, isGermline, true, aggregateComments).then(
                 () => {
