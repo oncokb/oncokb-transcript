@@ -265,7 +265,7 @@ function CancerTypeCollapsible({
           />
         </Collapsible>
       </RemovableCollapsible>
-      {/* <ModifyCancerTypeModal
+      <ModifyCancerTypeModal
         cancerTypesUuid={cancerTypesUuid}
         allCancerTypesPath={allCancerTypesPath}
         cancerTypesPathToEdit={cancerTypePath}
@@ -281,7 +281,7 @@ function CancerTypeCollapsible({
         onCancel={() => {
           modifyCancerTypeModalStore?.closeModal();
         }}
-      /> */}
+      />
     </>
   );
 }
