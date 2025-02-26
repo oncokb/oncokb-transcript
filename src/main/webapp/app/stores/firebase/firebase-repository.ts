@@ -73,7 +73,6 @@ export class FirebaseRepository {
    */
   deleteFromArray = async (arrayPath: string, arrayKeysToDelete: string[], commit = true) => {
     if (this.firebaseAppStore.firebaseDb) {
-      const rootRef = ref(this.firebaseAppStore.firebaseDb, '/');
       const updateObject = arrayKeysToDelete.reduce(
         (acc, key) => {
           acc[`${arrayPath}/${key}`] = null;
@@ -83,6 +82,7 @@ export class FirebaseRepository {
       );
       if (commit) {
         if (arrayKeysToDelete.length > 0) {
+          const rootRef = ref(this.firebaseAppStore.firebaseDb, '/');
           return await update(rootRef, updateObject);
         }
       }

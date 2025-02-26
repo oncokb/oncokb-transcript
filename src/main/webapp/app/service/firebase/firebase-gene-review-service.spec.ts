@@ -4,7 +4,7 @@ import { AuthStore } from 'app/stores';
 import { FirebaseMetaService } from './firebase-meta-service';
 import { FirebaseHistoryService } from './firebase-history-service';
 import { FirebaseVusService } from './firebase-vus-service';
-import { Gene, HistoryOperationType, Mutation, MutationList, Review, Tumor, TumorList } from 'app/shared/model/firebase/firebase.model';
+import { Gene, HistoryOperationType, Mutation, Review, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { mock, mockReset } from 'jest-mock-extended';
 import { SentryError } from 'app/config/sentry-error';
 import { getTumorNameUuid, ReviewLevel, TumorReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
@@ -12,9 +12,10 @@ import { ReviewAction } from 'app/config/constants/firebase';
 import _ from 'lodash';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
-import { createMockGene, createMockMutation, createMockTumor } from 'app/shared/util/core-submission-shared/core-submission.mocks';
+import { createMockGene, createMockMutation } from 'app/shared/util/core-submission-shared/core-submission.mocks';
 import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
 import { generateUuid } from 'app/shared/util/utils';
+import FirebaseAppStore from 'app/stores/firebase/firebase-app.store';
 
 describe('Firebase Gene Review Service', () => {
   const DEFAULT_USERNAME = 'Test User';
@@ -29,6 +30,7 @@ describe('Firebase Gene Review Service', () => {
   const mockVusService = mock<FirebaseVusService>();
   const mockEvidenceClient = mock<EvidenceApi>();
   const mockGeneTypeClient = mock<GeneTypeApi>();
+  const mockFirebaseAppStore = mock<FirebaseAppStore>();
   let firebaseGeneReviewService: FirebaseGeneReviewService;
 
   beforeEach(() => {
@@ -62,6 +64,11 @@ describe('Firebase Gene Review Service', () => {
     mockVusService.getVusUpdateObject.mockImplementation((path, variants) => {
       const originalVusService = new FirebaseVusService(mockFirebaseRepository, mockEvidenceClient, mockAuthStore);
       return originalVusService.getVusUpdateObject(path, variants);
+    });
+
+    mockFirebaseRepository.deleteFromArray.mockImplementation((arrayPath, arrayKeysToDelete, commit) => {
+      const originalRepository = new FirebaseRepository(mockFirebaseAppStore);
+      return originalRepository.deleteFromArray(arrayPath, arrayKeysToDelete, commit);
     });
 
     mockAuthStore.account = {
@@ -215,11 +222,11 @@ describe('Firebase Gene Review Service', () => {
       mutation.name_review = new Review('User', undefined, undefined, true);
       const reviewLevel = new ReviewLevel({
         titleParts: ['V600E'],
-        valuePath: 'mutations/0/name',
+        valuePath: 'mutations/-mKey/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',
         reviewInfo: {
-          reviewPath: 'mutations/0/name_review',
+          reviewPath: 'mutations/-mKey/name_review',
           review: mutation.name_review,
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
@@ -243,8 +250,6 @@ describe('Firebase Gene Review Service', () => {
         entrezGeneId: 0,
       });
 
-      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledTimes(1);
-      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [0]);
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
         [`History/BRAF/api/${MOCKED_ARRAY_KEYS[0]}`]: {
@@ -260,6 +265,7 @@ describe('Firebase Gene Review Service', () => {
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
         [`Meta/BRAF/review/${mutation.name_uuid}`]: null,
+        'Genes/BRAF/mutations/-mKey': null,
       });
     });
     it('should add alterations to VUS collection when demoting a mutation', async () => {
@@ -270,11 +276,11 @@ describe('Firebase Gene Review Service', () => {
       mutation.name_review.demotedToVus = true;
       const reviewLevel = new ReviewLevel({
         titleParts: ['V600E, V600K'],
-        valuePath: 'mutations/0/name',
+        valuePath: 'mutations/-mKey/name',
         historyLocation: 'V600E, V600K',
         currentVal: 'V600E, V600K',
         reviewInfo: {
-          reviewPath: 'mutations/0/name_review',
+          reviewPath: 'mutations/-mKey/name_review',
           review: mutation.name_review,
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
@@ -298,7 +304,6 @@ describe('Firebase Gene Review Service', () => {
         entrezGeneId: 0,
       });
 
-      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [0]);
       // We expect both alterations (V600E and V600K) to be added to VUS list
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
@@ -321,12 +326,8 @@ describe('Firebase Gene Review Service', () => {
         [`VUS/BRAF/${MOCKED_ARRAY_KEYS[2]}`]: {
           name: 'V600K',
         },
+        'Genes/BRAF/mutations/-mKey': null,
       });
-
-      // Multi-location updates should happen before deleting from array to ensure that indices are not stale
-      expect(mockFirebaseRepository.update.mock.invocationCallOrder[0]).toBeLessThan(
-        mockFirebaseRepository.deleteFromArray.mock.invocationCallOrder[0],
-      );
     });
     it('should accept newly created entity', async () => {
       const hugoSymbol = 'BRAF';
@@ -335,11 +336,11 @@ describe('Firebase Gene Review Service', () => {
       mutation.name_review = new Review('User', undefined, true);
       const reviewLevel = new ReviewLevel({
         titleParts: ['V600E'],
-        valuePath: 'mutations/0/name',
+        valuePath: 'mutations/-mKey/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',
         reviewInfo: {
-          reviewPath: 'mutations/0/name_review',
+          reviewPath: 'mutations/-mKey/name_review',
           review: mutation.name_review,
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
@@ -367,106 +368,12 @@ describe('Firebase Gene Review Service', () => {
             },
           ],
         },
-        'Genes/BRAF/mutations/0': expectedMutation,
+        'Genes/BRAF/mutations/-mKey': expectedMutation,
         [`Meta/BRAF/review/${mutation.name_uuid}`]: null,
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
       });
     });
-
-    it('should delete from array last when accepting changes', async () => {
-      const hugoSymbol = 'BRAF';
-      const mutationName = 'V600E';
-      const mutation = new Mutation(mutationName);
-
-      const tumorReview = new Review('User', undefined, false, true);
-      const tumorReviewLevel = new TumorReviewLevel({
-        titleParts: ['Cancer Type: B-Lymphoblastic Leukemia/Lymphoma'],
-        historyLocation: 'BCR-ABL1 Fusion, B-Lymphoblastic Leukemia, Lymphoma',
-        valuePath: 'mutations/1/tumors/0/cancerTypes',
-        currentVal: 'B-Lymphoblastic Leukemia/Lymphoma',
-        reviewInfo: {
-          reviewPath: 'mutations/0/name_review',
-          review: tumorReview,
-          lastReviewedString: undefined,
-          uuid: 'tumor_uuid',
-          reviewAction: ReviewAction.DELETE,
-        },
-        historyData: {
-          newState: mutation,
-        },
-        historyInfo: {},
-      });
-
-      const tumorSummaryReview = new Review('User', '');
-      const tumorSummaryReviewLevel = new ReviewLevel({
-        titleParts: ['B-Lymphoblastic Leukemia/Lymphoma with t(9;22)(q34.1;q11.2);BCR-ABL1', 'Summary'],
-        historyLocation: 'BCR-ABL1 Fusion, B-Lymphoblastic Leukemia, Lymphoma with t(9;22)(q34.1;q11.2);BCR-ABL1, Summary',
-        valuePath: 'mutations/1/tumors/1/summary',
-        currentVal: 'Test',
-        reviewInfo: {
-          reviewPath: 'mutations/1/tumors/1/summary_review',
-          review: tumorSummaryReview,
-          lastReviewedString: '',
-          uuid: 'tumor_summary_uuid',
-          reviewAction: ReviewAction.UPDATE,
-        },
-        historyData: {
-          newState: mutation,
-        },
-        historyInfo: {},
-      });
-
-      const mutationReview = new Review('User', '', false, true);
-      const mutationReviewLevel = new ReviewLevel({
-        titleParts: ['T315I'],
-        historyLocation: 'T315I',
-        valuePath: 'mutations/22/name',
-        currentVal: 'Test',
-        reviewInfo: {
-          reviewPath: 'mutations/22/name_review',
-          review: mutationReview,
-          lastReviewedString: undefined,
-          uuid: 'tumor_summary_uuid',
-          reviewAction: ReviewAction.DELETE,
-        },
-        historyData: {
-          newState: mutation,
-        },
-        historyInfo: {},
-      });
-
-      const mutations: MutationList = {};
-      for (let i = 0; i < 23; i++) {
-        const tumors: TumorList = {};
-        for (let j = 0; j < 2; j++) {
-          tumors[generateUuid()] = createMockTumor({});
-        }
-        mutations[generateUuid()] = createMockMutation({
-          tumors,
-        });
-      }
-
-      const gene = createMockGene({
-        mutations,
-      });
-
-      await firebaseGeneReviewService.acceptChanges({
-        hugoSymbol,
-        reviewLevels: [mutationReviewLevel, tumorReviewLevel, tumorSummaryReviewLevel],
-        isGermline: false,
-        isAcceptAll: true,
-        gene,
-        drugListRef: {},
-        entrezGeneId: 0,
-      });
-
-      // Multi-location updates should happen before deleting from array to ensure that indices are not stale
-      expect(mockFirebaseRepository.update.mock.invocationCallOrder[0]).toBeLessThan(
-        mockFirebaseRepository.deleteFromArray.mock.invocationCallOrder[0],
-      );
-    });
-
     it('should remove nested review level uuids from meta collection when accepting a deletion', async () => {
       const hugoSymbol = 'BRAF';
       const gene = new Gene(hugoSymbol);
@@ -475,11 +382,11 @@ describe('Firebase Gene Review Service', () => {
       mutation.name_review = new Review('User', undefined, undefined, true);
       const reviewLevel = new ReviewLevel({
         titleParts: ['V600E'],
-        valuePath: 'mutations/0/name',
+        valuePath: 'mutations/-mKey/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',
         reviewInfo: {
-          reviewPath: 'mutations/0/name_review',
+          reviewPath: 'mutations/-mKey/name_review',
           review: mutation.name_review,
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
@@ -493,11 +400,11 @@ describe('Firebase Gene Review Service', () => {
       mutation.summary_review = new Review('User', 'Old summary');
       const childReview = new ReviewLevel({
         titleParts: ['Summary'],
-        valuePath: 'mutations/0/summary',
+        valuePath: 'mutations/-mKey/summary',
         historyLocation: 'V600E, Summary',
         currentVal: 'Test summary',
         reviewInfo: {
-          reviewPath: 'mutations/0/summary',
+          reviewPath: 'mutations/-mKey/summary',
           review: mutation.summary_review,
           lastReviewedString: undefined,
           uuid: mutation.summary_uuid,
@@ -563,7 +470,6 @@ describe('Firebase Gene Review Service', () => {
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
       });
     });
-
     it('should clear review object when rejecting a deletion', async () => {
       const hugoSymbol = 'BRAF';
       const mutationName = 'V600E';
@@ -571,11 +477,11 @@ describe('Firebase Gene Review Service', () => {
       mutation.name_review = new Review('User', undefined, undefined, true);
       const reviewLevel = new ReviewLevel({
         titleParts: ['V600E'],
-        valuePath: 'mutations/0/name',
+        valuePath: 'mutations/-mKey/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',
         reviewInfo: {
-          reviewPath: 'mutations/0/name_review',
+          reviewPath: 'mutations/-mKey/name_review',
           review: mutation.name_review,
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
@@ -589,32 +495,31 @@ describe('Firebase Gene Review Service', () => {
       await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
-        'Genes/BRAF/mutations/0/name_review': { updateTime: DEFAULT_DATE.getTime(), updatedBy: mockAuthStore.fullName },
+        'Genes/BRAF/mutations/-mKey/name_review': { updateTime: DEFAULT_DATE.getTime(), updatedBy: mockAuthStore.fullName },
         [`Meta/BRAF/review/${mutation.name_uuid}`]: null,
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
       });
     });
-
     it('should reject initial excluded cancer type', async () => {
       const mutation = new Mutation('V600E');
       const tumor = new Tumor();
-      tumor.cancerTypes = { [generateUuid()]: { code: '', subtype: '', mainType: 'Melanoma' } };
+      tumor.cancerTypes = { '-ctKey': { code: '', subtype: '', mainType: 'Melanoma' } };
       tumor.cancerTypes_review = new Review('User');
-      tumor.excludedCancerTypes = { [generateUuid()]: { code: 'OCM', subtype: 'Ocular Melanoma', mainType: 'Melanoma' } };
+      tumor.excludedCancerTypes = { '-ectKey': { code: 'OCM', subtype: 'Ocular Melanoma', mainType: 'Melanoma' } };
       tumor.excludedCancerTypes_review = new Review('User', undefined, false, false, true);
       tumor.excludedCancerTypes_uuid = generateUuid();
-      mutation.tumors[generateUuid()] = tumor;
+      mutation.tumors['-tKey'] = tumor;
 
       const reviewLevel = new TumorReviewLevel({
         titleParts: ['Oncogenic Mutations', 'Breast Cancer {excluding Metaplastic Breast Cancer}', 'Name'],
-        valuePath: 'mutations/0/tumors/0/cancerTypes',
+        valuePath: 'mutations/-mKey/tumors/-tKey/cancerTypes',
         historyLocation: 'Oncogenic Mutations, Breast Cancer {excluding Metaplastic Breast Cancer}',
         children: [],
         historyInfo: {},
         currentVal: 'Breast Cancer {excluding Metaplastic Breast Cancer}',
         reviewInfo: {
-          reviewPath: 'mutations/0/tumors/0/cancerTypes_review',
+          reviewPath: 'mutations/-mKey/tumors/-tKey/cancerTypes_review',
           review: tumor.cancerTypes_review,
           lastReviewedString: 'Breast Cancer',
           uuid: getTumorNameUuid(tumor.cancerTypes_uuid, tumor.excludedCancerTypes_uuid),
@@ -625,7 +530,7 @@ describe('Firebase Gene Review Service', () => {
           newState: 'Breast Cancer {excluding Metaplastic Breast Cancer}',
         },
         excludedCancerTypesReviewInfo: {
-          reviewPath: 'mutations/0/tumors/0/excludedCancerTypes_review',
+          reviewPath: 'mutations/-mKey/tumors/-tKey/excludedCancerTypes_review',
           review: tumor.excludedCancerTypes_review,
           lastReviewedString: undefined,
           uuid: tumor.excludedCancerTypes_uuid,
@@ -642,11 +547,11 @@ describe('Firebase Gene Review Service', () => {
       await firebaseGeneReviewService.rejectChanges('BRAF', [reviewLevel], false);
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
-        'Genes/BRAF/mutations/0/tumors/0/cancerTypes_review': {
+        'Genes/BRAF/mutations/-mKey/tumors/-tKey/cancerTypes_review': {
           updateTime: DEFAULT_DATE.getTime(),
           updatedBy: mockAuthStore.fullName,
         },
-        'Genes/BRAF/mutations/0/tumors/0/excludedCancerTypes': null,
+        'Genes/BRAF/mutations/-mKey/tumors/-tKey/excludedCancerTypes': null,
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
         [`Meta/BRAF/review/${getTumorNameUuid(tumor.cancerTypes_uuid, tumor.excludedCancerTypes_uuid)}`]: null,
@@ -658,22 +563,22 @@ describe('Firebase Gene Review Service', () => {
     it('should reject initial excluded cancer type', async () => {
       const mutation = new Mutation('V600E');
       const tumor = new Tumor();
-      tumor.cancerTypes = { [generateUuid()]: { code: '', subtype: '', mainType: 'Melanoma' } };
+      tumor.cancerTypes = { '-ctKey': { code: '', subtype: '', mainType: 'Melanoma' } };
       tumor.cancerTypes_review = new Review('User');
-      tumor.excludedCancerTypes = { [generateUuid()]: { code: 'OCM', subtype: 'Ocular Melanoma', mainType: 'Melanoma' } };
+      tumor.excludedCancerTypes = { '-ectKey': { code: 'OCM', subtype: 'Ocular Melanoma', mainType: 'Melanoma' } };
       tumor.excludedCancerTypes_review = new Review('User', undefined, false, false, true);
       tumor.excludedCancerTypes_uuid = generateUuid();
-      mutation.tumors[generateUuid()] = tumor;
+      mutation.tumors['-tKey'] = tumor;
 
       const reviewLevel = new TumorReviewLevel({
         titleParts: ['Oncogenic Mutations', 'Breast Cancer {excluding Metaplastic Breast Cancer}', 'Name'],
-        valuePath: 'mutations/0/tumors/0/cancerTypes',
+        valuePath: 'mutations/-mKey/tumors/-tKey/cancerTypes',
         historyLocation: 'Oncogenic Mutations, Breast Cancer {excluding Metaplastic Breast Cancer}',
         children: [],
         historyInfo: {},
         currentVal: 'Breast Cancer {excluding Metaplastic Breast Cancer}',
         reviewInfo: {
-          reviewPath: 'mutations/0/tumors/0/cancerTypes_review',
+          reviewPath: 'mutations/-mKey/tumors/-tKey/cancerTypes_review',
           review: tumor.cancerTypes_review,
           lastReviewedString: 'Breast Cancer',
           uuid: getTumorNameUuid(tumor.cancerTypes_uuid, tumor.excludedCancerTypes_uuid),
@@ -684,7 +589,7 @@ describe('Firebase Gene Review Service', () => {
           newState: 'Breast Cancer {excluding Metaplastic Breast Cancer}',
         },
         excludedCancerTypesReviewInfo: {
-          reviewPath: 'mutations/0/tumors/0/excludedCancerTypes_review',
+          reviewPath: 'mutations/-mKey/tumors/-tKey/excludedCancerTypes_review',
           review: tumor.excludedCancerTypes_review,
           lastReviewedString: undefined,
           uuid: tumor.excludedCancerTypes_uuid,
@@ -701,11 +606,11 @@ describe('Firebase Gene Review Service', () => {
       await firebaseGeneReviewService.rejectChanges('BRAF', [reviewLevel], false);
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
-        'Genes/BRAF/mutations/0/tumors/0/cancerTypes_review': {
+        'Genes/BRAF/mutations/-mKey/tumors/-tKey/cancerTypes_review': {
           updateTime: DEFAULT_DATE.getTime(),
           updatedBy: mockAuthStore.fullName,
         },
-        'Genes/BRAF/mutations/0/tumors/0/excludedCancerTypes': null,
+        'Genes/BRAF/mutations/-mKey/tumors/-tKey/excludedCancerTypes': null,
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
         [`Meta/BRAF/review/${getTumorNameUuid(tumor.cancerTypes_uuid, tumor.excludedCancerTypes_uuid)}`]: null,
@@ -717,21 +622,21 @@ describe('Firebase Gene Review Service', () => {
     it('should reject initial excluded RCT', async () => {
       const mutation = new Mutation('V600E');
       const tumor = new Tumor();
-      tumor.cancerTypes = { [generateUuid()]: { code: '', subtype: '', mainType: 'Melanoma' } };
-      tumor.diagnostic.excludedRCTs = { [generateUuid()]: { code: 'TEST', subtype: 'Melanoma Subtype', mainType: 'Melanoma' } };
+      tumor.cancerTypes = { '-ctKey': { code: '', subtype: '', mainType: 'Melanoma' } };
+      tumor.diagnostic.excludedRCTs = { '-rctKey': { code: 'TEST', subtype: 'Melanoma Subtype', mainType: 'Melanoma' } };
       tumor.diagnostic.excludedRCTs_review = new Review('User', undefined, false, false, true);
       tumor.diagnostic.excludedRCTs_uuid = generateUuid();
-      mutation.tumors[generateUuid()] = tumor;
+      mutation.tumors['-tKey'] = tumor;
 
       const reviewLevel = new ReviewLevel({
         titleParts: ['Relevant Cancer Types'],
-        valuePath: 'mutations/0/tumors/0/diagnostic/excludedRCTs',
+        valuePath: 'mutations/-mKey/tumors/-tKey/diagnostic/excludedRCTs',
         historyLocation: 'V600E, Melanoma, Diagnostic, Relevant Cancer Types',
         children: [],
         historyInfo: {},
         currentVal: 'Melanoma Subtype',
         reviewInfo: {
-          reviewPath: 'mutations/0/tumors/0/diagnostic/excludedRCTs_review',
+          reviewPath: 'mutations/-mKey/tumors/-tKey/diagnostic/excludedRCTs_review',
           review: tumor.diagnostic.excludedRCTs_review,
           lastReviewedString: '',
           uuid: tumor.diagnostic.excludedRCTs_uuid,
@@ -745,13 +650,14 @@ describe('Firebase Gene Review Service', () => {
 
       await firebaseGeneReviewService.rejectChanges('BRAF', [reviewLevel], false);
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
+
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
-        'Genes/BRAF/mutations/0/tumors/0/diagnostic/excludedRCTs_review': {
+        'Genes/BRAF/mutations/-mKey/tumors/-tKey/diagnostic/excludedRCTs_review': {
           updateTime: DEFAULT_DATE.getTime(),
           updatedBy: mockAuthStore.fullName,
         },
         // Expect excludedRCTs to be cleared if rejecting initial update
-        'Genes/BRAF/mutations/0/tumors/0/diagnostic/excludedRCTs': null,
+        'Genes/BRAF/mutations/-mKey/tumors/-tKey/diagnostic/excludedRCTs': null,
         [`Meta/BRAF/review/${tumor.diagnostic.excludedRCTs_uuid}`]: null,
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
@@ -766,11 +672,11 @@ describe('Firebase Gene Review Service', () => {
       mutation.name_review.promotedToMutation = true;
       const reviewLevel = new ReviewLevel({
         titleParts: ['V600E, V600K'],
-        valuePath: 'mutations/12/name',
+        valuePath: 'mutations/-mKey/name',
         historyLocation: 'V600E, V600K',
         currentVal: 'V600E, V600K',
         reviewInfo: {
-          reviewPath: 'mutations/0/name_review',
+          reviewPath: 'mutations/-mKey/name_review',
           review: mutation.name_review,
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
@@ -783,8 +689,6 @@ describe('Firebase Gene Review Service', () => {
       });
       await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
 
-      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledTimes(1);
-      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [12]);
       // We expect both alterations (V600E and V600K) to be added to VUS list
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
@@ -798,11 +702,6 @@ describe('Firebase Gene Review Service', () => {
           name: 'V600K',
         },
       });
-
-      // Multi-location updates should happen before deleting from array to ensure that indices are not stale
-      expect(mockFirebaseRepository.update.mock.invocationCallOrder[0]).toBeLessThan(
-        mockFirebaseRepository.deleteFromArray.mock.invocationCallOrder[0],
-      );
     });
   });
 });
