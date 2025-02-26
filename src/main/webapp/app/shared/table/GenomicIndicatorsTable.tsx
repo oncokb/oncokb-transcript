@@ -86,7 +86,7 @@ const GenomicIndicatorsTable = ({
     const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
-        const data = snapshot.val() as GenomicIndicatorList;
+        const data = snapshot.val() as GenomicIndicatorList | null;
         let newGenomicIndicatorKeys = [] as string[];
         if (data) {
           newGenomicIndicatorKeys = typeof data === 'object' ? Object.keys(data) : [];
@@ -97,7 +97,6 @@ const GenomicIndicatorsTable = ({
         }
       }),
     );
-
     fetchGenomicIndicators?.(genomicIndicatorsPath);
 
     return () => {
@@ -110,18 +109,18 @@ const GenomicIndicatorsTable = ({
       Header: 'Name',
       width: 200,
       style: { overflow: 'visible', padding: 0 },
-      Cell(cell: { arrayKey: string }) {
+      Cell(cell: { original: { arrayKey: string } }) {
         return (
           <GenomicIndicatorNameCell
             genomicIndicatorsPath={genomicIndicatorsPath}
-            firebaseArrayKey={cell.arrayKey}
+            firebaseArrayKey={cell.original.arrayKey}
             firebaseDb={firebaseDb!}
             buildCell={genomicIndicators => {
-              const thisCellIndicator = genomicIndicators[index];
+              const thisCellIndicator = genomicIndicators[cell.original.arrayKey];
 
               let isDuplicateName = false;
-              for (let i = 0; i < genomicIndicators.length; i++) {
-                if (i !== index && thisCellIndicator.name === genomicIndicators[i]?.name) {
+              for (const [giKey, gi] of Object.entries(genomicIndicators)) {
+                if (giKey !== cell.original.arrayKey && thisCellIndicator.name === gi?.name) {
                   isDuplicateName = true;
                   break;
                 }
@@ -131,7 +130,7 @@ const GenomicIndicatorsTable = ({
                 <>
                   <RealtimeTextAreaInput
                     style={{ height: '60px', marginBottom: isDuplicateName ? 0 : undefined }}
-                    firebasePath={`${genomicIndicatorsPath}/${cell.arrayKey}/name`}
+                    firebasePath={`${genomicIndicatorsPath}/${cell.original.arrayKey}/name`}
                     label=""
                     disabled={thisCellIndicator.name_review?.removed || readOnly || false}
                     invalid={isDuplicateName}
@@ -148,8 +147,8 @@ const GenomicIndicatorsTable = ({
       Header: 'Allele State',
       style: { overflow: 'visible', padding: 0 },
       width: 200,
-      Cell(cell: { arrayKey: string }) {
-        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.arrayKey}`;
+      Cell(cell: { original: { arrayKey: string } }) {
+        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.original.arrayKey}`;
 
         return (
           <GenomicIndicatorCell
@@ -178,8 +177,8 @@ const GenomicIndicatorsTable = ({
     {
       Header: 'Description',
       style: { overflow: 'visible', padding: 0 },
-      Cell(cell: { arrayKey: string }) {
-        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.arrayKey}`;
+      Cell(cell: { original: { arrayKey: string } }) {
+        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.original.arrayKey}`;
 
         return (
           <GenomicIndicatorCell
@@ -189,7 +188,7 @@ const GenomicIndicatorsTable = ({
               return (
                 <RealtimeTextAreaInput
                   style={{ height: '60px' }}
-                  firebasePath={`${genomicIndicatorsPath}/${cell.arrayKey}/description`}
+                  firebasePath={`${genomicIndicatorsPath}/${cell.original.arrayKey}/description`}
                   label=""
                   disabled={genomicIndicator.name_review?.removed || readOnly || false}
                 />
@@ -202,8 +201,8 @@ const GenomicIndicatorsTable = ({
     {
       Header: 'Association Variants',
       style: { overflow: 'visible', padding: 0 },
-      Cell(cell: { arrayKey: string }) {
-        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.arrayKey}`;
+      Cell(cell: { original: { arrayKey: string } }) {
+        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.original.arrayKey}`;
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
@@ -258,8 +257,8 @@ const GenomicIndicatorsTable = ({
       Header: 'Actions',
       width: 80,
       style: { padding: 0 },
-      Cell(cell: { arrayKey: string }) {
-        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.arrayKey}`;
+      Cell(cell: { original: { arrayKey: string } }) {
+        const genomicIndicatorPath = `${genomicIndicatorsPath}/${cell.original.arrayKey}`;
 
         return (
           <GenomicIndicatorCell
@@ -275,7 +274,7 @@ const GenomicIndicatorsTable = ({
                   disabled={readOnly}
                   sectionName={genomicIndicator.name}
                   deleteHandler={() => {
-                    deleteGenomicIndicator(genomicIndicator, cell.arrayKey);
+                    deleteGenomicIndicator(genomicIndicator, cell.original.arrayKey);
                   }}
                   isRemovableWithoutReview={genomicIndicator.name_review?.added || false}
                 />
@@ -380,7 +379,7 @@ interface IGenomicIndicatorNameCellProps {
   genomicIndicatorsPath: string;
   firebaseArrayKey: string;
   firebaseDb: Database;
-  buildCell: (genomicIndicators: GenomicIndicator[]) => React.ReactNode;
+  buildCell: (genomicIndicators: GenomicIndicatorList) => React.ReactNode;
 }
 
 function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseArrayKey, firebaseDb, buildCell }: IGenomicIndicatorNameCellProps) {
@@ -395,7 +394,7 @@ function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseArrayKey, fir
   }, [genomicIndicatorsPath, firebaseDb]);
 
   function getCell() {
-    if (!genomicIndicators?.[firebaseIndex]) {
+    if (!genomicIndicators?.[firebaseArrayKey]) {
       return <></>;
     }
 
@@ -407,7 +406,7 @@ function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseArrayKey, fir
       style={{
         padding: '7px 5px',
         height: '100%',
-        backgroundColor: genomicIndicators?.[firebaseIndex]?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : undefined,
+        backgroundColor: genomicIndicators?.[firebaseArrayKey]?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : undefined,
       }}
     >
       {getCell()}

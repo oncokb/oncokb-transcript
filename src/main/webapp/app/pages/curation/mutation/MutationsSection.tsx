@@ -8,7 +8,6 @@ import {
   compareMutationsByProteinChangePosition,
   compareMutationsDefault,
   getFirebaseGenePath,
-  getMutationName,
 } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';

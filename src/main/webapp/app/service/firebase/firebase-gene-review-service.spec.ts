@@ -10,7 +10,6 @@ import { SentryError } from 'app/config/sentry-error';
 import { getTumorNameUuid, ReviewLevel, TumorReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
 import { ReviewAction } from 'app/config/constants/firebase';
 import _ from 'lodash';
-import { FIREBASE_LIST_PATH_TYPE } from 'app/shared/util/firebase/firebase-path-utils';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
 import { createMockGene, createMockMutation, createMockTumor } from 'app/shared/util/core-submission-shared/core-submission.mocks';
@@ -527,21 +526,6 @@ describe('Firebase Gene Review Service', () => {
         [`Meta/BRAF/review/${mutation.name_uuid}`]: null,
         [`Meta/BRAF/review/${mutation.summary_uuid}`]: null,
       });
-    });
-  });
-
-  describe('processDeletion', () => {
-    it('should delete items closest to the leaves of the tree first', async () => {
-      await firebaseGeneReviewService.processDeletion(2, {
-        [FIREBASE_LIST_PATH_TYPE.MUTATION_LIST]: { mutations: [0, 1] },
-        [FIREBASE_LIST_PATH_TYPE.TUMOR_LIST]: { 'mutations/3/tumors': [3] },
-        [FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST]: { 'mutations/1/tumors/0/TIs/4/treatment': [0] },
-        [FIREBASE_LIST_PATH_TYPE.GENOMIC_INDICATOR_LIST]: { genomic_indicators: [0, 1] },
-      });
-      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenNthCalledWith(1, 'mutations/1/tumors/0/TIs/4/treatment', [0]);
-      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenNthCalledWith(2, 'mutations/3/tumors', [3]);
-      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenNthCalledWith(3, 'mutations', [0, 1]);
-      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenNthCalledWith(4, 'genomic_indicators', [0, 1]);
     });
   });
 

@@ -94,6 +94,7 @@ import { ModifyTherapyModalStore } from 'app/shared/modal/modify-therapy-modal.s
 import { RelevantCancerTypesModalStore } from 'app/shared/modal/relevant-cancer-types-modal-store';
 import {
   GenomicIndicator,
+  GenomicIndicatorList,
   HistoryList,
   MetaCollection,
   Mutation,
@@ -166,7 +167,7 @@ export interface IRootStore {
   readonly firebaseMetaStore: FirebaseDataStore<MetaCollection>;
   readonly firebaseMutationListStore: FirebaseDataStore<MutationList>;
   readonly firebaseMutationConvertIconStore: FirebaseDataStore<MutationList>;
-  readonly firebaseGenomicIndicatorsStore: FirebaseDataStore<GenomicIndicator[]>;
+  readonly firebaseGenomicIndicatorsStore: FirebaseDataStore<GenomicIndicatorList>;
 
   readonly firebaseRepository: FirebaseRepository;
   /* Firebase services */
@@ -236,7 +237,7 @@ export function createStores(history: History): IRootStore {
   const firebaseMetaStore = new FirebaseDataStore<MetaCollection>(firebaseAppStore);
   const firebaseMutationListStore = new FirebaseDataStore<MutationList>(firebaseAppStore);
   const firebaseMutationConvertIconStore = new FirebaseDataStore<MutationList>(firebaseAppStore);
-  const firebaseGenomicIndicatorsStore = new FirebaseDataStore<GenomicIndicator[]>(firebaseAppStore);
+  const firebaseGenomicIndicatorsStore = new FirebaseDataStore<GenomicIndicatorList>(firebaseAppStore);
 
   rootStore.firebaseAppStore = firebaseAppStore;
   rootStore.firebaseHistoryStore = firebaseHistoryStore;

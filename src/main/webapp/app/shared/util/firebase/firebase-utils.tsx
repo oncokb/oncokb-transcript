@@ -162,8 +162,9 @@ export const getFirebaseMetaGeneReviewPath = (isGermline: boolean | undefined, h
 };
 
 export function getMostRecentComment(comments: CommentList) {
-  let latestComment = comments[0];
-  for (const comment of Object.values(comments)) {
+  const commentsArray = Object.values(comments);
+  let latestComment = commentsArray[0];
+  for (const comment of commentsArray) {
     if (parseInt(comment.date, 10) > parseInt(latestComment.date, 10)) {
       latestComment = comment;
     }

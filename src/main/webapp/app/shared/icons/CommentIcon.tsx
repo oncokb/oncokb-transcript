@@ -80,7 +80,7 @@ const CommentIcon = observer((props: ICommentIconProps) => {
     newComment.userName = getUserFullName(props.account);
 
     try {
-      await props.pushToArray?.(props.path, [newComment]);
+      await props.pushToArray?.(props.path, newComment);
     } catch (error) {
       notifyError(error);
     }

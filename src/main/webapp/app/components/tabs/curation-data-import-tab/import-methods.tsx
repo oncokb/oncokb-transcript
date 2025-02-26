@@ -6,6 +6,7 @@ import { ALLELE_STATE } from 'app/config/constants/firebase';
 import {
   FIREBASE_ONCOGENICITY,
   GenomicIndicator,
+  GenomicIndicatorList,
   Mutation,
   MutationList,
   Review,
@@ -184,8 +185,8 @@ export const saveGenomicIndicator = async (
     return await alleleStateCheck(alleleStates, async () => {
       let status = new DataImportStatus();
       if (giData.exists()) {
-        const genomicIndicators: GenomicIndicator[] = giData.val();
-        if (genomicIndicators.filter(gi => gi.name.toLowerCase() === genomicIndicatorName.toLowerCase()).length > 0) {
+        const genomicIndicators: GenomicIndicatorList = giData.val();
+        if (Object.values(genomicIndicators).filter(gi => gi.name.toLowerCase() === genomicIndicatorName.toLowerCase()).length > 0) {
           status.status = 'error';
           status.message = 'Genomic indicator already exists';
         } else {

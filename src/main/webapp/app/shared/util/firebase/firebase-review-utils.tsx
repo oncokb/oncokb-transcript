@@ -4,6 +4,7 @@ import {
   CancerTypeList,
   Gene,
   GenomicIndicator,
+  GenomicIndicatorList,
   HistoryInfo,
   HistoryRecordState,
   Implication,
@@ -417,9 +418,9 @@ export const findReviewRecursive = (
       if (isIgnoredKey(key)) continue;
 
       if (key === 'genomic_indicators') {
-        const genomicIndicators = value as GenomicIndicator[];
-        genomicIndicators.forEach((gi, index) => {
-          const giPath = joinPathParts(currValuePath, 'genomic_indicators', index.toString());
+        const genomicIndicators = value as GenomicIndicatorList;
+        Object.entries(genomicIndicators).forEach(([giKey, gi]) => {
+          const giPath = joinPathParts(currValuePath, 'genomic_indicators', giKey);
           const nameReview = buildNameReview(gi, giPath, parentReview, uuids, editorReviewMap);
           parentReview.addChild(nameReview);
           findReviewRecursive(gi, giPath, uuids, nameReview, editorReviewMap, drugList);

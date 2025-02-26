@@ -106,7 +106,7 @@ export class Treatment {
   fdaLevel_review?: Review;
   fdaLevel_uuid: string = generateUuid();
   name = '';
-  name_comments?: Comment[] = [];
+  name_comments?: CommentList = {};
   name_review?: Review;
   name_uuid: string = generateUuid();
   propagation: TX_LEVELS = TX_LEVELS.LEVEL_EMPTY;

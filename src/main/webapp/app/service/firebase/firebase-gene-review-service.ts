@@ -6,12 +6,7 @@ import { FirebaseRepository } from 'app/stores/firebase/firebase-repository';
 import _ from 'lodash';
 import { DrugCollection, Gene, Review } from '../../shared/model/firebase/firebase.model';
 import { buildHistoryFromReviews } from '../../shared/util/firebase/firebase-history-utils';
-import {
-  extractArrayPath,
-  FIREBASE_LIST_PATH_TYPE,
-  getFirebasePathType,
-  parseFirebaseGenePath,
-} from '../../shared/util/firebase/firebase-path-utils';
+import { extractArrayPath, parseFirebaseGenePath } from '../../shared/util/firebase/firebase-path-utils';
 import {
   ReviewLevel,
   TumorReviewLevel,

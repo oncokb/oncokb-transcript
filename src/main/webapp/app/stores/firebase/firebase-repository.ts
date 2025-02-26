@@ -27,6 +27,9 @@ export class FirebaseRepository {
 
   update = async (path: string, value: any) => {
     if (this.firebaseAppStore.firebaseDb) {
+      if (value === null && path === '/') {
+        throw new SentryError('Problematic', {});
+      }
       return await update(ref(this.firebaseAppStore.firebaseDb, path), value);
     } else {
       throwMissingFirebaseDBError();
@@ -47,20 +50,27 @@ export class FirebaseRepository {
    * @param value the array item to add
    * @param setValue if true, then changes will be commited to firebase. If false, then an object is returned (useful for multi-location updates)
    */
-  push = async (path: string, value: any, setValue = true) => {
+  push = async (arrayPath: string, value: any, commit = true) => {
     if (this.firebaseAppStore.firebaseDb) {
-      const listRef = ref(this.firebaseAppStore.firebaseDb, path);
+      const listRef = ref(this.firebaseAppStore.firebaseDb, arrayPath);
       const newItemRef = push(listRef);
-      if (setValue) {
+      if (commit) {
         return await set(newItemRef, value);
       }
-      const fullPath = `${path}/${newItemRef.key}`;
+      const fullPath = `${arrayPath}/${newItemRef.key}`;
       return Promise.resolve({ pushUpdateObject: { [fullPath]: value }, pushKey: newItemRef.key });
     } else {
       throwMissingFirebaseDBError();
     }
   };
 
+  /**
+   *
+   * @param arrayPath Path to the array (ie. Genes/BRAF/mutations)
+   * @param arrayKeysToDelete keys of array elements to delete
+   * @param commit if true, the change will be set. If false, then an update object will be returned
+   * @returns update objects for multi-location updates if commit is false, otherwise undefined
+   */
   deleteFromArray = async (arrayPath: string, arrayKeysToDelete: string[], commit = true) => {
     if (this.firebaseAppStore.firebaseDb) {
       const rootRef = ref(this.firebaseAppStore.firebaseDb, '/');
@@ -72,59 +82,15 @@ export class FirebaseRepository {
         {} as Record<string, null>,
       );
       if (commit) {
-        return await set(rootRef, updateObject);
+        if (arrayKeysToDelete.length > 0) {
+          return await update(rootRef, updateObject);
+        }
       }
       return Promise.resolve({ updateObject });
     } else {
       throwMissingFirebaseDBError();
     }
   };
-
-  // pushMultiple = async (path: string, items: unknown[]) => {
-  //   if (this.firebaseAppStore.firebaseDb) {
-  //     const listRef = ref(this.firebaseAppStore.firebaseDb, path);
-  //     const pushUpdates = {};
-  //     items.forEach(item => {
-  //       const postKey = push(listRef).key;
-  //       if (postKey !== null) {
-  //         pushUpdates[postKey] = item;
-  //       }
-  //     });
-  //     return await update(listRef, pushUpdates);
-  //   } else {
-  //     throwMissingFirebaseDBError();
-  //   }
-  // };
-
-  // pushToArray = async (path: string, values: any[]) => {
-  //   if (this.firebaseAppStore.firebaseDb) {
-  //     return await runTransaction(ref(this.firebaseAppStore.firebaseDb, path), (currentData: any[]) => {
-  //       if (!currentData) {
-  //         return values;
-  //       }
-  //       currentData.push(...values);
-  //       return currentData;
-  //     });
-  //   } else {
-  //     throwMissingFirebaseDBError();
-  //   }
-  // };
-
-  // deleteFromArray = async (path: string, indices: number[]) => {
-  //   if (this.firebaseAppStore.firebaseDb) {
-  //     return await runTransaction(ref(this.firebaseAppStore.firebaseDb, path), (currentData: unknown[]) => {
-  //       const newData: unknown[] = [];
-  //       for (let i = 0; currentData !== null && i < currentData.length; i++) {
-  //         if (!indices.includes(i)) {
-  //           newData.push(currentData[i]);
-  //         }
-  //       }
-  //       return newData;
-  //     });
-  //   } else {
-  //     throwMissingFirebaseDBError();
-  //   }
-  // };
 
   getArrayKey = (path?: string) => {
     if (this.firebaseAppStore.firebaseDb) {

@@ -4,7 +4,7 @@ import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import AddButton from '../button/AddButton';
 import { PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
-import { GenomicIndicator, Review } from 'app/shared/model/firebase/firebase.model';
+import { GenomicIndicator, GenomicIndicatorList, Review } from 'app/shared/model/firebase/firebase.model';
 import { onValue, ref } from 'firebase/database';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import classNames from 'classnames';
@@ -20,7 +20,7 @@ function GenomicIndicatorsHeader({
   fetchGenomicIndicators,
   readOnly,
 }: IGenomicIndicatorsHeaderProps) {
-  const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[]>([]);
+  const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicatorList | null>({});
 
   useEffect(() => {
     if (!firebaseDb) {
@@ -34,10 +34,10 @@ function GenomicIndicatorsHeader({
   }, []);
 
   const isEmptyIndicatorName = useMemo(() => {
-    return genomicIndicators?.some(indicator => !indicator.name) || false;
+    return Object.values(genomicIndicators ?? {})?.some(indicator => !indicator.name) || false;
   }, [genomicIndicators]);
 
-  const isGenomicIndicator = genomicIndicators?.length > 0;
+  const isGenomicIndicator = Object.keys(genomicIndicators ?? {})?.length > 0;
 
   function getAddButton() {
     const addButton = (
