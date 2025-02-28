@@ -9,6 +9,10 @@ import { Button, Col, Row } from 'reactstrap';
 import './curation-tools-tab.scss';
 import { MetaCollection } from 'app/shared/model/firebase/firebase.model';
 import SaveGeneButton from 'app/shared/button/SaveGeneButton';
+import { auditClient } from 'app/shared/api/clients';
+import { notifyError, notifyInfo } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { downloadFile } from 'app/shared/util/file-utils';
+import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 
 export interface IGeneListPageToolsTab extends StoreProps {
   metaData: MetaCollection | null;
@@ -41,6 +45,23 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGene
     }
   }
 
+  async function fetchNewlyReleasedGenes() {
+    try {
+      const newGenesResp = await auditClient.getNewlyReleasedGenes();
+      const newGenes = newGenesResp.data;
+      if (newGenes.length === 0) {
+        notifyInfo(
+          'No new genes released. If you believe this is an error, please check if the gene is released. Otherwise, contact developer.',
+        );
+        return;
+      }
+      const fileContent = [`Addition of ${newGenesResp.data.length} new genes`, ...newGenesResp.data].join('\n');
+      downloadFile(`new-gene-releases-${new Date().getTime().toString()}`, fileContent);
+    } catch (error) {
+      notifyError(error, 'Issue fetching newly released gene list');
+    }
+  }
+
   return (
     <>
       <Row>
@@ -65,12 +86,24 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGene
         </Col>
       </Row>
       {!isGermline && isDev && (
-        <Row className="pt-3 border-top">
+        <Row className="pt-3 border-top mb-3">
           <div>
             <SaveGeneButton />
           </div>
         </Row>
       )}
+      <Row>
+        <Col>
+          <DefaultTooltip
+            overlay={'Click this button to download a file containing a list of newly released genes since the last OncoKB data release.'}
+            mouseEnterDelay={0.25}
+          >
+            <Button color="primary" onClick={fetchNewlyReleasedGenes}>
+              Download New Genes List
+            </Button>
+          </DefaultTooltip>
+        </Col>
+      </Row>
     </>
   );
 }

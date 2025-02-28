@@ -22,5 +22,7 @@ public final class Constants {
 
     public static final String DEFAULT_GENE_SYNONMN_SOURCE = "cBioPortal";
 
+    public static final String ONCOKB_PUBLIC_API_URL = "https://www.oncokb.org/api/v1";
+
     private Constants() {}
 }

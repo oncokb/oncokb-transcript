@@ -1,19 +1,41 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import static org.mskcc.oncokb.curation.config.Constants.ONCOKB_PUBLIC_API_URL;
+
+import com.google.cloud.storage.HttpMethod;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.javers.core.Javers;
 import org.javers.core.metamodel.object.CdoSnapshot;
+import org.javers.core.metamodel.object.CdoSnapshotState;
+import org.javers.core.metamodel.object.InstanceId;
 import org.javers.repository.jql.QueryBuilder;
+import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.enumeration.AuditEntity;
+import org.mskcc.oncokb.curation.domain.enumeration.FlagType;
+import org.mskcc.oncokb.curation.service.FlagService;
+import org.mskcc.oncokb.curation.service.OncoKbUrlService;
 import org.mskcc.oncokb.curation.service.dto.EntityAuditEvent;
+import org.oncokb.ApiException;
+import org.oncokb.client.OncoKBInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
@@ -35,6 +58,12 @@ public class AuditResource {
 
     private final Logger log = LoggerFactory.getLogger(AuditResource.class);
     private static final String ENTITY_PACKAGE_PATH = "org.mskcc.oncokb.curation.domain.";
+
+    @Autowired
+    private OncoKbUrlService oncoKbUrlService;
+
+    @Autowired
+    private FlagService flagService;
 
     private final Javers javers;
 
@@ -127,5 +156,40 @@ public class AuditResource {
         } else {
             return new ResponseEntity<>(HttpStatus.OK);
         }
+    }
+
+    /**
+     * Fetches all newly released somatic genes (germline TBD)
+     */
+    @RequestMapping(value = "/audits/entity/genes/newly-released", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<String>> getNewlyReleasedGenes() throws ClassNotFoundException, ApiException {
+        Class geneEntityClass = Class.forName(ENTITY_PACKAGE_PATH + AuditEntity.GENE.getClassName());
+
+        // Get the latest OncoKB date of release
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        LocalDate localDate = LocalDate.parse(oncoKbUrlService.getInfo().getDataVersion().getDate(), formatter);
+
+        // Get the flag id of the somatic flag (germline TBD)
+        Optional<Flag> optionalFlag = flagService.findByTypeAndFlag(FlagType.GENE_PANEL, "ONCOKB_SOMATIC");
+        Long flagId = optionalFlag.orElseThrow().getId();
+
+        QueryBuilder jqlQuery = QueryBuilder.byClass(geneEntityClass).withChangedProperty("flags").from(localDate);
+
+        List<CdoSnapshot> snapshots = javers.findSnapshots(jqlQuery.build());
+
+        // Extract hugoSymbols where flag changes include the target release flag id
+        List<String> hugoSymbols = snapshots
+            .stream()
+            .map(snapshot -> snapshot.getState())
+            .filter(snapshotState -> {
+                Collection<InstanceId> flags = (Collection<InstanceId>) snapshotState.getPropertyValue("flags");
+                return flags != null && flags.stream().anyMatch(flag -> flagId.equals(flag.getCdoId()));
+            })
+            .map(snapshotState -> (String) snapshotState.getPropertyValue("hugoSymbol"))
+            .filter(hugoSymbol -> StringUtils.isNotEmpty(hugoSymbol))
+            .distinct()
+            .collect(Collectors.toList());
+
+        return new ResponseEntity<>(hugoSymbols, HttpStatus.OK);
     }
 }

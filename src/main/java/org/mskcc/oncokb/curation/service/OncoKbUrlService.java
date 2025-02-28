@@ -5,8 +5,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.oncokb.ApiClient;
 import org.oncokb.ApiException;
+import org.oncokb.auth.HttpBearerAuth;
 import org.oncokb.client.Gene;
 import org.oncokb.client.GenesApi;
+import org.oncokb.client.InfoApi;
+import org.oncokb.client.OncoKBInfo;
 import org.springframework.stereotype.Service;
 
 /**
@@ -34,9 +37,9 @@ public class OncoKbUrlService {
                     ? ONCOKB_API_URL
                     : applicationProperties.getOncokb().getUrl()
             );
-            client.setApiKey(applicationProperties.getOncokb().getApiKey());
+            HttpBearerAuth Authorization = (HttpBearerAuth) client.getAuthentication("Authorization");
+            Authorization.setBearerToken(applicationProperties.getOncokb().getApiKey());
         }
-        client.setApiKeyPrefix("Bearer");
 
         this.apiClient = client;
     }
@@ -44,5 +47,15 @@ public class OncoKbUrlService {
     public List<Gene> getGenes() throws ApiException {
         GenesApi genesApi = new GenesApi(this.apiClient);
         return genesApi.genesGetUsingGET(null);
+    }
+
+    public OncoKBInfo getInfo() throws ApiException {
+        InfoApi infoApi = new InfoApi(this.apiClient);
+        try {
+            return infoApi.infoGetUsingGET();
+        } catch (ApiException e) {
+            System.out.println(e.getResponseBody());
+            return null;
+        }
     }
 }
