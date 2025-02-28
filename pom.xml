@@ -358,6 +358,9 @@
             <artifactId>javers-spring-boot-starter-sql</artifactId>
             <version>${javers.version}</version>
         </dependency>
+        <!-- This is a dependency of oncokb-java-api-client, but we
+        still error indicating package is not found. We can delete this if
+        we are able to resolve the dependency issue -->
         <dependency>
             <groupId>com.squareup.okio</groupId>
             <artifactId>okio</artifactId>

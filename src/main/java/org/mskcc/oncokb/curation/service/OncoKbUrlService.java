@@ -51,11 +51,6 @@ public class OncoKbUrlService {
 
     public OncoKBInfo getInfo() throws ApiException {
         InfoApi infoApi = new InfoApi(this.apiClient);
-        try {
-            return infoApi.infoGetUsingGET();
-        } catch (ApiException e) {
-            System.out.println(e.getResponseBody());
-            return null;
-        }
+        return infoApi.infoGetUsingGET();
     }
 }
