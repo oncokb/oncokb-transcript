@@ -485,7 +485,7 @@ describe('Firebase Review Utils', () => {
         uuids.push(gene.background_uuid);
 
         mutation = new Mutation('V600E');
-        gene.mutations[generateUuid()] = mutation;
+        gene.mutations['-mKey'] = mutation;
         mutation.name_uuid = MUTATION_UUID;
         mutation.mutation_effect.description = 'new description';
         mutation.mutation_effect.description_review = new Review('User2', 'old description');
@@ -531,7 +531,7 @@ describe('Firebase Review Utils', () => {
             {
               reviewLevelType: 0,
               titleParts: ['V600E'],
-              valuePath: 'mutations/0',
+              valuePath: 'mutations/-mKey',
               historyLocation: 'V600E',
               historyInfo: {
                 mutation: {
@@ -546,7 +546,7 @@ describe('Firebase Review Utils', () => {
                 {
                   reviewLevelType: 0,
                   titleParts: ['Mutation Effect'],
-                  valuePath: 'mutations/0/mutation_effect',
+                  valuePath: 'mutations/-mKey/mutation_effect',
                   historyLocation: 'V600E, Mutation Effect',
                   historyInfo: {
                     mutation: {
@@ -562,7 +562,7 @@ describe('Firebase Review Utils', () => {
                     {
                       reviewLevelType: 1,
                       titleParts: ['Description'],
-                      valuePath: 'mutations/0/mutation_effect/description',
+                      valuePath: 'mutations/-mKey/mutation_effect/description',
                       historyLocation: 'V600E, Mutation Effect, Description',
                       historyInfo: {
                         mutation: {
@@ -577,7 +577,7 @@ describe('Firebase Review Utils', () => {
                       children: [],
                       currentVal: 'new description',
                       reviewInfo: {
-                        reviewPath: 'mutations/0/mutation_effect/description_review',
+                        reviewPath: 'mutations/-mKey/mutation_effect/description_review',
                         review: mutation.mutation_effect.description_review,
                         lastReviewedString: 'old description',
                         uuid: mutation.mutation_effect.description_uuid,
