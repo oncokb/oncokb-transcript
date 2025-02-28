@@ -8227,6 +8227,33 @@ export const AuditResourceApiAxiosParamCreator = function (configuration?: Confi
     },
     /**
      *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getNewlyReleasedGenes: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/audits/entity/genes/newly-released`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {string} entityType
      * @param {number} entityId
      * @param {number} commitId
@@ -8318,6 +8345,17 @@ export const AuditResourceApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getNewlyReleasedGenes(
+      options?: AxiosRequestConfig,
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getNewlyReleasedGenes(options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {string} entityType
      * @param {number} entityId
      * @param {number} commitId
@@ -8369,6 +8407,14 @@ export const AuditResourceApiFactory = function (configuration?: Configuration, 
     },
     /**
      *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getNewlyReleasedGenes(options?: AxiosRequestConfig): AxiosPromise<Array<string>> {
+      return localVarFp.getNewlyReleasedGenes(options).then(request => request(axios, basePath));
+    },
+    /**
+     *
      * @param {string} entityType
      * @param {number} entityId
      * @param {number} commitId
@@ -8412,6 +8458,12 @@ export class AuditResourceApi extends BaseAPI {
   public getChanges(entityType: string, limit: number, queryParams: MultiValueMapStringString, options?: AxiosRequestConfig) {
     return AuditResourceApiFp(this.configuration)
       .getChanges(entityType, limit, queryParams, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  public getNewlyReleasedGenes(options?: AxiosRequestConfig) {
+    return AuditResourceApiFp(this.configuration)
+      .getNewlyReleasedGenes(options)
       .then(request => request(this.axios, this.basePath));
   }
 

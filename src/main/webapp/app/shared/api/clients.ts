@@ -10,6 +10,7 @@ import {
   AssociationResourceApi,
   CancerTypeResourceApi,
   ArticleResourceApi,
+  AuditResourceApi,
 } from './generated/curation/api';
 import { DriveAnnotationApi } from './manual/drive-annotation-api';
 import { EvidenceApi } from './manual/evidence-api';
@@ -26,6 +27,7 @@ export const flagClient = new FlagResourceApi(undefined, '', axiosInstance);
 export const associationClient = new AssociationResourceApi(undefined, '', axiosInstance);
 export const cancerTypeClient = new CancerTypeResourceApi(undefined, '', axiosInstance);
 export const articleClient = new ArticleResourceApi(undefined, '', axiosInstance);
+export const auditClient = new AuditResourceApi(undefined, '', axiosInstance);
 
 // The following are oncokb-core clients
 export const evidenceClient = new EvidenceApi(undefined, '', axiosInstance);
