@@ -28,7 +28,7 @@ describe('useLastReviewedOnly', () => {
       {
         summary: 'XXXXXXXXXXX',
         mutations: {
-          [generateUuid()]: {
+          '-mKey': {
             name_uuid: '37a65ce9-1165-487a-be98-6975805d7e0f',
             name_review: {
               added: true,
@@ -46,12 +46,12 @@ describe('useLastReviewedOnly', () => {
       {
         summary: 'XXXXXXXXXXX',
         mutations: {
-          [generateUuid()]: {
+          '-mKey': {
             name: 'created cancer type test',
             tumors: {
-              [generateUuid()]: {
+              '-tKey': {
                 cancerTypes: {
-                  [generateUuid()]: {
+                  '-ctKey': {
                     code: 'b2f013d0-608c-43a1-abdf-cba892b1f523',
                   },
                 },
@@ -64,7 +64,7 @@ describe('useLastReviewedOnly', () => {
       {
         summary: 'XXXXXXXXXXX',
         mutations: {
-          [generateUuid()]: {
+          '-mKey': {
             name: 'created cancer type test',
             tumors: {},
           },
@@ -75,14 +75,14 @@ describe('useLastReviewedOnly', () => {
       {
         summary: 'XXXXXXXXXXX',
         mutations: {
-          [generateUuid()]: {
+          '-mKey': {
             tumors: {
-              [generateUuid()]: {
+              '-tKey': {
                 TIs: [
                   {
                     name: 'created treatment test',
                     treatments: {
-                      [generateUuid()]: {
+                      '-txKey': {
                         name: 'test',
                         name_review: { added: true },
                       },
@@ -97,9 +97,9 @@ describe('useLastReviewedOnly', () => {
       {
         summary: 'XXXXXXXXXXX',
         mutations: {
-          [generateUuid()]: {
+          '-mKey': {
             tumors: {
-              [generateUuid()]: {
+              '-tKey': {
                 TIs: [
                   {
                     name: 'created treatment test',
@@ -153,14 +153,14 @@ describe('useLastReviewedOnly', () => {
     [
       {
         mutations: {
-          [generateUuid()]: {
+          '-mKey1': {
             name: 'mutation name',
             name_review: {
               updateTime: 0,
               updatedBy: 'Test User',
             },
           },
-          [generateUuid()]: {
+          '-mKey2': {
             name: 'mutation name',
             name_review: {
               lastReviewed: 'new mutation name',
@@ -168,28 +168,28 @@ describe('useLastReviewedOnly', () => {
               updatedBy: 'Test User',
             },
           },
-          [generateUuid()]: {
+          '-mKey3': {
             name: 'mutation name2',
           },
         },
       },
       {
         mutations: {
-          [generateUuid()]: {
+          '-mKey1': {
             name: 'mutation name',
             name_review: {
               updateTime: 0,
               updatedBy: 'Test User',
             },
           },
-          [generateUuid()]: {
+          '-mKey2': {
             name: 'new mutation name',
             name_review: {
               updateTime: 0,
               updatedBy: 'Test User',
             },
           },
-          [generateUuid()]: {
+          '-mKey3': {
             name: 'mutation name2',
           },
         },
