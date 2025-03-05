@@ -20,7 +20,14 @@ export class FirebaseVusService {
     const newVusList = variants.map(variant => {
       return new Vus(variant, this.authStore.account.email, this.authStore.fullName);
     });
-    await this.firebaseRepository.pushMultiple(path, newVusList);
+    let updateObject = {};
+    for (const vus of newVusList) {
+      const pushResult = await this.firebaseRepository.push(path, vus, false);
+      if (pushResult !== undefined) {
+        updateObject = { ...updateObject, ...pushResult.pushUpdateObject };
+      }
+    }
+    await this.firebaseRepository.update('/', updateObject);
   };
 
   getVusUpdateObject = (path: string, variants: string[]) => {

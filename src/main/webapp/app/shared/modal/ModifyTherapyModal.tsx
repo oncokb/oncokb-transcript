@@ -11,7 +11,7 @@ import { Button } from 'reactstrap';
 import { generateUuid } from '../util/utils';
 import { parseNcitUniqId } from '../select/NcitCodeSelect';
 import _ from 'lodash';
-import { Treatment, Tumor } from '../model/firebase/firebase.model';
+import { Treatment, TreatmentList, Tumor } from '../model/firebase/firebase.model';
 import { Unsubscribe, onValue, ref } from 'firebase/database';
 import {
   DUPLICATE_THERAPY_ERROR_MESSAGE,
@@ -66,7 +66,7 @@ const ModifyTherapyModalContent = observer(
     modifyTherapyModalStore,
     firebaseDb,
   }: IModifyTherapyModalProps) => {
-    const [currentTreatments, setCurrentTreatments] = useState<Treatment[]>([]);
+    const [currentTreatments, setCurrentTreatments] = useState<TreatmentList>({});
     const [treatmentToEdit, setTreatmentToEdit] = useState<Treatment | null>(null);
     const [isConfirmPending, setIsConfirmPending] = useState(false);
 
@@ -111,7 +111,7 @@ const ModifyTherapyModalContent = observer(
       }
       therapyToAdd.sort();
 
-      return currentTreatments.some(treatment => {
+      return Object.values(currentTreatments).some(treatment => {
         if (modifyTherapyModalStore?.openTreatmentUuid === treatment.name_uuid) {
           return false;
         }
@@ -192,13 +192,13 @@ const ModifyTherapyModalContent = observer(
       callbacks.push(
         onValue(ref(firebaseDb, cancerTypePath), snapshot => {
           const cancerType = snapshot.val() as Tumor;
-          const currentTreatmentsForCancerType = cancerType.TIs.reduce((accumulator: Treatment[], ti) => {
+          const currentTreatmentsForCancerType = cancerType.TIs.reduce((accumulator: TreatmentList, ti) => {
             if (!ti.treatments) {
               return accumulator;
             }
 
-            return accumulator.concat(ti.treatments);
-          }, []);
+            return { ...accumulator, ...ti.treatments }; // Merge objects instead of concatenating arrays
+          }, {});
           setCurrentTreatments(currentTreatmentsForCancerType);
         }),
       );

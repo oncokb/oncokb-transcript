@@ -56,7 +56,7 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
   const alterations = useMemo(() => {
     const alts = new Set<string>();
 
-    const mutationList = mutations ? [...mutations] : [];
+    const mutationList = mutations ? Object.values(mutations) : [];
     mutationList.sort(compareMutationsDefault);
     for (const mutation of mutationList) {
       for (const alteration of mutation.alterations || []) {

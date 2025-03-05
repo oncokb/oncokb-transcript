@@ -2,8 +2,7 @@ import { faExchangeAlt } from '@fortawesome/free-solid-svg-icons';
 import React, { useEffect, useState } from 'react';
 import ActionIcon, { IActionIcon } from './ActionIcon';
 import { PRIMARY } from 'app/config/colors';
-import { Mutation, Review } from '../model/firebase/firebase.model';
-import { onValue, ref } from 'firebase/database';
+import { Review } from '../model/firebase/firebase.model';
 import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
@@ -32,8 +31,8 @@ const MutationConvertIcon = ({
       const newMutationName = parseAlterationName(mutationName)[0]
         .alteration.split(',')
         .map(alteration => alteration.trim());
-      const exists = mutationList
-        ?.filter(mutation => mutation.name !== mutationName)
+      const exists = Object.values(mutationList ?? {})
+        .filter(mutation => mutation.name !== mutationName)
         .some(
           mutation =>
             parseAlterationName(mutation?.name ?? '')[0]

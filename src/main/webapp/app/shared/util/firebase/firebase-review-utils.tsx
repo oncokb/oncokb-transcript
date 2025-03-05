@@ -1,15 +1,20 @@
 import {
+  AssociationVariantList,
   CancerType,
+  CancerTypeList,
   Gene,
   GenomicIndicator,
+  GenomicIndicatorList,
   HistoryInfo,
   HistoryRecordState,
   Implication,
   Mutation,
+  MutationList,
   Review,
   TI,
   Treatment,
   Tumor,
+  TumorList,
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
 import { generateUuid, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
@@ -17,8 +22,7 @@ import { areCancerTypeArraysEqual, getMutationName, getTxName } from './firebase
 import { FB_COLLECTION, READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { makeFirebaseKeysReadable } from './firebase-history-utils';
-import { ItemsToDeleteMap } from 'app/service/firebase/firebase-gene-review-service';
-import { extractArrayPath, getFirebasePathType } from './firebase-path-utils';
+import { extractArrayPath } from './firebase-path-utils';
 
 export enum ReviewSectionTitlePrefix {
   CANCER_TYPE = 'Cancer Type',
@@ -414,9 +418,9 @@ export const findReviewRecursive = (
       if (isIgnoredKey(key)) continue;
 
       if (key === 'genomic_indicators') {
-        const genomicIndicators = value as GenomicIndicator[];
-        genomicIndicators.forEach((gi, index) => {
-          const giPath = joinPathParts(currValuePath, 'genomic_indicators', index.toString());
+        const genomicIndicators = value as GenomicIndicatorList;
+        Object.entries(genomicIndicators).forEach(([giKey, gi]) => {
+          const giPath = joinPathParts(currValuePath, 'genomic_indicators', giKey);
           const nameReview = buildNameReview(gi, giPath, parentReview, uuids, editorReviewMap);
           parentReview.addChild(nameReview);
           findReviewRecursive(gi, giPath, uuids, nameReview, editorReviewMap, drugList);
@@ -426,9 +430,9 @@ export const findReviewRecursive = (
       }
 
       if (key === 'mutations') {
-        const mutations = value as Mutation[];
-        mutations.forEach((mutation, index) => {
-          const mutationPath = joinPathParts(currValuePath, 'mutations', index.toString());
+        const mutations = value as MutationList;
+        Object.entries(mutations ?? {}).forEach(([mutationKey, mutation]) => {
+          const mutationPath = joinPathParts(currValuePath, 'mutations', mutationKey);
           const nameReview = buildNameReview(mutation, mutationPath, parentReview, uuids, editorReviewMap);
           parentReview.addChild(nameReview);
           findReviewRecursive(mutation, mutationPath, uuids, nameReview, editorReviewMap, drugList);
@@ -438,9 +442,9 @@ export const findReviewRecursive = (
       }
 
       if (key === 'tumors') {
-        const tumors = value as Tumor[];
-        tumors.forEach((tumor, index) => {
-          const tumorPath = joinPathParts(currValuePath, 'tumors', index.toString());
+        const tumors = value as TumorList;
+        Object.entries(tumors ?? {}).forEach(([tumorKey, tumor]) => {
+          const tumorPath = joinPathParts(currValuePath, 'tumors', tumorKey);
           const cancerTypeNameReview = buildCancerTypeNameReview(tumor, tumorPath, parentReview, uuids, editorReviewMap);
           parentReview.addChild(cancerTypeNameReview);
           findReviewRecursive(tumor, tumorPath, uuids, cancerTypeNameReview, editorReviewMap, drugList);
@@ -453,8 +457,8 @@ export const findReviewRecursive = (
         const TIs = value as TI[];
         for (const [tiIndex, ti] of TIs.entries()) {
           if (!ti.treatments) continue;
-          for (const [treatmentIndex, treatment] of ti.treatments.entries()) {
-            const treatmentPath = joinPathParts(currValuePath, 'TIs', tiIndex.toString(), 'treatments', treatmentIndex.toString());
+          for (const [treatmentKey, treatment] of Object.entries(ti.treatments)) {
+            const treatmentPath = joinPathParts(currValuePath, 'TIs', tiIndex.toString(), 'treatments', treatmentKey);
             const treatmentNameReview = buildNameReview(treatment, treatmentPath, parentReview, uuids, editorReviewMap, drugList);
             parentReview.addChild(treatmentNameReview);
             const rctReview = buildRCTReview(treatment, treatmentPath, uuids, treatmentNameReview, editorReviewMap);
@@ -620,7 +624,11 @@ export const buildCancerTypeNameReview = (
   const excludedCancerTypesPath = [currValuePath, 'excludedCancerTypes'].join('/');
   const title = makeFirebaseKeysReadable([nameKey])[0];
 
-  const readableName = getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor?.excludedCancerTypes || [], true);
+  const readableName = getCancerTypesNameWithExclusion(
+    Object.values(tumor.cancerTypes),
+    Object.values(tumor?.excludedCancerTypes ?? []),
+    true,
+  );
 
   const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
   historyInfo.cancerType = {
@@ -655,10 +663,11 @@ export const buildCancerTypeNameReview = (
   } else if (cancerTypesReview?.lastReviewed || excludedCTReview?.lastReviewed || excludedCTReview?.initialUpdate) {
     nameUpdated = true;
     oldState = oldTumorName = getCancerTypesNameWithExclusion(
-      (cancerTypesReview?.lastReviewed as CancerType[] | undefined) || tumor.cancerTypes,
+      Object.values((cancerTypesReview?.lastReviewed as CancerTypeList | undefined) ?? {}) || Object.values(tumor.cancerTypes ?? {}),
       excludedCTReview?.initialUpdate
         ? []
-        : (excludedCTReview?.lastReviewed as CancerType[] | undefined) || tumor.excludedCancerTypes || [],
+        : Object.values((excludedCTReview?.lastReviewed as CancerTypeList | undefined) ?? {}) ||
+            Object.values(tumor.excludedCancerTypes ?? {}),
       true,
     );
     newState = newTumorName;
@@ -683,7 +692,7 @@ export const buildCancerTypeNameReview = (
       newState,
     },
     historyInfo,
-    currentExcludedCancerTypes: tumor.excludedCancerTypes,
+    currentExcludedCancerTypes: Object.values(tumor.excludedCancerTypes ?? []),
     excludedCancerTypesReviewInfo: {
       reviewPath: `${excludedCancerTypesPath}_review`,
       review: excludedCTReview!,
@@ -719,8 +728,13 @@ export const buildStringReview = (
   let lastReviewedString: string;
   let currentString: string;
   if (fieldKey === 'associationVariants') {
-    lastReviewedString = (((obj[reviewKey] as Review).lastReviewed as any[]) || []).map(variant => variant.name).join(', ');
-    currentString = (obj as GenomicIndicator).associationVariants?.map(variant => variant.name).join(', ') ?? '';
+    lastReviewedString = Object.values(((obj[reviewKey] as Review).lastReviewed as AssociationVariantList) || {})
+      .map(variant => variant.name)
+      .join(', ');
+    currentString =
+      Object.values((obj as GenomicIndicator).associationVariants ?? {})
+        .map(variant => variant.name)
+        .join(', ') ?? '';
   } else {
     lastReviewedString = (obj[reviewKey] as Review).lastReviewed as string;
     currentString = obj[fieldKey] as string;
@@ -803,10 +817,12 @@ export const buildRCTReview = (
   const isInitialUpdate = implication.excludedRCTs_review?.initialUpdate || false;
   const hasLastReviewed = !!implication.excludedRCTs_review?.lastReviewed;
 
-  const newRCTString = implication.excludedRCTs ? getCancerTypesName(implication.excludedRCTs, true, '\t') : '';
+  const newRCTString = implication.excludedRCTs ? getCancerTypesName(Object.values(implication.excludedRCTs), true, '\t') : '';
   let oldRCTString = '';
   if (hasLastReviewed) {
-    oldRCTString = getCancerTypesName(implication.excludedRCTs_review?.lastReviewed as CancerType[], true, '\t');
+    const lastReviewedCancerTypeList = implication.excludedRCTs_review?.lastReviewed as CancerTypeList;
+    const lastReviewCancerTypeArray = Object.values(lastReviewedCancerTypeList);
+    oldRCTString = getCancerTypesName(lastReviewCancerTypeArray, true, '\t');
   }
 
   if (isInitialUpdate || hasLastReviewed) {
@@ -896,7 +912,7 @@ export const getUpdatedReview = (
   if (oldReview !== null && oldReview !== undefined && !('lastReviewed' in oldReview)) {
     if (isCancerType) {
       // When just the cancer types ordering is changed, then a review should not be triggered.
-      shouldSetLastReviewed = currentValue && !areCancerTypeArraysEqual(currentValue, newValue);
+      shouldSetLastReviewed = currentValue && !areCancerTypeArraysEqual(Object.values(currentValue ?? {}), Object.values(newValue ?? {}));
     }
     if (shouldSetLastReviewed) {
       oldReview.lastReviewed = currentValue;
@@ -912,7 +928,7 @@ export const getUpdatedReview = (
   } else if (oldReview !== null && oldReview !== undefined && _.isEqual(oldReview.lastReviewed, newValue)) {
     isChangeReverted = true;
   } else if (isCancerType && oldReview !== null && oldReview !== undefined) {
-    isChangeReverted = areCancerTypeArraysEqual(oldReview.lastReviewed as CancerType[], newValue);
+    isChangeReverted = areCancerTypeArraysEqual(Object.values(oldReview.lastReviewed ?? {}), Object.values(newValue ?? {}));
   }
 
   if (oldReview !== null && oldReview !== undefined && isChangeReverted && !oldReview.added) {
@@ -963,13 +979,8 @@ export const getTumorNameUuid = (cancerTypesUuid: string, excludedCancerTypesUui
   return `${cancerTypesUuid}, ${excludedCancerTypesUuid}`;
 };
 
-export const updateItemsToDeleteMap = (itemsToDelete: ItemsToDeleteMap, reviewLevel: BaseReviewLevel, geneFirebasePath: string) => {
-  const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
-  const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
-  const firebasePathType = getFirebasePathType(firebaseArrayPath + '/' + deleteIndex);
-  if (firebasePathType !== undefined) {
-    const innerMap = itemsToDelete[firebasePathType];
-    innerMap[firebasePath] ? innerMap[firebasePath].push(deleteIndex) : (innerMap[firebasePath] = [deleteIndex]);
-  }
-  return itemsToDelete;
+export const getFirebaseArrayPathFromReviewLevel = (reviewLevel: BaseReviewLevel, geneFirebasePath: string) => {
+  const { firebaseArrayPath, deleteArrayKey } = extractArrayPath(reviewLevel.valuePath);
+  const fullFirebaseArrayPath = geneFirebasePath + '/' + firebaseArrayPath;
+  return { fullFirebaseArrayPath, deleteArrayKey };
 };

@@ -15,7 +15,14 @@ export interface IRCTButtonProps extends StoreProps {
   relevantCancerTypesInfoPath: string; // path to dx, px, or tx
 }
 
-function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, relevantCancerTypesModalStore, readOnly }: IRCTButtonProps) {
+function RCTButton({
+  cancerTypePath,
+  relevantCancerTypesInfoPath,
+  firebaseDb,
+  relevantCancerTypesModalStore,
+  readOnly,
+  getArrayKey,
+}: IRCTButtonProps) {
   const [cancerType, setCancerType] = useState<Tumor>();
   const [relevantCancerTypesInfo, setRelevantCancerTypesInfo] = useState<Implication | Treatment>();
 
@@ -51,7 +58,7 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
   let overlayText: string = '';
   if (cancerType && relevantCancerTypesInfo) {
     const cancerTypeContainsSpecialCancerType = Object.values(SPECIAL_CANCER_TYPES).some(specialCancerType =>
-      cancerType.cancerTypes.some(ct => ct.mainType === (specialCancerType as string)),
+      Object.values(cancerType.cancerTypes).some(ct => ct.mainType === (specialCancerType as string)),
     );
     if (cancerTypeContainsSpecialCancerType) {
       overlayText = 'This cancer type contains too many RCTs. Please modify the excluding cancer types instead.';
@@ -88,10 +95,11 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
   );
 }
 
-const mapStoreToProps = ({ firebaseAppStore, relevantCancerTypesModalStore, curationPageStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, relevantCancerTypesModalStore, curationPageStore, firebaseRepository }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   relevantCancerTypesModalStore,
   readOnly: curationPageStore.readOnly,
+  getArrayKey: firebaseRepository.getArrayKey,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

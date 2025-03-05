@@ -3,7 +3,6 @@ import { ALLELE_STATE, GENE_TYPE, READABLE_FIELD } from 'app/config/constants/fi
 import { AlterationTypeEnum, Gene as OncoKBGene } from 'app/shared/api/generated/curation';
 import { generateUuid } from 'app/shared/util/utils';
 import _ from 'lodash';
-import { ICancerType } from '../cancer-type.model';
 
 export type MetaCollection = {
   [hugoSymbol: string]: Meta;
@@ -11,8 +10,9 @@ export type MetaCollection = {
   collaborators?: MetaCollaborators;
 };
 
+export type MetaCollaboratorsGeneList = Record<string, string>;
 export type MetaCollaborators = {
-  [name: string]: string[];
+  [name: string]: MetaCollaboratorsGeneList;
 };
 
 export type DrugCollection = {
@@ -106,7 +106,7 @@ export class Treatment {
   fdaLevel_review?: Review;
   fdaLevel_uuid: string = generateUuid();
   name = '';
-  name_comments?: Comment[] = [];
+  name_comments?: CommentList = {};
   name_review?: Review;
   name_uuid: string = generateUuid();
   propagation: TX_LEVELS = TX_LEVELS.LEVEL_EMPTY;
@@ -114,7 +114,7 @@ export class Treatment {
   propagationLiquid_uuid: string = generateUuid();
   propagation_review?: Review;
   propagation_uuid: string = generateUuid();
-  excludedRCTs?: CancerType[] = [];
+  excludedRCTs?: CancerTypeList = {};
   excludedRCTs_review?: Review;
   excludedRCTs_uuid?: string = generateUuid();
   short = '';
@@ -124,6 +124,16 @@ export class Treatment {
   }
 }
 
+export type AssociationVariant = {
+  name: string;
+  uuid: string;
+};
+
+export type AssociationVariantList = {
+  [key: string]: AssociationVariant;
+};
+
+export type GenomicIndicatorList = Record<string, GenomicIndicator>;
 export class GenomicIndicator {
   name = '';
   name_uuid: string = generateUuid();
@@ -132,7 +142,7 @@ export class GenomicIndicator {
   description = '';
   description_uuid = generateUuid();
   description_review?: Review;
-  associationVariants?: { name: string; uuid: string }[] = [];
+  associationVariants?: AssociationVariantList = {};
   associationVariants_uuid: string = generateUuid();
   associationVariants_review?: Review;
 }
@@ -151,36 +161,38 @@ export class AlleleState {
   carrier_uuid = generateUuid();
   carrier_review?: Review;
 }
+
+export type MutationList = Record<string, Mutation>;
 export class Gene {
   name = '';
-  name_comments?: Comment[] = [];
+  name_comments?: CommentList = {};
   background = '';
   background_review?: Review;
   background_uuid: string = generateUuid();
-  background_comments?: Comment[] = [];
+  background_comments?: CommentList = {};
   dmp_refseq_id = '';
   isoform_override = '';
-  mutations: Mutation[] = [];
+  mutations: MutationList = {};
   mutations_uuid: string = generateUuid();
   summary = '';
   summary_review?: Review;
   summary_uuid: string = generateUuid();
-  summary_comments?: Comment[] = [];
+  summary_comments?: CommentList = {};
   penetrance?: PENETRANCE | '' = '';
   penetrance_review?: Review;
   penetrance_uuid? = generateUuid();
-  penetrance_comments?: Comment[] = [];
+  penetrance_comments?: CommentList = {};
   inheritanceMechanism: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
   inheritanceMechanism_review?: Review;
   inheritanceMechanism_uuid: string = generateUuid();
-  inheritanceMechanism_comments?: Comment[] = [];
+  inheritanceMechanism_comments?: CommentList = {};
   type: GeneType = new GeneType();
   type_uuid: string = generateUuid();
   dmp_refseq_id_grch38 = '';
   isoform_override_grch38 = '';
 
   // Germline
-  genomic_indicators: GenomicIndicator[] = [];
+  genomic_indicators: GenomicIndicatorList = {};
 
   constructor(name: string) {
     this.name = name;
@@ -211,18 +223,19 @@ export class Alteration {
   genes: OncoKBGene[] = [];
 }
 
+export type TumorList = Record<string, Tumor>;
 export class Mutation {
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
-  mutation_effect_comments?: Comment[] = []; // used for somatic
+  mutation_effect_comments?: CommentList = {}; // used for somatic
   name: string = '';
-  name_comments?: Comment[] = [];
+  name_comments?: CommentList = {};
   name_review?: Review;
   alterations?: Alteration[] = [];
   alterations_uuid?: string = generateUuid();
   alterations_review?: Review;
   name_uuid: string = generateUuid();
-  tumors: Tumor[] = [];
+  tumors: TumorList = {};
   tumors_uuid: string = generateUuid();
   summary = '';
   summary_review?: Review;
@@ -286,25 +299,26 @@ export class CancerRisk {
   mosaic_uuid: string = generateUuid();
 }
 
+export type CancerTypeList = Record<string, CancerType>;
 export class Tumor {
   // We should remove this in future
   TIs: TI[] = [new TI(TI_TYPE.SS), new TI(TI_TYPE.SR), new TI(TI_TYPE.IS), new TI(TI_TYPE.IR)];
-  cancerTypes: CancerType[] = [];
+  cancerTypes: CancerTypeList = {};
   cancerTypes_review?: Review;
   cancerTypes_uuid: string = generateUuid();
-  cancerTypes_comments?: Comment[] = [];
-  excludedCancerTypes?: CancerType[] = [];
+  cancerTypes_comments?: CommentList = {};
+  excludedCancerTypes?: CancerTypeList = {};
   excludedCancerTypes_review?: Review;
   excludedCancerTypes_uuid?: string = generateUuid();
   diagnostic: Implication = new Implication();
   diagnosticSummary = '';
   diagnosticSummary_uuid: string = generateUuid();
-  diagnostic_comments?: Comment[] = [];
+  diagnostic_comments?: CommentList = {};
   diagnostic_uuid: string = generateUuid();
   prognostic: Implication = new Implication();
   prognosticSummary = '';
   prognosticSummary_uuid: string = generateUuid();
-  prognostic_comments?: Comment[] = [];
+  prognostic_comments?: CommentList = {};
   prognostic_uuid: string = generateUuid();
   summary = '';
   summary_review?: Review;
@@ -313,10 +327,11 @@ export class Tumor {
   prognosticSummary_review?: Review;
 }
 
+export type TreatmentList = Record<string, Treatment>;
 export class TI {
   name = '';
   name_uuid: string = generateUuid();
-  treatments: Treatment[] = [];
+  treatments: TreatmentList = {};
   treatments_uuid: string = generateUuid();
   type?: TI_TYPE;
 
@@ -333,7 +348,7 @@ export class Implication {
   level: DX_LEVELS | PX_LEVELS | '' = '';
   level_review?: Review;
   level_uuid: string = generateUuid();
-  excludedRCTs?: CancerType[] = [];
+  excludedRCTs?: CancerTypeList = {};
   excludedRCTs_review?: Review;
   excludedRCTs_uuid?: string = generateUuid();
   short = '';
@@ -365,7 +380,7 @@ export class Drug {
 
 export class Vus {
   name = '';
-  name_comments?: Comment[] = [];
+  name_comments?: CommentList = {};
   time: VusTime;
 
   constructor(vusName: string, email: string, editorName: string) {
@@ -407,6 +422,7 @@ export class MetaReview {
   [key: string]: string | boolean;
 }
 
+export type CommentList = Record<string, Comment>;
 export class Comment {
   date: string = new Date().getTime().toString();
   userName = '';
@@ -418,7 +434,7 @@ export class Comment {
 export class Review {
   updateTime: number;
   updatedBy = '';
-  lastReviewed?: string | ICancerType[] | CancerType[];
+  lastReviewed?: string | CancerTypeList;
   demotedToVus?: boolean;
   promotedToMutation?: boolean;
   // These three properties should not coexist
@@ -426,13 +442,7 @@ export class Review {
   removed?: boolean;
   initialUpdate?: boolean; // Used for excludedRCTs review
 
-  constructor(
-    updatedBy: string,
-    lastReviewed?: string | ICancerType[] | CancerType[],
-    added?: boolean,
-    removed?: boolean,
-    initialUpdate?: boolean,
-  ) {
+  constructor(updatedBy: string, lastReviewed?: string | CancerTypeList, added?: boolean, removed?: boolean, initialUpdate?: boolean) {
     this.updatedBy = updatedBy;
     this.updateTime = new Date().getTime();
     if (!_.isNil(lastReviewed)) {

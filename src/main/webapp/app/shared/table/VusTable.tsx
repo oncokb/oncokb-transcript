@@ -56,12 +56,11 @@ const VusTable = ({
   hugoSymbol,
   mutationsSectionRef,
   isGermline,
-  account,
   sendVusToCore,
   addVus,
   refreshVus,
   deleteVus,
-  setOpenMutationCollapsibleIndex,
+  setOpenMutationCollapsibleListKey,
   readOnly,
 }: IVusTableProps) => {
   const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
@@ -293,19 +292,24 @@ const VusTable = ({
         <AddMutationModal
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
-          onConfirm={async (newMutation, newMutationFirebaseIndex) => {
+          onConfirm={async newMutation => {
             try {
-              const aggregateComments = getAllCommentsString(vusToPromote.name_comments || []);
+              const aggregateComments = getAllCommentsString(vusToPromote.name_comments || {});
               handleDelete();
-              return await addMutation?.(firebaseMutationsPath, newMutation, isGermline, true, aggregateComments).then(() => {
-                notifySuccess(`Promoted ${vusToPromote.name}`, { position: 'top-right' });
-              });
+              const addMutationResult = await addMutation?.(firebaseMutationsPath, newMutation, isGermline, true, aggregateComments).then(
+                () => {
+                  notifySuccess(`Promoted ${vusToPromote.name}`, { position: 'top-right' });
+                },
+              );
+              if (addMutationResult === undefined) {
+                throw new SentryError('Failed to promote VUS to mutation', { newMutation, firebaseMutationsPath, isGermline });
+              }
+              setOpenMutationCollapsibleListKey?.(addMutationResult);
             } catch (error) {
               notifyError(error);
             } finally {
               setVusToPromote(null);
               currentActionVusUuid.current = null;
-              setOpenMutationCollapsibleIndex?.(newMutationFirebaseIndex);
               mutationsSectionRef.current?.scrollIntoView();
             }
           }}
@@ -335,7 +339,7 @@ const mapStoreToProps = ({
   account: authStore.account,
   fullName: authStore.fullName,
   addMutation: firebaseGeneService.addMutation,
-  setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
+  setOpenMutationCollapsibleListKey: openMutationCollapsibleStore.setOpenMutationCollapsibleListKey,
   sendVusToCore: firebaseVusService.sendVusToCore.bind(firebaseVusService),
   readOnly: curationPageStore.readOnly,
 });

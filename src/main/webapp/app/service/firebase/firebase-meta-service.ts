@@ -61,21 +61,21 @@ export class FirebaseMetaService {
    * @param hugoSymbol The gene that the user is currently working on
    * @param add If gene should be added or removed.
    */
-  updateCollaborator = (hugoSymbol: string, add: boolean, collaboratorGeneList: string[]) => {
+  updateCollaborator = (hugoSymbol: string, add: boolean, collaboratorGeneList: Record<string, string>) => {
     const name = this.authStore.fullName?.toLowerCase();
     if (!name) {
       return Promise.reject(new Error('Cannot update collaborator with undefined name'));
     }
 
-    if (add && !collaboratorGeneList.includes(hugoSymbol)) {
+    if (add && !Object.values(collaboratorGeneList).includes(hugoSymbol)) {
       return this.firebaseRepository.update(getFirebasePath('META_COLLABORATOR', name), {
         [collaboratorGeneList.length]: hugoSymbol,
       });
     }
 
-    const index = collaboratorGeneList.findIndex(g => g === hugoSymbol);
-    if (!add && index > -1) {
-      return this.firebaseRepository.deleteFromArray(getFirebasePath('META_COLLABORATOR', name), [index]);
+    const deleteKey = Object.keys(collaboratorGeneList).find(key => collaboratorGeneList[key] === hugoSymbol);
+    if (!add && deleteKey) {
+      return this.firebaseRepository.deleteFromArray(getFirebasePath('META_COLLABORATOR', name), [deleteKey]);
     }
 
     return Promise.resolve();
@@ -95,19 +95,21 @@ export class FirebaseMetaService {
     await this.firebaseRepository.delete(getFirebaseMetaGenePath(isGermline, hugoSymbol));
   };
 
-  getUpdateObject = (add: boolean, hugoSymbol: string, isGermline: boolean, uuid: string) => {
+  getUpdateObject = (add: boolean, hugoSymbol: string, isGermline: boolean, uuids: string[]) => {
     const metaGenePath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
     const uuidUpdateValue = add ? true : null;
     const updateObject: { [key: string]: string | boolean | null } = {
       [`${metaGenePath}/lastModifiedBy`]: this.authStore.fullName,
       [`${metaGenePath}/lastModifiedAt`]: new Date().getTime().toString(),
-      [`${metaGenePath}/review/${uuid}`]: uuidUpdateValue,
     };
-    if (!add) {
-      const uuidParts = this.getUuidParts(uuid);
-      uuidParts.forEach(uuidPart => {
-        updateObject[`${metaGenePath}/review/${uuidPart}`] = uuidUpdateValue;
-      });
+    for (const uuid of uuids) {
+      updateObject[`${metaGenePath}/review/${uuid}`] = uuidUpdateValue;
+      if (!add) {
+        const uuidParts = this.getUuidParts(uuid);
+        uuidParts.forEach(uuidPart => {
+          updateObject[`${metaGenePath}/review/${uuidPart}`] = uuidUpdateValue;
+        });
+      }
     }
 
     return updateObject;

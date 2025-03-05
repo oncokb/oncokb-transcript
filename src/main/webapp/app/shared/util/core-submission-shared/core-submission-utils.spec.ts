@@ -4,6 +4,7 @@ import { Gene } from 'app/shared/model/firebase/firebase.model';
 import { GENE_TYPE } from 'app/config/constants/firebase';
 import _ from 'lodash';
 import { BaseReviewLevel, ReviewLevel } from '../firebase/firebase-review-utils';
+import { generateUuid } from '../utils';
 
 type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
@@ -26,89 +27,89 @@ describe('useLastReviewedOnly', () => {
     [
       {
         summary: 'XXXXXXXXXXX',
-        mutations: [
-          {
+        mutations: {
+          '-mKey': {
             name_uuid: '37a65ce9-1165-487a-be98-6975805d7e0f',
             name_review: {
               added: true,
             },
             name: 'created mutation',
           },
-        ],
+        },
       },
       {
         summary: 'XXXXXXXXXXX',
-        mutations: [],
+        mutations: {},
       },
     ],
     [
       {
         summary: 'XXXXXXXXXXX',
-        mutations: [
-          {
+        mutations: {
+          '-mKey': {
             name: 'created cancer type test',
-            tumors: [
-              {
-                cancerTypes: [
-                  {
+            tumors: {
+              '-tKey': {
+                cancerTypes: {
+                  '-ctKey': {
                     code: 'b2f013d0-608c-43a1-abdf-cba892b1f523',
                   },
-                ],
+                },
                 cancerTypes_review: { added: true },
               },
-            ],
+            },
           },
-        ],
+        },
       },
       {
         summary: 'XXXXXXXXXXX',
-        mutations: [
-          {
+        mutations: {
+          '-mKey': {
             name: 'created cancer type test',
-            tumors: [],
+            tumors: {},
           },
-        ],
+        },
       },
     ],
     [
       {
         summary: 'XXXXXXXXXXX',
-        mutations: [
-          {
-            tumors: [
-              {
+        mutations: {
+          '-mKey': {
+            tumors: {
+              '-tKey': {
                 TIs: [
                   {
                     name: 'created treatment test',
-                    treatments: [
-                      {
+                    treatments: {
+                      '-txKey': {
                         name: 'test',
                         name_review: { added: true },
                       },
-                    ],
+                    },
                   },
                 ],
               },
-            ],
+            },
           },
-        ],
+        },
       },
       {
         summary: 'XXXXXXXXXXX',
-        mutations: [
-          {
-            tumors: [
-              {
+        mutations: {
+          '-mKey': {
+            tumors: {
+              '-tKey': {
                 TIs: [
                   {
                     name: 'created treatment test',
-                    treatments: [],
+                    treatments: {},
                   },
                 ],
               },
-            ],
+            },
           },
-        ],
+        },
       },
     ],
     [
@@ -151,15 +152,15 @@ describe('useLastReviewedOnly', () => {
     ],
     [
       {
-        mutations: [
-          {
+        mutations: {
+          '-mKey1': {
             name: 'mutation name',
             name_review: {
               updateTime: 0,
               updatedBy: 'Test User',
             },
           },
-          {
+          '-mKey2': {
             name: 'mutation name',
             name_review: {
               lastReviewed: 'new mutation name',
@@ -167,31 +168,31 @@ describe('useLastReviewedOnly', () => {
               updatedBy: 'Test User',
             },
           },
-          {
+          '-mKey3': {
             name: 'mutation name2',
           },
-        ],
+        },
       },
       {
-        mutations: [
-          {
+        mutations: {
+          '-mKey1': {
             name: 'mutation name',
             name_review: {
               updateTime: 0,
               updatedBy: 'Test User',
             },
           },
-          {
+          '-mKey2': {
             name: 'new mutation name',
             name_review: {
               updateTime: 0,
               updatedBy: 'Test User',
             },
           },
-          {
+          '-mKey3': {
             name: 'mutation name2',
           },
-        ],
+        },
       },
     ],
   ];

@@ -5,7 +5,7 @@ import { RouteComponentProps, useHistory } from 'react-router-dom';
 import { getFirebaseGenePath, getFirebaseHistoryPath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { Col, Row } from 'reactstrap';
 import { GENE_TYPE, GENE_TYPE_KEY, INHERITANCE_MECHANISM_OPTIONS, READABLE_FIELD, PENETRANCE_OPTIONS } from 'app/config/constants/firebase';
-import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE, PAGE_ROUTE, RADIO_OPTION_NONE } from 'app/config/constants/constants';
+import { GET_ALL_DRUGS_PAGE_SIZE, PAGE_ROUTE, RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
 import MutationsSection from './mutation/MutationsSection';
@@ -30,7 +30,6 @@ import { getLocationIdentifier, getTooltipHistoryList } from 'app/components/gen
 import GeneticTypeTabs, { GENETIC_TYPE } from './geneticTypeTabs/GeneticTypeTabs';
 import GeneticTypeTabHeader from './header/GeneticTypeTabHeader';
 import ReadOnlyBanner from './header/ReadOnlyBanner';
-import FlagStore from 'app/entities/flag/flag.store';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -78,7 +77,7 @@ export const CurationPage = (props: ICurationPageProps) => {
   useEffect(() => {
     props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
     return () => {
-      props.setOpenMutationCollapsibleIndex(null);
+      props.setOpenMutationCollapsibleListKey(null);
     };
   }, []);
 
@@ -263,10 +262,10 @@ export const CurationPage = (props: ICurationPageProps) => {
         <RelevantCancerTypesModal
           onConfirm={async (newExcludedRCTs, noneDeleted) => {
             try {
-              const newRCTs = noneDeleted ? [] : newExcludedRCTs;
+              const newRCTs = noneDeleted ? {} : newExcludedRCTs;
               await props.updateRelevantCancerTypes(
                 props.relevantCancerTypesModalStore.pathToRelevantCancerTypes ?? '',
-                noneDeleted ? [] : props.relevantCancerTypesModalStore.firebaseExcludedRCTs ?? [],
+                noneDeleted ? {} : props.relevantCancerTypesModalStore.firebaseExcludedRCTs ?? {},
                 newRCTs,
                 props.relevantCancerTypesModalStore.excludedRCTsReview!,
                 props.relevantCancerTypesModalStore.excludedRCTsUuid!,
@@ -335,7 +334,7 @@ const mapStoreToProps = ({
   fullName: authStore.fullName,
   updateRelevantCancerTypes: firebaseGeneService.updateRelevantCancerTypes,
   createGene: firebaseGeneService.createGene,
-  setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
+  setOpenMutationCollapsibleListKey: openMutationCollapsibleStore.setOpenMutationCollapsibleListKey,
   toggleOncoKBSidebar: layoutStore.toggleOncoKBSidebar,
   isGermline: routerStore.isGermline,
   readOnly: curationPageStore.readOnly,

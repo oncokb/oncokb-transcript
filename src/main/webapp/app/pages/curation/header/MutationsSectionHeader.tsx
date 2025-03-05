@@ -1,6 +1,6 @@
-import { CHECKBOX_LABEL_LEFT_MARGIN, UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
+import { UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
 import { ONCOGENICITY_OPTIONS, MUTATION_EFFECT_OPTIONS, TX_LEVEL_OPTIONS } from 'app/config/constants/firebase';
-import { FIREBASE_ONCOGENICITY, MetaReview, Mutation, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { FIREBASE_ONCOGENICITY, MetaReview, MutationList, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import { getFilterModalStats, getMutationName, mutationNeedsReview } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -19,8 +19,8 @@ export interface IMutationsSectionHeaderProps extends StoreProps {
   hugoSymbol: string;
   mutationsPath: string;
   metaGeneReviewPath: string;
-  filteredIndices: number[];
-  setFilteredIndices: React.Dispatch<React.SetStateAction<number[]>>;
+  filteredMutationKeys: string[];
+  setFilteredMutationKeys: React.Dispatch<React.SetStateAction<string[]>>;
   showAddMutationModal: boolean;
   setShowAddMutationModal: React.Dispatch<React.SetStateAction<boolean>>;
   setSortMethod: React.Dispatch<React.SetStateAction<SortOptions>>;
@@ -46,7 +46,6 @@ export enum SortOptions {
   LAST_MODIFIED = 'Last Modified',
   POSITION_INCREASING = 'Position Increasing',
   POSITION_DECREASING = 'Position Decreasing',
-  FIREBASE = 'Firebase',
 }
 
 const YES = 'Yes';
@@ -58,8 +57,8 @@ function MutationsSectionHeader({
   hugoSymbol,
   mutationsPath,
   metaGeneReviewPath,
-  filteredIndices,
-  setFilteredIndices,
+  filteredMutationKeys,
+  setFilteredMutationKeys,
   showAddMutationModal,
   setShowAddMutationModal,
   setSortMethod,
@@ -68,7 +67,7 @@ function MutationsSectionHeader({
   readOnly,
 }: IMutationsSectionHeaderProps) {
   const [mutationsInitialized, setMutationsInitialized] = useState(false);
-  const [mutations, setMutations] = useState<Mutation[]>([]);
+  const [mutations, setMutations] = useState<MutationList>({});
   const [metaReview, setMetaReview] = useState<MetaReview | null>(null);
 
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -101,7 +100,7 @@ function MutationsSectionHeader({
   const sortSelectRef = useRef<HTMLDivElement>(null);
 
   const setMutationsDebounced = _.debounce((snapshot: DataSnapshot) => {
-    setMutations(snapshot.val());
+    setMutations(snapshot.val() ?? {});
   }, UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS);
 
   useEffect(() => {
@@ -115,7 +114,7 @@ function MutationsSectionHeader({
         if (mutationsInitialized) {
           setMutationsDebounced(snapshot);
         } else {
-          setMutations(snapshot.val());
+          setMutations(snapshot.val() ?? {});
           setMutationsInitialized(true);
         }
       }),
@@ -130,8 +129,8 @@ function MutationsSectionHeader({
   }, [mutationsInitialized, mutationsPath, metaGeneReviewPath]);
 
   useEffect(() => {
-    const newFilteredIndices =
-      mutations?.reduce((accumulator: number[], mutation, index) => {
+    const newFilteredArrayKeys =
+      Object.entries(mutations ?? {}).reduce((accumulator: string[], [mutationKey, mutation]) => {
         const matchesName =
           !mutationFilter || getMutationName(mutation.name, mutation.alterations).toLowerCase().includes(mutationFilter.toLowerCase());
 
@@ -176,13 +175,13 @@ function MutationsSectionHeader({
             return false;
           }
 
-          for (const tumor of mutation.tumors) {
+          for (const tumor of Object.values(mutation.tumors)) {
             for (const TI of tumor.TIs) {
               if (!TI.treatments) {
                 continue;
               }
 
-              for (const treatment of TI.treatments) {
+              for (const treatment of Object.values(TI.treatments)) {
                 if (selectedTxLevels.some(txLevel => (txLevel.label as TX_LEVELS) === treatment.level)) {
                   return true;
                 }
@@ -212,19 +211,19 @@ function MutationsSectionHeader({
         }
 
         if (matchesName && matchesOncogenicity && matchesMutationEffect && matchesTxLevel() && isHotspotMatch && matchesReview()) {
-          return [...accumulator, index];
+          return [...accumulator, mutationKey];
         }
 
         return accumulator;
       }, []) || [];
 
-    if (!_.isEqual(filteredIndices, newFilteredIndices)) {
-      setFilteredIndices(newFilteredIndices);
+    if (!_.isEqual(filteredMutationKeys, newFilteredArrayKeys)) {
+      setFilteredMutationKeys(newFilteredArrayKeys);
     }
   }, [
     mutations,
     metaReview,
-    filteredIndices,
+    filteredMutationKeys,
     mutationFilter,
     oncogenicityFilter,
     mutationEffectFilter,
@@ -255,7 +254,7 @@ function MutationsSectionHeader({
   }, [oncogenicityFilter, mutationEffectFilter, txLevelFilter, mutationFilter, hotspotFilter, needsReviewFilter]);
 
   useEffect(() => {
-    const availableFilters = getFilterModalStats(mutations);
+    const availableFilters = getFilterModalStats(Object.values(mutations));
     setEnabledCheckboxes([
       ...availableFilters.oncogencities.map(option => getCheckboxUniqKey(FilterType.ONCOGENICITY, option)),
       ...availableFilters.mutationEffects.map(option => getCheckboxUniqKey(FilterType.MUTATION_EFFECT, option)),
@@ -292,7 +291,7 @@ function MutationsSectionHeader({
     );
   }
 
-  if (!mutations || mutations.length === 0) {
+  if (!mutations || Object.keys(mutations).length === 0) {
     return (
       <AddMutationButton
         showAddMutationModal={showAddMutationModal}
@@ -329,8 +328,12 @@ function MutationsSectionHeader({
         <AddMutationButton showAddMutationModal={showAddMutationModal} onClickHandler={(show: boolean) => setShowAddMutationModal(!show)} />
       </div>
       <div style={{ width: '100%' }} className="d-flex align-items-center justify-content-between mb-2">
-        {mutationsAreFiltered ? <span>{`Showing ${filteredIndices.length} of ${mutations.length} matching the search`}</span> : <span />}
-        {mutations?.length > 0 && (
+        {mutationsAreFiltered ? (
+          <span>{`Showing ${filteredMutationKeys.length} of ${Object.values(mutations ?? {}).length} matching the search`}</span>
+        ) : (
+          <span />
+        )}
+        {Object.keys(mutations ?? {}).length > 0 && (
           <div className="d-flex align-items-center">
             <FaFilter
               color={mutationsAreFiltered ? 'gold' : undefined}

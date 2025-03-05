@@ -10,7 +10,7 @@ export function getGeneData(geneData: Gene, drugList: DrugCollection): Gene | un
   processData(gene, ['summary', 'background']);
   processData(gene.type, ['tsg', 'ocg']);
   const tempMutations: Mutation[] = [];
-  for (const mutation of gene.mutations ?? []) {
+  for (const mutation of Object.values(gene.mutations ?? {})) {
     const tempTumors: Tumor[] = [];
     if (shouldExclude(mutation.name_review)) {
       tempMutations.push(mutation);
@@ -18,7 +18,7 @@ export function getGeneData(geneData: Gene, drugList: DrugCollection): Gene | un
     }
     processData(mutation, ['name']);
     processData(mutation.mutation_effect, ['oncogenic', 'effect', 'description']);
-    for (const tumor of mutation.tumors ?? []) {
+    for (const tumor of Object.values(mutation.tumors ?? {})) {
       if (shouldExclude(tumor.cancerTypes_review)) {
         tempTumors.push(tumor);
         continue;
@@ -30,7 +30,7 @@ export function getGeneData(geneData: Gene, drugList: DrugCollection): Gene | un
       for (const ti of tumor.TIs) {
         type TempTreatment = Omit<Treatment, 'name'> & { name: ReturnType<typeof drugUuidToDrug> | string };
         const tempTreatments: TempTreatment[] = [];
-        for (const treatment of ti.treatments ?? []) {
+        for (const treatment of Object.values(ti.treatments ?? {})) {
           if (shouldExclude(treatment.name_review)) {
             tempTreatments.push(treatment);
             return undefined;
@@ -39,24 +39,24 @@ export function getGeneData(geneData: Gene, drugList: DrugCollection): Gene | un
           processData(treatment, ['level', 'propagation', 'propagationLiquid', 'indication', 'description', 'fdaLevel']);
         }
         for (const item of tempTreatments) {
-          const index = ti.treatments.indexOf(item as Treatment);
-          if (index !== -1) {
-            ti.treatments.splice(index, 1);
+          const treatmentKey = Object.keys(ti.treatments).find(key => ti.treatments[key] === item);
+          if (treatmentKey) {
+            delete ti.treatments[treatmentKey];
           }
         }
       }
     }
     for (const tumor of tempTumors) {
-      const index = mutation.tumors.indexOf(tumor);
-      if (index !== -1) {
-        mutation.tumors.splice(index, 1);
+      const tumorKey = Object.keys(mutation.tumors).find(key => mutation.tumors[key] === tumor);
+      if (tumorKey) {
+        delete mutation.tumors[tumorKey];
       }
     }
   }
   for (const mutation of tempMutations) {
-    const index = gene.mutations.indexOf(mutation);
-    if (index !== -1) {
-      gene.mutations.splice(index, 1);
+    const mutationKey = Object.keys(gene.mutations).find(key => gene.mutations[key] === mutation);
+    if (mutationKey) {
+      delete gene.mutations[mutationKey];
     }
   }
   return gene;

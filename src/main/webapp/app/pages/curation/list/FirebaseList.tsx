@@ -8,13 +8,13 @@ import _ from 'lodash';
 
 export interface IFirebaseListProps<T> extends StoreProps {
   path: string;
-  itemBuilder: (firebaseIndex: number) => React.ReactNode;
+  itemBuilder: (firebaseListKey: string) => React.ReactNode;
   pushDirection: 'front' | 'back';
   scrollOptions?: {
     viewportHeight: number;
     renderCount: number;
   };
-  filter?: (firebaseIndex: number) => boolean;
+  filter?: (firebaseListKey: string) => boolean;
   sort?: (a: T, b: T) => number;
   onInitialRender?: () => void;
 }
@@ -29,8 +29,9 @@ function FirebaseList<T>({
   onInitialRender,
   firebaseDb,
 }: IFirebaseListProps<T>) {
-  const [indices, setIndices] = useState<number[] | null>(null);
-  const [numItemsAdded, setNumItemsAdded] = useState(0);
+  const [listItemKeys, setListItemKeys] = useState<string[] | null>(null); // Track the order in which the array keys should be presented
+  const [addedListItemKeys, setAddedListItemKeys] = useState<string[]>([]);
+  // const [numItemsAdded, setNumItemsAdded] = useState(0);
   const [initialRenderComplete, setInitialRenderComplete] = useState(false);
 
   // Only used when scrollOptions is set
@@ -39,7 +40,7 @@ function FirebaseList<T>({
 
   useEffect(() => {
     // https://webperf.tips/tip/measuring-paint-time/
-    if (!onInitialRender || initialRenderComplete || !indices) {
+    if (!onInitialRender || initialRenderComplete) {
       return;
     }
 
@@ -51,82 +52,80 @@ function FirebaseList<T>({
       };
       messageChannel.port2.postMessage(undefined);
     });
-  }, [indices, initialRenderComplete]);
+  }, [initialRenderComplete]);
 
   useEffect(() => {
+    // Adding a listener to mutation list will cause re-render if any fields (no matter nest level) are updated.
+    // We only want to re-render when the length of the list has changed
     if (!firebaseDb) {
       return;
     }
     const listRef = ref(firebaseDb, path);
     const unsubscribe = onValue(listRef, snapshot => {
-      if (!snapshot.val() || !indices) {
+      if (!snapshot.val() || !listItemKeys) {
         return;
       }
 
-      if (snapshot.size !== indices.length + numItemsAdded) {
-        setNumItemsAdded(snapshot.size - indices.length);
+      const currentKeys = Object.keys(snapshot.val() as Record<string, T>);
+      if (currentKeys.length !== listItemKeys.length + addedListItemKeys.length) {
+        setAddedListItemKeys(currentKeys.filter(x => !listItemKeys.includes(x)));
       }
     });
 
     return () => unsubscribe?.();
-  }, [path, firebaseDb, indices, numItemsAdded, setNumItemsAdded]);
+  }, [path, firebaseDb, listItemKeys, addedListItemKeys, setAddedListItemKeys]);
 
   useEffect(() => {
     async function getItems() {
       if (!firebaseDb) {
         return;
       }
-      const items = (await get(ref(firebaseDb, path))).val();
-      if (!items && indices?.length !== 0) {
-        setIndices([]);
+      const items = (await get(ref(firebaseDb, path))).val() as Record<string, T>;
+      if (!items && listItemKeys?.length !== 0) {
+        setListItemKeys([]);
         return;
       }
 
-      const itemsWithIndices = items.map((item, index) => ({ ...item, index }));
+      // Get a list of ordered array keys
+      const itemKeyValueArray = Object.entries(items);
       if (sort) {
-        itemsWithIndices.sort((a, b) => {
-          const { aIndex, ...aWithoutIndex } = a;
-          const { bIndex, ...bWithoutIndex } = b;
-          return sort(aWithoutIndex, bWithoutIndex);
+        itemKeyValueArray.sort(([aKey, aItem], [bKey, bItem]) => {
+          return sort(aItem, bItem);
         });
       }
-      setIndices(itemsWithIndices.map(item => item.index));
+      setListItemKeys(itemKeyValueArray.map(([itemKey, item]) => itemKey));
     }
 
     getItems();
   }, [path, firebaseDb, sort]);
 
   const listItems = useMemo(() => {
-    if (!indices) {
+    if (!listItemKeys) {
       return [];
     }
 
-    const items: { item: JSX.Element; index: number }[] = [];
+    const items: { item: JSX.Element; itemKey: string }[] = [];
 
-    const addedItemIndices: number[] = [];
-    for (let i = 0; i < numItemsAdded; i++) {
-      addedItemIndices.push(i + indices.length);
-    }
-
-    let allItemIndices: number[] = [];
+    let allItemKeys: string[] = [];
     if (pushDirection === 'front') {
-      allItemIndices = [...addedItemIndices.reverse(), ...indices];
+      allItemKeys = [...addedListItemKeys.reverse(), ...listItemKeys];
     } else if (pushDirection === 'back') {
-      allItemIndices = [...indices, ...addedItemIndices];
+      allItemKeys = [...listItemKeys, ...addedListItemKeys];
     }
 
-    for (const index of allItemIndices) {
-      items.push({ item: <div key={index}>{itemBuilder(index)}</div>, index }); // is using index as key ok? I think it might since firebase order not chagning
+    for (const k of allItemKeys) {
+      items.push({ item: <div key={k}>{itemBuilder(k)}</div>, itemKey: k });
     }
+
     return items;
-  }, [indices, numItemsAdded, path, itemBuilder]);
+  }, [listItemKeys, addedListItemKeys, path, itemBuilder]);
 
   function getList() {
     if (!filter) {
       return listItems.map(item => item.item);
     }
     return listItems.reduce<JSX.Element[]>((accumulator, item) => {
-      if (filter(item.index)) {
+      if (filter(item.itemKey)) {
         return [...accumulator, item.item];
       }
       return accumulator;

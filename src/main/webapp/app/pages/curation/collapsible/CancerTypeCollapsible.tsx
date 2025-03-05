@@ -1,4 +1,4 @@
-import { CancerType, Review } from 'app/shared/model/firebase/firebase.model';
+import { CancerType, CancerTypeList, Review } from 'app/shared/model/firebase/firebase.model';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { getCancerTypesNameWithExclusion } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
@@ -50,11 +50,11 @@ function CancerTypeCollapsible({
   isGermline,
   readOnly,
 }: ICancerTypeCollapsibleProps) {
-  const [cancerTypes, setCancerTypes] = useState<CancerType[]>();
+  const [cancerTypes, setCancerTypes] = useState<CancerTypeList>();
   const [cancerTypesUuid, setCancerTypesUuid] = useState<string>();
   const [cancerTypesReview, setCancerTypesReview] = useState<Review>();
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
-  const [excludedCancerTypes, setExcludedCancerTypes] = useState<CancerType[]>();
+  const [excludedCancerTypes, setExcludedCancerTypes] = useState<CancerTypeList>();
   const [excludedCancerTypesUuid, setExcludedCancerTypesUuid] = useState<string>();
 
   useEffect(() => {
@@ -104,7 +104,7 @@ function CancerTypeCollapsible({
     return <></>;
   }
 
-  const cancerTypeName = getCancerTypesNameWithExclusion(cancerTypes, excludedCancerTypes || [], true);
+  const cancerTypeName = getCancerTypesNameWithExclusion(Object.values(cancerTypes), Object.values(excludedCancerTypes ?? {}), true);
 
   return (
     <>

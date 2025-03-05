@@ -3,7 +3,15 @@ import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-re
 import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from 'app/shared/util/firebase/firebase-utils';
 import { DataImportStatus, DataRow } from 'app/components/tabs/curation-data-import-tab/CurationDataImportTab';
 import { ALLELE_STATE } from 'app/config/constants/firebase';
-import { FIREBASE_ONCOGENICITY, GenomicIndicator, Mutation, Review, VusObjList } from 'app/shared/model/firebase/firebase.model';
+import {
+  FIREBASE_ONCOGENICITY,
+  GenomicIndicator,
+  GenomicIndicatorList,
+  Mutation,
+  MutationList,
+  Review,
+  VusObjList,
+} from 'app/shared/model/firebase/firebase.model';
 import pluralize from 'pluralize';
 import { ONCOGENICITY, PATHOGENICITY, REFERENCE_GENOME } from 'app/config/constants/constants';
 import { uniq } from 'lodash';
@@ -177,8 +185,8 @@ export const saveGenomicIndicator = async (
     return await alleleStateCheck(alleleStates, async () => {
       let status = new DataImportStatus();
       if (giData.exists()) {
-        const genomicIndicators: GenomicIndicator[] = giData.val();
-        if (genomicIndicators.filter(gi => gi.name.toLowerCase() === genomicIndicatorName.toLowerCase()).length > 0) {
+        const genomicIndicators: GenomicIndicatorList = giData.val();
+        if (Object.values(genomicIndicators).filter(gi => gi.name.toLowerCase() === genomicIndicatorName.toLowerCase()).length > 0) {
           status.status = 'error';
           status.message = 'Genomic indicator already exists';
         } else {
@@ -225,7 +233,7 @@ export const saveMutation = async (
   isGermline: boolean,
   createGene: boolean,
   dataRow: DataRow<GermlineMutationDI | SomaticMutationDI>,
-  mutationList: Mutation[],
+  mutationList: MutationList,
   vusList: VusObjList,
 ): Promise<DataImportStatus> => {
   // validate duplication
@@ -297,7 +305,7 @@ export const saveMutation = async (
       mutationImpactStatusUpdated = true;
     }
 
-    const existingMuts = getDuplicateMutations([mutation.name], mutationList, vusList, {
+    const existingMuts = getDuplicateMutations([mutation.name], Object.values(mutationList ?? {}), vusList, {
       useFullAlterationName: true,
       exact: true,
     });
