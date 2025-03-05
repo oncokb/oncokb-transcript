@@ -239,10 +239,10 @@ describe('Screenshot Tests', () => {
 
     // After mutation created, mutation collapsible should be opened.
     // Add content to newly created mutation.
-    const oncogenicYesRadio = await $("input[id='Genes/EMPTYGENE/mutations/0/mutation_effect/oncogenic-Yes']");
-    await oncogenicYesRadio.click();
-    const mutationEffectDesc = await $("textarea[id='Genes/EMPTYGENE/mutations/0/mutation_effect/description']");
-    await mutationEffectDesc.addValue('Sample description');
+    const oncogenicYesRadios = await $$("input[id^='Genes/EMPTYGENE/mutations/'][id$='/mutation_effect/oncogenic-Yes']");
+    await oncogenicYesRadios[0].click();
+    const mutationEffectDesc = await $$("textarea[id^='Genes/EMPTYGENE/mutations/'][id$='/mutation_effect/description']");
+    await mutationEffectDesc[0].addValue('Sample description');
 
     // Go to review page to compare collapsible
     const reviewButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_BUTTON_ID}"]`);
