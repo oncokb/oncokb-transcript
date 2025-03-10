@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Mutation, Review, Vus } from 'app/shared/model/firebase/firebase.model';
+import { Vus } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
-import { Button, Container, Row } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
 import {
   getAllCommentsString,
@@ -30,10 +30,10 @@ import { faSync, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { DANGER, PRIMARY } from 'app/config/colors';
 import AddVusModal from '../modal/AddVusModal';
 import MutationConvertIcon from '../icons/MutationConvertIcon';
-import AddMutationModal from '../modal/AddMutationModal';
 import { Unsubscribe } from 'firebase/database';
 import { VUS_TABLE_ID } from 'app/config/constants/html-id';
 import { SentryError } from 'app/config/sentry-error';
+import AddMutationModal from '../modal/AddMutationModal';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string | undefined;
@@ -174,13 +174,7 @@ const VusTable = ({
         return (
           <>
             <TextFormat value={new Date(time)} type="date" format={APP_DATETIME_FORMAT} />
-            <span>
-              {color && (
-                <DefaultBadge color={color} style={{ fontSize: '0.8rem' }}>
-                  Outdated
-                </DefaultBadge>
-              )}
-            </span>
+            <span>{color && <DefaultBadge color={color} text={'Outdated'} style={{ fontSize: '0.8rem' }} />}</span>
           </>
         );
       },

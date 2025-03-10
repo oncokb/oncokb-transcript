@@ -16,10 +16,9 @@ import CommentIcon from 'app/shared/icons/CommentIcon';
 import EditIcon from 'app/shared/icons/EditIcon';
 import HotspotIcon from 'app/shared/icons/HotspotIcon';
 import MutationConvertIcon from 'app/shared/icons/MutationConvertIcon';
-import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import AddVusModal from 'app/shared/modal/AddVusModal';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
-import { Alteration, Review } from 'app/shared/model/firebase/firebase.model';
+import { Alteration, Review, AlterationCategories } from 'app/shared/model/firebase/firebase.model';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import {
@@ -30,26 +29,28 @@ import {
   isSectionRemovableWithoutReview,
 } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
-import { getExonRanges } from 'app/shared/util/utils';
+import { getExonRanges, parseAlterationName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { get, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import { observer } from 'mobx-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from 'reactstrap';
-import BadgeGroup from '../BadgeGroup';
-import { DeleteSectionButton } from '../button/DeleteSectionButton';
-import FirebaseList from '../list/FirebaseList';
-import MutationLastModified from '../mutation/mutation-last-modified';
-import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import * as styles from '../styles.module.scss';
-import CancerTypeCollapsible from './CancerTypeCollapsible';
-import Collapsible from './Collapsible';
-import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
-import { RemovableCollapsible } from './RemovableCollapsible';
+import CancerTypeCollapsible from '../CancerTypeCollapsible';
+import Collapsible from '../Collapsible';
+import { NestLevelColor, NestLevelMapping, NestLevelType } from '../NestLevel';
+import { RemovableCollapsible } from '../RemovableCollapsible';
 import { Unsubscribe } from 'firebase/database';
 import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
+import MutationCollapsibleTitle from './MutationCollapsibleTitle';
+import AddMutationModal from 'app/shared/modal/AddMutationModal';
+import BadgeGroup from '../../BadgeGroup';
+import { DeleteSectionButton } from '../../button/DeleteSectionButton';
+import FirebaseList from '../../list/FirebaseList';
+import MutationLastModified from '../../mutation/mutation-last-modified';
+import MutationLevelSummary from '../../nestLevelSummary/MutationLevelSummary';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -88,6 +89,7 @@ const MutationCollapsible = ({
   const [mutationNameReview, setMutationNameReview] = useState<Review | null>(null);
   const [mutationSummary, setMutationSummary] = useState<string>('');
   const [mutationAlterations, setMutationAlterations] = useState<Alteration[] | null>(null);
+  const [alterationCategories, setAlterationCategories] = useState<AlterationCategories | null>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
   const [relatedAnnotationResult, setRelatedAnnotationResult] = useState<AlterationAnnotationStatus[]>([]);
   const [oncogenicity, setOncogenicity] = useState<string>('');
@@ -187,7 +189,12 @@ const MutationCollapsible = ({
         setOncogenicity(snapshot.val());
       }),
     );
-
+    callbacks.push(
+      onValue(ref(firebaseDb, `${mutationPath}/alteration_categories`), snapshot => {
+        const info = snapshot.val() as AlterationCategories;
+        setAlterationCategories(info);
+      }),
+    );
     onValue(
       ref(firebaseDb, `${mutationPath}/name_uuid`),
       snapshot => {
@@ -269,7 +276,13 @@ const MutationCollapsible = ({
     <>
       <RemovableCollapsible
         idPrefix={title}
-        title={title}
+        title={
+          <MutationCollapsibleTitle
+            name={mutationName}
+            mutationAlterations={mutationAlterations}
+            alterationCategories={alterationCategories}
+          />
+        }
         defaultOpen={open}
         collapsibleClassName="mb-1"
         colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]] }}

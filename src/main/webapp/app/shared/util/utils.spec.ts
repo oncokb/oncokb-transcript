@@ -1,5 +1,5 @@
 import 'jest-expect-message';
-import { getCancerTypeName, expandAlterationName, generateUuid, isUuid, parseAlterationName } from './utils';
+import { getCancerTypeName, expandAlterationName, generateUuid, isUuid, parseAlterationName, buildAlterationName } from './utils';
 
 describe('Utils', () => {
   describe('getCancerTypeName', () => {
@@ -125,6 +125,18 @@ describe('Utils', () => {
     it('should correctly parse alterations', () => {
       const results = alterationNames.map(alt => parseAlterationName(alt));
       expect(JSON.stringify(results)).toEqual(JSON.stringify(expectedOutputs));
+    });
+  });
+
+  describe('buildAlterationName', () => {
+    test.each([
+      ['V600E', undefined, undefined, undefined, 'V600E'],
+      ['V600E', 'Renamed', undefined, undefined, 'V600E [Renamed]'],
+      ['V600E', 'Renamed', ['A', 'B'], undefined, 'V600E [Renamed] {excluding A; B}'],
+      ['V600E', 'Renamed', ['A', 'B'], 'Test mutation', 'V600E [Renamed] {excluding A; B} (Test mutation)'],
+      ['V600E', '', [], '', 'V600E'],
+    ])('should build alteration name', (alteration, name, excluding, comment, expected) => {
+      expect(buildAlterationName(alteration, name, excluding, comment)).toEqual(expected);
     });
   });
 

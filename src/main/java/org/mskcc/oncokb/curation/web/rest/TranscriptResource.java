@@ -8,7 +8,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.mskcc.oncokb.curation.domain.Gene;
+import org.mskcc.oncokb.curation.domain.dto.ProteinExonDTO;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.repository.TranscriptRepository;
+import org.mskcc.oncokb.curation.service.GeneService;
 import org.mskcc.oncokb.curation.service.TranscriptQueryService;
 import org.mskcc.oncokb.curation.service.TranscriptService;
 import org.mskcc.oncokb.curation.service.criteria.TranscriptCriteria;
@@ -48,14 +52,18 @@ public class TranscriptResource {
 
     private final TranscriptQueryService transcriptQueryService;
 
+    private final GeneService geneService;
+
     public TranscriptResource(
         TranscriptService transcriptService,
         TranscriptRepository transcriptRepository,
-        TranscriptQueryService transcriptQueryService
+        TranscriptQueryService transcriptQueryService,
+        GeneService geneService
     ) {
         this.transcriptService = transcriptService;
         this.transcriptRepository = transcriptRepository;
         this.transcriptQueryService = transcriptQueryService;
+        this.geneService = geneService;
     }
 
     /**
@@ -223,5 +231,17 @@ public class TranscriptResource {
     public ResponseEntity<ClustalOResp> alignTranscripts(@RequestBody List<Long> body) throws InterruptedException {
         log.debug("REST request to align existing transcripts");
         return ResponseEntity.ok().body(transcriptService.alignTranscripts(body));
+    }
+
+    @GetMapping("/transcripts/protein-exons")
+    public ResponseEntity<List<ProteinExonDTO>> getProteinExons(
+        @RequestParam String hugoSymbol,
+        @RequestParam ReferenceGenome referenceGenome
+    ) {
+        log.debug("REST request to get protein exons for gene: {} and reference genome: {}", hugoSymbol, referenceGenome);
+        Gene gene = geneService
+            .findGeneByHugoSymbol(hugoSymbol)
+            .orElseThrow(() -> new BadRequestAlertException("Invalid hugoSymbol", ENTITY_NAME, "genenotfound"));
+        return ResponseEntity.ok().body(transcriptService.getExons(gene, referenceGenome));
     }
 }

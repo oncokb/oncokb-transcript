@@ -8,9 +8,7 @@ import * as admin from 'firebase-admin';
 import { assertScreenShotMatch } from '../shared/test-utils';
 import { CollapsibleDataTestIdType, getCollapsibleDataTestId } from '../../../main/webapp/app/shared/util/test-id-utils';
 import {
-  ADD_MUTATION_MODAL_INPUT_ID,
   ADD_THERAPY_BUTTON_ID,
-  DEFAULT_ADD_MUTATION_MODAL_ID,
   GENE_HEADER_REVIEW_BUTTON_ID,
   GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID,
   GENE_LIST_TABLE_ID,
@@ -75,10 +73,22 @@ describe('Screenshot Tests', () => {
     assertScreenShotMatch(result);
   });
 
+  it('should compare mutation collapsible with alteration flag', async () => {
+    await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
+
+    const mutationCollapsible = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, 'V600E (comment), V600K')}"]`,
+    );
+    await mutationCollapsible.waitForDisplayed();
+
+    const result = await browser.checkElement(mutationCollapsible, 'mutation-collapsible-with-flag', SCREENSHOT_METHOD_OPTIONS);
+    assertScreenShotMatch(result);
+  });
+
   it('should compare mutation effect not curatable', async () => {
     await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
 
-    const mutation = 'V600E, V600K';
+    const mutation = 'V600E (comment), V600K';
 
     const mutationCollapsibleButton = await $(
       `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, mutation)}"]`,
@@ -169,26 +179,6 @@ describe('Screenshot Tests', () => {
     // reset by going back to curation page
     const reviewCompleteButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID}"]`);
     await reviewCompleteButton.click();
-  });
-
-  it('should compare add mutation modal', async () => {
-    await browser.url(`${BASE_URL}/curation/EMPTYGENE/somatic`);
-
-    // Click to open mutation modal
-    const addMutationButton = await $('button=Add Mutation');
-    await addMutationButton.waitForClickable();
-    await addMutationButton.click();
-
-    // Add a new mutation
-    const mutationNameInput = await $(`input#${ADD_MUTATION_MODAL_INPUT_ID}`);
-    await mutationNameInput.setValue('V600E');
-    await browser.keys('Enter');
-
-    const addMutationModal = await $(`div[id="${DEFAULT_ADD_MUTATION_MODAL_ID}"]`);
-    await addMutationModal.waitForDisplayed();
-
-    const result = await browser.checkElement(addMutationModal, 'add-mutation-modal', methodOptions);
-    assertScreenShotMatch(result);
   });
 
   it('should compare gene type on review page', async () => {

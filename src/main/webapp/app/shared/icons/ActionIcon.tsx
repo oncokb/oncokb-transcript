@@ -10,6 +10,7 @@ export type SpanProps = JSX.IntrinsicElements['span'];
 
 export interface IActionIcon extends SpanProps {
   icon: IconDefinition;
+  text?: string;
   compact?: boolean;
   size?: 'sm' | 'lg';
   color?: string;
@@ -18,7 +19,7 @@ export interface IActionIcon extends SpanProps {
 }
 
 const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) => {
-  const { icon, compact, size, color, className, onMouseLeave, onMouseEnter, tooltipProps, ...rest } = props;
+  const { icon, compact, size, color, className, onMouseLeave, onMouseEnter, tooltipProps, text, ...rest } = props;
   const defaultCompact = compact || false;
   const fontSize = size === 'lg' ? '1.5rem' : '1.2rem';
   const defaultColor = props.disabled ? SECONDARY : color || PRIMARY;
@@ -61,7 +62,7 @@ const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) =>
     }
   };
 
-  const iconComponent = defaultCompact ? (
+  let iconComponent = defaultCompact ? (
     <span {...rest} style={containerStyle}>
       <FontAwesomeIcon icon={icon} color={defaultColor} />
     </span>
@@ -80,6 +81,17 @@ const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) =>
       onClick={handleClick}
     />
   );
+
+  if (text) {
+    iconComponent = (
+      <div className="d-flex align-items-center">
+        {iconComponent}
+
+        {text ? <span className="ms-1">{text}</span> : undefined}
+      </div>
+    );
+  }
+
   if (!tooltipProps) {
     return iconComponent;
   }
