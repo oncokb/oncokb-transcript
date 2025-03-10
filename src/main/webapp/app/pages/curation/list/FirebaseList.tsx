@@ -16,22 +16,12 @@ export interface IFirebaseListProps<T> extends StoreProps {
   };
   filter?: (firebaseIndex: number) => boolean;
   sort?: (a: T, b: T) => number;
-  onInitialRender?: () => void;
+  onRender?: () => void;
 }
 
-function FirebaseList<T>({
-  path,
-  itemBuilder,
-  pushDirection,
-  scrollOptions,
-  filter,
-  sort,
-  onInitialRender,
-  firebaseDb,
-}: IFirebaseListProps<T>) {
+function FirebaseList<T>({ path, itemBuilder, pushDirection, scrollOptions, filter, sort, onRender, firebaseDb }: IFirebaseListProps<T>) {
   const [indices, setIndices] = useState<number[] | null>(null);
   const [numItemsAdded, setNumItemsAdded] = useState(0);
-  const [initialRenderComplete, setInitialRenderComplete] = useState(false);
 
   // Only used when scrollOptions is set
   const [maxItemsRendered, setMaxItemsRendered] = useState(scrollOptions?.renderCount);
@@ -39,19 +29,18 @@ function FirebaseList<T>({
 
   useEffect(() => {
     // https://webperf.tips/tip/measuring-paint-time/
-    if (!onInitialRender || initialRenderComplete || !indices) {
+    if (!onRender || !indices) {
       return;
     }
 
     requestAnimationFrame(() => {
       const messageChannel = new MessageChannel();
       messageChannel.port1.onmessage = () => {
-        onInitialRender();
-        setInitialRenderComplete(true);
+        onRender();
       };
       messageChannel.port2.postMessage(undefined);
     });
-  }, [indices, initialRenderComplete]);
+  }, [indices]);
 
   useEffect(() => {
     if (!firebaseDb) {
@@ -140,7 +129,7 @@ function FirebaseList<T>({
       <div
         ref={viewportRef => {
           const viewportHeight = viewportRef?.clientHeight;
-          if (!_.isNil(viewportHeight) && initialRenderComplete && viewportHeight < scrollOptions.viewportHeight) {
+          if (!_.isNil(viewportHeight) && viewportHeight < scrollOptions.viewportHeight) {
             setInitialLoad(true);
           }
         }}

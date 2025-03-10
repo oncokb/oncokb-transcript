@@ -8,7 +8,6 @@ import {
   compareMutationsByProteinChangePosition,
   compareMutationsDefault,
   getFirebaseGenePath,
-  getMutationName,
 } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -32,7 +31,6 @@ export interface IMutationsSectionProps extends StoreProps {
   hugoSymbol: string;
   isGermline: boolean;
   parsedHistoryList: Map<string, FlattenedHistory[]>;
-  onMutationListRender: () => void;
 }
 
 function MutationsSection({
@@ -44,10 +42,10 @@ function MutationsSection({
   addMutation,
   openMutationCollapsibleIndex,
   setOpenMutationCollapsibleIndex,
-  onMutationListRender,
   firebaseDb,
   annotatedAltsCache,
   fetchMutationListForConvertIcon,
+  setIsMutationListRendered,
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
@@ -113,7 +111,9 @@ function MutationsSection({
             filter={index => {
               return filteredIndices.includes(index);
             }}
-            onInitialRender={onMutationListRender}
+            onRender={() => {
+              setIsMutationListRendered?.(true);
+            }}
             scrollOptions={{ viewportHeight: 1000, renderCount: 200 }}
           />
         </div>
@@ -253,6 +253,7 @@ const mapStoreToProps = ({
   firebaseDb: firebaseAppStore.firebaseDb,
   annotatedAltsCache: curationPageStore.annotatedAltsCache,
   fetchMutationListForConvertIcon: firebaseMutationConvertIconStore.fetchData,
+  setIsMutationListRendered: curationPageStore.setIsMutationListRendered,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

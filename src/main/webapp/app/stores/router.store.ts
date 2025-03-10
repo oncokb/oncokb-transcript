@@ -12,7 +12,7 @@ export class RouterStore extends BaseRouterStore {
   }
 
   get isGermline() {
-    return this.history.location.pathname.includes(GERMLINE_PATH);
+    return this.location.pathname.includes(GERMLINE_PATH);
   }
 }
 

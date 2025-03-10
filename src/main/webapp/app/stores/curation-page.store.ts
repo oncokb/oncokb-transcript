@@ -73,12 +73,16 @@ export class CurationPageStore {
     get: (hugoSymbol: string, mutations: MutationQuery[]) => this.getAnnotatedAltsCache(hugoSymbol, mutations),
     fetch: (hugoSymbol: string, mutations: MutationQuery[]) => this.fetchAnnotatedAltsCache(hugoSymbol, mutations),
   };
-  public readOnly: boolean = false;
+  readOnly: boolean = false;
+
+  public isMutationListRendered = false;
 
   constructor(protected rootStore: IRootStore) {
     makeAutoObservable(this, {
       readOnly: observable,
       setReadOnly: action.bound,
+      isMutationListRendered: observable,
+      setIsMutationListRendered: action.bound,
     });
   }
 
@@ -140,6 +144,10 @@ export class CurationPageStore {
 
   setReadOnly(isAnotherUserReviewing: boolean) {
     this.readOnly = isAnotherUserReviewing ? true : false;
+  }
+
+  setIsMutationListRendered(value: boolean) {
+    this.isMutationListRendered = value;
   }
 }
 

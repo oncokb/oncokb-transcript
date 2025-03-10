@@ -12,6 +12,9 @@ import LoginRedirect from '../pages/login/login-redirect';
 import Entities from 'app/entities';
 import PageContainer from '../components/PageContainer';
 import CurationRoutes from './curation-routes';
+import { hasAnyAuthority, IRootStore } from 'app/stores';
+import { observer } from 'mobx-react';
+import { componentInject } from 'app/shared/util/typed-inject';
 
 const Account = Loadable({
   loader: () => import(/* webpackChunkName: "account" */ '../pages/account/SettingsPage'),
@@ -23,21 +26,17 @@ const Admin = Loadable({
   loading: () => <div>loading ...</div>,
 });
 
-export type IRoutesProps = {
-  isCurator: boolean;
-};
-
-const Routes: React.FunctionComponent<IRoutesProps> = (props: IRoutesProps) => {
+const Routes = ({ location, isCurator }: StoreProps) => {
   return (
     <div className="view-routes">
-      <Switch>
-        {props.isCurator ? (
+      <Switch location={location}>
+        {isCurator ? (
           <Redirect exact from={PAGE_ROUTE.HOME} to={PAGE_ROUTE.CURATION} />
         ) : (
           <Redirect exact from={PAGE_ROUTE.HOME} to={PAGE_ROUTE.SEARCH} />
         )}
         <PageContainer>
-          <Switch>
+          <Switch location={location}>
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGIN} component={Login} />
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGOUT} component={Logout} />
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.OAUTH} component={LoginRedirect} />
@@ -54,4 +53,11 @@ const Routes: React.FunctionComponent<IRoutesProps> = (props: IRoutesProps) => {
   );
 };
 
-export default Routes;
+const mapStoreToProps = ({ routerStore, authStore }: IRootStore) => ({
+  location: routerStore.location,
+  isCurator: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.CURATOR]),
+});
+
+type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
+
+export default componentInject(mapStoreToProps)(observer(Routes));

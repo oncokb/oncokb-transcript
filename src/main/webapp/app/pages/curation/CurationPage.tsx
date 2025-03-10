@@ -40,7 +40,6 @@ export const CurationPage = (props: ICurationPageProps) => {
   const hugoSymbolParam = props.match.params.hugoSymbol;
 
   const [firebaseGeneExists, setFirebaseGeneExists] = useState(false);
-  const [mutationListRendered, setMutationListRendered] = useState(false);
   const mutationsSectionRef = useRef<HTMLDivElement>(null);
 
   const { geneEntity, hugoSymbol } = useMatchGeneEntity(hugoSymbolParam, props.searchGeneEntities, props.geneEntities);
@@ -101,6 +100,10 @@ export const CurationPage = (props: ICurationPageProps) => {
     }
   }, [geneEntity, props.firebaseInitSuccess, props.firebaseDb, firebaseGenePath, firebaseHistoryPath, firebaseMetaCurrentReviewerPath]);
 
+  useEffect(() => {
+    props.setIsMutationListRendered(false);
+  }, [isGermline]);
+
   const tabHistoryList = useMemo(() => {
     if (!props.historyData) {
       return;
@@ -119,7 +122,7 @@ export const CurationPage = (props: ICurationPageProps) => {
 
   return props.firebaseInitSuccess && !props.loadingGenes && !!geneEntity && firebaseGeneExists && hugoSymbol ? (
     <>
-      <div style={{ visibility: mutationListRendered ? 'visible' : 'hidden' }}>
+      <div style={{ visibility: props.isMutationListRendered ? 'visible' : 'hidden' }}>
         <GeneHeader firebaseGenePath={firebaseGenePath} geneEntity={geneEntity} isReviewing={false} />
         <GeneticTypeTabs geneEntity={geneEntity} geneticType={isGermline ? GENETIC_TYPE.GERMLINE : GENETIC_TYPE.SOMATIC} />
         <div className="d-flex justify-content-end mt-2 mb-2">
@@ -256,7 +259,6 @@ export const CurationPage = (props: ICurationPageProps) => {
             hugoSymbol={hugoSymbol ?? ''}
             isGermline={isGermline}
             parsedHistoryList={tooltipHistoryList ?? new Map()}
-            onMutationListRender={() => setMutationListRendered(true)}
           />
         </div>
         <VusTable hugoSymbol={hugoSymbol} isGermline={isGermline} mutationsSectionRef={mutationsSectionRef} />
@@ -300,7 +302,7 @@ export const CurationPage = (props: ICurationPageProps) => {
           />
         </OncoKBSidebar>
       </div>
-      {!mutationListRendered && <LoadingIndicator key={'curation-page-loading'} size={LoaderSize.LARGE} center isLoading />}
+      {!props.isMutationListRendered && <LoadingIndicator key={'curation-page-loading'} size={LoaderSize.LARGE} center isLoading />}
     </>
   ) : (
     <LoadingIndicator key={'curation-page-loading'} size={LoaderSize.LARGE} center isLoading />
@@ -340,6 +342,8 @@ const mapStoreToProps = ({
   isGermline: routerStore.isGermline,
   readOnly: curationPageStore.readOnly,
   setReadOnly: curationPageStore.setReadOnly,
+  isMutationListRendered: curationPageStore.isMutationListRendered,
+  setIsMutationListRendered: curationPageStore.setIsMutationListRendered,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

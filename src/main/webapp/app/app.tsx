@@ -5,7 +5,6 @@ import './app.scss';
 import 'react-table/react-table.css';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
-import { BrowserRouter as Router } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { IRootStore } from 'app/stores';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
@@ -16,12 +15,9 @@ import Layout from './layout';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { Unsubscribe } from 'firebase/database';
 import BetaSiteMessage from './shared/userMessage/BetaSiteMessage';
+import { Router } from 'react-router-dom';
 
-const baseHref = document.querySelector('base')?.getAttribute('href')?.replace(/\/$/, '');
-
-export type IAppProps = StoreProps;
-
-const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
+const App: React.FunctionComponent<StoreProps> = (props: StoreProps) => {
   useEffect(() => {
     let authSubscriber: Unsubscribe | undefined = undefined;
     if (props.isCurator) {
@@ -31,7 +27,7 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
   }, [props.isCurator]);
 
   return (
-    <Router basename={baseHref}>
+    <Router history={props.history}>
       <Layout>
         <div className="app-container">
           <ToastContainer
@@ -47,7 +43,7 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
             <div>
               {props.isAuthorized && <NavigationSidebar />}
               <div className="app-center-content-wrapper" style={{ margin: props.centerContentMargin }}>
-                <AppRoutes isCurator={props.isCurator} />
+                <AppRoutes />
               </div>
             </div>
           )}
@@ -57,7 +53,7 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
   );
 };
 
-const mapStoreToProps = ({ authStore, layoutStore, firebaseAppStore }: IRootStore) => ({
+const mapStoreToProps = ({ authStore, layoutStore, firebaseAppStore, routerStore }: IRootStore) => ({
   isAuthorized: authStore.isAuthorized,
   authorities: authStore.account.authorities,
   isCurator: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.CURATOR]),
@@ -67,6 +63,7 @@ const mapStoreToProps = ({ authStore, layoutStore, firebaseAppStore }: IRootStor
   toggleNavSidebar: layoutStore.toggleNavigationSidebar,
   centerContentMargin: layoutStore.centerContentMargin,
   initializeFirebase: firebaseAppStore.initializeFirebase,
+  history: routerStore.history,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
