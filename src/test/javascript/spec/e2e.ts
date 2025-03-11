@@ -54,11 +54,15 @@ describe('End to end tests', () => {
 
     somaticButton = await $(`button[data-testid="${SOMATIC_TOGGLE_BUTTON_ID}"]`);
     germlineButton = await $(`button[data-testid="${GERMLINE_TOGGLE_BUTTON_ID}"]`);
-    await somaticButton.waitForDisplayed();
-    await germlineButton.waitForDisplayed();
 
-    expect((await somaticButton.getCSSProperty('background-color')).parsed.hex).toBe(UNSELECTED_COLOR);
-    expect((await germlineButton.getCSSProperty('background-color')).parsed.hex).toBe(GERMLINE_SELECTED_COLOR);
+    await browser.waitUntil(async () => (await somaticButton.getCSSProperty('background-color')).parsed.hex === UNSELECTED_COLOR, {
+      timeout: 2000,
+      timeoutMsg: 'Somatic button did not switch to unselected color',
+    });
+    await browser.waitUntil(async () => (await germlineButton.getCSSProperty('background-color')).parsed.hex === GERMLINE_SELECTED_COLOR, {
+      timeout: 2000,
+      timeoutMsg: 'Germline button did not switch to selected color',
+    });
   });
 
   it('should open/close sidebar', async () => {
