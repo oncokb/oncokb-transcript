@@ -79,7 +79,7 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, location, histor
     };
     if (needsReview[type]) {
       badges.push(
-        <DefaultBadge square color={'warning'} className={sharedClassname} style={sharedStyle}>
+        <DefaultBadge square color={'warning'} className={sharedClassname} style={sharedStyle} key={'genetic-type-tab-needs-review-badge'}>
           Needs Review
         </DefaultBadge>,
       );
@@ -89,13 +89,19 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, location, histor
     if (isGeneReleased) {
       // Todo: In tooltip show when gene was released
       badges.push(
-        <DefaultBadge square color="success" className={sharedClassname} style={sharedStyle}>
+        <DefaultBadge square color="success" className={sharedClassname} style={sharedStyle} key={'genetic-type-tab-gene-released-badge'}>
           Released
         </DefaultBadge>,
       );
     } else {
       badges.push(
-        <DefaultBadge square color={'warning'} className={sharedClassname} style={sharedStyle}>
+        <DefaultBadge
+          square
+          color={'warning'}
+          className={sharedClassname}
+          style={sharedStyle}
+          key={'genetic-type-tab-pending-release-badge'}
+        >
           Pending Release
         </DefaultBadge>,
       );

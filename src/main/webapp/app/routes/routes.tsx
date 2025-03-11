@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Redirect, Switch } from 'react-router-dom';
 import Loadable from 'react-loadable';
 import Login from 'app/pages/login/LoginPage';
@@ -26,7 +26,10 @@ const Admin = Loadable({
   loading: () => <div>loading ...</div>,
 });
 
-const Routes = ({ location, isCurator }: StoreProps) => {
+const Routes = ({ location, isCurator, setInitialPageLoadUrl }: StoreProps) => {
+  useEffect(() => {
+    setInitialPageLoadUrl?.(location?.pathname ?? '');
+  }, []);
   return (
     <div className="view-routes">
       <Switch location={location}>
@@ -56,6 +59,7 @@ const Routes = ({ location, isCurator }: StoreProps) => {
 const mapStoreToProps = ({ routerStore, authStore }: IRootStore) => ({
   location: routerStore.location,
   isCurator: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.CURATOR]),
+  setInitialPageLoadUrl: routerStore.setInitialPageLoadUrl,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

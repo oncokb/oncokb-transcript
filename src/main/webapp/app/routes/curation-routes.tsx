@@ -22,9 +22,6 @@ const CurationRoutes = ({ location }: StoreProps) => {
     localStorage.setItem(storageKey, isGermline ? GERMLINE_PATH : SOMATIC_PATH);
   }
 
-  /* eslint-disable no-console */
-  console.log('Location changed: ', location, ' is germline: ', isGermline);
-
   return (
     <Switch location={location}>
       <PrivateRoute exact path={PAGE_ROUTE.CURATION_SOMATIC} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
