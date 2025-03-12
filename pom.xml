@@ -7,7 +7,7 @@
 
     <groupId>org.mskcc.oncokb.curation</groupId>
     <artifactId>oncokb-curation</artifactId>
-    <version>2.1.11</version>
+    <version>2.1.12</version>
     <packaging>jar</packaging>
     <name>OncoKB Curation</name>
     <description>Description for oncokb-curation</description>
