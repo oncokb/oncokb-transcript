@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { Col, Row } from 'reactstrap';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { geneNeedsReview } from 'app/shared/util/firebase/firebase-utils';
-import { Link, RouteComponentProps, generatePath, useHistory } from 'react-router-dom';
+import { Link, RouteComponentProps, generatePath } from 'react-router-dom';
 import { APP_DATETIME_FORMAT, PAGE_ROUTE } from 'app/config/constants/constants';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword } from 'app/shared/util/utils';
@@ -34,15 +34,22 @@ type GeneMetaInfo = {
 export interface IGeneListPage extends StoreProps, RouteComponentProps {}
 
 const GeneListPage = (props: IGeneListPage) => {
-  const history = useHistory();
+  const [tableDataLoading, setTableDataLoading] = useState(false);
+
   const isGermline = props.isGermline;
 
   useEffect(() => {
     if (props.firebaseReady) {
-      const unsubscribe = props.addMetaListener(isGermline ? FB_COLLECTION.GERMLINE_META : FB_COLLECTION.META);
+      setTableDataLoading(true);
+      let unsubscribe;
+      try {
+        unsubscribe = props.addMetaListener(isGermline ? FB_COLLECTION.GERMLINE_META : FB_COLLECTION.META);
+      } finally {
+        setTableDataLoading(false);
+      }
       return () => unsubscribe?.();
     }
-  }, [props.firebaseReady]);
+  }, [props.firebaseReady, isGermline]);
 
   const geneMeta = useMemo(() => {
     const ignoredKeys = ['collaborators', 'undefined'];
@@ -137,6 +144,7 @@ const GeneListPage = (props: IGeneListPage) => {
               <Row id={GENE_LIST_TABLE_ID}>
                 <Col>
                   <OncoKBTable
+                    loading={tableDataLoading}
                     data={geneMeta}
                     columns={columns}
                     showPagination

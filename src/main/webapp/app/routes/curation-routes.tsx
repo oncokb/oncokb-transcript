@@ -3,13 +3,15 @@ import CurationPage from 'app/pages/curation/CurationPage';
 import GeneListPage from 'app/pages/curation/GeneListPage';
 import ReviewPage from 'app/pages/curation/review/ReviewPage';
 import PrivateRoute from 'app/shared/auth/private-route';
+import { componentInject } from 'app/shared/util/typed-inject';
+import { IRootStore } from 'app/stores';
+import { observer } from 'mobx-react';
 import React from 'react';
-import { Redirect, Switch, useLocation } from 'react-router-dom';
+import { Redirect, Switch } from 'react-router-dom';
 
-const CurationRoutes = () => {
-  const { pathname } = useLocation();
-  let isGermline = pathname.includes(GERMLINE_PATH);
-  let isSomatic = pathname.includes(SOMATIC_PATH);
+const CurationRoutes = ({ location }: StoreProps) => {
+  let isGermline = location?.pathname.includes(GERMLINE_PATH);
+  let isSomatic = location?.pathname.includes(SOMATIC_PATH);
 
   const storageKey = SOMATIC_GERMLINE_SETTING_KEY;
 
@@ -21,7 +23,7 @@ const CurationRoutes = () => {
   }
 
   return (
-    <Switch>
+    <Switch location={location}>
       <PrivateRoute exact path={PAGE_ROUTE.CURATION_SOMATIC} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
       <Redirect exact from={PAGE_ROUTE.CURATION} to={isGermline ? PAGE_ROUTE.CURATION_GERMLINE : PAGE_ROUTE.CURATION_SOMATIC} />
       <PrivateRoute exact path={PAGE_ROUTE.CURATION_GERMLINE} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
@@ -43,4 +45,10 @@ const CurationRoutes = () => {
   );
 };
 
-export default CurationRoutes;
+const mapStoreToProps = ({ routerStore }: IRootStore) => ({
+  location: routerStore.location,
+});
+
+type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
+
+export default componentInject(mapStoreToProps)(observer(CurationRoutes));

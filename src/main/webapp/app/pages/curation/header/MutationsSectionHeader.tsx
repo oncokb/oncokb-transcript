@@ -65,7 +65,7 @@ function MutationsSectionHeader({
   setSortMethod,
   firebaseDb,
   annotatedAltsCache,
-  readOnly,
+  isMutationListRendered,
 }: IMutationsSectionHeaderProps) {
   const [mutationsInitialized, setMutationsInitialized] = useState(false);
   const [mutations, setMutations] = useState<Mutation[]>([]);
@@ -330,7 +330,7 @@ function MutationsSectionHeader({
       </div>
       <div style={{ width: '100%' }} className="d-flex align-items-center justify-content-between mb-2">
         {mutationsAreFiltered ? <span>{`Showing ${filteredIndices.length} of ${mutations.length} matching the search`}</span> : <span />}
-        {mutations?.length > 0 && (
+        {mutations?.length > 0 && isMutationListRendered && (
           <div className="d-flex align-items-center">
             <FaFilter
               color={mutationsAreFiltered ? 'gold' : undefined}
@@ -488,6 +488,7 @@ const mapStoreToProps = ({ firebaseAppStore, curationPageStore }: IRootStore) =>
   firebaseDb: firebaseAppStore.firebaseDb,
   annotatedAltsCache: curationPageStore.annotatedAltsCache,
   readOnly: curationPageStore.readOnly,
+  isMutationListRendered: curationPageStore.isMutationListRendered,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

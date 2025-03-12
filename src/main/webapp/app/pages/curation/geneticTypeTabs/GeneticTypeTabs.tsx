@@ -9,8 +9,8 @@ import DefaultBadge from 'app/shared/badge/DefaultBadge';
 import { geneMetaReviewHasUuids, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { GERMLINE_PATH, SOMATIC_GERMLINE_SETTING_KEY, SOMATIC_PATH } from 'app/config/constants/constants';
 import { onValue, ref, Unsubscribe } from 'firebase/database';
-import { useLocation } from 'react-router-dom';
 import { MetaReview } from 'app/shared/model/firebase/firebase.model';
+import { useLocation } from 'react-router-dom';
 
 export enum GENETIC_TYPE {
   SOMATIC = 'somatic',
@@ -22,7 +22,7 @@ export interface IGeneticTypeTabs extends StoreProps {
   geneticType: GENETIC_TYPE;
 }
 
-const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, createGene }: IGeneticTypeTabs) => {
+const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, location, history }: IGeneticTypeTabs) => {
   const { pathname } = useLocation();
   const [selected, setSelected] = useState<GENETIC_TYPE>(geneticType || GENETIC_TYPE.SOMATIC);
   const [somaticMetaReview, setSomaticMetaReview] = useState<MetaReview>();
@@ -49,6 +49,16 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, createGene }: IG
     return () => callbacks.forEach(callback => callback?.());
   }, []);
 
+  useEffect(() => {
+    if (location) {
+      if (location.pathname.includes(GERMLINE_PATH)) {
+        setSelected(GENETIC_TYPE.GERMLINE);
+      } else {
+        setSelected(GENETIC_TYPE.SOMATIC);
+      }
+    }
+  }, [location]);
+
   const geneReleaseStatus = useMemo(() => {
     const somaticStatus = !!geneEntity?.flags?.find(flag => flag.flag === 'ONCOKB_SOMATIC' && flag.name === 'OncoKB Somatic');
     const germlineStatus = !!geneEntity?.flags?.find(flag => flag.flag === 'ONCOKB_GERMLINE' && flag.name === 'OncoKB Germline');
@@ -69,7 +79,7 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, createGene }: IG
     };
     if (needsReview[type]) {
       badges.push(
-        <DefaultBadge square color={'warning'} className={sharedClassname} style={sharedStyle}>
+        <DefaultBadge square color={'warning'} className={sharedClassname} style={sharedStyle} key={'genetic-type-tab-needs-review-badge'}>
           Needs Review
         </DefaultBadge>,
       );
@@ -79,13 +89,19 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, createGene }: IG
     if (isGeneReleased) {
       // Todo: In tooltip show when gene was released
       badges.push(
-        <DefaultBadge square color="success" className={sharedClassname} style={sharedStyle}>
+        <DefaultBadge square color="success" className={sharedClassname} style={sharedStyle} key={'genetic-type-tab-gene-released-badge'}>
           Released
         </DefaultBadge>,
       );
     } else {
       badges.push(
-        <DefaultBadge square color={'warning'} className={sharedClassname} style={sharedStyle}>
+        <DefaultBadge
+          square
+          color={'warning'}
+          className={sharedClassname}
+          style={sharedStyle}
+          key={'genetic-type-tab-pending-release-badge'}
+        >
           Pending Release
         </DefaultBadge>,
       );
@@ -96,7 +112,7 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, createGene }: IG
 
   function handleToggle() {
     localStorage.setItem(SOMATIC_GERMLINE_SETTING_KEY, newVariantType);
-    window.location.href = pathname.replace(currentVariantType, newVariantType);
+    history?.push(pathname.replace(currentVariantType, newVariantType));
   }
 
   return (
@@ -119,9 +135,10 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, createGene }: IG
   );
 };
 
-const mapStoreToProps = ({ firebaseAppStore, firebaseGeneService }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, routerStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
-  createGene: firebaseGeneService.createGene,
+  location: routerStore.location,
+  history: routerStore.history,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
