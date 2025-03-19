@@ -204,7 +204,7 @@ export function CurationToolsTab({
               </Tooltip>
             </Col>
           </Row>
-          {!isGermline && isDev && (
+          {!isGermline && (
             <Row className="border-top pt-3">
               <Col>
                 <SaveGeneButton hugoSymbol={hugoSymbol} />
