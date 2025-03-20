@@ -31,7 +31,7 @@ function SaveGeneButton({ hugoSymbol, firebaseGeneService, ...buttonProps }: ISa
     setIsSavePending(false);
   }, [hugoSymbol]);
 
-  const confirmText = hugoSymbol === undefined ? 'Save All Genes' : `Save ${hugoSymbol}`;
+  const confirmText = hugoSymbol === undefined ? 'Save All Genes to Staging' : `Save ${hugoSymbol} to Staging`;
   return (
     <AsyncSaveButton
       {...buttonProps}

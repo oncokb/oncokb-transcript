@@ -40,6 +40,7 @@ import { DriveAnnotationApi } from 'app/shared/api/manual/drive-annotation-api';
 import GeneStore from 'app/entities/gene/gene.store';
 import { geneIsReleased } from 'app/shared/util/entity-utils/gene-entity-utils';
 import DrugStore from 'app/entities/drug/drug.store';
+import { flow, flowResult } from 'mobx';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -637,11 +638,14 @@ export class FirebaseGeneService {
     nullableGene: Gene | null,
     nullableVus: Record<string, Vus> | null,
   ) => {
-    const searchResponse = await this.geneStore.searchEntities({ query: hugoSymbolProp, exact: true });
+    const searchResponse = await flowResult(
+      flow(this.geneStore.getSearch.bind(this.geneStore))({ query: hugoSymbolProp, exact: true, noState: true }),
+    );
+    const data = searchResponse.data;
     const args: Parameters<typeof getDriveAnnotations>[1] = {
       gene: nullableGene == null ? undefined : nullableGene,
       vus: nullableVus == null ? undefined : Object.values(nullableVus),
-      releaseGene: searchResponse.data.some(gene => geneIsReleased(gene, isGermlineProp)),
+      releaseGene: data.some(gene => geneIsReleased(gene, isGermlineProp)),
     };
     const driveAnnotation = getDriveAnnotations(drugLookup, args);
     await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);
