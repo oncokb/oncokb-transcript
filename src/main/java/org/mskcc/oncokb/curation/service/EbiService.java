@@ -12,6 +12,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+// Documentation https://www.ebi.ac.uk/jdispatcher/docs/webservices/#openapi
 @Service
 public class EbiService {
 
@@ -54,7 +55,7 @@ public class EbiService {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
         map.add("stype", "protein");
         map.add("sequence", sequence);
-        map.add("email", SecurityUtils.getCurrentUserLogin().orElseThrow());
+        map.add("email", SecurityUtils.getCurrentUserEmail().orElseThrow());
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, httpHeaders);
 
         return runEbiJob(entity, CLUSTAL_O_URL);
@@ -79,7 +80,7 @@ public class EbiService {
         map.add("width", "100");
         map.add("coloring", "identity");
         map.add("colormap", "RED");
-        map.add("email", SecurityUtils.getCurrentUserLogin().orElseThrow());
+        map.add("email", SecurityUtils.getCurrentUserEmail().orElseThrow());
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, httpHeaders);
         return runEbiJob(entity, MVIEW_URL);
     }

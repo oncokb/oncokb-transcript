@@ -51,6 +51,25 @@ public final class SecurityUtils {
         return null;
     }
 
+    public static Optional<String> getCurrentUserEmail() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        return Optional.ofNullable(extractEmail(securityContext.getAuthentication()));
+    }
+
+    private static String extractEmail(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        } else if (authentication instanceof JwtAuthenticationToken) {
+            return (String) ((JwtAuthenticationToken) authentication).getToken().getClaims().get("email");
+        } else if (authentication.getPrincipal() instanceof DefaultOidcUser) {
+            Map<String, Object> attributes = ((DefaultOidcUser) authentication.getPrincipal()).getAttributes();
+            if (attributes.containsKey("email")) {
+                return (String) attributes.get("email");
+            }
+        }
+        return null;
+    }
+
     /**
      * Check if a user is authenticated.
      *
