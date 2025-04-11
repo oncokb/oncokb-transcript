@@ -118,8 +118,8 @@ function useWebSocket<T>({ onOpen, onClose, allowConnection, url, onError }: use
 type ValidationType = 'TEST' | 'INFO';
 type ValidationStatus = 'IS_PENDING' | 'IS_ERROR' | 'IS_COMPLETE';
 type ValidationData = {
-  target: string;
-  reason: string;
+  target: string | null | undefined;
+  reason: string | null | undefined;
 };
 
 type ValidationResult = {
@@ -134,14 +134,14 @@ const validationColumns: SearchColumn<ValidationData>[] = [
     accessor: 'target',
     Header: 'Biomarker',
     onFilter(data: ValidationData, keyword: string) {
-      return data.target.toLowerCase().includes(keyword);
+      return data.target?.toLowerCase().includes(keyword) ?? false;
     },
   },
   {
     accessor: 'reason',
     Header: 'Issue',
     onFilter(data: ValidationData, keyword: string) {
-      return data.reason.toLowerCase().includes(keyword);
+      return data.reason?.toLowerCase().includes(keyword) ?? false;
     },
   },
 ];
