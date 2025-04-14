@@ -10,13 +10,19 @@ import {
   CommentList,
   DX_LEVELS,
   FDA_LEVELS,
+  Gene,
   GeneType,
+  GenomicIndicator,
+  Implication,
+  Mutation,
   MutationEffect,
   MutationSpecificInheritanceMechanism,
   MutationSpecificPenetrance,
   PX_LEVELS,
   TI_NAME,
   TI_TYPE,
+  Treatment,
+  Tumor,
   TX_LEVELS,
 } from './firebase.model';
 
@@ -45,7 +51,7 @@ export class CoreSubmissionTreatment {
   fdaLevel_review?: Review;
   fdaLevel_uuid: string = generateUuid();
   name = '';
-  name_comments?: CommentList = {};
+  name_comments?: Comment[] = [];
   name_review?: Review;
   name_uuid: string = generateUuid();
   propagation: TX_LEVELS = TX_LEVELS.LEVEL_EMPTY;
@@ -78,11 +84,11 @@ export class CoreSubmissionGenomicIndicator {
 
 export class CoreSubmissionGene {
   name = '';
-  name_comments?: CommentList = {};
+  name_comments?: Comment[] = [];
   background = '';
   background_review?: Review;
   background_uuid: string = generateUuid();
-  background_comments?: CommentList = {};
+  background_comments?: Comment[] = [];
   dmp_refseq_id = '';
   isoform_override = '';
   mutations: CoreSubmissionMutation[] = [];
@@ -90,15 +96,15 @@ export class CoreSubmissionGene {
   summary = '';
   summary_review?: Review;
   summary_uuid: string = generateUuid();
-  summary_comments?: CommentList = {};
+  summary_comments?: Comment[] = [];
   penetrance?: PENETRANCE | '' = '';
   penetrance_review?: Review;
   penetrance_uuid? = generateUuid();
-  penetrance_comments?: CommentList = {};
+  penetrance_comments?: Comment[] = [];
   inheritanceMechanism: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
   inheritanceMechanism_review?: Review;
   inheritanceMechanism_uuid: string = generateUuid();
-  inheritanceMechanism_comments?: CommentList = {};
+  inheritanceMechanism_comments?: Comment[] = [];
   type: GeneType = new GeneType();
   type_uuid: string = generateUuid();
   dmp_refseq_id_grch38 = '';
@@ -115,9 +121,9 @@ export class CoreSubmissionGene {
 export class CoreSubmissionMutation {
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
-  mutation_effect_comments?: CommentList = {}; // used for somatic
+  mutation_effect_comments?: Comment[] = []; // used for somatic
   name: string = '';
-  name_comments?: CommentList = {};
+  name_comments?: Comment[] = [];
   name_review?: Review;
   alterations?: Alteration[] = [];
   alterations_uuid?: string = generateUuid();
@@ -145,19 +151,19 @@ export class CoreSubmissionTumor {
   cancerTypes: CancerType[] = [];
   cancerTypes_review?: Review;
   cancerTypes_uuid: string = generateUuid();
-  cancerTypes_comments?: CommentList = {};
+  cancerTypes_comments?: Comment[] = [];
   excludedCancerTypes?: CancerType[] = [];
   excludedCancerTypes_review?: Review;
   excludedCancerTypes_uuid?: string = generateUuid();
   diagnostic: CoreSubmissionImplication = new CoreSubmissionImplication();
   diagnosticSummary = '';
   diagnosticSummary_uuid: string = generateUuid();
-  diagnostic_comments?: CommentList = {};
+  diagnostic_comments?: Comment[] = [];
   diagnostic_uuid: string = generateUuid();
   prognostic: CoreSubmissionImplication = new CoreSubmissionImplication();
   prognosticSummary = '';
   prognosticSummary_uuid: string = generateUuid();
-  prognostic_comments?: CommentList = {};
+  prognostic_comments?: Comment[] = [];
   prognostic_uuid: string = generateUuid();
   summary = '';
   summary_review?: Review;
@@ -219,4 +225,172 @@ export class Review {
       this.initialUpdate = initialUpdate;
     }
   }
+}
+
+/**
+ * When converting from firebase model to core submission model, we want to remove any keys that are not present (optional) in
+ * firebase model.
+ * @param target The CoreSubmission model
+ * @param source The Firebase model
+ * @param skipKeys Keys of firebase arrays to skip
+ */
+function pruneOptionalKeysFromTarget<T extends object, S extends object>(target: T, source: S, skipKeys: string[] = []): void {
+  for (const key of Object.keys(target)) {
+    if (skipKeys.includes(key)) continue;
+
+    if (!(key in source) || source[key] === undefined) {
+      delete target[key];
+    } else {
+      target[key] = source[key];
+    }
+  }
+}
+
+/**
+ * Assign values from firebase model to core submission model
+ * @param target The CoreSubmission model
+ * @param source The Firebase model
+ * @param skipKeys Keys of firebase arrays to skip
+ */
+function migrateValuesToTarget<T extends object, S extends object>(target: T, source: S, skipKeys: string[] = []): void {
+  for (const key of Object.keys(source)) {
+    if (skipKeys.includes(key)) continue;
+    if (key.endsWith('_comments')) {
+      target[key] = Object.values(source[key]);
+    } else {
+      target[key] = source[key];
+    }
+  }
+}
+
+/**
+ * Transform a Gene object to a CoreSubmissionGene object
+ * @param gene The Gene object to transform
+ * @returns A CoreSubmissionGene object
+ */
+export function transformGeneToCoreSubmissionGene(gene: Gene): CoreSubmissionGene {
+  const coreSubmissionGene = new CoreSubmissionGene(gene.name);
+
+  const keysOfArrays: (keyof Gene)[] = ['mutations', 'genomic_indicators'];
+  pruneOptionalKeysFromTarget(coreSubmissionGene, gene, keysOfArrays);
+  migrateValuesToTarget(coreSubmissionGene, gene, keysOfArrays);
+
+  if (gene.mutations) {
+    coreSubmissionGene.mutations = Object.values(gene.mutations).map(mutation => transformMutationToCoreSubmissionMutation(mutation));
+  }
+  if (gene.genomic_indicators) {
+    coreSubmissionGene.genomic_indicators = Object.values(gene.genomic_indicators ?? {}).map(indicator =>
+      transformGenomicIndicatorToCoreSubmissionGenomicIndicator(indicator),
+    );
+  }
+  return coreSubmissionGene;
+}
+
+/**
+ * Transform a Mutation object to a CoreSubmissionMutation object
+ */
+function transformMutationToCoreSubmissionMutation(mutation: Mutation): CoreSubmissionMutation {
+  const coreSubmissionMutation = new CoreSubmissionMutation(mutation.name);
+
+  const keysOfArrays: (keyof Mutation)[] = ['tumors'];
+  pruneOptionalKeysFromTarget(coreSubmissionMutation, mutation, keysOfArrays);
+  migrateValuesToTarget(coreSubmissionMutation, mutation, keysOfArrays);
+
+  if (mutation.tumors) {
+    coreSubmissionMutation.tumors = Object.values(mutation.tumors).map(tumor => transformTumorToCoreSubmissionTumor(tumor));
+  }
+
+  return coreSubmissionMutation;
+}
+
+/**
+ * Transform a Tumor object to a CoreSubmissionTumor object
+ */
+function transformTumorToCoreSubmissionTumor(tumor: Tumor): CoreSubmissionTumor {
+  const coreSubmissionTumor = new CoreSubmissionTumor();
+
+  const keysToSkip: (keyof Tumor)[] = ['TIs', 'cancerTypes', 'excludedCancerTypes', 'diagnostic', 'prognostic'];
+  pruneOptionalKeysFromTarget(coreSubmissionTumor, tumor, keysToSkip);
+  migrateValuesToTarget(coreSubmissionTumor, tumor, keysToSkip);
+
+  if (tumor.TIs) {
+    coreSubmissionTumor.TIs = tumor.TIs.map(ti => {
+      const newTi = new TI(ti.type!);
+      newTi.name = ti.name;
+      newTi.name_uuid = ti.name_uuid;
+      newTi.treatments_uuid = ti.treatments_uuid;
+      if (ti.treatments) {
+        newTi.treatments = Object.values(ti.treatments).map(treatment => transformTreatmentToCoreSubmissionTreatment(treatment));
+      }
+      return newTi;
+    });
+  }
+
+  if (tumor.cancerTypes) {
+    coreSubmissionTumor.cancerTypes = Object.values(tumor.cancerTypes);
+  }
+
+  if (tumor.excludedCancerTypes) {
+    coreSubmissionTumor.excludedCancerTypes = Object.values(tumor.excludedCancerTypes);
+  }
+
+  if (tumor.diagnostic) {
+    coreSubmissionTumor.diagnostic = transformImplicationToCoreSubmissionImplication(tumor.diagnostic);
+  }
+  if (tumor.prognostic) {
+    coreSubmissionTumor.prognostic = transformImplicationToCoreSubmissionImplication(tumor.prognostic);
+  }
+
+  return coreSubmissionTumor;
+}
+
+/**
+ * Transform a Treatment object to a CoreSubmissionTreatment object
+ */
+function transformTreatmentToCoreSubmissionTreatment(treatment: Treatment): CoreSubmissionTreatment {
+  const coreSubmissionTreatment = new CoreSubmissionTreatment(treatment.name);
+
+  const keysToSkip: (keyof Treatment)[] = ['excludedRCTs'];
+  pruneOptionalKeysFromTarget(coreSubmissionTreatment, treatment, keysToSkip);
+  migrateValuesToTarget(coreSubmissionTreatment, treatment, keysToSkip);
+
+  if (treatment.excludedRCTs) {
+    coreSubmissionTreatment.excludedRCTs = Object.values(treatment.excludedRCTs);
+  }
+
+  return coreSubmissionTreatment;
+}
+
+/**
+ * Transform an Implication object to a CoreSubmissionImplication object
+ */
+function transformImplicationToCoreSubmissionImplication(implication: Implication): CoreSubmissionImplication {
+  const coreSubmissionImplication = new CoreSubmissionImplication();
+
+  const keysToSkip: (keyof Implication)[] = ['excludedRCTs'];
+  pruneOptionalKeysFromTarget(coreSubmissionImplication, implication, keysToSkip);
+  migrateValuesToTarget(coreSubmissionImplication, implication, keysToSkip);
+
+  if (implication.excludedRCTs) {
+    coreSubmissionImplication.excludedRCTs = Object.values(implication.excludedRCTs);
+  }
+
+  return coreSubmissionImplication;
+}
+
+/**
+ * Transform a GenomicIndicator object to a CoreSubmissionGenomicIndicator object
+ */
+function transformGenomicIndicatorToCoreSubmissionGenomicIndicator(indicator: GenomicIndicator): CoreSubmissionGenomicIndicator {
+  const coreSubmissionIndicator = new CoreSubmissionGenomicIndicator();
+
+  const keysToSkip: (keyof GenomicIndicator)[] = ['associationVariants'];
+  pruneOptionalKeysFromTarget(coreSubmissionIndicator, indicator, keysToSkip);
+  migrateValuesToTarget(coreSubmissionIndicator, indicator, keysToSkip);
+
+  if (indicator.associationVariants) {
+    coreSubmissionIndicator.associationVariants = Object.values(indicator.associationVariants);
+  }
+
+  return coreSubmissionIndicator;
 }

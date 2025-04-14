@@ -2,8 +2,9 @@ import _ from 'lodash';
 import { Drug, Gene, Mutation, Review, Treatment, Tumor, Vus, DrugCollection } from '../../model/firebase/firebase.model';
 import { useLastReviewedOnly } from '../core-submission-shared/core-submission-utils';
 import { getFirebaseGenePath } from '../firebase/firebase-utils';
+import { CoreSubmissionGene, transformGeneToCoreSubmissionGene } from 'app/shared/model/firebase/core-submission.model';
 
-export function getGeneData(geneData: Gene, drugList: DrugCollection): Gene | undefined {
+export function getGeneData(geneData: Gene, drugList: DrugCollection): CoreSubmissionGene | undefined {
   const firebaseGenePath = getFirebaseGenePath(false, geneData.name);
   const gene = useLastReviewedOnly(geneData, firebaseGenePath);
   if (gene === undefined) {
@@ -61,7 +62,7 @@ export function getGeneData(geneData: Gene, drugList: DrugCollection): Gene | un
       delete gene.mutations[mutationKey];
     }
   }
-  return gene;
+  return transformGeneToCoreSubmissionGene(gene);
 }
 
 function processData<T, K extends keyof T & string>(data: T | undefined, keys: K[]) {
