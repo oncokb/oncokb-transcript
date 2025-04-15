@@ -663,11 +663,10 @@ export const buildCancerTypeNameReview = (
   } else if (cancerTypesReview?.lastReviewed || excludedCTReview?.lastReviewed || excludedCTReview?.initialUpdate) {
     nameUpdated = true;
     oldState = oldTumorName = getCancerTypesNameWithExclusion(
-      Object.values((cancerTypesReview?.lastReviewed as CancerTypeList | undefined) ?? {}) || Object.values(tumor.cancerTypes ?? {}),
+      Object.values((cancerTypesReview?.lastReviewed as CancerTypeList) ?? {}) || Object.values(tumor.cancerTypes ?? {}),
       excludedCTReview?.initialUpdate
         ? []
-        : Object.values((excludedCTReview?.lastReviewed as CancerTypeList | undefined) ?? {}) ||
-            Object.values(tumor.excludedCancerTypes ?? {}),
+        : Object.values((excludedCTReview?.lastReviewed as CancerTypeList) ?? {}) || Object.values(tumor.excludedCancerTypes ?? {}),
       true,
     );
     newState = newTumorName;

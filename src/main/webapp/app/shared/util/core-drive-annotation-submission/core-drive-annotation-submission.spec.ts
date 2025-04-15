@@ -637,13 +637,13 @@ const mockDrugList: DrugCollection = {
 
 const expectedGeneDataNoCommentsAndReviewed = {
   name: 'BRAF',
-  name_comments: {},
+  name_comments: [],
   background: 'test',
   background_uuid: '16acb0f4-a01c-472e-b243-01560f92cf1e',
   dmp_refseq_id: 'NM_000000.0',
   isoform_override: 'ENST00000000000',
-  mutations: {
-    '-mKey2': {
+  mutations: [
+    {
       mutation_effect: {
         description: 'reviewed description',
         description_uuid: 'b020228d-8bbf-4d1f-842f-dda76b4e6630',
@@ -659,12 +659,12 @@ const expectedGeneDataNoCommentsAndReviewed = {
         oncogenic_review: { updatedBy: 'John Doe', updateTime: 1678309000000 },
       },
       mutation_effect_uuid: 'f5646eb4-a8b2-4967-9f8e-fba706538a03',
-      mutation_effect_comments: {},
+      mutation_effect_comments: [],
       name: 'reviewed name',
       alterations: [],
       alterations_uuid: '724b958c-57c5-40e8-b330-ab0d25539a49',
       name_uuid: '90061776-866f-40c1-819a-00dbad8213d0',
-      tumors: {},
+      tumors: [],
       tumors_uuid: '9672ea70-bde8-4149-80a5-d1983932b89b',
       mutation_specific_penetrance: {
         penetrance: '',
@@ -690,7 +690,7 @@ const expectedGeneDataNoCommentsAndReviewed = {
       summary: 'summary',
       summary_uuid: 'dec9f8ee-7c5d-4740-b17c-86331d867b15',
     },
-    '-mKey3': {
+    {
       mutation_effect: {
         description: 'The class I',
         description_uuid: '84e58cf7-a4f0-4cd5-ac01-d8397526d0e7',
@@ -706,21 +706,21 @@ const expectedGeneDataNoCommentsAndReviewed = {
         oncogenic_review: { updatedBy: 'John Doe', updateTime: 1678309000000 },
       },
       mutation_effect_uuid: '3ef57442-f50e-4305-adc6-22fbce9a532d',
-      mutation_effect_comments: {},
+      mutation_effect_comments: [],
       name: 'V600E',
       alterations: [],
       alterations_uuid: '9eb7261b-74c8-463b-99cd-62815c416765',
       name_uuid: 'ee5900b8-d984-49a6-b6db-940eb1d0e807',
       summary: 'summary',
       summary_uuid: '8cbccd95-caf6-4a33-837d-5c72d1d221d7',
-      tumors: {
-        '-tKey2': {
+      tumors: [
+        {
           TIs: [
             {
               name: 'Standard implications for sensitivity to therapy',
               name_uuid: 'b728d209-492b-41cd-aaa5-a16c61a770ed',
-              treatments: {
-                '-txKey1': {
+              treatments: [
+                {
                   description: 'RAF inhibitor',
                   description_uuid: 'd9c0bb27-9c2e-441a-abf3-9f0784943e1f',
                   indication: 'FDA-approved',
@@ -767,13 +767,13 @@ const expectedGeneDataNoCommentsAndReviewed = {
                       },
                     ],
                   ],
-                  name_comments: {},
+                  name_comments: [],
                   name_uuid: '9b798839-592a-4cb0-a85a-099c2662c8ef',
                   propagation: '3B',
                   propagationLiquid: 'no',
                   propagationLiquid_uuid: '6f1085c4-98b6-4d91-a210-b9f078849bbf',
                   propagation_uuid: 'be009470-ca82-47d3-9054-8b54701030cc',
-                  excludedRCTs: {},
+                  excludedRCTs: [],
                   excludedRCTs_uuid: '4fc7b249-8ae1-49d4-864e-4fdf971e1a6c',
                   short: 'Effective against brain metastases',
                   description_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
@@ -783,7 +783,7 @@ const expectedGeneDataNoCommentsAndReviewed = {
                   name_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
                   propagation_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
                 },
-                '-txKey3': {
+                {
                   description: 'description review',
                   description_uuid: '45a0d045-43fd-47db-a0a9-1a86d65799c3',
                   indication: 'indication Review',
@@ -821,13 +821,13 @@ const expectedGeneDataNoCommentsAndReviewed = {
                       },
                     ],
                   ],
-                  name_comments: {},
+                  name_comments: [],
                   name_uuid: '71cc9b4d-a636-4891-8d5d-56093a701280',
                   propagation: '1',
                   propagationLiquid: 'no',
                   propagationLiquid_uuid: '288e2f8e-2dd4-4771-ba8e-c63589640559',
                   propagation_uuid: '317bd394-7991-499e-a6a7-bcd415f821f6',
-                  excludedRCTs: {},
+                  excludedRCTs: [],
                   excludedRCTs_uuid: '3a04990a-9b1f-4ceb-8896-4fd88ea2a02b',
                   short: '',
                   description_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
@@ -840,43 +840,42 @@ const expectedGeneDataNoCommentsAndReviewed = {
                   },
                   propagation_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
                 },
-              },
+              ],
               treatments_uuid: '6f8ed079-3b8b-437c-852c-c3c2a3c9a320',
               type: 'SS',
             },
             {
               name: 'Standard implications for resistance to therapy',
               name_uuid: '389ba0a6-26d4-4754-aa0f-190d4f72b177',
-              treatments: {},
+              treatments: [],
               treatments_uuid: 'bc650bb2-65e7-4ca9-9b04-bc7961d8b135',
               type: 'SR',
             },
             {
               name: 'Investigational implications for sensitivity to therapy',
               name_uuid: '11d78588-9550-488a-a850-dd91e8614048',
-              treatments: {},
+              treatments: [],
               treatments_uuid: '92b55ca1-8ef8-44d7-aa90-f10e6c1f7bb0',
               type: 'IS',
             },
             {
               name: 'Investigational implications for resistance to therapy',
               name_uuid: '748852c0-a8ec-4824-af73-aa698bb5ff2f',
-              treatments: {},
+              treatments: [],
               treatments_uuid: '52878ba2-b2ba-4f20-b357-f8d5ac1eda2e',
               type: 'IR',
             },
           ],
-          cancerTypes: { '-ctKey1': { code: 'MEL', mainType: 'Melanoma', subtype: 'Melanoma' } },
+          cancerTypes: [{ code: 'MEL', mainType: 'Melanoma', subtype: 'Melanoma' }],
           cancerTypes_uuid: '553284ea-01f2-48c4-936c-2efae797d6f5',
-          cancerTypes_comments: {},
-          excludedCancerTypes: {},
+          cancerTypes_comments: [],
           excludedCancerTypes_uuid: '2b0384c4-5405-4478-bba8-0604bd0ef1b6',
           diagnostic: {
             description: 'description review',
             description_uuid: '5c0856a1-1a56-4f01-8620-9518ebfb233e',
             level: 'level review',
             level_uuid: '7afcbe32-1684-436e-b659-c37ada75bae2',
-            excludedRCTs: {},
+            excludedRCTs: [],
             excludedRCTs_uuid: '4a5ed610-72d6-4007-b68b-3913d9c01d38',
             short: '',
             description_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
@@ -885,8 +884,9 @@ const expectedGeneDataNoCommentsAndReviewed = {
           },
           diagnosticSummary: 'summary review',
           diagnosticSummary_uuid: 'a601e863-3c0f-4c97-8037-b3aafd853aad',
-          diagnostic_comments: {},
+          diagnostic_comments: [],
           diagnostic_uuid: 'c3d5a2d6-34ef-4645-9d8e-96739e4a3cd6',
+          excludedCancerTypes: [],
           prognostic: {
             description: 'description review',
             description_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
@@ -897,11 +897,11 @@ const expectedGeneDataNoCommentsAndReviewed = {
             short: '',
             excludedRCTs_uuid: '1cf4d012-1335-4229-8da1-76ced0819211',
             excludedRCTs_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
-            excludedRCTs: {},
+            excludedRCTs: [],
           },
           prognosticSummary: 'summary review',
           prognosticSummary_uuid: 'c961a5e9-8c02-4b32-b001-9fc37f6c60c8',
-          prognostic_comments: {},
+          prognostic_comments: [],
           prognostic_uuid: 'a482d71c-0079-40bd-8d8b-a13d35e26fe3',
           summary: 'summary review',
           summary_uuid: 'da67dbc0-7641-43db-a760-a3464e65a1c5',
@@ -909,7 +909,7 @@ const expectedGeneDataNoCommentsAndReviewed = {
           prognosticSummary_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
           summary_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
         },
-      },
+      ],
       tumors_uuid: 'b9e062b0-a1ae-46ad-9fc6-5bb6ee6b3674',
       mutation_specific_penetrance: {
         penetrance: '',
@@ -933,16 +933,16 @@ const expectedGeneDataNoCommentsAndReviewed = {
       },
       name_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
     },
-  },
+  ],
   mutations_uuid: '69e454db-db99-4979-a770-482f7937314b',
   summary: 'test',
   summary_uuid: '616d02ba-6909-42b2-b145-f7b5627ad0a3',
   penetrance: '',
   penetrance_uuid: 'fc7ae593-7075-42de-b90f-ee132238274b',
-  penetrance_comments: {},
+  penetrance_comments: [],
   inheritanceMechanism: '',
   inheritanceMechanism_uuid: '99447f53-5908-4dd1-a6fd-732d5ccf0f62',
-  inheritanceMechanism_comments: {},
+  inheritanceMechanism_comments: [],
   type: {
     ocg: 'Tumor Suppressor',
     ocg_uuid: '1a233927-54d7-4921-97bf-08489a1e9c7d',
@@ -954,7 +954,7 @@ const expectedGeneDataNoCommentsAndReviewed = {
   type_uuid: 'ea4d7bd1-bc94-4877-987f-37f2f13e571b',
   dmp_refseq_id_grch38: 'NM_000000.0',
   isoform_override_grch38: 'ENST00000000000',
-  genomic_indicators: {},
+  genomic_indicators: [],
   background_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
   summary_review: { updatedBy: 'John Doe', updateTime: 1717770480000 },
 };

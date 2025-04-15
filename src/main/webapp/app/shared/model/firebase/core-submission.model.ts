@@ -332,6 +332,8 @@ function transformTumorToCoreSubmissionTumor(tumor: Tumor): CoreSubmissionTumor 
 
   if (tumor.excludedCancerTypes) {
     coreSubmissionTumor.excludedCancerTypes = Object.values(tumor.excludedCancerTypes);
+  } else {
+    delete coreSubmissionTumor.excludedCancerTypes;
   }
 
   if (tumor.diagnostic) {
@@ -356,6 +358,8 @@ function transformTreatmentToCoreSubmissionTreatment(treatment: Treatment): Core
 
   if (treatment.excludedRCTs) {
     coreSubmissionTreatment.excludedRCTs = Object.values(treatment.excludedRCTs);
+  } else {
+    delete coreSubmissionTreatment.excludedRCTs;
   }
 
   return coreSubmissionTreatment;
@@ -373,6 +377,8 @@ function transformImplicationToCoreSubmissionImplication(implication: Implicatio
 
   if (implication.excludedRCTs) {
     coreSubmissionImplication.excludedRCTs = Object.values(implication.excludedRCTs);
+  } else {
+    delete coreSubmissionImplication.excludedRCTs;
   }
 
   return coreSubmissionImplication;
@@ -390,6 +396,8 @@ function transformGenomicIndicatorToCoreSubmissionGenomicIndicator(indicator: Ge
 
   if (indicator.associationVariants) {
     coreSubmissionIndicator.associationVariants = Object.values(indicator.associationVariants);
+  } else {
+    delete coreSubmissionIndicator.associationVariants;
   }
 
   return coreSubmissionIndicator;
