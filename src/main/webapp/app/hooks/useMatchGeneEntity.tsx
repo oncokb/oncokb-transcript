@@ -8,6 +8,7 @@ export const useMatchGeneEntity = (
   geneEntities: readonly IGene[],
 ) => {
   const [geneEntity, setGeneEntity] = useState<IGene | null | undefined>(null);
+  const [geneIsFound, setIsFound] = useState(false);
 
   // Initiate a gene search whenever the hugo symbol search param changes
   useEffect(() => {
@@ -17,8 +18,11 @@ export const useMatchGeneEntity = (
   // When the search function returns results, find the gene that matches the search param
   useEffect(() => {
     const matchedGeneEntity = geneEntities?.find(gene => gene.hugoSymbol?.toUpperCase() === hugoSymbolParam.toUpperCase());
+    if (matchedGeneEntity !== undefined) {
+      setIsFound(true);
+    }
     setGeneEntity(matchedGeneEntity);
   }, [geneEntities]);
 
-  return { geneEntity, hugoSymbol: geneEntity?.hugoSymbol };
+  return { geneEntity, hugoSymbol: geneEntity?.hugoSymbol, geneIsFound };
 };

@@ -42,7 +42,7 @@ export const CurationPage = (props: ICurationPageProps) => {
   const [firebaseGeneExists, setFirebaseGeneExists] = useState(false);
   const mutationsSectionRef = useRef<HTMLDivElement>(null);
 
-  const { geneEntity, hugoSymbol } = useMatchGeneEntity(hugoSymbolParam, props.searchGeneEntities, props.geneEntities);
+  const { geneEntity, hugoSymbol, geneIsFound } = useMatchGeneEntity(hugoSymbolParam, props.searchGeneEntities, props.geneEntities);
 
   const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
   const firebaseHistoryPath = getFirebaseHistoryPath(isGermline, hugoSymbol);
@@ -119,6 +119,10 @@ export const CurationPage = (props: ICurationPageProps) => {
 
     return getTooltipHistoryList(tabHistoryList);
   }, [tabHistoryList]);
+
+  if (!geneIsFound) {
+    return <div>the gene &quot;{hugoSymbolParam}&quot; was not found</div>;
+  }
 
   return props.firebaseInitSuccess && !props.loadingGenes && !!geneEntity && firebaseGeneExists && hugoSymbol ? (
     <>
