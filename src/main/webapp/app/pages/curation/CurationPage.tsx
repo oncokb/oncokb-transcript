@@ -37,7 +37,7 @@ export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hu
 export const CurationPage = (props: ICurationPageProps) => {
   const history = useHistory();
   const isGermline = props.isGermline;
-  const hugoSymbolParam = props.match.params.hugoSymbol;
+  const hugoSymbolParam = decodeURIComponent(props.match.params.hugoSymbol ?? '');
 
   const [firebaseGeneExists, setFirebaseGeneExists] = useState(false);
   const mutationsSectionRef = useRef<HTMLDivElement>(null);
