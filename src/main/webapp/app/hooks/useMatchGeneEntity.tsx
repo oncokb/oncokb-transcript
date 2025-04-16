@@ -18,11 +18,7 @@ export const useMatchGeneEntity = (
   // When the search function returns results, find the gene that matches the search param
   useEffect(() => {
     const matchedGeneEntity = geneEntities?.find(gene => gene.hugoSymbol?.toUpperCase() === hugoSymbolParam.toUpperCase());
-    if (matchedGeneEntity !== undefined) {
-      setIsFound(true);
-    } else {
-      setIsFound(false);
-    }
+    setIsFound(matchedGeneEntity !== undefined);
     setGeneEntity(matchedGeneEntity);
   }, [geneEntities]);
 
