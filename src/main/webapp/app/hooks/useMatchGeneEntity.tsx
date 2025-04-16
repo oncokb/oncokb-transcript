@@ -20,6 +20,8 @@ export const useMatchGeneEntity = (
     const matchedGeneEntity = geneEntities?.find(gene => gene.hugoSymbol?.toUpperCase() === hugoSymbolParam.toUpperCase());
     if (matchedGeneEntity !== undefined) {
       setIsFound(true);
+    } else {
+      setIsFound(false);
     }
     setGeneEntity(matchedGeneEntity);
   }, [geneEntities]);
