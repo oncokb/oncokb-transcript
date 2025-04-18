@@ -12,7 +12,7 @@ import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { getLevelDropdownOptions } from 'app/shared/util/firebase/firebase-level-utils';
 import { DIAGNOSTIC_LEVELS_ORDERING, READABLE_FIELD, PROGNOSTIC_LEVELS_ORDERING } from 'app/config/constants/firebase';
-import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import { RealtimeMultiTabTextAreaInput, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import RealtimeLevelDropdownInput, { LevelOfEvidenceType } from 'app/shared/firebase/input/RealtimeLevelDropdownInput';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
@@ -141,7 +141,7 @@ function CancerTypeCollapsible({
         badge={<BadgeGroup firebasePath={cancerTypePath} showDeletedBadge={cancerTypesReview?.removed || false} />}
         isPendingDelete={cancerTypesReview?.removed || false}
       >
-        <RealtimeTextAreaInput
+        <RealtimeMultiTabTextAreaInput
           disabled={readOnly}
           firebasePath={`${cancerTypePath}/summary`}
           inputClass={styles.summaryTextarea}
@@ -155,7 +155,7 @@ function CancerTypeCollapsible({
           }
           name="txSummary"
         />
-        <RealtimeTextAreaInput
+        <RealtimeMultiTabTextAreaInput
           disabled={readOnly}
           firebasePath={`${cancerTypePath}/diagnosticSummary`}
           inputClass={styles.summaryTextarea}
@@ -169,7 +169,7 @@ function CancerTypeCollapsible({
           }
           name="dxSummary"
         />
-        <RealtimeTextAreaInput
+        <RealtimeMultiTabTextAreaInput
           disabled={readOnly}
           firebasePath={`${cancerTypePath}/prognosticSummary`}
           inputClass={styles.summaryTextarea}
@@ -224,7 +224,7 @@ function CancerTypeCollapsible({
             name="diagnosticLevel"
             options={getLevelDropdownOptions(DIAGNOSTIC_LEVELS_ORDERING)}
           />
-          <RealtimeTextAreaInput
+          <RealtimeMultiTabTextAreaInput
             disabled={readOnly}
             firebasePath={`${cancerTypePath}/diagnostic/description`}
             inputClass={styles.textarea}
@@ -255,7 +255,7 @@ function CancerTypeCollapsible({
             name="prognosticLevel"
             options={getLevelDropdownOptions(PROGNOSTIC_LEVELS_ORDERING)}
           />
-          <RealtimeTextAreaInput
+          <RealtimeMultiTabTextAreaInput
             disabled={readOnly}
             firebasePath={`${cancerTypePath}/prognostic/description`}
             inputClass={styles.textarea}

@@ -15,6 +15,7 @@ export enum RealtimeInputType {
   TEXT = 'text',
   INLINE_TEXT = 'inline_text',
   TEXTAREA = 'textarea',
+  MULTI_TAB_TEXTAREA = 'multi_tab_textarea',
   CHECKBOX = 'checkbox',
   RADIO = 'radio',
   DROPDOWN = 'dropdown',
@@ -60,6 +61,7 @@ export interface IRealtimeBasicInput extends React.InputHTMLAttributes<HTMLInput
   parseRefs?: boolean;
   updateMetaData?: boolean;
   disabledMessage?: string;
+  hideLabel?: boolean;
 }
 
 const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props: IRealtimeBasicInput) => {
@@ -86,6 +88,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     disabledMessage,
     onMouseDown,
     labelOnClick,
+    hideLabel,
     ...otherProps
   } = props;
 
@@ -144,7 +147,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     };
   }, [inputValueLoaded]);
 
-  const labelComponent = label && (
+  const labelComponent = label && !hideLabel && (
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} onClick={labelOnClick} />
   );
 
@@ -232,7 +235,11 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
           {inputComponent}
         </>
       )}
-      <div className="mt-2">{parseRefs && !!inputValue ? <AutoParseRefField summary={inputValue} /> : undefined}</div>
+      {parseRefs && !!inputValue ? (
+        <div className="mt-2">
+          <AutoParseRefField summary={inputValue} />
+        </div>
+      ) : undefined}
     </div>
   );
 };

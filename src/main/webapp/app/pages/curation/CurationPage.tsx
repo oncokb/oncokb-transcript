@@ -13,7 +13,7 @@ import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
 import CurationHistoryTab from 'app/components/tabs/CurationHistoryTab';
 import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
 import Tabs from 'app/components/tabs/tabs';
-import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import { RealtimeCheckedInputGroup, RealtimeMultiTabTextAreaInput, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import GeneHeader from './header/GeneHeader';
 import VusTable from 'app/shared/table/VusTable';
 import * as styles from './styles.module.scss';
