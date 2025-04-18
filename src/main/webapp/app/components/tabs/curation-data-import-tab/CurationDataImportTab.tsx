@@ -316,7 +316,11 @@ const CurationDataImportTab = observer(
       const content = rows.map((row, rowIndex) => {
         const obj = headers.reduce(
           (object, header, index) => {
-            object.data[header] = (row[index] || '').trim();
+            let columnValue = (row[index] || '').trim();
+            if (columnValue.startsWith('"') && columnValue.endsWith('"')) {
+              columnValue = columnValue.substring(1, columnValue.length - 1);
+            }
+            object.data[header] = columnValue;
             return object;
           },
           {

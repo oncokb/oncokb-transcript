@@ -71,7 +71,7 @@ function FirebaseList<T>({ path, itemBuilder, pushDirection, scrollOptions, filt
         return;
       }
 
-      const itemsWithIndices = items.map((item, index) => ({ ...item, index }));
+      const itemsWithIndices = (items ?? []).map((item, index) => ({ ...item, index }));
       if (sort) {
         itemsWithIndices.sort((a, b) => {
           const { aIndex, ...aWithoutIndex } = a;
