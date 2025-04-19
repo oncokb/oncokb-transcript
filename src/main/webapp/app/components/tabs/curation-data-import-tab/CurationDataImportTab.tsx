@@ -1,6 +1,6 @@
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Button, Col, Input, InputGroup, Label, Row } from 'reactstrap';
 import Select, { GroupBase, OptionsOrGroups } from 'react-select';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
@@ -10,7 +10,6 @@ import { FirebaseGeneService } from 'app/service/firebase/firebase-gene-service'
 import { observer } from 'mobx-react';
 import StatusIcon, { Status } from 'app/shared/icons/StatusIcon';
 import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-review-service';
-import { Column } from 'react-table';
 import {
   DATA_IMPORT_DATA_TABLE_ID,
   DATA_IMPORT_DATA_TYPE_SELECT_ID,
@@ -35,6 +34,11 @@ import {
 import _, { groupBy } from 'lodash';
 import { MutationList, VusObjList } from 'app/shared/model/firebase/firebase.model';
 import { getFirebaseGenePath, getFirebaseVusPath } from 'app/shared/util/firebase/firebase-utils';
+import { SentryError } from 'app/config/sentry-error';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { CellInfo } from 'react-table';
+import { LongText } from 'app/shared/text/LongText';
+import { LONG_TEXT_CUTOFF_COMPACT } from 'app/config/constants/constants';
 
 export interface ICurationToolsTabProps extends StoreProps {}
 
@@ -255,13 +259,15 @@ const saveDataToFirebase: {
 
 const CurationDataImportTab = observer(
   ({ authStore, firebaseGeneService, firebaseGeneReviewService, firebaseMetaService, alterationStore }: ICurationToolsTabProps) => {
+    const [numImported, setNumImported] = useState(0);
     const [isGermline, setIsGermline] = useState(false);
     const [createGene, setCreateGene] = useState(false);
     const [selectedDataTypeOption, setSelectedDateTypeOption] = useState<DataImportTypeSelectOption | null>(null);
     const [fileHeaders, setFileHeaders] = useState<string[]>([]);
     const [fileRows, setFileRows] = useState<DataRow<DataImportObj>[]>([]);
     const [fileUploadErrorMsg, setFileUploadErrorMsg] = useState('');
-    const [importStatus, setImportStatus] = useState<'' | 'uploaded' | 'importing' | 'imported'>('');
+    const [hasFileUploadParseError, setHasFileUploadParseError] = useState(false);
+    const [importStatus, setImportStatus] = useState<'' | 'uploaded' | 'importing' | 'imported' | 'error'>('');
     const fileUploadInputRef = useRef<HTMLInputElement>(null);
     const IMPORT_STATUS_HEADER_KEY = 'status';
     const IMPORT_STATUS_ERR_MSG_HEADER_KEY = 'message';
@@ -290,6 +296,7 @@ const CurationDataImportTab = observer(
       setImportStatus('');
       setFileHeaders([]);
       setFileRows([]);
+      setHasFileUploadParseError(false);
 
       if (fileUploadInputRef.current) {
         fileUploadInputRef.current.value = '';
@@ -310,6 +317,7 @@ const CurationDataImportTab = observer(
       }
       setFileHeaders(headers);
 
+      let hasParsingError = false;
       const content = rows.map((row, rowIndex) => {
         const obj = headers.reduce(
           (object, header, index) => {
@@ -318,6 +326,14 @@ const CurationDataImportTab = observer(
               columnValue = columnValue.substring(1, columnValue.length - 1);
             }
             object.data[header] = columnValue;
+
+            // Check if a required column is missing its value
+            if (requiredCols.some(col => header === col.toString()) && columnValue === '') {
+              object.status = 'error';
+              object.message = 'Missing required value(s)';
+              hasParsingError = true;
+            }
+
             return object;
           },
           {
@@ -326,9 +342,11 @@ const CurationDataImportTab = observer(
             message: '',
           } as DataRow<DataImportObj>,
         );
+
         obj.data[ROW_COLUMN_KEY] = `${rowIndex + 1}`;
         return obj;
       });
+      setHasFileUploadParseError(hasParsingError);
       setFileRows(content);
     };
 
@@ -355,6 +373,8 @@ const CurationDataImportTab = observer(
         case 'warning':
           siStatus = 'warning';
           break;
+        case 'initialized':
+          return 'Parsed';
         default:
           break;
       }
@@ -382,59 +402,72 @@ const CurationDataImportTab = observer(
       // Validate the genes in batch
       const geneGroups = groupBy(fileRows, row => row.data.hugo_symbol);
 
-      for (const [hugoSymbol, group] of Object.entries(geneGroups)) {
-        const status = await geneCheck(firebaseGeneService, isGermline, createGene, hugoSymbol, () =>
-          Promise.resolve(new DataImportStatus()),
-        );
-        if (status.status !== 'error') {
-          const genePath: string = getFirebaseGenePath(isGermline, hugoSymbol);
-          const mutations: MutationList = (await firebaseGeneService.firebaseRepository.get(`${genePath}/mutations`)).val();
-          const vus: VusObjList = (await firebaseGeneService.firebaseRepository.get(getFirebaseVusPath(isGermline, hugoSymbol))).val();
+      try {
+        for (const [hugoSymbol, group] of Object.entries(geneGroups)) {
+          const status = await geneCheck(firebaseGeneService, isGermline, createGene, hugoSymbol, () =>
+            Promise.resolve(new DataImportStatus()),
+          );
+          if (status.status !== 'error') {
+            const genePath: string = getFirebaseGenePath(isGermline, hugoSymbol);
+            const mutations: MutationList = (await firebaseGeneService.firebaseRepository.get(`${genePath}/mutations`)).val();
+            const vus: VusObjList = (await firebaseGeneService.firebaseRepository.get(getFirebaseVusPath(isGermline, hugoSymbol))).val();
 
-          for (let i = 0; i < group.length; i++) {
-            switch (selectedDataTypeOption.value) {
-              case DataImportType.GENE_SUMMARY:
-              case DataImportType.GENE_BACKGROUND:
-                group[i] = await saveDataToFirebase[selectedDataTypeOption.value](
-                  firebaseGeneService,
-                  firebaseGeneReviewService,
-                  isGermline,
-                  createGene,
-                  group[i] as DataRow<GenericDI>,
-                );
-                break;
-              case DataImportType.GENE_GENOMIC_INDICATOR:
-                group[i] = await saveDataToFirebase[DataImportType.GENE_GENOMIC_INDICATOR](
-                  firebaseGeneService,
-                  isGermline,
-                  createGene,
-                  group[i] as DataRow<GenomicIndicatorDI>,
-                );
-                break;
-              case DataImportType.SOMATIC_MUTATION:
-              case DataImportType.GERMLINE_MUTATION:
-                group[i] = await saveDataToFirebase[selectedDataTypeOption.value](
-                  authStore,
-                  firebaseGeneService,
-                  firebaseMetaService,
-                  alterationStore,
-                  isGermline,
-                  createGene,
-                  group[i],
-                  mutations,
-                  vus,
-                );
-                break;
-              default:
-                break;
+            for (let i = 0; i < group.length; i++) {
+              switch (selectedDataTypeOption.value) {
+                case DataImportType.GENE_SUMMARY:
+                case DataImportType.GENE_BACKGROUND:
+                  group[i] = await saveDataToFirebase[selectedDataTypeOption.value](
+                    firebaseGeneService,
+                    firebaseGeneReviewService,
+                    isGermline,
+                    createGene,
+                    group[i] as DataRow<GenericDI>,
+                  );
+                  break;
+                case DataImportType.GENE_GENOMIC_INDICATOR:
+                  group[i] = await saveDataToFirebase[DataImportType.GENE_GENOMIC_INDICATOR](
+                    firebaseGeneService,
+                    isGermline,
+                    createGene,
+                    group[i] as DataRow<GenomicIndicatorDI>,
+                  );
+                  break;
+                case DataImportType.SOMATIC_MUTATION:
+                case DataImportType.GERMLINE_MUTATION:
+                  group[i] = await saveDataToFirebase[selectedDataTypeOption.value](
+                    authStore,
+                    firebaseGeneService,
+                    firebaseMetaService,
+                    alterationStore,
+                    isGermline,
+                    createGene,
+                    group[i],
+                    mutations,
+                    vus,
+                  );
+                  break;
+                default:
+                  break;
+              }
+              setNumImported(prev => prev + 1);
             }
+          } else {
+            group.forEach(row => {
+              row.status = status.status;
+              row.message = status.message;
+            });
+            setNumImported(prev => prev + group.length);
           }
-        } else {
-          group.forEach(row => {
-            row.status = status.status;
-            row.message = status.message;
-          });
         }
+      } catch (error) {
+        setImportStatus('error');
+        notifyError(
+          new SentryError('Failed to import data', {
+            errorMessage: (error as { message: string }).message,
+            errorStack: (error as { stack: string }).stack,
+          }),
+        );
+        return;
       }
       setFileRows(_.flatten(_.values(geneGroups)));
 
@@ -450,11 +483,11 @@ const CurationDataImportTab = observer(
           maxWidth: 60,
         },
       ];
-      if (importStatus === 'imported') {
+      if (importStatus === 'imported' || importStatus === 'uploaded') {
         columns.push({
           disableHeaderFiltering: true,
           accessor: IMPORT_STATUS_HEADER_KEY,
-          Header: 'Import Status',
+          Header: importStatus === 'imported' ? 'Import Status' : 'Upload Status',
           maxWidth: 120,
           Cell(data) {
             return (
@@ -472,11 +505,16 @@ const CurationDataImportTab = observer(
             accessor: header,
             Header: header,
             onFilter: (data, keyword) => filterByKeyword(data[header], keyword),
+            Cell({ value }: CellInfo) {
+              return <LongText text={value} cutoff={LONG_TEXT_CUTOFF_COMPACT}></LongText>;
+            },
           };
         }),
       );
       return columns;
     };
+
+    const currentImportProgressPercent = Math.round((numImported / (fileRows.length ?? 1)) * 100);
 
     return (
       <div className={'mb-5'}>
@@ -573,10 +611,16 @@ const CurationDataImportTab = observer(
                     {fileUploadErrorMsg}
                   </Alert>
                 )}
+                {hasFileUploadParseError && (
+                  <Alert color={'danger'} className={'mt-3'}>
+                    {"Some rows in your TSV file have issues, possibly due to missing required values. Tip: Sort 'Upload Status' column"}
+                  </Alert>
+                )}
               </div>
             </Col>
           </Row>
         )}
+
         {fileRows.length > 0 && (
           <>
             <Row>
@@ -594,6 +638,17 @@ const CurationDataImportTab = observer(
                 />
               </Col>
             </Row>
+            {(importStatus === 'importing' || importStatus === 'error') && (
+              <div className="progress mt-2" style={{ height: '25px' }}>
+                <div
+                  className={`progress-bar progress-bar-striped progress-bar-animated ${importStatus === 'error' ? 'bg-danger' : ''}`}
+                  role="progressbar"
+                  style={{ width: `${currentImportProgressPercent}%` }}
+                >
+                  {currentImportProgressPercent}%
+                </div>
+              </div>
+            )}
             <Row>
               <Col className={'d-flex justify-content-md-end mt-2'}>
                 <AsyncSaveButton
@@ -602,7 +657,11 @@ const CurationDataImportTab = observer(
                   onClick={onImportConfirm}
                   confirmText={'Import'}
                   disabled={
-                    isGermline === undefined || selectedDataTypeOption === null || fileRows.length === 0 || importStatus === 'importing'
+                    isGermline === undefined ||
+                    selectedDataTypeOption === null ||
+                    fileRows.length === 0 ||
+                    importStatus === 'importing' ||
+                    hasFileUploadParseError
                   }
                 />
               </Col>

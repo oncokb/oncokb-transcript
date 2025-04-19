@@ -419,3 +419,15 @@ export function useDrugListRef(drugList: readonly IDrug[] | undefined = []): Dru
   }, [drugList]);
   return drugListRef;
 }
+
+export function shortenTextByCharacters(text: string, cutoff: number) {
+  const shortText = (text || '').trim();
+  if (shortText.length <= cutoff) {
+    return shortText;
+  } else {
+    const separator = ' ';
+    const words = (text || '').slice(0, cutoff).split(separator);
+    words.pop();
+    return words.join(separator);
+  }
+}
