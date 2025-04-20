@@ -228,6 +228,7 @@ const saveGenomicIndicatorToFirebase = async (
 export const saveMutation = async (
   authStore: AuthStore,
   firebaseGeneService: FirebaseGeneService,
+  firebaseGeneReviewService: FirebaseGeneReviewService,
   firebaseMetaService: FirebaseMetaService,
   alterationStore: AlterationStore,
   isGermline: boolean,
@@ -240,6 +241,11 @@ export const saveMutation = async (
   const hugoSymbol = dataRow.data.hugo_symbol;
   const mutation = new Mutation(dataRow.data.alteration);
   let mutationImpactStatusUpdated = false;
+
+  const existingMuts = getDuplicateMutations([mutation.name], Object.values(mutationList ?? {}), vusList, {
+    useFullAlterationName: true,
+    exact: true,
+  });
 
   return geneCheck(firebaseGeneService, isGermline, createGene, hugoSymbol, async () => {
     const request: AnnotateAlterationBody[] = [
@@ -305,12 +311,8 @@ export const saveMutation = async (
       mutationImpactStatusUpdated = true;
     }
 
-    const existingMuts = getDuplicateMutations([mutation.name], Object.values(mutationList ?? {}), vusList, {
-      useFullAlterationName: true,
-      exact: true,
-    });
-
     let mutIsVus = false;
+    let mutExists = false;
 
     // Delete existing VUS before importing
     for (const mut of existingMuts) {
@@ -318,37 +320,50 @@ export const saveMutation = async (
         mutIsVus = true;
         await firebaseGeneService.firebaseRepository.delete(`${getFirebaseVusPath(isGermline, hugoSymbol)}/${mut.duplicate}`);
       } else {
-        // if alteration exists in the Mutation list, we return and give error
-        return {
-          status: 'error',
-          message: 'Mutation exists in gene, we cannot overwrite automatically. Please update manually.',
-        };
+        mutExists = true;
       }
     }
 
     try {
-      await firebaseGeneService
-        .addMutation(`${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`, mutation, isGermline, mutIsVus, dataRow.data.description)
-        .then(async () => {
-          if (mutationImpactStatusUpdated) {
-            let uuid: string;
-            if (isGermline) {
-              uuid = mutation.mutation_effect.pathogenic_uuid;
-            } else {
-              uuid = mutation.mutation_effect.oncogenic_uuid;
+      if (!mutExists) {
+        await firebaseGeneService
+          .addMutation(`${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`, mutation, isGermline, mutIsVus, dataRow.data.description)
+          .then(async () => {
+            if (mutationImpactStatusUpdated) {
+              let uuid: string;
+              if (isGermline) {
+                uuid = mutation.mutation_effect.pathogenic_uuid;
+              } else {
+                uuid = mutation.mutation_effect.oncogenic_uuid;
+              }
+              // I can't use updateReviewableContent here due to lacking of the firebase path
+              await firebaseMetaService.updateMeta(hugoSymbol, uuid, true, isGermline);
             }
-            // I can't use updateReviewableContent here due to lacking of the firebase path
-            await firebaseMetaService.updateMeta(hugoSymbol, uuid, true, isGermline);
-          }
-        });
-      return {
-        status: 'complete',
-        message: '',
-      };
+          });
+        return {
+          status: 'complete',
+          message: 'Added new mutation',
+        };
+      } else {
+        // Update fields of existing mutation
+        firebaseGeneReviewService.updateReviewableContent?.(
+          `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`,
+          inputValue,
+          updateValue,
+          inputValueReview,
+          inputValueUuid,
+          updateMetaData,
+          false,
+        );
+        return {
+          status: 'complete',
+          message: 'Overrode existing mutation',
+        };
+      }
     } catch (error) {
       return {
         status: 'error',
-        message: 'Failed to add mutation into gene.',
+        message: 'Failed to add/update mutation.',
       };
     }
   });
