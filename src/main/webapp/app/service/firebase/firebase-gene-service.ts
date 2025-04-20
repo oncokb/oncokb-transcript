@@ -22,7 +22,6 @@ import {
   getFirebaseGenePath,
   getFirebaseVusPath,
   isSectionRemovableWithoutReview,
-  mapJSArrayToFirebaseArray,
 } from 'app/shared/util/firebase/firebase-utils';
 import AuthStore from '../../stores/authentication.store';
 import { FirebaseRepository } from '../../stores/firebase/firebase-repository';
@@ -557,9 +556,8 @@ export class FirebaseGeneService {
       await this.addMutation(`${genePath?.genePath}/mutations`, newMut, true, false);
       pathogenicVariantsNameUuid = newMut.name_uuid;
     }
-    newGenomicIndicator.associationVariants = mapJSArrayToFirebaseArray(
+    newGenomicIndicator.associationVariants = this.transformJSArrayToFirebaseArray(
       [{ name: PATHOGENIC_VARIANTS, uuid: pathogenicVariantsNameUuid }],
-      this.firebaseRepository.getArrayKey,
       `${genomicIndicatorsPath}/associationVariants`,
     );
 
@@ -693,9 +691,10 @@ export class FirebaseGeneService {
    * @param items An array of items to convert to firebase array structure
    * @returns An object, where key is autogenrated firebase array key and value is the item
    */
-  transformJSArrayToFirebaseArray = <T>(items: T[]): Record<string, T> => {
+  transformJSArrayToFirebaseArray = <T>(items: T[], path: string): Record<string, T> => {
+    const getArrayKeyPathParam = path === '/' ? undefined : path;
     return items.reduce((acc, item) => {
-      const newKey = this.firebaseRepository.getArrayKey();
+      const newKey = this.firebaseRepository.getArrayKey(getArrayKeyPathParam);
       if (newKey) {
         acc[newKey] = item;
       }

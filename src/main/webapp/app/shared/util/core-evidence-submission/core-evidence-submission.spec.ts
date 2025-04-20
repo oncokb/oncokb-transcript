@@ -1,5 +1,5 @@
 import { DX_LEVELS, FDA_LEVELS, FIREBASE_ONCOGENICITY, PX_LEVELS, TI_TYPE, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
-import { getEvidence, pathToDeleteEvidenceArgs, pathToGetEvidenceArgs } from './core-evidence-submission';
+import { getEvidence, pathToGetEvidenceArgs } from './core-evidence-submission';
 import {
   Evidence,
   EvidenceEvidenceTypeEnum,
@@ -22,362 +22,363 @@ import {
   createMockTumor,
 } from '../core-submission-shared/core-submission.mocks';
 import { MUTATION_EFFECT } from 'app/config/constants/constants';
+import { generateUuid } from '../utils';
 
 type GetEvidenceArgs = Parameters<typeof getEvidence>[0];
 type GetEvidenceRtn = ReturnType<typeof getEvidence>;
 describe('getEvidence to submit to core', () => {
-  // describe('Path parse tests', () => {
-  //   const treatment = createMockTreatment({
-  //     level: TX_LEVELS.LEVEL_1,
-  //     fdaLevel: FDA_LEVELS.LEVEL_FDA1,
-  //     propagation: TX_LEVELS.LEVEL_2,
-  //     propagationLiquid: TX_LEVELS.LEVEL_4,
-  //     description_review: createMockReview({}),
-  //     propagation_review: createMockReview({}),
-  //     excludedRCTs_review: createMockReview({}),
-  //     level_review: createMockReview({}),
-  //     name_review: createMockReview({}),
-  //     fdaLevel_review: createMockReview({}),
-  //   });
-  //   const tiIs = createMockTi({ type: TI_TYPE.IS, treatments: { [generateUuid()]: treatment } });
-  //   const tiIr = createMockTi({ type: TI_TYPE.IR, treatments: { [generateUuid()]: treatment } });
-  //   const tiSs = createMockTi({ type: TI_TYPE.SS, treatments: { [generateUuid()]: treatment } });
-  //   const tiSr = createMockTi({ type: TI_TYPE.SR, treatments: { [generateUuid()]: treatment } });
+  describe('Path parse tests', () => {
+    const treatment = createMockTreatment({
+      level: TX_LEVELS.LEVEL_1,
+      fdaLevel: FDA_LEVELS.LEVEL_FDA1,
+      propagation: TX_LEVELS.LEVEL_2,
+      propagationLiquid: TX_LEVELS.LEVEL_4,
+      description_review: createMockReview({}),
+      propagation_review: createMockReview({}),
+      excludedRCTs_review: createMockReview({}),
+      level_review: createMockReview({}),
+      name_review: createMockReview({}),
+      fdaLevel_review: createMockReview({}),
+    });
+    const tiIs = createMockTi({ type: TI_TYPE.IS, treatments: { '-txKey1': treatment } });
+    const tiIr = createMockTi({ type: TI_TYPE.IR, treatments: { '-txKey1': treatment } });
+    const tiSs = createMockTi({ type: TI_TYPE.SS, treatments: { '-txKey1': treatment } });
+    const tiSr = createMockTi({ type: TI_TYPE.SR, treatments: { '-txKey1': treatment } });
 
-  //   const tumor = createMockTumor({
-  //     TIs: [tiIs, tiIr, tiSs, tiSr],
-  //     cancerTypes: { [generateUuid()]: { code: generateUuid(), subtype: generateUuid(), mainType: generateUuid() } },
-  //     excludedCancerTypes: { [generateUuid()]: { code: generateUuid(), subtype: generateUuid(), mainType: generateUuid() } },
-  //     prognostic: createMockImplication({
-  //       level: DX_LEVELS.LEVEL_DX1,
-  //       excludedRCTs: { [generateUuid()]: { code: generateUuid(), subtype: generateUuid(), mainType: generateUuid() } },
-  //     }),
-  //     prognosticSummary_review: createMockReview({}),
+    const tumor = createMockTumor({
+      TIs: [tiIs, tiIr, tiSs, tiSr],
+      cancerTypes: { [generateUuid()]: { code: generateUuid(), subtype: generateUuid(), mainType: generateUuid() } },
+      excludedCancerTypes: { [generateUuid()]: { code: generateUuid(), subtype: generateUuid(), mainType: generateUuid() } },
+      prognostic: createMockImplication({
+        level: DX_LEVELS.LEVEL_DX1,
+        excludedRCTs: { [generateUuid()]: { code: generateUuid(), subtype: generateUuid(), mainType: generateUuid() } },
+      }),
+      prognosticSummary_review: createMockReview({}),
 
-  //     diagnostic: createMockImplication({
-  //       level: PX_LEVELS.LEVEL_PX1,
-  //       excludedRCTs: { [generateUuid()]: { code: generateUuid(), subtype: generateUuid(), mainType: generateUuid() } },
-  //     }),
-  //     diagnosticSummary_review: createMockReview({}),
-  //     summary: generateUuid(),
-  //     summary_review: createMockReview({}),
-  //     cancerTypes_review: createMockReview({}),
-  //   });
-  //   const mutation = createMockMutation({
-  //     tumors: { [generateUuid()]: tumor },
-  //     name_review: createMockReview({}),
-  //     mutation_effect: createMockMutationEffect({
-  //       effect_review: createMockReview({}),
-  //       oncogenic_review: createMockReview({}),
-  //       description_review: createMockReview({}),
-  //       pathogenic_review: createMockReview({}),
-  //     }),
-  //   });
-  //   const gene = createMockGene({
-  //     mutations: { [generateUuid()]: mutation },
-  //     summary_review: createMockReview({}),
-  //     background_review: createMockReview({}),
-  //   });
+      diagnostic: createMockImplication({
+        level: PX_LEVELS.LEVEL_PX1,
+        excludedRCTs: { [generateUuid()]: { code: generateUuid(), subtype: generateUuid(), mainType: generateUuid() } },
+      }),
+      diagnosticSummary_review: createMockReview({}),
+      summary: generateUuid(),
+      summary_review: createMockReview({}),
+      cancerTypes_review: createMockReview({}),
+    });
+    const mutation = createMockMutation({
+      tumors: { '-tKey1': tumor },
+      name_review: createMockReview({}),
+      mutation_effect: createMockMutationEffect({
+        effect_review: createMockReview({}),
+        oncogenic_review: createMockReview({}),
+        description_review: createMockReview({}),
+        pathogenic_review: createMockReview({}),
+      }),
+    });
+    const gene = createMockGene({
+      mutations: { '-mKey1': mutation },
+      summary_review: createMockReview({}),
+      background_review: createMockReview({}),
+    });
 
-  //   const baseExpectedArgs: Pick<GetEvidenceArgs, 'drugListRef' | 'entrezGeneId' | 'updateTime' | 'gene'> = {
-  //     drugListRef: {},
-  //     entrezGeneId: Math.random(),
-  //     updateTime: new Date().getTime(),
-  //     gene,
-  //   };
+    const baseExpectedArgs: Pick<GetEvidenceArgs, 'drugListRef' | 'entrezGeneId' | 'updateTime' | 'gene'> = {
+      drugListRef: {},
+      entrezGeneId: Math.random(),
+      updateTime: new Date().getTime(),
+      gene,
+    };
 
-  //   type ArrayElement = [Parameters<typeof pathToGetEvidenceArgs>[0] & { valuePath: string }, args: Partial<GetEvidenceArgs> | undefined];
+    type ArrayElement = [Parameters<typeof pathToGetEvidenceArgs>[0] & { valuePath: string }, args: Partial<GetEvidenceArgs> | undefined];
 
-  //   const goodTests: ArrayElement[] = [
-  //     [{ ...baseExpectedArgs, valuePath: 'mutations/-mKey1' }, undefined],
-  //     // gene type change
-  //     [{ ...baseExpectedArgs, valuePath: 'type' }, undefined],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/name' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: 'MUTATION_NAME_CHANGE',
-  //         mutation,
-  //         gene,
-  //       },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/summary' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: 'MUTATION_SUMMARY',
-  //         mutation,
-  //         gene,
-  //       },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/cancerTypes' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: 'TUMOR_NAME_CHANGE',
-  //         tumor,
-  //         mutation,
-  //         gene,
-  //       },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/excludedCancerTypes' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: 'TUMOR_NAME_CHANGE',
-  //         tumor,
-  //         mutation,
-  //         gene,
-  //       },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/TIs/0/treatments/-txKey1/name' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: 'TREATMENT_NAME_CHANGE',
-  //         tumor,
-  //         mutation,
-  //         gene,
-  //         ti: tiIs,
-  //         treatment,
-  //       },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'summary' },
-  //       { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.GeneSummary },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'background' },
-  //       { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.GeneBackground },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/mutation_effect/oncogenic' },
-  //       { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.Oncogenic, mutation },
-  //     ],
-  //     [
-  //       {
-  //         ...baseExpectedArgs,
-  //         valuePath: 'mutations/-mKey1/tumors/-tKey1/summary',
-  //       },
-  //       { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.TumorTypeSummary, tumor, mutation },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/prognosticSummary' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: EvidenceEvidenceTypeEnum.PrognosticSummary,
-  //         tumor,
-  //         mutation,
-  //         gene,
-  //       },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/diagnosticSummary' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: EvidenceEvidenceTypeEnum.DiagnosticSummary,
-  //         tumor,
-  //         mutation,
-  //         gene,
-  //       },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/mutation_effect/effect' },
-  //       { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.MutationEffect, mutation },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/mutation_effect/description' },
-  //       { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.MutationEffect, mutation },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/prognostic/level' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: EvidenceEvidenceTypeEnum.PrognosticImplication,
-  //         tumor,
-  //         mutation,
-  //       },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/diagnostic/level' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: EvidenceEvidenceTypeEnum.DiagnosticImplication,
-  //         tumor,
-  //         mutation,
-  //       },
-  //     ],
-  //     ...[
-  //       {
-  //         level: TX_LEVELS.LEVEL_1,
-  //         type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
-  //       },
-  //       {
-  //         level: TX_LEVELS.LEVEL_2,
-  //         type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
-  //       },
-  //       {
-  //         level: TX_LEVELS.LEVEL_3A,
-  //         type: EvidenceEvidenceTypeEnum.InvestigationalTherapeuticImplicationsDrugSensitivity,
-  //       },
-  //       {
-  //         level: TX_LEVELS.LEVEL_3B,
-  //         type: EvidenceEvidenceTypeEnum.InvestigationalTherapeuticImplicationsDrugSensitivity,
-  //       },
-  //       {
-  //         level: TX_LEVELS.LEVEL_4,
-  //         type: EvidenceEvidenceTypeEnum.InvestigationalTherapeuticImplicationsDrugSensitivity,
-  //       },
-  //       {
-  //         level: TX_LEVELS.LEVEL_R1,
-  //         type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugResistance,
-  //       },
-  //       {
-  //         level: TX_LEVELS.LEVEL_R2,
-  //         type: EvidenceEvidenceTypeEnum.InvestigationalTherapeuticImplicationsDrugResistance,
-  //       },
-  //     ].map(({ level, type }): ArrayElement => {
-  //       const newGene = createMockGene({
-  //         ...gene,
-  //         mutations: {
-  //           '-mKey1': createMockMutation({
-  //             ...mutation,
-  //             tumors: {
-  //               '-tKey1': createMockTumor({
-  //                 ...tumor,
-  //                 TIs: [createMockTi({ ...tiIs, treatments: { '-txKey1': createMockTreatment({ ...treatment, level }) } })],
-  //               }),
-  //             },
-  //           }),
-  //         },
-  //       });
-  //       return [
-  //         {
-  //           ...baseExpectedArgs,
-  //           gene: newGene,
-  //           valuePath: 'mutations/-mKey1/tumors/-tKey1/TIs/0/treatments/-txKey1',
-  //         },
-  //         {
-  //           ...baseExpectedArgs,
-  //           type,
-  //           tumor: newGene.mutations['-mKey1'].tumors['-tKey1'],
-  //           mutation: newGene.mutations['-mKey1'],
-  //           gene: newGene,
-  //           ti: newGene.mutations['-mKey1'].tumors['-tKey1'].TIs[0],
-  //           treatment: newGene.mutations['-mKey1'].tumors['-tKey1'].TIs[0].treatments['-txKey1'],
-  //         },
-  //       ];
-  //     }),
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/TIs/1/treatments/-txKey1/name' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: 'TREATMENT_NAME_CHANGE',
-  //         tumor,
-  //         mutation,
-  //         gene,
-  //         ti: tiIr,
-  //         treatment,
-  //       },
-  //     ],
-  //     ...Object.keys(
-  //       createMockTreatment({
-  //         name: undefined,
-  //         level: undefined,
-  //         short: undefined,
-  //         fdaLevel: undefined,
-  //         name_uuid: undefined,
-  //         indication: undefined,
-  //         level_uuid: undefined,
-  //         description: undefined,
-  //         name_review: undefined,
-  //         propagation: undefined,
-  //         excludedRCTs: undefined,
-  //         level_review: undefined,
-  //         fdaLevel_uuid: undefined,
-  //         name_comments: undefined,
-  //         fdaLevel_review: undefined,
-  //         indication_uuid: undefined,
-  //         description_uuid: undefined,
-  //         propagation_uuid: undefined,
-  //         excludedRCTs_uuid: undefined,
-  //         propagationLiquid: undefined,
-  //         description_review: undefined,
-  //         propagation_review: undefined,
-  //         excludedRCTs_review: undefined,
-  //         propagationLiquid_uuid: undefined,
-  //       }),
-  //     ).map((key): ArrayElement => {
-  //       const valuePath = `mutations/-mKey1/tumors/-tKey1/TIs/1/treatments/-txKey1/${key}`;
-  //       if (key === 'short' || key === 'indication') {
-  //         return [{ ...baseExpectedArgs, valuePath }, undefined];
-  //       } else if (key === 'name') {
-  //         return [
-  //           { ...baseExpectedArgs, valuePath },
-  //           {
-  //             ...baseExpectedArgs,
-  //             type: 'TREATMENT_NAME_CHANGE',
-  //             tumor,
-  //             mutation,
-  //             ti: tiIr,
-  //             treatment,
-  //           },
-  //         ];
-  //       }
-  //       return [
-  //         {
-  //           ...baseExpectedArgs,
-  //           valuePath,
-  //         },
-  //         {
-  //           ...baseExpectedArgs,
-  //           type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
-  //           tumor,
-  //           mutation,
-  //           ti: tiIr,
-  //           treatment,
-  //         },
-  //       ];
-  //     }),
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/TIs/2/treatments/-txKey1/fdaLevel' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
-  //         tumor,
-  //         mutation,
-  //         ti: tiSs,
-  //         treatment,
-  //       },
-  //     ],
-  //     [
-  //       { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/TIs/3/treatments/-txKey1/fdaLevel' },
-  //       {
-  //         ...baseExpectedArgs,
-  //         type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
-  //         tumor,
-  //         mutation,
-  //         gene,
-  //         ti: tiSr,
-  //         treatment,
-  //       },
-  //     ],
-  //   ];
-  //   test.each(goodTests)('Path should parse as expected for path %s', (args, expected) => {
-  //     expect(pathToGetEvidenceArgs(args)).toEqual(expected);
-  //   });
-  //   const badTests: [valuePath: string][] = [
-  //     ['bad/path'],
-  //     ['mutations/-mKey1/bad'],
-  //     ['mutations/-mKey300'],
-  //     ['mutations/bad/-mKey1/mutation_effect/'],
-  //     ['/'],
-  //     [''],
-  //   ];
-  //   test.each(badTests)('Should throw exception for path "%s"', (valuePath: string) => {
-  //     expect(() => pathToGetEvidenceArgs({ ...baseExpectedArgs, valuePath })).toThrow(Error);
-  //   });
-  // });
+    const goodTests: ArrayElement[] = [
+      [{ ...baseExpectedArgs, valuePath: 'mutations/-mKey1' }, undefined],
+      // gene type change
+      [{ ...baseExpectedArgs, valuePath: 'type' }, undefined],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/name' },
+        {
+          ...baseExpectedArgs,
+          type: 'MUTATION_NAME_CHANGE',
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/summary' },
+        {
+          ...baseExpectedArgs,
+          type: 'MUTATION_SUMMARY',
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/cancerTypes' },
+        {
+          ...baseExpectedArgs,
+          type: 'TUMOR_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/excludedCancerTypes' },
+        {
+          ...baseExpectedArgs,
+          type: 'TUMOR_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/TIs/0/treatments/-txKey1/name' },
+        {
+          ...baseExpectedArgs,
+          type: 'TREATMENT_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+          ti: tiIs,
+          treatment,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'summary' },
+        { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.GeneSummary },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'background' },
+        { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.GeneBackground },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/mutation_effect/oncogenic' },
+        { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.Oncogenic, mutation },
+      ],
+      [
+        {
+          ...baseExpectedArgs,
+          valuePath: 'mutations/-mKey1/tumors/-tKey1/summary',
+        },
+        { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.TumorTypeSummary, tumor, mutation },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/prognosticSummary' },
+        {
+          ...baseExpectedArgs,
+          type: EvidenceEvidenceTypeEnum.PrognosticSummary,
+          tumor,
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/diagnosticSummary' },
+        {
+          ...baseExpectedArgs,
+          type: EvidenceEvidenceTypeEnum.DiagnosticSummary,
+          tumor,
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/mutation_effect/effect' },
+        { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.MutationEffect, mutation },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/mutation_effect/description' },
+        { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.MutationEffect, mutation },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/prognostic/level' },
+        {
+          ...baseExpectedArgs,
+          type: EvidenceEvidenceTypeEnum.PrognosticImplication,
+          tumor,
+          mutation,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/diagnostic/level' },
+        {
+          ...baseExpectedArgs,
+          type: EvidenceEvidenceTypeEnum.DiagnosticImplication,
+          tumor,
+          mutation,
+        },
+      ],
+      ...[
+        {
+          level: TX_LEVELS.LEVEL_1,
+          type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
+        },
+        {
+          level: TX_LEVELS.LEVEL_2,
+          type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
+        },
+        {
+          level: TX_LEVELS.LEVEL_3A,
+          type: EvidenceEvidenceTypeEnum.InvestigationalTherapeuticImplicationsDrugSensitivity,
+        },
+        {
+          level: TX_LEVELS.LEVEL_3B,
+          type: EvidenceEvidenceTypeEnum.InvestigationalTherapeuticImplicationsDrugSensitivity,
+        },
+        {
+          level: TX_LEVELS.LEVEL_4,
+          type: EvidenceEvidenceTypeEnum.InvestigationalTherapeuticImplicationsDrugSensitivity,
+        },
+        {
+          level: TX_LEVELS.LEVEL_R1,
+          type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugResistance,
+        },
+        {
+          level: TX_LEVELS.LEVEL_R2,
+          type: EvidenceEvidenceTypeEnum.InvestigationalTherapeuticImplicationsDrugResistance,
+        },
+      ].map(({ level, type }): ArrayElement => {
+        const newGene = createMockGene({
+          ...gene,
+          mutations: {
+            '-mKey1': createMockMutation({
+              ...mutation,
+              tumors: {
+                '-tKey1': createMockTumor({
+                  ...tumor,
+                  TIs: [createMockTi({ ...tiIs, treatments: { '-txKey1': createMockTreatment({ ...treatment, level }) } })],
+                }),
+              },
+            }),
+          },
+        });
+        return [
+          {
+            ...baseExpectedArgs,
+            gene: newGene,
+            valuePath: 'mutations/-mKey1/tumors/-tKey1/TIs/0/treatments/-txKey1',
+          },
+          {
+            ...baseExpectedArgs,
+            type,
+            tumor: newGene.mutations['-mKey1'].tumors['-tKey1'],
+            mutation: newGene.mutations['-mKey1'],
+            gene: newGene,
+            ti: newGene.mutations['-mKey1'].tumors['-tKey1'].TIs[0],
+            treatment: newGene.mutations['-mKey1'].tumors['-tKey1'].TIs[0].treatments['-txKey1'],
+          },
+        ];
+      }),
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/TIs/1/treatments/-txKey1/name' },
+        {
+          ...baseExpectedArgs,
+          type: 'TREATMENT_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+          ti: tiIr,
+          treatment,
+        },
+      ],
+      ...Object.keys(
+        createMockTreatment({
+          name: undefined,
+          level: undefined,
+          short: undefined,
+          fdaLevel: undefined,
+          name_uuid: undefined,
+          indication: undefined,
+          level_uuid: undefined,
+          description: undefined,
+          name_review: undefined,
+          propagation: undefined,
+          excludedRCTs: undefined,
+          level_review: undefined,
+          fdaLevel_uuid: undefined,
+          name_comments: undefined,
+          fdaLevel_review: undefined,
+          indication_uuid: undefined,
+          description_uuid: undefined,
+          propagation_uuid: undefined,
+          excludedRCTs_uuid: undefined,
+          propagationLiquid: undefined,
+          description_review: undefined,
+          propagation_review: undefined,
+          excludedRCTs_review: undefined,
+          propagationLiquid_uuid: undefined,
+        }),
+      ).map((key): ArrayElement => {
+        const valuePath = `mutations/-mKey1/tumors/-tKey1/TIs/1/treatments/-txKey1/${key}`;
+        if (key === 'short' || key === 'indication') {
+          return [{ ...baseExpectedArgs, valuePath }, undefined];
+        } else if (key === 'name') {
+          return [
+            { ...baseExpectedArgs, valuePath },
+            {
+              ...baseExpectedArgs,
+              type: 'TREATMENT_NAME_CHANGE',
+              tumor,
+              mutation,
+              ti: tiIr,
+              treatment,
+            },
+          ];
+        }
+        return [
+          {
+            ...baseExpectedArgs,
+            valuePath,
+          },
+          {
+            ...baseExpectedArgs,
+            type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
+            tumor,
+            mutation,
+            ti: tiIr,
+            treatment,
+          },
+        ];
+      }),
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/TIs/2/treatments/-txKey1/fdaLevel' },
+        {
+          ...baseExpectedArgs,
+          type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
+          tumor,
+          mutation,
+          ti: tiSs,
+          treatment,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/-mKey1/tumors/-tKey1/TIs/3/treatments/-txKey1/fdaLevel' },
+        {
+          ...baseExpectedArgs,
+          type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
+          tumor,
+          mutation,
+          gene,
+          ti: tiSr,
+          treatment,
+        },
+      ],
+    ];
+    test.each(goodTests)('Path should parse as expected for path %s', (args, expected) => {
+      expect(pathToGetEvidenceArgs(args)).toEqual(expected);
+    });
+    const badTests: [valuePath: string][] = [
+      ['bad/path'],
+      ['mutations/-mKey1/bad'],
+      ['mutations/-mKey300'],
+      ['mutations/bad/-mKey1/mutation_effect/'],
+      ['/'],
+      [''],
+    ];
+    test.each(badTests)('Should throw exception for path "%s"', (valuePath: string) => {
+      expect(() => pathToGetEvidenceArgs({ ...baseExpectedArgs, valuePath })).toThrow(Error);
+    });
+  });
   describe('evidences mapping tests', () => {
     type PathArgs = Parameters<typeof pathToGetEvidenceArgs>[0];
     const baseArgs: Omit<PathArgs, 'valuePath' | 'gene'> = {

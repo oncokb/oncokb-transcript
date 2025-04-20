@@ -970,21 +970,3 @@ export function areCancerTypePropertiesEqual(a: string | undefined, b: string | 
 export function isStringEmpty(string: string | undefined | null) {
   return string === '' || _.isNil(string);
 }
-
-export function mapJSArrayToFirebaseArray<T>(
-  items: T[] | undefined,
-  getArrayKey: (path?: string) => string | undefined,
-  path?: string,
-): Record<string, T> {
-  const getArrayKeyPathParam = path === '/' ? undefined : path;
-  return (
-    items?.reduce(
-      (acc, item) => {
-        const key = getArrayKey(getArrayKeyPathParam);
-        acc[key!] = item; // Using non-null assertion on key because getArrayKey's path is guaranteed to not be the root reference
-        return acc;
-      },
-      {} as Record<string, T>,
-    ) ?? {}
-  );
-}

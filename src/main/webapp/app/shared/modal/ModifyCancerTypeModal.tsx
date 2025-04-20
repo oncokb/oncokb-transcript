@@ -12,7 +12,6 @@ import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
 import { Unsubscribe, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import { AsyncSaveButton } from '../button/AsyncSaveButton';
-import { mapJSArrayToFirebaseArray } from '../util/firebase/firebase-utils';
 
 export interface IModifyCancerTypeModalProps extends StoreProps {
   cancerTypesUuid: string;
@@ -75,6 +74,7 @@ const ModifyCancerTypeModalContent = observer(
     modifyCancerTypeModalStore,
     firebaseDb,
     getArrayKey,
+    transformJSArrayToFirebaseArray,
   }: IModifyCancerTypeModalProps) => {
     const [cancerTypeToEdit, setCancerTypeToEdit] = useState<Tumor | null>(null);
     const [isConfirmPending, setIsConfirmPending] = useState(false);
@@ -215,7 +215,7 @@ const ModifyCancerTypeModalContent = observer(
           acc[ctKey!] = cancerType;
           return acc;
         }, {} as CancerTypeList) ?? {};
-      newTumor.cancerTypes = mapJSArrayToFirebaseArray<CancerType>(includedCancerTypes, getArrayKey!, `${cancerTypesPathToEdit}`);
+      newTumor.cancerTypes = transformJSArrayToFirebaseArray?.<CancerType>(includedCancerTypes ?? [], `${cancerTypesPathToEdit}`) ?? {};
       newTumor.excludedCancerTypes =
         excludedCancerTypes?.reduce((acc, cancerType) => {
           const ctKey = getArrayKey?.();
@@ -326,11 +326,18 @@ const ModifyCancerTypeModalContent = observer(
   },
 );
 
-const mapStoreToProps = ({ cancerTypeStore, modifyCancerTypeModalStore, firebaseAppStore, firebaseRepository }: IRootStore) => ({
+const mapStoreToProps = ({
+  cancerTypeStore,
+  modifyCancerTypeModalStore,
+  firebaseAppStore,
+  firebaseRepository,
+  firebaseGeneService,
+}: IRootStore) => ({
   searchCancerTypes: cancerTypeStore.searchEntities,
   modifyCancerTypeModalStore,
   firebaseDb: firebaseAppStore.firebaseDb,
   getArrayKey: firebaseRepository.getArrayKey,
+  transformJSArrayToFirebaseArray: firebaseGeneService.transformJSArrayToFirebaseArray,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
