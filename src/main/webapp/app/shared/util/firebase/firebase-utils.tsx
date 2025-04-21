@@ -6,10 +6,13 @@ import { CategoricalAlterationType } from 'app/shared/model/enumerations/categor
 import {
   Alteration,
   CancerType,
+  CancerTypeList,
   Comment,
+  CommentList,
   DX_LEVELS,
   FIREBASE_ONCOGENICITY,
   Gene,
+  Implication,
   Meta,
   MetaReview,
   Mutation,
@@ -31,6 +34,7 @@ import { parseFirebaseGenePath } from './firebase-path-utils';
 import { hasReview } from './firebase-review-utils';
 import { Database, ref, get } from 'firebase/database';
 import { FirebaseGeneService } from 'app/service/firebase/firebase-gene-service';
+import { SentryError } from 'app/config/sentry-error';
 
 export const getValueByNestedKey = (obj: any, nestedKey = '') => {
   return nestedKey.split('/').reduce((currObj, currKey) => {
@@ -157,9 +161,10 @@ export const getFirebaseMetaGeneReviewPath = (isGermline: boolean | undefined, h
   return getFirebasePath(isGermline ? 'GERMLINE_META_GENE_REVIEW' : 'META_GENE_REVIEW', hugoSymbol, uuid);
 };
 
-export function getMostRecentComment(comments: Comment[]) {
-  let latestComment = comments[0];
-  for (const comment of comments) {
+export function getMostRecentComment(comments: CommentList) {
+  const commentsArray = Object.values(comments);
+  let latestComment = commentsArray[0];
+  for (const comment of commentsArray) {
     if (parseInt(comment.date, 10) > parseInt(latestComment.date, 10)) {
       latestComment = comment;
     }
@@ -208,7 +213,7 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
     return true;
   }
 
-  const ignoredKeySuffixes = ['_review', '_uuid', 'TIs', 'cancerTypes', 'name', 'alterations'];
+  const ignoredKeySuffixes = ['_review', '_uuid', 'TIs', 'cancerTypes', 'excludedCancerTypes', 'name', 'alterations'];
   const isEmpty = isNestedObjectEmpty(sectionValue, ignoredKeySuffixes);
 
   if (!isEmpty) {
@@ -220,7 +225,7 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
   // make our function always return isEmpty=False
   const implications: TI[] = [];
   if (path.match(/mutations\/\d+$/g)) {
-    for (const tumor of (sectionValue as Mutation).tumors || []) {
+    for (const tumor of Object.values((sectionValue as Mutation).tumors ?? {})) {
       implications.push(...tumor.TIs);
     }
   } else if (path.match(/tumors\/\d+$/g)) {
@@ -228,7 +233,7 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
   }
 
   for (const implication of implications) {
-    if (implication.treatments && implication.treatments.length > 0) {
+    if (implication.treatments && Object.keys(implication.treatments).length > 0) {
       return false;
     }
   }
@@ -707,7 +712,7 @@ export const getAllLevelSummaryStats = (mutations: Mutation[]) => {
   mutations.forEach(mutation => {
     summary[mutation.name_uuid] = {};
     if (mutation.tumors) {
-      mutation.tumors.forEach(tumor => {
+      Object.values(mutation.tumors).forEach(tumor => {
         summary[mutation.name_uuid][tumor.cancerTypes_uuid] = {
           TT: 0,
           oncogenicity: '',
@@ -732,7 +737,7 @@ export const getAllLevelSummaryStats = (mutations: Mutation[]) => {
         }
         tumor.TIs.forEach(ti => {
           if (ti.treatments) {
-            ti.treatments.forEach(treatment => {
+            Object.values(ti.treatments).forEach(treatment => {
               const cancerTypeSummary = summary[mutation.name_uuid][tumor.cancerTypes_uuid];
               cancerTypeSummary.txLevels.push(treatment.level);
 
@@ -781,7 +786,7 @@ export const getMutationStats = (
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
   if (mutation?.tumors) {
-    mutation.tumors.forEach(tumor => {
+    Object.values(mutation.tumors).forEach(tumor => {
       stats.TT++;
       if (tumor.summary) {
         stats.TTS++;
@@ -794,7 +799,7 @@ export const getMutationStats = (
       }
       tumor.TIs.forEach(ti => {
         if (ti.treatments) {
-          ti.treatments.forEach(treatment => {
+          Object.values(ti.treatments).forEach(treatment => {
             if (isTxLevelPresent(treatment.level)) {
               if (!stats.txLevels[treatment.level]) {
                 stats.txLevels[treatment.level] = 1;
@@ -847,7 +852,7 @@ export const getCancerTypeStats = (tumor?: Tumor | null) => {
     }
     tumor.TIs.forEach(ti => {
       if (ti.treatments) {
-        ti.treatments.forEach(treatment => {
+        Object.values(ti.treatments).forEach(treatment => {
           if (isTxLevelPresent(treatment.level)) {
             if (!stats.txLevels[treatment.level]) {
               stats.txLevels[treatment.level] = 1;
@@ -911,8 +916,10 @@ export const getReviewInfo = (editor: string, action: string, updateTime?: strin
   );
 };
 
-export const getAllCommentsString = (comments: Comment[]) => {
-  return comments.map(comment => comment.content).join('\n');
+export const getAllCommentsString = (comments: CommentList) => {
+  return Object.values(comments)
+    .map(comment => comment.content)
+    .join('\n');
 };
 
 export function findNestedUuids(obj: any, uuids: string[] = []) {

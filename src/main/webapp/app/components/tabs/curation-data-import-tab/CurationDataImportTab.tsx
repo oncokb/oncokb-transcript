@@ -33,11 +33,8 @@ import {
   SomaticMutationDI,
 } from 'app/components/tabs/curation-data-import-tab/import-methods';
 import _, { groupBy } from 'lodash';
-import { Mutation, VusObjList } from 'app/shared/model/firebase/firebase.model';
+import { MutationList, VusObjList } from 'app/shared/model/firebase/firebase.model';
 import { getFirebaseGenePath, getFirebaseVusPath } from 'app/shared/util/firebase/firebase-utils';
-import { Alteration as ApiAlteration, AnnotateAlterationBody, Gene } from 'app/shared/api/generated/curation';
-import { REFERENCE_GENOME } from 'app/config/constants/constants';
-import { flow, flowResult } from 'mobx';
 
 export interface ICurationToolsTabProps extends StoreProps {}
 
@@ -168,7 +165,7 @@ type MutationSaveDataFunc<T> = (
   isGermline,
   createGene,
   data,
-  mutationList: Mutation[],
+  mutationList: MutationList,
   vusList: VusObjList,
 ) => Promise<DataRow<T>>;
 
@@ -210,7 +207,7 @@ const saveDataToFirebase: {
     isGermline,
     createGene,
     data,
-    mutationList: Mutation[],
+    mutationList: MutationList,
     vusList: VusObjList,
   ) {
     return {
@@ -236,7 +233,7 @@ const saveDataToFirebase: {
     isGermline,
     createGene,
     data,
-    mutationList: Mutation[],
+    mutationList: MutationList,
     vusList: VusObjList,
   ) {
     return {
@@ -391,7 +388,7 @@ const CurationDataImportTab = observer(
         );
         if (status.status !== 'error') {
           const genePath: string = getFirebaseGenePath(isGermline, hugoSymbol);
-          const mutations: Mutation[] = (await firebaseGeneService.firebaseRepository.get(`${genePath}/mutations`)).val();
+          const mutations: MutationList = (await firebaseGeneService.firebaseRepository.get(`${genePath}/mutations`)).val();
           const vus: VusObjList = (await firebaseGeneService.firebaseRepository.get(getFirebaseVusPath(isGermline, hugoSymbol))).val();
 
           for (let i = 0; i < group.length; i++) {

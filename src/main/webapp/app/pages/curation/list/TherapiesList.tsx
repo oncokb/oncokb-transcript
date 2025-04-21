@@ -27,7 +27,7 @@ export interface ITherapiesList extends StoreProps {
 
 type TxObject = {
   tiIndex: number;
-  treatmentIndex: number;
+  treatmentKey: string;
   treatment: Treatment;
 };
 
@@ -67,10 +67,10 @@ const TherapiesList = ({
         }
 
         return accumulator.concat(
-          ti.treatments.map((treatment, treatmentIndex) => {
+          Object.entries(ti.treatments).map(([treatmentKey, treatment]) => {
             return {
               tiIndex,
-              treatmentIndex,
+              treatmentKey,
               treatment,
             };
           }),
@@ -106,7 +106,7 @@ const TherapiesList = ({
         return (
           <div key={therapy.treatment.name_uuid} className={index > 0 ? 'mt-2' : undefined}>
             <TherapyCollapsible
-              therapyPath={`${tisPath}/${therapy.tiIndex}/treatments/${therapy.treatmentIndex}`}
+              therapyPath={`${tisPath}/${therapy.tiIndex}/treatments/${therapy.treatmentKey}`}
               parsedHistoryList={parsedHistoryList}
               mutationName={mutationName}
               mutationUuid={mutationUuid}

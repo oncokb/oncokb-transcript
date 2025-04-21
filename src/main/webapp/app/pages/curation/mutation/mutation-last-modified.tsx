@@ -25,7 +25,7 @@ export function MutationLastModified({ mutationUuid, mutationList, hugoSymbol, i
 
   useEffect(() => {
     if (mutationList && _.isNil(lastModified)) {
-      const mutation = mutationList.find(mut => mut.name_uuid === mutationUuid);
+      const mutation = Object.values(mutationList ?? {}).find(mut => mut.name_uuid === mutationUuid);
       if (!mutation) {
         return;
       }

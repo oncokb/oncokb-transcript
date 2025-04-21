@@ -32,34 +32,30 @@ export const buildFirebaseGenePath = (hugoSymbol: string, fieldKey: string) => {
 export const extractArrayPath = (valuePath: string) => {
   const pathParts = valuePath.split('/');
   // First pop is to remove the field key that comes with the reviewLevel's valuePath.
-  // For instance, valuePath can be 'mutations/0/name'
+  // For instance, valuePath can be 'mutations/arrayKey/name'
   pathParts.pop();
-  const deleteIndexString = pathParts.pop();
-  if (!deleteIndexString) {
-    throw new Error('could not find delete index string');
+  const deleteArrayKey = pathParts.pop();
+  if (!deleteArrayKey) {
+    throw new Error('could not find array key string');
   }
-  const deleteIndex = parseInt(deleteIndexString, 10); // Remove index
   const firebaseArrayPath = pathParts.join('/');
-  return { firebaseArrayPath, deleteIndex };
+  return { firebaseArrayPath, deleteArrayKey };
 };
 
-export enum FIREBASE_LIST_PATH_TYPE {
-  MUTATION_LIST,
-  TUMOR_LIST,
-  TREATMENT_LIST,
-  GENOMIC_INDICATOR_LIST,
-}
-export const getFirebasePathType = (path: string) => {
-  if (/mutations\/\d+$/i.test(path)) {
-    return FIREBASE_LIST_PATH_TYPE.MUTATION_LIST;
-  }
-  if (/tumors\/\d+$/i.test(path)) {
-    return FIREBASE_LIST_PATH_TYPE.TUMOR_LIST;
-  }
-  if (/TIs\/\d+\/treatments\/\d+$/i.test(path)) {
-    return FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST;
-  }
-  if (/genomic_indicators\/\d+$/i.test(path)) {
-    return FIREBASE_LIST_PATH_TYPE.GENOMIC_INDICATOR_LIST;
-  }
+const FIREBASE_ARRAY_PATH_REGEXES = [
+  new RegExp(/^Genes\/[^/]+\/mutations$/),
+  new RegExp(/^Genes\/[^/]+\/mutations\/[^/]+\/tumors$/),
+  new RegExp(/^Genes\/[^/]+\/mutations\/[^/]+\/tumors\/[^/]+\/cancerTypes$/),
+  new RegExp(/^Genes\/[^/]+\/mutations\/[^/]+\/tumors\/[^/]+\/excludedCancerTypes$/),
+  new RegExp(/^Genes\/[^/]+\/mutations\/[^/]+\/tumors\/[^/]+\/prognostic\/excludedRCTs$/),
+  new RegExp(/^Genes\/[^/]+\/mutations\/[^/]+\/tumors\/[^/]+\/diagnostic\/excludedRCTs$/),
+  new RegExp(/^Genes\/[^/]+\/mutations\/[^/]+\/tumors\/[^/]+\/TIs\/[\d]+\/treatments$/),
+  new RegExp(/^Genes\/[^/]+\/mutations\/[^/]+\/tumors\/[^/]+\/TIs\/[\d]+\/treatments\/[^/]+\/excludedRCTs$/),
+  new RegExp(/^Germline_Genes\/[^/]+\/genomic_indicators$/),
+  new RegExp(/^Germline_Genes\/[^/]+\/genomic_indicators\/[^/]+\/associationVariants$/),
+];
+
+export const isFirebaseArray = (firebasePath: string) => {
+  const isArray = FIREBASE_ARRAY_PATH_REGEXES.some(regex => regex.test(firebasePath));
+  return isArray || firebasePath.endsWith('_comments');
 };
