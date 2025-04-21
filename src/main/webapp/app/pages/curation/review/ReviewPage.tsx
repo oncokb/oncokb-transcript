@@ -90,9 +90,9 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   }, [metaReview]);
 
   useEffect(() => {
-    if (geneData && !_.isNil(reviewUuids)) {
+    if (geneData && !_.isNil(reviewUuids) && props.drugList) {
       const reviewMap = new EditorReviewMap();
-      const reviews = findReviews(props.drugList ?? [], geneData, _.clone(reviewUuids), reviewMap);
+      const reviews = findReviews(props.drugList, geneData, _.clone(reviewUuids), reviewMap);
       if (reviews.hasChildren()) {
         reviews.children.forEach((__, index) => (reviews.children[index] = getCompactReviewInfo(reviews.children[index])));
       }
@@ -158,6 +158,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
 
   return props.firebaseInitSuccess &&
     !props.loadingGenes &&
+    !props.loadingDrugList &&
     props.drugList !== undefined &&
     props.drugList.length > 0 &&
     !!geneEntity &&
@@ -288,6 +289,7 @@ const mapStoreToProps = ({
   createActionHandler: firebaseGeneReviewService.handleCreateAction,
   drugList: drugStore.entities,
   getDrugs: drugStore.getEntities,
+  loadingDrugList: drugStore.loading,
   searchGeneEntities: geneStore.searchEntities,
   geneEntities: geneStore.entities,
   loadingGenes: geneStore.loading,
