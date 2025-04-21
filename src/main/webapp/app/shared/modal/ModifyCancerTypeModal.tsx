@@ -45,6 +45,7 @@ function ModifyCancerTypeModal({
   modifyCancerTypeModalStore,
   firebaseDb,
   getArrayKey,
+  transformJSArrayToFirebaseArray,
 }: IModifyCancerTypeModalProps) {
   return modifyCancerTypeModalStore?.openCancerTypesUuid === cancerTypesUuid ? (
     <ModifyCancerTypeModalContent
@@ -57,6 +58,7 @@ function ModifyCancerTypeModal({
       modifyCancerTypeModalStore={modifyCancerTypeModalStore}
       firebaseDb={firebaseDb}
       getArrayKey={getArrayKey}
+      transformJSArrayToFirebaseArray={transformJSArrayToFirebaseArray}
     />
   ) : (
     <></>
@@ -73,7 +75,6 @@ const ModifyCancerTypeModalContent = observer(
     searchCancerTypes,
     modifyCancerTypeModalStore,
     firebaseDb,
-    getArrayKey,
     transformJSArrayToFirebaseArray,
   }: IModifyCancerTypeModalProps) => {
     const [cancerTypeToEdit, setCancerTypeToEdit] = useState<Tumor | null>(null);
@@ -209,19 +210,9 @@ const ModifyCancerTypeModalContent = observer(
       );
 
       const newTumor = cancerTypeToEdit ? _.cloneDeep(cancerTypeToEdit) : new Tumor();
-      newTumor.cancerTypes =
-        includedCancerTypes?.reduce((acc, cancerType) => {
-          const ctKey = getArrayKey?.();
-          acc[ctKey!] = cancerType;
-          return acc;
-        }, {} as CancerTypeList) ?? {};
       newTumor.cancerTypes = transformJSArrayToFirebaseArray?.<CancerType>(includedCancerTypes ?? [], `${cancerTypesPathToEdit}`) ?? {};
       newTumor.excludedCancerTypes =
-        excludedCancerTypes?.reduce((acc, cancerType) => {
-          const ctKey = getArrayKey?.();
-          acc[ctKey!] = cancerType;
-          return acc;
-        }, {} as CancerTypeList) ?? {};
+        transformJSArrayToFirebaseArray?.<CancerType>(excludedCancerTypes ?? [], `${cancerTypesPathToEdit}`) ?? {};
       if (!newTumor.excludedCancerTypes_uuid) {
         newTumor.excludedCancerTypes_uuid = generateUuid();
       }
