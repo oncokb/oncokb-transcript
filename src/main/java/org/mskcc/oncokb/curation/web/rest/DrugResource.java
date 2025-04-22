@@ -143,8 +143,7 @@ public class DrugResource {
     @GetMapping("/drugs")
     public ResponseEntity<List<Drug>> getAllDrugs(DrugCriteria criteria) {
         log.debug("REST request to get Drugs by criteria: {}", criteria);
-        List<Drug> entityList = drugQueryService.findByCriteria(criteria);
-        return ResponseEntity.ok().body(drugService.findAllByIds(entityList.stream().map(Drug::getId).collect(Collectors.toList())));
+        return ResponseEntity.ok().body(drugService.findAll(criteria));
     }
 
     /**
