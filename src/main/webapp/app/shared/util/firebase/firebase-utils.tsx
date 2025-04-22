@@ -16,6 +16,7 @@ import {
   Meta,
   MetaReview,
   Mutation,
+  MutationList,
   PX_LEVELS,
   Review,
   TI,
@@ -339,35 +340,46 @@ export const getVusTimestampClass = (time: string | number) => {
   }
 };
 
-export type DuplicateMutationInfo = {
-  duplicate: string;
-  inMutationList: boolean;
-  inVusList: boolean;
-};
+export type DuplicateMutationInfo =
+  | {
+      duplicate: string;
+      inMutationList: true;
+      inVusList: boolean;
+      firebaseMutationPath: string;
+    }
+  | {
+      duplicate: string;
+      inMutationList: false;
+      inVusList: boolean;
+      firebaseMutationPath?: undefined;
+    };
 
 export const getDuplicateMutations = (
   currentMutations: string[],
-  mutationList: readonly Mutation[],
+  mutationList: MutationList,
+  firebaseMutationListPath: string,
   vusList: VusObjList,
   options: { useFullAlterationName?: boolean; excludedMutationUuid?: string; excludedVusName?: string; exact?: boolean },
 ) => {
   const mutationNames =
-    mutationList
-      ?.filter(mutation => options.excludedMutationUuid !== mutation.name_uuid)
-      .map(mutation =>
-        mutation.name
+    Object.entries(mutationList)
+      ?.filter(([_, mutation]) => options.excludedMutationUuid !== mutation.name_uuid)
+      .map(([mKey, mutation]) => ({
+        mutationName: mutation.name
           ?.split(',')
           .map(alt => {
             const parsedAlteration = parseAlterationName(alt)[0];
             const variantName = parsedAlteration.name ? ` [${parsedAlteration.name}]` : '';
             const excluding = parsedAlteration.excluding.length > 0 ? ` {excluding ${parsedAlteration.excluding.join(' ; ')}}` : '';
+            let mutationName = parsedAlteration.alteration.toLowerCase();
             if (options.useFullAlterationName) {
-              return `${parsedAlteration.alteration}${variantName}${excluding}`.toLowerCase();
+              mutationName = `${parsedAlteration.alteration}${variantName}${excluding}`.toLowerCase();
             }
-            return parsedAlteration.alteration.toLowerCase();
+            return mutationName;
           })
           .sort(),
-      ) || [];
+        firebaseMutationPath: `${firebaseMutationListPath}/${mKey}`,
+      })) || [];
 
   const vusNames = Object.values(vusList || [])
     .filter(vus => vus.name.toLowerCase() !== options.excludedVusName?.toLowerCase())
