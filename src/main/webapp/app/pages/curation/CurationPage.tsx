@@ -123,7 +123,12 @@ export const CurationPage = (props: ICurationPageProps) => {
     return <div>the gene &quot;{hugoSymbolParam}&quot; was not found</div>;
   }
 
-  return props.firebaseInitSuccess && !props.loadingGenes && !!geneEntity && firebaseGeneExists && hugoSymbol ? (
+  return props.firebaseInitSuccess &&
+    !props.loadingGenes &&
+    props.drugList.length > 0 &&
+    !!geneEntity &&
+    firebaseGeneExists &&
+    hugoSymbol ? (
     <>
       <div style={{ visibility: props.isMutationListRendered ? 'visible' : 'hidden' }}>
         <GeneHeader firebaseGenePath={firebaseGenePath} geneEntity={geneEntity} isReviewing={false} />
@@ -336,6 +341,7 @@ const mapStoreToProps = ({
   addMutationListListener: firebaseMutationListStore.addListener,
   drugList: drugStore.entities,
   getDrugs: drugStore.getEntities,
+  loadingDrugs: drugStore.loading,
   relevantCancerTypesModalStore,
   fullName: authStore.fullName,
   updateRelevantCancerTypes: firebaseGeneService.updateRelevantCancerTypes,
