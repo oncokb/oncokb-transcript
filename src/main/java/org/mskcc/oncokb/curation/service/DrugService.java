@@ -1,13 +1,16 @@
 package org.mskcc.oncokb.curation.service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
+import org.mskcc.oncokb.curation.service.criteria.DrugCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,9 +24,11 @@ public class DrugService {
     private final Logger log = LoggerFactory.getLogger(DrugService.class);
 
     private final DrugRepository drugRepository;
+    private final DrugQueryService drugQueryService;
 
-    public DrugService(DrugRepository drugRepository) {
+    public DrugService(DrugRepository drugRepository, DrugQueryService drugQueryService) {
         this.drugRepository = drugRepository;
+        this.drugQueryService = drugQueryService;
     }
 
     /**
@@ -70,9 +75,19 @@ public class DrugService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public List<Drug> findAll() {
+    @Cacheable(cacheResolver = "drugCacheResolver")
+    public List<Drug> findAll(DrugCriteria criteria) {
         log.debug("Request to get all Drugs");
-        return drugRepository.findAllWithEagerRelationships();
+        Boolean isEmptyCriteria = (new DrugCriteria()).equals(criteria);
+        List<Drug> drugs = new ArrayList<>();
+        if (!isEmptyCriteria) {
+            drugs = drugQueryService.findByCriteria(criteria);
+        }
+        if (drugs.size() == 0) {
+            return drugRepository.findAllWithEagerRelationships();
+        } else {
+            return drugRepository.findAllWithEagerRelationships(drugs.stream().map(Drug::getId).collect(Collectors.toList()));
+        }
     }
 
     /**

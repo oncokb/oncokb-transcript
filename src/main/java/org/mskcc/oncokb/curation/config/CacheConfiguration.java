@@ -131,6 +131,7 @@ public class CacheConfiguration extends CachingConfigurerSupport {
                 cacheNameResolver
             );
             createCache(cm, CacheCategory.SEQUENCE, CacheKeys.SEQUENCE_BY_TRASCRIPT_AND_TYPE, jcacheConfiguration, cacheNameResolver);
+            createCache(cm, CacheCategory.DRUG, CacheKeys.DRUGS_ALL, jcacheConfiguration, cacheNameResolver);
         };
     }
 
@@ -168,6 +169,11 @@ public class CacheConfiguration extends CachingConfigurerSupport {
         CacheNameResolver cacheNameResolver
     ) {
         return new SequenceCacheResolver(cm, applicationProperties, cacheNameResolver);
+    }
+
+    @Bean
+    public CacheResolver drugCacheResolver(CacheManager cm, CacheNameResolver cacheNameResolver) {
+        return new DrugCacheResolver(cm, cacheNameResolver);
     }
 
     @Autowired(required = false)
