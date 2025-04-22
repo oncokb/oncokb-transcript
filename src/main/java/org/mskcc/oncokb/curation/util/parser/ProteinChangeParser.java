@@ -142,7 +142,7 @@ public class ProteinChangeParser {
                 // we only want to specify reference when it's one position ins/del
                 alteration.setRefResidues(m.group(1).toUpperCase());
             }
-            revisedProteinChange += alteration.getRefResidues();
+            revisedProteinChange += m.group(1).toUpperCase();
             alteration.setStart(Integer.valueOf(m.group(2)));
             revisedProteinChange += alteration.getStart();
             if (m.group(3) != null) {
