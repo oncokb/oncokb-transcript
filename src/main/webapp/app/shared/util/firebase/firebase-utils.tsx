@@ -351,7 +351,6 @@ export type DuplicateMutationInfo =
       duplicate: string;
       inMutationList: false;
       inVusList: boolean;
-      firebaseMutationPath?: undefined;
     };
 
 export const getDuplicateMutations = (
@@ -363,7 +362,7 @@ export const getDuplicateMutations = (
 ) => {
   const mutationNames =
     Object.entries(mutationList)
-      ?.filter(([_, mutation]) => options.excludedMutationUuid !== mutation.name_uuid)
+      ?.filter(([mKey, mutation]) => options.excludedMutationUuid !== mutation.name_uuid)
       .map(([mKey, mutation]) => ({
         mutationName: mutation.name
           ?.split(',')
@@ -392,41 +391,72 @@ export const getDuplicateMutations = (
     const currentMutationsName = currentMutations.join(', ');
     const lowerCaseCurrentMutations = currentMutations.map(mut => mut.toLowerCase());
 
-    if (mutationNames.some(mutation => _.isEqual(mutation, lowerCaseCurrentMutations))) {
-      addDuplicateMutationInfo(duplicates, currentMutationsName, 'mutation');
+    const matchingMutation = mutationNames.find(mutation => _.isEqual(mutation.mutationName, lowerCaseCurrentMutations));
+
+    if (matchingMutation) {
+      addDuplicateMutationInfo(duplicates, currentMutationsName, 'mutation', matchingMutation.firebaseMutationPath);
     }
 
-    if (vusNames.some(vus => _.isEqual(vus, lowerCaseCurrentMutations))) {
+    const matchingVUS = vusNames.find(vus => _.isEqual(vus, lowerCaseCurrentMutations));
+
+    if (matchingVUS) {
       addDuplicateMutationInfo(duplicates, currentMutationsName, 'vus');
     }
   } else {
-    const flattenedMutationNames = _.uniq(_.flatten(mutationNames));
-    currentMutations
-      .filter(currAlt => flattenedMutationNames.includes(currAlt.toLowerCase()))
-      .forEach(mutation => {
-        addDuplicateMutationInfo(duplicates, mutation, 'mutation');
-      });
+    const flattenedMutationNames = _.uniq(
+      mutationNames.flatMap(group =>
+        group.mutationName.map(name => ({
+          mutationName: name,
+          firebaseMutationList: group.firebaseMutationPath,
+        })),
+      ),
+    );
 
-    const flattenedVusNames = _.uniq(_.flatten(vusNames));
-    currentMutations
-      .filter(currAlt => flattenedVusNames.includes(currAlt.toLowerCase()))
-      .forEach(mutation => {
-        addDuplicateMutationInfo(duplicates, mutation, 'vus');
+    currentMutations.forEach(currAlt => {
+      flattenedMutationNames.forEach(fmn => {
+        if (fmn.mutationName === currAlt.toLowerCase()) {
+          addDuplicateMutationInfo(duplicates, fmn.mutationName, 'mutation', fmn.firebaseMutationList);
+        }
       });
+    });
   }
+  /* eslint-disable no-console */
+  console.log(duplicates);
   return duplicates;
 };
 
-const addDuplicateMutationInfo = (duplicates: DuplicateMutationInfo[], mutationName: string, listType: 'mutation' | 'vus') => {
+const addDuplicateMutationInfo = (
+  duplicates: DuplicateMutationInfo[],
+  mutationName: string,
+  listType: 'mutation' | 'vus',
+  firebaseMutationPath?: string,
+) => {
   const existingDuplicate = duplicates.find(duplicate => duplicate.duplicate === mutationName);
   if (existingDuplicate) {
-    listType === 'mutation' ? (existingDuplicate.inMutationList = true) : (existingDuplicate.inVusList = true);
+    if (listType === 'mutation' && firebaseMutationPath) {
+      // Cast to narrow the type so TypeScript knows we can assign firebaseMutationPath
+      Object.assign(existingDuplicate, {
+        inMutationList: true,
+        firebaseMutationPath,
+      });
+    } else {
+      existingDuplicate.inVusList = true;
+    }
   } else {
-    duplicates.push({
-      duplicate: mutationName,
-      inMutationList: listType === 'mutation',
-      inVusList: listType === 'vus',
-    });
+    if (listType === 'mutation' && firebaseMutationPath) {
+      duplicates.push({
+        duplicate: mutationName,
+        inMutationList: true,
+        inVusList: false,
+        firebaseMutationPath,
+      });
+    } else {
+      duplicates.push({
+        duplicate: mutationName,
+        inMutationList: false,
+        inVusList: true,
+      });
+    }
   }
 };
 

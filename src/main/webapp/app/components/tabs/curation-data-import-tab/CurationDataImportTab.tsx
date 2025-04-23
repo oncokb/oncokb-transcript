@@ -1,6 +1,6 @@
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Col, Input, InputGroup, Label, Row } from 'reactstrap';
 import Select, { GroupBase, OptionsOrGroups } from 'react-select';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
@@ -35,7 +35,7 @@ import _, { groupBy } from 'lodash';
 import { MutationList, VusObjList } from 'app/shared/model/firebase/firebase.model';
 import { getFirebaseGenePath, getFirebaseVusPath } from 'app/shared/util/firebase/firebase-utils';
 import { SentryError } from 'app/config/sentry-error';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { CellInfo } from 'react-table';
 import { LongText } from 'app/shared/text/LongText';
 import { LONG_TEXT_CUTOFF_COMPACT } from 'app/config/constants/constants';
@@ -164,6 +164,7 @@ type GenericGeneDataSaveDataFunc = (
 type MutationSaveDataFunc<T> = (
   authStore,
   firebaseGeneService,
+  firebaseGeneReviewService,
   firebaseMetaService,
   alterationStore,
   isGermline,
@@ -206,6 +207,7 @@ const saveDataToFirebase: {
   async [DataImportType.SOMATIC_MUTATION](
     authStore,
     firebaseGeneService,
+    firebaseGeneReviewService,
     firebaseMetaService,
     alterationStore,
     isGermline,
@@ -219,6 +221,7 @@ const saveDataToFirebase: {
       ...(await saveMutation(
         authStore,
         firebaseGeneService,
+        firebaseGeneReviewService,
         firebaseMetaService,
         alterationStore,
         isGermline,
@@ -232,6 +235,7 @@ const saveDataToFirebase: {
   async [DataImportType.GERMLINE_MUTATION](
     authStore,
     firebaseGeneService,
+    firebaseGeneReviewService,
     firebaseMetaService,
     annotateAlterations,
     isGermline,
@@ -245,6 +249,7 @@ const saveDataToFirebase: {
       ...(await saveMutation(
         authStore,
         firebaseGeneService,
+        firebaseGeneReviewService,
         firebaseMetaService,
         annotateAlterations,
         isGermline,
@@ -437,6 +442,7 @@ const CurationDataImportTab = observer(
                   group[i] = await saveDataToFirebase[selectedDataTypeOption.value](
                     authStore,
                     firebaseGeneService,
+                    firebaseGeneReviewService,
                     firebaseMetaService,
                     alterationStore,
                     isGermline,
@@ -472,6 +478,7 @@ const CurationDataImportTab = observer(
       setFileRows(_.flatten(_.values(geneGroups)));
 
       setImportStatus('imported');
+      notifySuccess('Finished importing', { position: 'top-right' });
     };
 
     const getTableColumns = () => {
@@ -485,7 +492,6 @@ const CurationDataImportTab = observer(
       ];
       if (importStatus === 'imported' || importStatus === 'uploaded') {
         columns.push({
-          disableHeaderFiltering: true,
           accessor: IMPORT_STATUS_HEADER_KEY,
           Header: importStatus === 'imported' ? 'Import Status' : 'Upload Status',
           maxWidth: 120,
