@@ -33,9 +33,9 @@ interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol:
 
 const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPageProps) => {
   const isGermline = props.isGermline;
-  const hugoSymbolParam = props.match.params.hugoSymbol;
+  const hugoSymbolParam = decodeURIComponent(props.match.params.hugoSymbol ?? '');
 
-  const { geneEntity, hugoSymbol } = useMatchGeneEntity(hugoSymbolParam, props.searchGeneEntities, props.geneEntities ?? []);
+  const { geneEntity, hugoSymbol, geneIsFound } = useMatchGeneEntity(hugoSymbolParam, props.searchGeneEntities, props.geneEntities ?? []);
 
   const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
   const firebaseMetaReviewPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`;
@@ -155,6 +155,10 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   };
 
   const allEditors = editorReviewMap.getEditorList();
+
+  if (!geneIsFound) {
+    return <div>the gene &quot;{hugoSymbolParam}&quot; was not found</div>;
+  }
 
   return props.firebaseInitSuccess &&
     !props.loadingGenes &&
