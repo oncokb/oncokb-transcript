@@ -7,6 +7,7 @@ import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import React, { DependencyList, useCallback, useEffect } from 'react';
 import { Col, Form, FormGroup, Input, Row, Label, Button, Spinner } from 'reactstrap';
 import Tabs from './tabs';
+import { downloadFile } from 'app/shared/util/file-utils';
 
 type ValidationResultFilter = {
   success: boolean;
@@ -180,6 +181,25 @@ function ValidationResults({ filter, validationType, messages }: ValidationResul
     }
   });
 
+  function handleDownload(validationResult: ValidationResult) {
+    const headerRow = validationColumns.map(column => column.Header).join('\t');
+    const dataRows: string[] = [];
+    for (const data of validationResult.data) {
+      const dataRow: string[] = [];
+      for (const column of validationColumns) {
+        if (column.accessor) {
+          dataRow.push(data[column.accessor.toString()]);
+        } else if (column.id) {
+          // required if accessor not string
+          dataRow.push(data[column.id]);
+        }
+      }
+      dataRows.push(dataRow.join('\t'));
+    }
+    const tsvContent = [headerRow, ...dataRows].join('\n');
+    downloadFile('validation_results.tsv', tsvContent);
+  }
+
   return (
     <div className="d-flex flex-column" style={{ gap: '0.25rem' }}>
       {validationResults.map(validationResult => {
@@ -213,6 +233,7 @@ function ValidationResults({ filter, validationType, messages }: ValidationResul
                     desc: false,
                   },
                 ]}
+                handleDownload={() => handleDownload(validationResult)}
               />
             </div>
           </Collapsible>

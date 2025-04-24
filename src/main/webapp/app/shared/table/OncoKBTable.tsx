@@ -1,6 +1,8 @@
 import React, { useMemo, useState, useRef } from 'react';
 import ReactTable, { Column, TableProps } from 'react-table';
 import FilterIconModal from './FilterIconModal';
+import { Button } from 'reactstrap';
+import { FaCloudDownloadAlt } from 'react-icons/fa';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/ban-types */
@@ -20,6 +22,7 @@ export interface ITableWithSearchBox<T> extends Partial<TableProps<T>> {
   loading?: boolean;
   filters?: React.FunctionComponent;
   className?: string;
+  handleDownload?: () => void;
 }
 
 export const OncoKBTable = <T extends object>({ disableSearch = false, showPagination = false, ...props }: ITableWithSearchBox<T>) => {
@@ -104,31 +107,31 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
 
   return (
     <div id="oncokb-table" ref={tableRef}>
-      {props.filters === undefined && disableSearch ? (
-        <></>
-      ) : (
-        <div className="row">
-          <div className="col-auto">{props.filters === undefined ? <></> : <props.filters />}</div>
-          <div className="col-sm">
-            {disableSearch ? (
-              <></>
-            ) : (
-              <div className="d-flex">
-                <div className="ms-auto">
-                  <input
-                    onChange={(event: any) => {
-                      setSearchKeyword(event.target.value.toLowerCase());
-                    }}
-                    className="form-control"
-                    type="text"
-                    placeholder="Search ..."
-                  />
-                </div>
-              </div>
-            )}
+      <div className="row">
+        <div className="col-auto">{props.filters === undefined ? <></> : <props.filters />}</div>
+        <div className="col-sm">
+          <div className="d-flex justify-content-center">
+            <div className="ms-auto d-flex">
+              {props.handleDownload && (
+                <Button color="primary" style={{ whiteSpace: 'nowrap' }} outline onClick={props.handleDownload}>
+                  <FaCloudDownloadAlt className="me-2 mb-1" />
+                  <span>Download</span>
+                </Button>
+              )}
+              {!disableSearch && (
+                <input
+                  onChange={(event: any) => {
+                    setSearchKeyword(event.target.value.toLowerCase());
+                  }}
+                  className="form-control ms-2"
+                  type="text"
+                  placeholder="Search ..."
+                />
+              )}
+            </div>
           </div>
         </div>
-      )}
+      </div>
       <div className="mt-2">
         <ReactTable
           defaultPageSize={10}
