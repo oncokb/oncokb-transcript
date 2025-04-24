@@ -108,7 +108,7 @@ describe('Data Import Tests', () => {
     const tableRows = await dataTable.$$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
     expect(tableRows).toHaveLength(5); // default page size
     await expectSvgInElementToExist(tableRows[0], 'fail');
-    await expectSvgInElementToExist(tableRows[1], 'fail');
+    await expectSvgInElementToExist(tableRows[1], 'success');
   });
 
   it('Oncogenicity check is in place', async () => {
