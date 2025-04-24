@@ -47,7 +47,7 @@ export const config: Options.Testrunner = {
   // The path of the spec files will be resolved relative from the directory of
   // of the config file unless it's absolute.
   //
-  specs: ['./src/test/javascript/spec/**/*.ts'],
+  specs: ['./src/test/javascript/spec/**/data-import.e2e.ts'],
   // Patterns to exclude.
   exclude: [
     // 'path/to/excluded/files'

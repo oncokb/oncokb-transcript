@@ -14,9 +14,11 @@ import {
   OPEN_SIDEBAR_BUTTON_ID,
   REACT_TABLE_TR_GROUP_CLASS,
 } from '../../../main/webapp/app/config/constants/html-id.ts';
+import { MutationList } from '../../../main/webapp/app/shared/model/firebase/firebase.model.ts';
 import { selectGenomicIndicatorToImport, uploadGeneratedDataToImport, uploadMutationToImport } from '../shared/data-import-utils.ts';
 import * as fs from 'fs';
 import * as admin from 'firebase-admin';
+import { expectSvgInElementToExist } from '../shared/test-utils.ts';
 
 describe('Data Import Tests', () => {
   let adminApp: admin.app.App;
@@ -105,8 +107,8 @@ describe('Data Import Tests', () => {
 
     const tableRows = await dataTable.$$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
     expect(tableRows).toHaveLength(5); // default page size
-    expect(tableRows[0].$$('svg[class=fail]')).toExist();
-    expect(tableRows[1].$$('svg[class=success]')).toExist();
+    await expectSvgInElementToExist(tableRows[0], 'fail');
+    await expectSvgInElementToExist(tableRows[1], 'success');
   });
 
   it('Oncogenicity check is in place', async () => {
@@ -121,11 +123,11 @@ describe('Data Import Tests', () => {
 
     const tableRows = await dataTable.$$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
     expect(tableRows).toHaveLength(5); // default page size
-    expect(tableRows[0].$$('svg[class=fail]')).toExist();
-    expect(tableRows[1].$$('svg[class=success]')).toExist();
+    await expectSvgInElementToExist(tableRows[0], 'fail');
+    await expectSvgInElementToExist(tableRows[2], 'success');
   });
 
-  it('Mutation exists check is in place', async () => {
+  it('Mutation override check is in place', async () => {
     await uploadMutationToImport(false, 'data_import_somatic_mutations.tsv');
 
     const importButton = await $(`button[id='${DATA_IMPORT_IMPORT_BUTTON_ID}']`);
@@ -133,11 +135,80 @@ describe('Data Import Tests', () => {
     await importButton.click();
 
     const dataTable = await $(`div[id=${DATA_IMPORT_DATA_TABLE_ID}]`);
-    expect(dataTable).toExist();
+    await dataTable.waitForExist();
 
     const tableRows = await dataTable.$$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
     expect(tableRows).toHaveLength(5); // default page size
-    expect(tableRows[0].$$('svg[class=fail]')).toExist();
-    expect(tableRows[2].$$('svg[class=fail]')).toExist();
+
+    // Error annotating variant
+    await expectSvgInElementToExist(tableRows[0], 'fail');
+
+    // Mutation was overrode successfully
+    await expectSvgInElementToExist(tableRows[2], 'success');
+  });
+
+  it('New mutation is created if not already exist', async () => {
+    const tsvContent = [
+      ['hugo_symbol', 'alteration', 'oncogenicity', 'description'].join('\t'),
+      ['BRAF', 'V600M', 'Yes', 'This is my description'].join('\t'),
+    ].join('\n');
+    await uploadGeneratedDataToImport(false, tsvContent);
+
+    const importButton = await $(`button[id='${DATA_IMPORT_IMPORT_BUTTON_ID}']`);
+    expect(importButton).toExist();
+    await importButton.click();
+
+    const dataTable = await $(`div[id=${DATA_IMPORT_DATA_TABLE_ID}]`);
+    await dataTable.waitForExist();
+
+    const tableRows = await dataTable.$$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
+    expect(tableRows).toHaveLength(5); // default page size
+
+    // Wait for data to be imported successfully
+    await expectSvgInElementToExist(tableRows[0], 'success');
+
+    // Check if new mutation was created
+    const mutations = (await adminApp.database().ref('Genes/BRAF/mutations').get()).val() as MutationList;
+    const newMutation = Object.values(mutations).find(m => m.name === 'V600M');
+    expect(newMutation).toBeDefined();
+    // Expect lastReviewed to be empty string to denote newly added
+    // Expect description and oncogenic fields to be updated accordingly
+    expect(newMutation?.mutation_effect.description).toEqual('This is my description');
+    expect(newMutation?.mutation_effect.description_review?.lastReviewed).toEqual('');
+    expect(newMutation?.mutation_effect.oncogenic).toEqual('Yes');
+    expect(newMutation?.mutation_effect.oncogenic_review?.lastReviewed).toEqual('');
+  });
+
+  it('Mutation description is overwritten and reviewable if already exists', async () => {
+    const tsvContent = [
+      ['hugo_symbol', 'alteration', 'oncogenicity', 'description'].join('\t'),
+      ['BRAF', 'V600E', 'Yes', 'My new description'].join('\t'),
+    ].join('\n');
+    await uploadGeneratedDataToImport(false, tsvContent);
+
+    const importButton = await $(`button[id='${DATA_IMPORT_IMPORT_BUTTON_ID}']`);
+    expect(importButton).toExist();
+    await importButton.click();
+
+    const dataTable = await $(`div[id=${DATA_IMPORT_DATA_TABLE_ID}]`);
+    await dataTable.waitForExist();
+
+    const tableRows = await dataTable.$$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
+    expect(tableRows).toHaveLength(5); // default page size
+
+    // Wait for data to be imported successfully
+    await expectSvgInElementToExist(tableRows[0], 'success');
+
+    // Check if new mutation was created
+    const mutations = (await adminApp.database().ref('Genes/BRAF/mutations').get()).val() as MutationList;
+    const existingMutation = Object.values(mutations).find(m => m.name === 'V600E');
+    expect(existingMutation).toBeDefined();
+    expect(existingMutation?.mutation_effect.description).toEqual('My new description');
+    expect(existingMutation?.mutation_effect.description_review?.lastReviewed).toEqual(
+      'The class I activating exon 15 BRAF V600E mutation is located in the kinase domain of the BRAF protein and is highly recurrent in melanoma, lung and thyroid cancer, among others (PMID: 28783719, 26091043, 25079552, 23833300, 25417114, 28783719, 12068308). This mutation has been comprehensively biologically characterized and has been shown to activate the downstream MAPK pathway independent of RAS (PMID: 15035987, 12068308, 19251651, 26343582), to render BRAF constitutively activated in monomeric form (PMID: 20179705), and to retain sensitivity to RAF monomer inhibitors such as vemurafenib and dabrafenib (PMID:26343582, 28783719, 20179705, 30351999).',
+    );
+    // Mutation oncogenicity was not changed, so no review needed.
+    expect(existingMutation?.mutation_effect.oncogenic).toEqual('Yes');
+    expect(existingMutation?.mutation_effect.oncogenic_review?.lastReviewed).toBeUndefined();
   });
 });

@@ -1,0 +1,71 @@
+[
+  {
+    "entity": {
+      "id": null,
+      "type": "PROTEIN_CHANGE",
+      "name": "V600M",
+      "alteration": "V600M",
+      "proteinChange": "V600M",
+      "start": 600,
+      "end": 600,
+      "refResidues": "V",
+      "variantResidues": "M",
+      "flags": [],
+      "genes": [
+        {
+          "id": 41135,
+          "entrezGeneId": 673,
+          "hugoSymbol": "BRAF",
+          "hgncId": "1097"
+        }
+      ],
+      "transcripts": [],
+      "consequence": {
+        "id": 16,
+        "term": "MISSENSE_VARIANT",
+        "name": "Missense Variant",
+        "isGenerallyTruncating": false,
+        "description": "A sequence variant, that changes one or more bases, resulting in a different amino acid sequence but where the length is preserved"
+      },
+      "associations": []
+    },
+    "message": null,
+    "type": "OK",
+    "queryId": null,
+    "annotation": {
+      "hotspot": {
+        "associatedHotspots": [
+          {
+            "type": "HOTSPOT_V1",
+            "alteration": "V600"
+          },
+          {
+            "type": "THREE_D",
+            "alteration": "V600"
+          },
+          {
+            "type": "HOTSPOT_V1",
+            "alteration": "V600"
+          },
+          {
+            "type": "THREE_D",
+            "alteration": "V600"
+          }
+        ],
+        "hotspot": true
+      },
+      "exons": [
+        {
+          "range": {
+            "start": 581,
+            "end": 620
+          },
+          "exon": 15
+        }
+      ]
+    },
+    "error": false,
+    "warning": false,
+    "ok": true
+  }
+]

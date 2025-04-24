@@ -3160,45 +3160,6 @@
           "name_uuid": "d65a4a5d-aaa0-4b3a-9181-0d0557289e06",
           "tumors": {}
         },
-        "-OKb1FLFmggjkYLXG4nL": {
-          "mutation_effect": {
-            "description": "The BRAF V600M mutation is located in the BRAF kinase domain. This mutation has been found in melanoma (PMID: 25382067, 22536370). In vitro studies have demonstrated that this mutation, similar to other class 1 BRAF V600 mutations, activates the downstream MAPK pathway independent of RAS, as measured by increased levels of phosphorylated MEK and decreased RAS-GTP in V600E mutant cells compared to wildtype (PMID: 26343582, 28783719). The BRAF V600M mutation renders BRAF constitutively activated in monomeric form and is sensitive to inhibition by vemurafenib (PMID: 28783719, 25382067, 26343582). However, It is unknown whether the BRAF V600M mutation actually arises in cancer as noted by several studies (PMID: 22536370, 23579220, 25382067) or previous sequencing studies miscalled a V600R dinucleotide change (chromosome 7: position 140453136 AC > CT) as a single nucleotide change (chromosome 7: position 140453137 C >T).",
-            "description_review": {
-              "updateTime": 1640705424109,
-              "updatedBy": "User"
-            },
-            "description_uuid": "215a3d0d-29ae-4c35-9aec-82fcaf7592c1",
-            "effect": "Inconclusive",
-            "effect_review": {
-              "updateTime": 1640705475034,
-              "updatedBy": "User"
-            },
-            "effect_uuid": "838d4e27-f794-42e0-8f8e-d6b4955c1b4e",
-            "oncogenic": "Inconclusive",
-            "oncogenic_review": {
-              "updateTime": 1640705476346,
-              "updatedBy": "User"
-            },
-            "oncogenic_uuid": "1e543634-e853-4b7c-b61e-76537ae06c5c",
-            "short": ""
-          },
-          "mutation_effect_uuid": "c6175124-3116-4e76-9bfa-9337a876b3c7",
-          "name": "V600M",
-          "name_comments": {
-            "-OKb1FLFmggjkYLXG4nM": {
-              "content": "Incorporate OncoKB user's comments",
-              "date": "1517335132801",
-              "email": "user@gmail.com",
-              "resolved": "false",
-              "userName": "User"
-            }
-          },
-          "name_review": {
-            "updateTime": 1493057315640
-          },
-          "name_uuid": "f1e524ad-264b-47f8-ae06-46b47effe858",
-          "tumors": {}
-        },
         "-OKb1FLFmggjkYLXG4nN": {
           "mutation_effect": {
             "description": "The class II BRAF L597R mutation is located in the kinase domain of the protein (PMID: 33019809). This mutation has been found in melanoma, among other cancers (PMID: 26643848). In vitro studies have demonstrated that this mutation is likely activating as measured by increased downstream signaling compared to wildtype (PMID: 22798288). Drug efficacy studies in cell lines demonstrated that the BRAF L597R mutation might be sensitive to the RAF inhibitor vemurafenib and the MEK inhibitor trametinib (PMID: 22798288). The BRAF L597R mutation has also been identified in patients with positive responses to trametinib and the allosteric MEK inhibitor TAK-733 (PMID: 24933606). In a case report, a patient with melanoma harboring BRAF L597R was treated with vemurafenib and demonstrated partial response with 30% growth inhibition of skin and lung nodules (PMID: 23715574). In another case report, a patient with lung adenocarcinoma harboring BRAF L597R was treated with a combination therapy of dabrafenib and trametinib and demonstrated partial response with a progression-free survival of twelve months (PMID: 32540409). In another case report, a patient with colorectal cancer harboring BRAF L597R was treated with a combination therapy of panitumumab plus FOLFIRI and demonstrated stable disease with a progression-free survival of 16.5 months (PMID: 31515458).",
