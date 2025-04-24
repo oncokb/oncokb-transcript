@@ -17,6 +17,7 @@ import {
   DATA_IMPORT_FILE_UPLOAD_INPUT_ID,
   DATA_IMPORT_GENETIC_TYPE_SELECT_ID,
   DATA_IMPORT_IMPORT_BUTTON_ID,
+  DATA_IMPORT_MISSING_REQUIRED_VALUES_INFO_ALERT_ID,
   DATA_IMPORT_OPTIONAL_COLUMNS_INFO_ALERT_ID,
   DATA_IMPORT_REQUIRED_COLUMNS_INFO_ALERT_ID,
 } from 'app/config/constants/html-id';
@@ -619,7 +620,9 @@ const CurationDataImportTab = observer(
                 )}
                 {hasFileUploadParseError && (
                   <Alert color={'danger'} className={'mt-3'}>
-                    {"Some rows in your TSV file have issues, possibly due to missing required values. Tip: Sort 'Upload Status' column"}
+                    <div id={DATA_IMPORT_MISSING_REQUIRED_VALUES_INFO_ALERT_ID}>
+                      {"Some rows in your TSV file have issues, possibly due to missing required values. Tip: Sort 'Upload Status' column"}
+                    </div>
                   </Alert>
                 )}
               </div>

@@ -1,26 +1,39 @@
 import setUpMocks from '../setup-mocks.ts';
 import { $, browser, expect } from '@wdio/globals';
-import { BASE_URL } from '../constants.ts';
+import { BASE_URL, DATABASE_EMULATOR_URL, MOCK_DATA_JSON_FILE_PATH } from '../constants.ts';
 import {
   DATA_IMPORT_DATA_TABLE_ID,
   DATA_IMPORT_DATA_TYPE_SELECT_ID,
   DATA_IMPORT_FILE_FORMAT_WARNING_ALERT_ID,
   DATA_IMPORT_GENETIC_TYPE_SELECT_ID,
   DATA_IMPORT_IMPORT_BUTTON_ID,
+  DATA_IMPORT_MISSING_REQUIRED_VALUES_INFO_ALERT_ID,
   DATA_IMPORT_OPTIONAL_COLUMNS_INFO_ALERT_ID,
   DATA_IMPORT_REQUIRED_COLUMNS_INFO_ALERT_ID,
   DATA_IMPORT_TAB_ID,
   OPEN_SIDEBAR_BUTTON_ID,
   REACT_TABLE_TR_GROUP_CLASS,
 } from '../../../main/webapp/app/config/constants/html-id.ts';
-import { selectGenomicIndicatorToImport, uploadMutationToImport } from '../shared/data-import-utils.ts';
+import { selectGenomicIndicatorToImport, uploadGeneratedDataToImport, uploadMutationToImport } from '../shared/data-import-utils.ts';
+import * as fs from 'fs';
+import * as admin from 'firebase-admin';
 
 describe('Data Import Tests', () => {
+  let adminApp: admin.app.App;
+
+  const backup = JSON.parse(fs.readFileSync(MOCK_DATA_JSON_FILE_PATH).toString());
+
   before(async () => {
     await setUpMocks();
+    adminApp = admin.initializeApp({
+      databaseURL: DATABASE_EMULATOR_URL,
+    });
   });
 
   beforeEach(async () => {
+    // Reset database to a clean state before each test
+    await adminApp.database().ref('/').set(backup);
+
     await browser.url(`${BASE_URL}/curation/somatic`);
     const openSidebarButton = await $(`span[data-testid="${OPEN_SIDEBAR_BUTTON_ID}"]`);
     await openSidebarButton.click();
@@ -67,6 +80,17 @@ describe('Data Import Tests', () => {
 
     const optionalColumnsAlert = await $(`div[id=${DATA_IMPORT_OPTIONAL_COLUMNS_INFO_ALERT_ID}]`);
     expect(optionalColumnsAlert).toExist();
+  });
+
+  it('Missing required column values check is in place and displays alert', async () => {
+    const tsvContent = [
+      ['hugo_symbol', 'alteration', 'oncogenicity', 'description'].join('\t'),
+      ['BRAF', 'V600E', 'Oncogenic', ''].join('\t'),
+    ].join('\n');
+    await uploadGeneratedDataToImport(false, tsvContent);
+
+    const requiredColumnsAlert = await $(`div[id=${DATA_IMPORT_MISSING_REQUIRED_VALUES_INFO_ALERT_ID}]`);
+    expect(requiredColumnsAlert).toExist();
   });
 
   it('Pathogenicity check is in place', async () => {
