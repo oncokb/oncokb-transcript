@@ -1,6 +1,6 @@
 import { FirebaseGeneService } from 'app/service/firebase/firebase-gene-service';
 import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-review-service';
-import { getDuplicateMutations, getFirebaseGenePath } from 'app/shared/util/firebase/firebase-utils';
+import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from 'app/shared/util/firebase/firebase-utils';
 import { DataImportStatus, DataRow } from 'app/components/tabs/curation-data-import-tab/CurationDataImportTab';
 import { ALLELE_STATE } from 'app/config/constants/firebase';
 import {
@@ -331,7 +331,7 @@ export const saveMutation = async (
     for (const mut of existingMuts) {
       if (mut.inVusList) {
         mutIsVus = true;
-        await firebaseGeneService.firebaseRepository.delete(`${getFirebaseGenePath(isGermline, hugoSymbol)}/${mut.duplicate}`);
+        await firebaseGeneService.firebaseRepository.delete(`${getFirebaseVusPath(isGermline, hugoSymbol)}/${mut.duplicate}`);
       } else {
         if (mut.inMutationList) {
           const arrayKey = mut.firebaseMutationPath.split('/').reverse()[0];

@@ -355,13 +355,13 @@ export type DuplicateMutationInfo =
 
 export const getDuplicateMutations = (
   currentMutations: string[],
-  mutationList: MutationList,
+  mutationList: MutationList | undefined | null,
   firebaseMutationListPath: string,
-  vusList: VusObjList,
+  vusList: VusObjList | undefined | null,
   options: { useFullAlterationName?: boolean; excludedMutationUuid?: string; excludedVusName?: string; exact?: boolean },
 ) => {
   const mutationNames =
-    Object.entries(mutationList)
+    Object.entries(mutationList ?? {})
       ?.filter(([mKey, mutation]) => options.excludedMutationUuid !== mutation.name_uuid)
       .map(([mKey, mutation]) => ({
         mutationName: mutation.name
