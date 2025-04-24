@@ -252,11 +252,14 @@ const VusTable = ({
           <div className={'d-flex align-items-center mb-2'}>
             <span style={{ fontSize: '1.25rem' }}>Variants of Unknown Significance (Investigated and data not found)</span>
             <AddButton className="ms-2" onClickHandler={() => setShowAddVusModal(true)} disabled={readOnly} />
-            <Button onClick={handleDownload} color="primary" size="sm" outline className={'ms-2'}>
-              Download
-            </Button>
           </div>
-          <OncoKBTable defaultSorted={[{ id: LAST_EDITED_AT, desc: false }]} data={vusList} columns={columns} showPagination />
+          <OncoKBTable
+            defaultSorted={[{ id: LAST_EDITED_AT, desc: false }]}
+            data={vusList}
+            columns={columns}
+            handleDownload={handleDownload}
+            showPagination
+          />
           <SimpleConfirmModal
             title="Confirm deletion"
             body={'Are you sure you want to delete this variant?'}
