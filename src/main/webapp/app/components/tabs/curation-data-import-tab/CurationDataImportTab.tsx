@@ -21,7 +21,7 @@ import {
   DATA_IMPORT_OPTIONAL_COLUMNS_INFO_ALERT_ID,
   DATA_IMPORT_REQUIRED_COLUMNS_INFO_ALERT_ID,
 } from 'app/config/constants/html-id';
-import { tsvToArray } from 'app/shared/util/file-utils';
+import { downloadFile, tsvToArray } from 'app/shared/util/file-utils';
 import {
   geneCheck,
   GenericDI,
@@ -523,6 +523,27 @@ const CurationDataImportTab = observer(
 
     const currentImportProgressPercent = Math.round((numImported / (fileRows.length ?? 1)) * 100);
 
+    function handleDownload() {
+      const columns = getTableColumns();
+      const headerRow = columns.map(column => column.Header).join('\t');
+      const dataRows: string[] = [];
+      for (const data of fileRows) {
+        const dataRow: string[] = [];
+        for (const column of columns) {
+          if (column.accessor) {
+            if (column.accessor === IMPORT_STATUS_HEADER_KEY) {
+              dataRow.push(`${data.data[IMPORT_STATUS_HEADER_KEY]}: ${data.data[IMPORT_STATUS_ERR_MSG_HEADER_KEY]}`);
+            } else {
+              dataRow.push(data.data[column.accessor.toString()]);
+            }
+          }
+        }
+        dataRows.push(dataRow.join('\t'));
+      }
+      const tsvContent = [headerRow, ...dataRows].join('\n');
+      downloadFile('import_status.tsv', tsvContent);
+    }
+
     return (
       <div className={'mb-5'}>
         <Row>
@@ -644,6 +665,7 @@ const CurationDataImportTab = observer(
                   })}
                   showPagination
                   defaultPageSize={5}
+                  handleDownload={handleDownload}
                 />
               </Col>
             </Row>
