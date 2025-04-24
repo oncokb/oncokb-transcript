@@ -420,8 +420,6 @@ export const getDuplicateMutations = (
       });
     });
   }
-  /* eslint-disable no-console */
-  console.log(duplicates);
   return duplicates;
 };
 
