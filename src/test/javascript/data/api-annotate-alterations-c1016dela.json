@@ -1,0 +1,46 @@
+[
+  {
+    "entity": {
+      "id": null,
+      "type": "CDNA_CHANGE",
+      "name": "c.1016delA",
+      "alteration": "c.1016delA",
+      "proteinChange": "",
+      "start": null,
+      "end": null,
+      "refResidues": null,
+      "variantResidues": null,
+      "flags": [],
+      "genes": [
+        {
+          "id": 11733,
+          "entrezGeneId": 8314,
+          "hugoSymbol": "BAP1",
+          "hgncId": "950"
+        }
+      ],
+      "transcripts": [],
+      "consequence": {
+        "id": 39,
+        "term": "UNKNOWN",
+        "name": "Unknown",
+        "isGenerallyTruncating": false,
+        "description": "Unknown status"
+      },
+      "associations": []
+    },
+    "message": "",
+    "type": "OK",
+    "queryId": null,
+    "annotation": {
+      "hotspot": {
+        "associatedHotspots": [],
+        "hotspot": false
+      },
+      "exons": []
+    },
+    "error": false,
+    "warning": false,
+    "ok": true
+  }
+]
