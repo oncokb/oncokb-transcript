@@ -43,7 +43,7 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
       }
     }
     options.sort((a, b) => a.label.localeCompare(b.label));
-    return options;
+    return _.uniqBy(options, 'label');
   }, [users]);
 
   useEffect(() => {
