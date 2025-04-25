@@ -422,6 +422,9 @@ export const UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS = 400;
 
 export const UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS = 1000;
 
+export const LONG_TEXT_CUTOFF = 200;
+export const LONG_TEXT_CUTOFF_COMPACT = 80;
+
 /* Checkbox has margin of -18.75px, so can set to 0px and add margin to label can use this to adjust */
 export const CHECKBOX_LABEL_LEFT_MARGIN = 18.75;
 

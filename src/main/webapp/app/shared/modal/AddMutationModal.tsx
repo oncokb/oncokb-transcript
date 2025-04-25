@@ -18,7 +18,7 @@ import {
   Alteration as ApiAlteration,
 } from '../api/generated/curation';
 import { IGene } from '../model/gene.model';
-import { getDuplicateMutations, getFirebaseVusPath } from '../util/firebase/firebase-utils';
+import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
 import { hasValue, isEqualIgnoreCase, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
@@ -134,17 +134,25 @@ function AddMutationModal({
   }, [convertOptions?.isConverting]);
 
   useEffect(() => {
-    const dupMutations = getDuplicateMutations(currentMutationNames, Object.values(mutationList ?? {}), vusList ?? {}, {
-      useFullAlterationName: true,
-      excludedMutationUuid: mutationToEdit?.name_uuid,
-      excludedVusName: convertOptions?.isConverting ? convertOptions.alteration : '',
-      exact: true,
-    });
-    setMutationAlreadyExists({
-      exists: dupMutations.length > 0,
-      inMutationList: dupMutations.some(mutation => mutation.inMutationList),
-      inVusList: dupMutations.some(mutation => mutation.inVusList),
-    });
+    if (mutationList) {
+      const dupMutations = getDuplicateMutations(
+        currentMutationNames,
+        mutationList,
+        `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`,
+        vusList ?? {},
+        {
+          useFullAlterationName: true,
+          excludedMutationUuid: mutationToEdit?.name_uuid,
+          excludedVusName: convertOptions?.isConverting ? convertOptions.alteration : '',
+          exact: true,
+        },
+      );
+      setMutationAlreadyExists({
+        exists: dupMutations.length > 0,
+        inMutationList: dupMutations.some(mutation => mutation.inMutationList),
+        inVusList: dupMutations.some(mutation => mutation.inVusList),
+      });
+    }
   }, [tabStates, mutationList, vusList]);
 
   useEffect(() => {

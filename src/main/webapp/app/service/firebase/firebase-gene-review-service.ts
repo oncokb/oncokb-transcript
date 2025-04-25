@@ -83,6 +83,10 @@ export class FirebaseGeneReviewService {
   ) => {
     const isGermline = firebasePath.toLowerCase().includes('germline');
 
+    if (currentValue === updateValue) {
+      return;
+    }
+
     const { updatedReview, isChangeReverted } = getUpdatedReview(
       review,
       currentValue,

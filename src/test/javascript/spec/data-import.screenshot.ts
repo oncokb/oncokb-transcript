@@ -49,7 +49,7 @@ describe('Data Import Tests', () => {
     expect(result).toBeLessThanOrEqual(0);
   });
 
-  it('Data properly imported and show warning/error if available', async () => {
+  it('Genomic indicator data properly imported and show warning/error if available', async () => {
     await uploadGenomicIndicatorToImport();
 
     // expand sidebar to take screenshot
@@ -67,7 +67,5 @@ describe('Data Import Tests', () => {
 
     // After importing data, the Import button should be disabled
     expect(importButton).toBeDisabled();
-
-    // need to verify data is modified in firebase, will back-fill the test after https://github.com/oncokb/oncokb-transcript/pull/372 is merged
   });
 });

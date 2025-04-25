@@ -5,6 +5,7 @@ import {
   DATA_IMPORT_GENETIC_TYPE_SELECT_ID,
 } from '../../../main/webapp/app/config/constants/html-id.ts';
 import * as path from 'node:path';
+import * as fs from 'fs';
 
 export const selectGenomicIndicatorToImport = async () => {
   const geneticTypeSelect = await $(`div[id="${DATA_IMPORT_GENETIC_TYPE_SELECT_ID}"]`);
@@ -56,5 +57,17 @@ export const uploadMutationToImport = async (isGermline: boolean, importDataFile
 
   const fileToUpload = path.join(process.cwd(), `src/test/javascript/data/${importDataFileName}`);
   const remoteFilePath = await browser.uploadFile(fileToUpload);
+  await $(`input[id=${DATA_IMPORT_FILE_UPLOAD_INPUT_ID}]`).setValue(remoteFilePath);
+};
+
+export const uploadGeneratedDataToImport = async (isGermline: boolean, tsvContent: string) => {
+  await selectMutationToImport(isGermline);
+
+  // Step 1: Write TSV content to a temporary file
+  const filePath = path.join(__dirname, 'temp-upload.tsv');
+  fs.writeFileSync(filePath, tsvContent, 'utf-8');
+
+  // Step 2: Upload it through the browser
+  const remoteFilePath = await browser.uploadFile(filePath);
   await $(`input[id=${DATA_IMPORT_FILE_UPLOAD_INPUT_ID}]`).setValue(remoteFilePath);
 };

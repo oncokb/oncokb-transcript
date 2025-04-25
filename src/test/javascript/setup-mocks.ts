@@ -7,15 +7,9 @@ const DATA_DIR = 'src/test/javascript/data/';
 
 const getAlterationMockResponse = (requestBody: string, readFile = true) => {
   const body = JSON.parse(requestBody);
-  const alterationName = body[0]?.alteration?.alteration?.toLowerCase();
-  let filePath = `${DATA_DIR}api-annotate-alterations-`;
-  switch (alterationName) {
-    case 'v600e':
-      filePath += alterationName;
-      break;
-    default:
-      break;
-  }
+  let alterationName = body[0]?.alteration?.alteration?.toLowerCase() as string;
+  alterationName = alterationName.replace('.', '');
+  let filePath = `${DATA_DIR}api-annotate-alterations-${alterationName}`;
   filePath += '.json';
 
   if (fs.existsSync(filePath)) {

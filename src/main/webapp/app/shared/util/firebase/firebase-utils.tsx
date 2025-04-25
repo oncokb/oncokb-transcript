@@ -16,6 +16,7 @@ import {
   Meta,
   MetaReview,
   Mutation,
+  MutationList,
   PX_LEVELS,
   Review,
   TI,
@@ -339,35 +340,45 @@ export const getVusTimestampClass = (time: string | number) => {
   }
 };
 
-export type DuplicateMutationInfo = {
-  duplicate: string;
-  inMutationList: boolean;
-  inVusList: boolean;
-};
+export type DuplicateMutationInfo =
+  | {
+      duplicate: string;
+      inMutationList: true;
+      inVusList: boolean;
+      firebaseMutationPath: string;
+    }
+  | {
+      duplicate: string;
+      inMutationList: false;
+      inVusList: boolean;
+    };
 
 export const getDuplicateMutations = (
   currentMutations: string[],
-  mutationList: readonly Mutation[],
-  vusList: VusObjList,
+  mutationList: MutationList | undefined | null,
+  firebaseMutationListPath: string,
+  vusList: VusObjList | undefined | null,
   options: { useFullAlterationName?: boolean; excludedMutationUuid?: string; excludedVusName?: string; exact?: boolean },
 ) => {
   const mutationNames =
-    mutationList
-      ?.filter(mutation => options.excludedMutationUuid !== mutation.name_uuid)
-      .map(mutation =>
-        mutation.name
+    Object.entries(mutationList ?? {})
+      ?.filter(([mKey, mutation]) => options.excludedMutationUuid !== mutation.name_uuid)
+      .map(([mKey, mutation]) => ({
+        mutationName: mutation.name
           ?.split(',')
           .map(alt => {
             const parsedAlteration = parseAlterationName(alt)[0];
             const variantName = parsedAlteration.name ? ` [${parsedAlteration.name}]` : '';
             const excluding = parsedAlteration.excluding.length > 0 ? ` {excluding ${parsedAlteration.excluding.join(' ; ')}}` : '';
+            let mutationName = parsedAlteration.alteration.toLowerCase();
             if (options.useFullAlterationName) {
-              return `${parsedAlteration.alteration}${variantName}${excluding}`.toLowerCase();
+              mutationName = `${parsedAlteration.alteration}${variantName}${excluding}`.toLowerCase();
             }
-            return parsedAlteration.alteration.toLowerCase();
+            return mutationName;
           })
           .sort(),
-      ) || [];
+        firebaseMutationPath: `${firebaseMutationListPath}/${mKey}`,
+      })) || [];
 
   const vusNames = Object.values(vusList || [])
     .filter(vus => vus.name.toLowerCase() !== options.excludedVusName?.toLowerCase())
@@ -380,41 +391,70 @@ export const getDuplicateMutations = (
     const currentMutationsName = currentMutations.join(', ');
     const lowerCaseCurrentMutations = currentMutations.map(mut => mut.toLowerCase());
 
-    if (mutationNames.some(mutation => _.isEqual(mutation, lowerCaseCurrentMutations))) {
-      addDuplicateMutationInfo(duplicates, currentMutationsName, 'mutation');
+    const matchingMutation = mutationNames.find(mutation => _.isEqual(mutation.mutationName, lowerCaseCurrentMutations));
+
+    if (matchingMutation) {
+      addDuplicateMutationInfo(duplicates, currentMutationsName, 'mutation', matchingMutation.firebaseMutationPath);
     }
 
-    if (vusNames.some(vus => _.isEqual(vus, lowerCaseCurrentMutations))) {
+    const matchingVUS = vusNames.find(vus => _.isEqual(vus, lowerCaseCurrentMutations));
+
+    if (matchingVUS) {
       addDuplicateMutationInfo(duplicates, currentMutationsName, 'vus');
     }
   } else {
-    const flattenedMutationNames = _.uniq(_.flatten(mutationNames));
-    currentMutations
-      .filter(currAlt => flattenedMutationNames.includes(currAlt.toLowerCase()))
-      .forEach(mutation => {
-        addDuplicateMutationInfo(duplicates, mutation, 'mutation');
-      });
+    const flattenedMutationNames = _.uniq(
+      mutationNames.flatMap(group =>
+        group.mutationName.map(name => ({
+          mutationName: name,
+          firebaseMutationList: group.firebaseMutationPath,
+        })),
+      ),
+    );
 
-    const flattenedVusNames = _.uniq(_.flatten(vusNames));
-    currentMutations
-      .filter(currAlt => flattenedVusNames.includes(currAlt.toLowerCase()))
-      .forEach(mutation => {
-        addDuplicateMutationInfo(duplicates, mutation, 'vus');
+    currentMutations.forEach(currAlt => {
+      flattenedMutationNames.forEach(fmn => {
+        if (fmn.mutationName === currAlt.toLowerCase()) {
+          addDuplicateMutationInfo(duplicates, fmn.mutationName, 'mutation', fmn.firebaseMutationList);
+        }
       });
+    });
   }
   return duplicates;
 };
 
-const addDuplicateMutationInfo = (duplicates: DuplicateMutationInfo[], mutationName: string, listType: 'mutation' | 'vus') => {
+const addDuplicateMutationInfo = (
+  duplicates: DuplicateMutationInfo[],
+  mutationName: string,
+  listType: 'mutation' | 'vus',
+  firebaseMutationPath?: string,
+) => {
   const existingDuplicate = duplicates.find(duplicate => duplicate.duplicate === mutationName);
   if (existingDuplicate) {
-    listType === 'mutation' ? (existingDuplicate.inMutationList = true) : (existingDuplicate.inVusList = true);
+    if (listType === 'mutation' && firebaseMutationPath) {
+      // Cast to narrow the type so TypeScript knows we can assign firebaseMutationPath
+      Object.assign(existingDuplicate, {
+        inMutationList: true,
+        firebaseMutationPath,
+      });
+    } else {
+      existingDuplicate.inVusList = true;
+    }
   } else {
-    duplicates.push({
-      duplicate: mutationName,
-      inMutationList: listType === 'mutation',
-      inVusList: listType === 'vus',
-    });
+    if (listType === 'mutation' && firebaseMutationPath) {
+      duplicates.push({
+        duplicate: mutationName,
+        inMutationList: true,
+        inVusList: false,
+        firebaseMutationPath,
+      });
+    } else {
+      duplicates.push({
+        duplicate: mutationName,
+        inMutationList: false,
+        inVusList: true,
+      });
+    }
   }
 };
 

@@ -1,0 +1,8 @@
+.linkOutText {
+  color: $primary;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

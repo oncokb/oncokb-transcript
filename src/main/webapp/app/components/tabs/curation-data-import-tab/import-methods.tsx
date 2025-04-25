@@ -5,15 +5,15 @@ import { DataImportStatus, DataRow } from 'app/components/tabs/curation-data-imp
 import { ALLELE_STATE } from 'app/config/constants/firebase';
 import {
   FIREBASE_ONCOGENICITY,
-  GenomicIndicator,
   GenomicIndicatorList,
   Mutation,
+  MutationEffect,
   MutationList,
   Review,
   VusObjList,
 } from 'app/shared/model/firebase/firebase.model';
 import pluralize from 'pluralize';
-import { ONCOGENICITY, PATHOGENICITY, REFERENCE_GENOME } from 'app/config/constants/constants';
+import { PATHOGENICITY, REFERENCE_GENOME } from 'app/config/constants/constants';
 import { uniq } from 'lodash';
 import { FirebaseMetaService } from 'app/service/firebase/firebase-meta-service';
 import { AuthStore } from 'app/stores';
@@ -228,6 +228,7 @@ const saveGenomicIndicatorToFirebase = async (
 export const saveMutation = async (
   authStore: AuthStore,
   firebaseGeneService: FirebaseGeneService,
+  firebaseGeneReviewService: FirebaseGeneReviewService,
   firebaseMetaService: FirebaseMetaService,
   alterationStore: AlterationStore,
   isGermline: boolean,
@@ -240,6 +241,17 @@ export const saveMutation = async (
   const hugoSymbol = dataRow.data.hugo_symbol;
   const mutation = new Mutation(dataRow.data.alteration);
   let mutationImpactStatusUpdated = false;
+
+  const existingMuts = getDuplicateMutations(
+    [mutation.name],
+    mutationList,
+    `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`,
+    vusList,
+    {
+      useFullAlterationName: true,
+      exact: true,
+    },
+  );
 
   return geneCheck(firebaseGeneService, isGermline, createGene, hugoSymbol, async () => {
     const request: AnnotateAlterationBody[] = [
@@ -291,6 +303,10 @@ export const saveMutation = async (
       }
       mutation.mutation_effect.pathogenic = data.pathogenicity as PATHOGENICITY;
       mutation.mutation_effect.pathogenic_review = new Review(authStore.fullName, '');
+      if (data.description) {
+        mutation.mutation_effect.description = data.description;
+        mutation.mutation_effect.description_review = new Review(authStore.fullName, '');
+      }
       mutationImpactStatusUpdated = true;
     } else {
       const data = dataRow.data;
@@ -302,13 +318,12 @@ export const saveMutation = async (
       }
       mutation.mutation_effect.oncogenic = data.oncogenicity as FIREBASE_ONCOGENICITY;
       mutation.mutation_effect.oncogenic_review = new Review(authStore.fullName, '');
+      if (data.description) {
+        mutation.mutation_effect.description = data.description;
+        mutation.mutation_effect.description_review = new Review(authStore.fullName, '');
+      }
       mutationImpactStatusUpdated = true;
     }
-
-    const existingMuts = getDuplicateMutations([mutation.name], Object.values(mutationList ?? {}), vusList, {
-      useFullAlterationName: true,
-      exact: true,
-    });
 
     let mutIsVus = false;
 
@@ -318,11 +333,61 @@ export const saveMutation = async (
         mutIsVus = true;
         await firebaseGeneService.firebaseRepository.delete(`${getFirebaseVusPath(isGermline, hugoSymbol)}/${mut.duplicate}`);
       } else {
-        // if alteration exists in the Mutation list, we return and give error
-        return {
-          status: 'error',
-          message: 'Mutation exists in gene, we cannot overwrite automatically. Please update manually.',
-        };
+        if (mut.inMutationList) {
+          const arrayKey = mut.firebaseMutationPath.split('/').reverse()[0];
+          const existingMutation = mutationList[arrayKey];
+          if (!existingMutation.mutation_effect) {
+            existingMutation.mutation_effect = new MutationEffect();
+          }
+          let updateObject = {};
+          if (isGermlineData(dataRow.data)) {
+            updateObject = {
+              ...updateObject,
+              ...(await firebaseGeneReviewService.updateReviewableContent(
+                `${mut.firebaseMutationPath}/mutation_effect/pathogenic`,
+                existingMutation.mutation_effect.pathogenic,
+                mutation.mutation_effect.pathogenic,
+                existingMutation.mutation_effect.pathogenic_review,
+                existingMutation.mutation_effect.pathogenic_uuid,
+                true,
+                false,
+              )),
+            };
+          } else {
+            updateObject = {
+              ...updateObject,
+              ...(await firebaseGeneReviewService.updateReviewableContent(
+                `${mut.firebaseMutationPath}/mutation_effect/oncogenic`,
+                existingMutation.mutation_effect.oncogenic,
+                mutation.mutation_effect.oncogenic,
+                existingMutation.mutation_effect.oncogenic_review,
+                existingMutation.mutation_effect.oncogenic_uuid,
+                true,
+                false,
+              )),
+            };
+          }
+          if (mutation.mutation_effect.description) {
+            updateObject = {
+              ...updateObject,
+              ...(await firebaseGeneReviewService.updateReviewableContent(
+                `${mut.firebaseMutationPath}/mutation_effect/description`,
+                existingMutation.mutation_effect.description,
+                mutation.mutation_effect.description,
+                existingMutation.mutation_effect.description_review,
+                existingMutation.mutation_effect.description_uuid,
+                true,
+                false,
+              )),
+            };
+          }
+
+          await firebaseGeneService.updateObject('/', updateObject);
+          return {
+            status: 'complete',
+            message: 'Overrode existing mutation',
+          };
+        }
       }
     }
 
@@ -343,12 +408,12 @@ export const saveMutation = async (
         });
       return {
         status: 'complete',
-        message: '',
+        message: 'Added new mutation',
       };
     } catch (error) {
       return {
         status: 'error',
-        message: 'Failed to add mutation into gene.',
+        message: 'Failed to add/update mutation.',
       };
     }
   });

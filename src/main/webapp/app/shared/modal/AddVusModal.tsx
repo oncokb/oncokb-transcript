@@ -66,7 +66,8 @@ const AddVusModal = (props: IAddVusModalProps) => {
     if (mutationList) {
       const dupAlts = getDuplicateMutations(
         variants.map(o => o.label),
-        Object.values(mutationList),
+        mutationList,
+        `${getFirebaseGenePath(props.isGermline, props.hugoSymbol)}/mutations`,
         props.vusList ?? {},
         { useFullAlterationName: false, exact: false, excludedMutationUuid: props.convertOptions?.mutationUuid },
       );
