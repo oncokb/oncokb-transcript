@@ -10,6 +10,7 @@ import { FormFeedback, Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/types/lib/Input';
 import * as styles from './styles.module.scss';
 import { Unsubscribe } from 'firebase/database';
+import { resizeTextArea } from 'app/shared/util/utils';
 
 export enum RealtimeInputType {
   TEXT = 'text',
@@ -176,11 +177,6 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       return inputValue === label;
     }
     return label === RADIO_OPTION_NONE;
-  }
-
-  function resizeTextArea(textArea: HTMLInputElement | HTMLTextAreaElement) {
-    textArea.style.height = 'auto';
-    textArea.style.height = `${textArea.scrollHeight}px`;
   }
 
   const inputStyle: React.CSSProperties | undefined = isCheckType ? { marginRight: '0.25rem', ...style } : undefined;

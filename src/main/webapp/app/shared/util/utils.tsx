@@ -431,3 +431,8 @@ export function shortenTextByCharacters(text: string, cutoff: number) {
     return words.join(separator);
   }
 }
+
+export function resizeTextArea(textArea: HTMLInputElement | HTMLTextAreaElement) {
+  textArea.style.height = 'auto';
+  textArea.style.height = `${textArea.scrollHeight}px`;
+}

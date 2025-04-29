@@ -359,6 +359,7 @@ const MutationCollapsible = ({
           firebasePath={`${mutationPath}/summary`}
           inputClass={styles.summaryTextarea}
           label="Mutation Summary (Optional)"
+          mutationName={mutationName}
           labelIcon={
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
@@ -479,6 +480,7 @@ const MutationCollapsible = ({
             firebasePath={`${mutationPath}/mutation_effect/description`}
             inputClass={styles.textarea}
             label="Description of Evidence"
+            mutationName={mutationName}
             labelIcon={
               <GeneHistoryTooltip
                 historyData={parsedHistoryList}

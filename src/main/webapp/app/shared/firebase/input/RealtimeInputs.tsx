@@ -3,6 +3,7 @@ import RealtimeBasicInput, { IRealtimeBasicInput, RealtimeBasicLabel, RealtimeIn
 import TabsContainer, { ITabsContainer } from 'app/shared/tab/TabsContainer';
 import CPLHelpTooltip from 'app/pages/curation/tooltip/CPLHelpTooltip';
 import { IoHelpCircleOutline } from 'react-icons/io5';
+import PreviewTextArea from './PreviewTextArea';
 
 /**
  * Text inputs
@@ -18,7 +19,9 @@ export const RealtimeTextAreaInput = (props: Omit<IRealtimeBasicInput, 'type'>) 
   return <RealtimeBasicInput {...props} type={RealtimeInputType.TEXTAREA} />;
 };
 
-export const RealtimeMultiTabTextAreaInput = (props: Omit<IRealtimeBasicInput, 'type'>) => {
+export const RealtimeMultiTabTextAreaInput = (
+  props: Omit<IRealtimeBasicInput, 'type'> & { mutationName?: string; cancerTypeName?: string },
+) => {
   const labelComponent = props.label && (
     <RealtimeBasicLabel
       label={props.label}
@@ -41,7 +44,9 @@ export const RealtimeMultiTabTextAreaInput = (props: Omit<IRealtimeBasicInput, '
           },
           {
             title: 'Preview',
-            getContent: () => <RealtimeTextAreaInput label="Gene Summary" firebasePath={props.firebasePath} disabled hideLabel />,
+            getContent: () => (
+              <PreviewTextArea firebasePath={props.firebasePath} mutationName={props.mutationName} cancerTypeName={props.cancerTypeName} />
+            ),
             key: `${props.firebasePath}-preview`,
           },
         ]}

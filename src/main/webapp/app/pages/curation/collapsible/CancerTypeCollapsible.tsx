@@ -146,6 +146,8 @@ function CancerTypeCollapsible({
           firebasePath={`${cancerTypePath}/summary`}
           inputClass={styles.summaryTextarea}
           label="Therapeutic Summary (Optional)"
+          mutationName={mutationName}
+          cancerTypeName={cancerTypeName}
           labelIcon={
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
@@ -160,6 +162,8 @@ function CancerTypeCollapsible({
           firebasePath={`${cancerTypePath}/diagnosticSummary`}
           inputClass={styles.summaryTextarea}
           label="Diagnostic Summary (Optional)"
+          mutationName={mutationName}
+          cancerTypeName={cancerTypeName}
           labelIcon={
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
@@ -174,6 +178,8 @@ function CancerTypeCollapsible({
           firebasePath={`${cancerTypePath}/prognosticSummary`}
           inputClass={styles.summaryTextarea}
           label="Prognostic Summary (Optional)"
+          mutationName={mutationName}
+          cancerTypeName={cancerTypeName}
           labelIcon={
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
@@ -229,6 +235,8 @@ function CancerTypeCollapsible({
             firebasePath={`${cancerTypePath}/diagnostic/description`}
             inputClass={styles.textarea}
             label="Description of Evidence"
+            mutationName={mutationName}
+            cancerTypeName={cancerTypeName}
             name="evidenceDescription"
             parseRefs
           />
@@ -260,6 +268,8 @@ function CancerTypeCollapsible({
             firebasePath={`${cancerTypePath}/prognostic/description`}
             inputClass={styles.textarea}
             label="Description of Evidence"
+            mutationName={mutationName}
+            cancerTypeName={cancerTypeName}
             name="evidenceDescription"
             parseRefs
           />

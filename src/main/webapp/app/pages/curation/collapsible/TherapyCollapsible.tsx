@@ -132,6 +132,8 @@ function TherapyCollapsible({
           disabled={readOnly}
           firebasePath={`${therapyPath}/description`}
           inputClass={styles.textarea}
+          mutationName={mutationName}
+          cancerTypeName={cancerTypeName}
           label="Description of Evidence"
           labelIcon={
             <GeneHistoryTooltip

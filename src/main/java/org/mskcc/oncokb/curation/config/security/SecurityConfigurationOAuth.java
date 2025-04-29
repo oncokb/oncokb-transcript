@@ -94,6 +94,7 @@ public class SecurityConfigurationOAuth {
                     .requestMatchers(mvc.pattern("/websocket/**")).hasAnyAuthority(AuthoritiesConstants.CURATOR, AuthoritiesConstants.USER)
                     .requestMatchers(mvc.pattern("/api/**")).hasAnyAuthority(AuthoritiesConstants.CURATOR, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
                     .requestMatchers(mvc.pattern("/legacy-api/**")).hasAnyAuthority(AuthoritiesConstants.CURATOR, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
+                    .requestMatchers(mvc.pattern("/core/**")).hasAnyAuthority(AuthoritiesConstants.CURATOR, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
                     .requestMatchers(mvc.pattern("/v3/api-docs/**")).hasAuthority(AuthoritiesConstants.ADMIN)
                     .requestMatchers(mvc.pattern("/management/**")).hasAuthority(AuthoritiesConstants.ADMIN)
             )

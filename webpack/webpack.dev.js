@@ -70,7 +70,7 @@ module.exports = async options =>
           context: [
             '/websocket',
             '/api',
-            '/legacy-api',
+            '/api/v1/utils',
             '/services',
             '/management',
             '/v3/api-docs',
