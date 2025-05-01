@@ -5,7 +5,7 @@ import { Row, Col } from 'reactstrap';
 import { TextFormat } from 'react-jhipster';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import EntityPageLink from 'app/shared/links/EntityPageLink';
 
@@ -47,7 +47,7 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           </dt>
           <dd>
             {fdaSubmissionEntity.dateReceived ? (
-              <TextFormat value={fdaSubmissionEntity.dateReceived} type="date" format={APP_DATE_FORMAT} />
+              <TextFormat value={fdaSubmissionEntity.dateReceived} type="date" format={APP_LOCAL_DATE_FORMAT} />
             ) : null}
           </dd>
           <dt>
@@ -55,7 +55,7 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           </dt>
           <dd>
             {fdaSubmissionEntity.decisionDate ? (
-              <TextFormat value={fdaSubmissionEntity.decisionDate} type="date" format={APP_DATE_FORMAT} />
+              <TextFormat value={fdaSubmissionEntity.decisionDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
             ) : null}
           </dd>
           <dt>
