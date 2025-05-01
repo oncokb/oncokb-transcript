@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -9,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,11 +63,11 @@ class FdaSubmissionResourceIT {
     private static final String DEFAULT_GENERIC_NAME = "AAAAAAAAAA";
     private static final String UPDATED_GENERIC_NAME = "BBBBBBBBBB";
 
-    private static final Instant DEFAULT_DATE_RECEIVED = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_DATE_RECEIVED = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    private static final LocalDate DEFAULT_DATE_RECEIVED = LocalDate.ofEpochDay(0L);
+    private static final LocalDate UPDATED_DATE_RECEIVED = LocalDate.now(ZoneId.systemDefault());
 
-    private static final Instant DEFAULT_DECISION_DATE = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_DECISION_DATE = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    private static final LocalDate DEFAULT_DECISION_DATE = LocalDate.ofEpochDay(0L);
+    private static final LocalDate UPDATED_DECISION_DATE = LocalDate.now(ZoneId.systemDefault());
 
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";

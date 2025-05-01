@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import org.javers.core.metamodel.annotation.DiffIgnore;
@@ -40,10 +40,10 @@ public class FdaSubmission implements Serializable {
     private String genericName;
 
     @Column(name = "date_received")
-    private Instant dateReceived;
+    private LocalDate dateReceived;
 
     @Column(name = "decision_date")
-    private Instant decisionDate;
+    private LocalDate decisionDate;
 
     @DiffIgnore
     @Lob
@@ -165,29 +165,29 @@ public class FdaSubmission implements Serializable {
         this.genericName = genericName;
     }
 
-    public Instant getDateReceived() {
+    public LocalDate getDateReceived() {
         return this.dateReceived;
     }
 
-    public FdaSubmission dateReceived(Instant dateReceived) {
+    public FdaSubmission dateReceived(LocalDate dateReceived) {
         this.setDateReceived(dateReceived);
         return this;
     }
 
-    public void setDateReceived(Instant dateReceived) {
+    public void setDateReceived(LocalDate dateReceived) {
         this.dateReceived = dateReceived;
     }
 
-    public Instant getDecisionDate() {
+    public LocalDate getDecisionDate() {
         return this.decisionDate;
     }
 
-    public FdaSubmission decisionDate(Instant decisionDate) {
+    public FdaSubmission decisionDate(LocalDate decisionDate) {
         this.setDecisionDate(decisionDate);
         return this;
     }
 
-    public void setDecisionDate(Instant decisionDate) {
+    public void setDecisionDate(LocalDate decisionDate) {
         this.decisionDate = decisionDate;
     }
 

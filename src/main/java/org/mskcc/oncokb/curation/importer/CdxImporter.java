@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -211,7 +212,7 @@ public class CdxImporter {
                 false
             );
             if (optionalFdaSubmission.isPresent()) {
-                Instant fdaSubmissionDate = cdxUtils.convertDateToInstant(matcher.group(5));
+                LocalDate fdaSubmissionDate = cdxUtils.convertDateToLocalDate(matcher.group(5));
                 if (fdaSubmissionDate != null) {
                     optionalFdaSubmission.orElseThrow().setDecisionDate(fdaSubmissionDate);
                     optionalFdaSubmission.orElseThrow().curated(true);
