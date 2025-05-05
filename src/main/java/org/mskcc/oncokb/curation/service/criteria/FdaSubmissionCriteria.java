@@ -4,11 +4,8 @@ import java.io.Serializable;
 import java.util.Objects;
 import tech.jhipster.service.Criteria;
 import tech.jhipster.service.filter.BooleanFilter;
-import tech.jhipster.service.filter.DoubleFilter;
 import tech.jhipster.service.filter.Filter;
-import tech.jhipster.service.filter.FloatFilter;
-import tech.jhipster.service.filter.InstantFilter;
-import tech.jhipster.service.filter.IntegerFilter;
+import tech.jhipster.service.filter.LocalDateFilter;
 import tech.jhipster.service.filter.LongFilter;
 import tech.jhipster.service.filter.StringFilter;
 
@@ -35,9 +32,9 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
 
     private StringFilter genericName;
 
-    private InstantFilter dateReceived;
+    private LocalDateFilter dateReceived;
 
-    private InstantFilter decisionDate;
+    private LocalDateFilter decisionDate;
 
     private BooleanFilter curated;
 
@@ -155,33 +152,33 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.genericName = genericName;
     }
 
-    public InstantFilter getDateReceived() {
+    public LocalDateFilter getDateReceived() {
         return dateReceived;
     }
 
-    public InstantFilter dateReceived() {
+    public LocalDateFilter dateReceived() {
         if (dateReceived == null) {
-            dateReceived = new InstantFilter();
+            dateReceived = new LocalDateFilter();
         }
         return dateReceived;
     }
 
-    public void setDateReceived(InstantFilter dateReceived) {
+    public void setDateReceived(LocalDateFilter dateReceived) {
         this.dateReceived = dateReceived;
     }
 
-    public InstantFilter getDecisionDate() {
+    public LocalDateFilter getDecisionDate() {
         return decisionDate;
     }
 
-    public InstantFilter decisionDate() {
+    public LocalDateFilter decisionDate() {
         if (decisionDate == null) {
-            decisionDate = new InstantFilter();
+            decisionDate = new LocalDateFilter();
         }
         return decisionDate;
     }
 
-    public void setDecisionDate(InstantFilter decisionDate) {
+    public void setDecisionDate(LocalDateFilter decisionDate) {
         this.decisionDate = decisionDate;
     }
 

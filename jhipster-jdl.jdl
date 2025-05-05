@@ -277,8 +277,8 @@ entity FdaSubmission {
     deviceName String required
     genericName String
 
-    dateReceived Instant
-    decisionDate Instant
+    dateReceived LocalDate
+    decisionDate LocalDate
 
     description TextBlob
 

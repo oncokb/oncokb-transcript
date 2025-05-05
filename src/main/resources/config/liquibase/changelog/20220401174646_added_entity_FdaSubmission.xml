@@ -90,4 +90,8 @@
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+    <changeSet id="20250430100000-1" author="calvin">
+        <modifyDataType tableName="fda_submission" columnName="decision_date" newDataType="date"/>
+        <modifyDataType tableName="fda_submission" columnName="date_received" newDataType="date"/>
+    </changeSet>
 </databaseChangeLog>

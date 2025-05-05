@@ -162,9 +162,9 @@ public class CdxUtils {
                     } else if (header.equalsIgnoreCase("Supplement Number")) {
                         fdaSubmission.setSupplementNumber(content);
                     } else if (header.equalsIgnoreCase("Date Received")) {
-                        fdaSubmission.setDateReceived(convertDateToInstant(content));
+                        fdaSubmission.setDateReceived(convertDateToLocalDate(content));
                     } else if (header.equalsIgnoreCase("Decision Date")) {
-                        fdaSubmission.setDecisionDate(convertDateToInstant(content));
+                        fdaSubmission.setDecisionDate(convertDateToLocalDate(content));
                     }
                 } else {
                     // The Approval Order Statement column does not have the header stored in <th> element
@@ -263,11 +263,11 @@ public class CdxUtils {
         return supplements;
     }
 
-    public Instant convertDateToInstant(String date) {
+    public LocalDate convertDateToLocalDate(String date) {
         if (StringUtils.isEmpty(date)) {
             return null;
         }
-        return LocalDate.parse(date, DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US)).atStartOfDay().toInstant(ZoneOffset.UTC);
+        return LocalDate.parse(date, DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US));
     }
 
     /**
