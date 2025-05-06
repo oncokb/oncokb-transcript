@@ -3,7 +3,7 @@ import './oncokb-sidebar.scss';
 import { observer } from 'mobx-react';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
-import { ONCOKB_SIDEBAR_MIN_WIDTH } from 'app/stores/layout.store';
+import { ONCOKB_SIDEBAR_MAX_WIDTH_RATIO, ONCOKB_SIDEBAR_MIN_WIDTH } from 'app/stores/layout.store';
 import { ONCOKB_BLUE } from 'app/config/colors';
 import ActionIcon from 'app/shared/icons/ActionIcon';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -49,7 +49,7 @@ const OncoKBSidebarExpanded = observer(
     oncoKBSidebarMarginTop,
     sidebarHeight,
   }: Omit<IOncoKBSidebarProps, 'showOncoKBSidebar' | 'defaultOpen'>) => {
-    const maxWidth = document.body.clientWidth * 0.5;
+    const maxWidth = document.body.clientWidth * ONCOKB_SIDEBAR_MAX_WIDTH_RATIO;
     const closeNavWidth = document.body.clientWidth * 0.45;
 
     const sidebarRef = useRef<HTMLDivElement>(null);

@@ -18,6 +18,7 @@ import CompanionDiagnosticDevicePanel from 'app/components/panels/CompanionDiagn
 import { WHOLE_NUMBER_REGEX } from 'app/config/constants/regex';
 import { ISpecimenType } from 'app/shared/model/specimen-type.model';
 import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
+import { ONCOKB_SIDEBAR_MIN_WIDTH } from 'app/stores/layout.store';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -37,6 +38,8 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
     }
 
     props.getSpecimenTypes({});
+
+    props.toggleOncoKBSidebar(true);
   }, []);
 
   const saveEntity = async (values: any) => {
@@ -204,6 +207,7 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   updateEntity: storeState.companionDiagnosticDeviceStore.updateEntity,
   createEntity: storeState.companionDiagnosticDeviceStore.createEntity,
   reset: storeState.companionDiagnosticDeviceStore.reset,
+  toggleOncoKBSidebar: storeState.layoutStore.toggleOncoKBSidebar,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

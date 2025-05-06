@@ -6,6 +6,7 @@ const SPACE_BETWEEN = 15;
 export const SIDEBAR_COLLAPSED_WIDTH = 75;
 export const SIDEBAR_EXPANDED_WIDTH = 200;
 export const ONCOKB_SIDEBAR_MIN_WIDTH = 350;
+export const ONCOKB_SIDEBAR_MAX_WIDTH_RATIO = 0.5;
 
 export const BANNER_HEIGHT = 42;
 

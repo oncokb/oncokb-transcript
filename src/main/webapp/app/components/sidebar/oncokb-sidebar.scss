@@ -9,7 +9,9 @@
   border-left: 1px solid $medium-grey;
   overflow-y: auto;
   display: flex;
-  transition: border-color 150ms ease-in;
+  transition:
+    border-color 150ms ease-in,
+    width 300ms ease;
 }
 
 .oncokb-sidebar-collapsed {
