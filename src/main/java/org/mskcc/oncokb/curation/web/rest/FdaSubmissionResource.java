@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionRepository;
 import org.mskcc.oncokb.curation.service.FdaSubmissionQueryService;
@@ -192,6 +193,9 @@ public class FdaSubmissionResource {
         @RequestParam(value = "number", required = true) String number,
         @RequestParam(value = "supplementNumber", required = false) String supplementNumber
     ) {
+        if (StringUtils.isEmpty(supplementNumber)) {
+            supplementNumber = "";
+        }
         return ResponseUtil.wrapOrNotFound(fdaSubmissionService.findOrFetchFdaSubmissionByNumber(number, supplementNumber, false));
     }
 

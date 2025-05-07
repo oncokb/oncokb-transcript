@@ -5,8 +5,8 @@ import ErrorBoundaryRoute from 'app/shared/error/error-boundary-route';
 
 import FdaSubmission from './fda-submission';
 import FdaSubmissionDetail from './fda-submission-detail';
-import FdaSubmissionUpdate from './fda-submission-update';
 import FdaSubmissionDeleteDialog from './fda-submission-delete-dialog';
+import { FdaSubmissionUpdate } from './fda-submission-update';
 
 const Routes = ({ match }) => (
   <>
