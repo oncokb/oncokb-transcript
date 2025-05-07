@@ -11,12 +11,16 @@ import { connect } from 'app/shared/util/typed-inject';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { AiOutlineFileSearch } from 'react-icons/ai';
 
-interface NewSubmissionProps extends StoreProps {
+interface BaseProps extends StoreProps {
+  showHeader?: boolean;
+}
+
+interface NewSubmissionProps extends BaseProps {
   isNew: true;
   id?: string;
 }
 
-interface ExistingSubmissionProps extends StoreProps {
+interface ExistingSubmissionProps extends BaseProps {
   isNew: false;
   id: string;
 }
@@ -38,6 +42,7 @@ const FdaSubmissionForm = ({
   createEntity,
   updateEntity,
   lookupFdaSubmission,
+  showHeader = true,
 }: FdaSubmissionFormProps) => {
   const [isFetchingSubmission, setIsFetchingSubmission] = useState(false);
   const [querySubmissionText, setQuerySubmissionText] = useState('');
@@ -140,11 +145,13 @@ const FdaSubmissionForm = ({
           <LoadingIndicator isLoading />
         ) : (
           <ValidatedForm onSubmit={saveEntity} defaultValues={defaultValues()}>
-            <FormSection isFirst>
-              <h2 id="oncokbTranscriptApp.fdaSubmission.home.createOrEditLabel" data-cy="FdaSubmissionCreateUpdateHeading">
-                {isNew ? 'Add' : 'Edit'} FDA Submission
-              </h2>
-            </FormSection>
+            {showHeader && (
+              <FormSection isFirst>
+                <h2 id="oncokbTranscriptApp.fdaSubmission.home.createOrEditLabel" data-cy="FdaSubmissionCreateUpdateHeading">
+                  {isNew ? 'Add' : 'Edit'} FDA Submission
+                </h2>
+              </FormSection>
+            )}
             {isNew ? (
               <FormSection sectionTitle="Fetch Information">
                 <ValidatedField

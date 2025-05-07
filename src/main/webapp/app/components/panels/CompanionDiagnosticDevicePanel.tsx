@@ -247,14 +247,15 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
         </Menu>
       </Container>
       <SimpleConfirmModal
-        hideTitle
+        title={'Create FDA Submission'}
         size="lg"
         show={showAddFdaSubmissionModal}
-        body={<FdaSubmissionUpdateForm isNew />}
+        body={<FdaSubmissionUpdateForm isNew showHeader={false} />}
         onCancel={() => setShowFdaSubmissionModal(false)}
         confirmText="Done"
         onConfirm={() => setShowFdaSubmissionModal(false)}
-      ></SimpleConfirmModal>
+        bodyStyle={{ overflowY: 'scroll', height: '75vh' }}
+      />
     </>
   );
 };

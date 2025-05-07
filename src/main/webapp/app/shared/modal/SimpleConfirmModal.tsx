@@ -9,6 +9,7 @@ export interface ISimpleConfirmModal extends ModalProps {
   title?: string;
   hideTitle?: boolean;
   body?: string | JSX.Element;
+  bodyStyle?: React.CSSProperties;
   show: boolean;
   cancelText?: string;
   cancelColor?: string;
@@ -27,6 +28,7 @@ export const SimpleConfirmModal = ({
   title,
   hideTitle,
   body,
+  bodyStyle,
   show,
   cancelText,
   cancelColor,
@@ -49,7 +51,7 @@ export const SimpleConfirmModal = ({
     <Modal style={style} isOpen={show} toggle={() => onCancel()} id={id} {...modalProps}>
       <div data-testid={SIMPLE_CONFIRM_MODAL_CONTENT_ID}>
         {!hideTitle && <ModalHeader toggle={() => onCancel()}>{title || 'Please confirm'}</ModalHeader>}
-        <ModalBody>{body ? body : 'Are you sure?'}</ModalBody>
+        <ModalBody style={bodyStyle}>{body ? body : 'Are you sure?'}</ModalBody>
         <ModalFooter>
           <Button color={cancelColor || 'secondary'} onClick={(event: any) => onCancel(event)}>
             {cancelIcon && (
