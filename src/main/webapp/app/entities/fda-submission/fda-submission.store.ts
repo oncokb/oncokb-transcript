@@ -6,6 +6,7 @@ import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { fdaSubmissionClient } from 'app/shared/api/clients';
 import { ENTITY_TYPE } from 'app/config/constants/constants';
 import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
+import { SentryError } from 'app/config/sentry-error';
 
 const apiUrl = getEntityResourcePath(ENTITY_TYPE.FDA_SUBMISSION);
 
@@ -24,7 +25,7 @@ export class FdaSubmissionStore extends PaginationCrudStore<IFdaSubmission> {
       this.entity = result.data || {};
       return this.entity;
     } catch (error) {
-      notifyError(error, `Could not find information for ${submissionNumber}.`);
+      throw new SentryError(`Failed to fetch information from FDA for ${submissionNumber}`, { submissionNumber });
     }
   }
 

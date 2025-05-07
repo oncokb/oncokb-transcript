@@ -29,6 +29,8 @@ import classNames from 'classnames';
 import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import _ from 'lodash';
 import { ErrorMessage } from 'app/shared/error/ErrorMessage';
+import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
+import FdaSubmissionUpdateForm from 'app/entities/fda-submission/fda-submission-update-form';
 
 const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties; children: React.ReactNode; className?: string }> = ({
   className,
@@ -53,6 +55,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
   const [cancerTypeValue, setCancerTypeValue] = useState<CancerTypeSelectOption | null>(null);
   const [selectedTreatments, setSelectedTreatments] = useState<DrugSelectOption[][]>([[]]);
   const [fdaSubmissionValue, setFdaSubmissionValue] = useState<readonly FdaSubmissionSelectOption[]>([]);
+  const [showAddFdaSubmissionModal, setShowFdaSubmissionModal] = useState(false);
 
   const history = useHistory();
   const location = useLocation();
@@ -144,104 +147,115 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
     [geneValue, alterationValue, cancerTypeValue, fdaSubmissionValue].some(v => _.isEmpty(v));
 
   return (
-    <Container className="ps-0">
-      <h4 style={{ marginBottom: '1rem' }}>Curation Panel</h4>
-      <div className="border-top py-3"></div>
-      <Menu>
-        <Form onSubmit={createBiomarkerAssociation}>
-          <h5 className="ms-1">Add Biomarker Association</h5>
-          <SidebarMenuItem>
-            <GeneSelect onChange={setGeneValue} value={geneValue} />
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <div className="d-flex align-items-start">
-              <div style={{ flex: 1 }}>
-                <AlterationSelect
-                  isMulti
-                  geneId={geneValue?.value?.toString() ?? ''}
-                  onChange={setAlterationValue}
-                  value={alterationValue}
-                />
+    <>
+      <Container className="ps-0">
+        <h4 style={{ marginBottom: '1rem' }}>Curation Panel</h4>
+        <div className="border-top py-3"></div>
+        <Menu>
+          <Form onSubmit={createBiomarkerAssociation}>
+            <h5 className="ms-1">Add Biomarker Association</h5>
+            <SidebarMenuItem>
+              <GeneSelect onChange={setGeneValue} value={geneValue} />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <div className="d-flex align-items-start">
+                <div style={{ flex: 1 }}>
+                  <AlterationSelect
+                    isMulti
+                    geneId={geneValue?.value?.toString() ?? ''}
+                    onChange={setAlterationValue}
+                    value={alterationValue}
+                  />
+                </div>
+                <DefaultTooltip overlay={'Create new alteration'}>
+                  <Button className="ms-1" color="primary" onClick={redirectToCreateAlteration} outline>
+                    <FontAwesomeIcon icon={faPlus} size="sm" />
+                  </Button>
+                </DefaultTooltip>
               </div>
-              <DefaultTooltip overlay={'Create new alteration'}>
-                <Button className="ms-1" color="primary" onClick={redirectToCreateAlteration} outline>
-                  <FontAwesomeIcon icon={faPlus} size="sm" />
-                </Button>
-              </DefaultTooltip>
-            </div>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <CancerTypeSelect onChange={setCancerTypeValue} value={cancerTypeValue} />
-          </SidebarMenuItem>
-          <SidebarMenuItem className="border-top py-2">
-            <h6>Input Therapies</h6>
-            <>
-              {selectedTreatments.map((drugOptions, index) => {
-                return (
-                  <div key={`cdx-drug-add-${index}`} className={classNames(index > 0 ? 'mt-2' : undefined, 'd-flex align-items-start')}>
-                    <DrugSelect
-                      className={'flex-grow-1'}
-                      isMulti
-                      onChange={options => onTreatmentChange(options as DrugSelectOption[], index)}
-                      value={drugOptions}
-                      placeholder={'Select drug(s)'}
-                    />
-                    <Button
-                      className="ms-1"
-                      color="danger"
-                      onClick={() => {
-                        setSelectedTreatments(prevItems => prevItems.filter((val, i) => i !== index));
-                      }}
-                      outline
-                      disabled={selectedTreatments.length === 1}
-                    >
-                      <FontAwesomeIcon icon={faTrashCan} size="sm" />
-                    </Button>
-                  </div>
-                );
-              })}
-            </>
-            <Button
-              outline
-              size="sm"
-              className="mt-2"
-              color="primary"
-              onClick={() => {
-                setSelectedTreatments(prevState => [...prevState, []]);
-              }}
-              disabled={isEmptyTreatments || hasDuplicateTreatments}
-            >
-              Add Therapy
-            </Button>
-            <div className="mt-1">
-              {selectedTreatments.length > 1 && isEmptyTreatments && <ErrorMessage message={EMPTY_THERAPY_ERROR_MESSAGE} />}
-              {hasDuplicateTreatments && <ErrorMessage message={DUPLICATE_THERAPY_ERROR_MESSAGE} />}
-            </div>
-          </SidebarMenuItem>
-          <SidebarMenuItem className="border-top py-2">
-            <div className="d-flex align-items-start">
-              <div style={{ flex: 1 }}>
-                <FdaSubmissionSelect
-                  cdxId={id}
-                  isMulti
-                  onChange={setFdaSubmissionValue}
-                  value={fdaSubmissionValue}
-                  placeholder={'Select FDA submission(s)'}
-                />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <CancerTypeSelect onChange={setCancerTypeValue} value={cancerTypeValue} />
+            </SidebarMenuItem>
+            <SidebarMenuItem className="border-top py-2">
+              <h6>Input Therapies</h6>
+              <>
+                {selectedTreatments.map((drugOptions, index) => {
+                  return (
+                    <div key={`cdx-drug-add-${index}`} className={classNames(index > 0 ? 'mt-2' : undefined, 'd-flex align-items-start')}>
+                      <DrugSelect
+                        className={'flex-grow-1'}
+                        isMulti
+                        onChange={options => onTreatmentChange(options as DrugSelectOption[], index)}
+                        value={drugOptions}
+                        placeholder={'Select drug(s)'}
+                      />
+                      <Button
+                        className="ms-1"
+                        color="danger"
+                        onClick={() => {
+                          setSelectedTreatments(prevItems => prevItems.filter((val, i) => i !== index));
+                        }}
+                        outline
+                        disabled={selectedTreatments.length === 1}
+                      >
+                        <FontAwesomeIcon icon={faTrashCan} size="sm" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </>
+              <Button
+                outline
+                size="sm"
+                className="mt-2"
+                color="primary"
+                onClick={() => {
+                  setSelectedTreatments(prevState => [...prevState, []]);
+                }}
+                disabled={isEmptyTreatments || hasDuplicateTreatments}
+              >
+                Add Therapy
+              </Button>
+              <div className="mt-1">
+                {selectedTreatments.length > 1 && isEmptyTreatments && <ErrorMessage message={EMPTY_THERAPY_ERROR_MESSAGE} />}
+                {hasDuplicateTreatments && <ErrorMessage message={DUPLICATE_THERAPY_ERROR_MESSAGE} />}
               </div>
-              <DefaultTooltip overlay={'Create new FDA submission'}>
-                <Button className="ms-1" color="primary" onClick={redirectToCreateFdaSubmission} outline>
-                  <FontAwesomeIcon icon={faPlus} size="sm" />
-                </Button>
-              </DefaultTooltip>
-            </div>
-          </SidebarMenuItem>
-          <SidebarMenuItem style={{ display: 'flex', justifyContent: 'end' }}>
-            <SaveButton disabled={isSaveButtonDisabled} />
-          </SidebarMenuItem>
-        </Form>
-      </Menu>
-    </Container>
+            </SidebarMenuItem>
+            <SidebarMenuItem className="border-top py-2">
+              <div className="d-flex align-items-start">
+                <div style={{ flex: 1 }}>
+                  <FdaSubmissionSelect
+                    cdxId={id}
+                    isMulti
+                    onChange={setFdaSubmissionValue}
+                    value={fdaSubmissionValue}
+                    placeholder={'Select FDA submission(s)'}
+                  />
+                </div>
+                <DefaultTooltip overlay={'Create new FDA submission'}>
+                  <Button className="ms-1" color="primary" onClick={() => setShowFdaSubmissionModal(true)} outline>
+                    <FontAwesomeIcon icon={faPlus} size="sm" />
+                  </Button>
+                </DefaultTooltip>
+              </div>
+            </SidebarMenuItem>
+            <SidebarMenuItem style={{ display: 'flex', justifyContent: 'end' }}>
+              <SaveButton disabled={isSaveButtonDisabled} />
+            </SidebarMenuItem>
+          </Form>
+        </Menu>
+      </Container>
+      <SimpleConfirmModal
+        hideTitle
+        size="lg"
+        show={showAddFdaSubmissionModal}
+        body={<FdaSubmissionUpdateForm isNew />}
+        onCancel={() => setShowFdaSubmissionModal(false)}
+        confirmText="Done"
+        onConfirm={() => setShowFdaSubmissionModal(false)}
+      ></SimpleConfirmModal>
+    </>
   );
 };
 
