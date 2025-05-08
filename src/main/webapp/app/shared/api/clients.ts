@@ -12,6 +12,7 @@ import {
   ArticleResourceApi,
   AuditResourceApi,
 } from './generated/curation/api';
+import { UtilsApi } from './generated/defaultCore';
 import { DriveAnnotationApi } from './manual/drive-annotation-api';
 import { EvidenceApi } from './manual/evidence-api';
 import { GeneTypeApi } from './manual/gene-type-api';
@@ -34,3 +35,5 @@ export const evidenceClient = new EvidenceApi(undefined, '', axiosInstance);
 export const geneTypeClient = new GeneTypeApi(undefined, '', axiosInstance);
 export const driveAnnotationClient = new DriveAnnotationApi(undefined, '', axiosInstance);
 export const geneLegacyApi = new GeneApi(undefined, '', axiosInstance);
+
+export const utilsClient = new UtilsApi(undefined, 'api/v1', axiosInstance);

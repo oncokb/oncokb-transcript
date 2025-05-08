@@ -1,5 +1,9 @@
 import React, { MouseEventHandler } from 'react';
-import RealtimeBasicInput, { IRealtimeBasicInput, RealtimeInputType } from './RealtimeBasicInput';
+import RealtimeBasicInput, { IRealtimeBasicInput, RealtimeBasicLabel, RealtimeInputType } from './RealtimeBasicInput';
+import TabsContainer, { ITabsContainer } from 'app/shared/tab/TabsContainer';
+import CPLHelpTooltip from 'app/pages/curation/tooltip/CPLHelpTooltip';
+import { IoHelpCircleOutline } from 'react-icons/io5';
+import PreviewTextArea from './PreviewTextArea';
 
 /**
  * Text inputs
@@ -13,6 +17,51 @@ export const RealtimeTextInput = ({ inline = false, ...otherProps }: IRealtimeTe
 
 export const RealtimeTextAreaInput = (props: Omit<IRealtimeBasicInput, 'type'>) => {
   return <RealtimeBasicInput {...props} type={RealtimeInputType.TEXTAREA} />;
+};
+
+export const RealtimeMultiTabTextAreaInput = (
+  props: Omit<IRealtimeBasicInput, 'type'> & { mutationName?: string; cancerTypeName?: string },
+) => {
+  const labelComponent = props.label && (
+    <RealtimeBasicLabel
+      label={props.label}
+      labelIcon={props.labelIcon}
+      id={props.firebasePath}
+      labelClass={'fw-bold'}
+      onClick={props.labelOnClick}
+    />
+  );
+
+  return (
+    <div className="mb-2">
+      {labelComponent}
+      <TabsContainer
+        tabs={[
+          {
+            title: 'Write',
+            getContent: () => <RealtimeTextAreaInput label="Gene Summary" firebasePath={props.firebasePath} hideLabel />,
+            key: `${props.firebasePath}-write`,
+          },
+          {
+            title: 'Preview',
+            getContent: () => (
+              <PreviewTextArea firebasePath={props.firebasePath} mutationName={props.mutationName} cancerTypeName={props.cancerTypeName} />
+            ),
+            key: `${props.firebasePath}-preview`,
+          },
+        ]}
+        toolbars={{
+          default: (
+            <button type="button" className="btn">
+              <CPLHelpTooltip>
+                <IoHelpCircleOutline />
+              </CPLHelpTooltip>
+            </button>
+          ),
+        }}
+      ></TabsContainer>
+    </div>
+  );
 };
 
 /**

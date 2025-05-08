@@ -11,7 +11,7 @@ import {
 } from 'app/config/constants/firebase';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { AlterationAnnotationStatus, HotspotDTO, ProteinExonDTO } from 'app/shared/api/generated/curation';
-import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import { RealtimeCheckedInputGroup, RealtimeMultiTabTextAreaInput, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import EditIcon from 'app/shared/icons/EditIcon';
 import HotspotIcon from 'app/shared/icons/HotspotIcon';
@@ -355,10 +355,11 @@ const MutationCollapsible = ({
         }
         isPendingDelete={isMutationPendingDelete}
       >
-        <RealtimeTextAreaInput
+        <RealtimeMultiTabTextAreaInput
           firebasePath={`${mutationPath}/summary`}
           inputClass={styles.summaryTextarea}
           label="Mutation Summary (Optional)"
+          mutationName={mutationName}
           labelIcon={
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
@@ -474,11 +475,12 @@ const MutationCollapsible = ({
               />
             </>
           )}
-          <RealtimeTextAreaInput
+          <RealtimeMultiTabTextAreaInput
             disabled={readOnly}
             firebasePath={`${mutationPath}/mutation_effect/description`}
             inputClass={styles.textarea}
             label="Description of Evidence"
+            mutationName={mutationName}
             labelIcon={
               <GeneHistoryTooltip
                 historyData={parsedHistoryList}
