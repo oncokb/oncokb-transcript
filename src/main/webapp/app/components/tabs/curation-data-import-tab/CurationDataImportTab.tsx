@@ -496,6 +496,7 @@ const CurationDataImportTab = observer(
           accessor: IMPORT_STATUS_HEADER_KEY,
           Header: importStatus === 'imported' ? 'Import Status' : 'Upload Status',
           maxWidth: 120,
+          disableHeaderFiltering: true,
           Cell(data) {
             return (
               <div className={'text-center'}>

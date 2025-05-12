@@ -14,7 +14,7 @@ export interface NumberFilterMenuProps {
   updateSelections: (selected: Set<number>) => void;
 }
 
-export const NumberFilterMenu: React.FC<NumberFilterMenuProps> = ({ id, currSelections, allSelections, updateSelections }) => {
+export const NumberFilterMenu: React.FC<NumberFilterMenuProps> = ({ allSelections, updateSelections }) => {
   const [filterRange, setFilterRange] = useState<[number | null, number | null]>([null, null]);
   const [filterOperator, setFilterOperator] = useState<NumberOperator>(NUMBER_OPERATORS.between);
 

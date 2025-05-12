@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Input, Button } from 'reactstrap';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Input, Button, Label } from 'reactstrap';
 import { STRING_OPERATORS, applyStringOperator } from './types';
 import _ from 'lodash';
 
@@ -17,8 +17,11 @@ export const StringFilterMenu: React.FC<StringFilterMenuProps> = ({
   updateSelections,
 }: StringFilterMenuProps) => {
   const [filterTextInput, setFilterTextInput] = useState('');
-  const [newSelections, setNewSelections] = useState(currSelections);
   const [filterOperator, setFilterOperator] = useState(STRING_OPERATORS.contains);
+
+  useEffect(() => {
+    updateSelections(new Set());
+  }, [filterTextInput, filterOperator]);
 
   const handleOperatorChange = e => {
     setFilterOperator(STRING_OPERATORS[e.target.value]);
@@ -36,26 +39,25 @@ export const StringFilterMenu: React.FC<StringFilterMenuProps> = ({
 
   const handleFilterTextChange = e => {
     setFilterTextInput(e.target.value);
-    // _.debounce(() => updateFilterText(e.target.value), 500);
   };
 
   const handleCheckboxChange = (value, event) => {
     event.stopPropagation();
+    const updated = new Set(currSelections);
     if (event.target.checked) {
-      newSelections.add(value);
+      updated.add(value);
     } else {
-      newSelections.delete(value);
+      updated.delete(value);
     }
-    setNewSelections(new Set(newSelections));
-    updateSelections(new Set(newSelections));
+    updateSelections(updated);
   };
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     if (event.target.checked) {
-      setNewSelections(new Set(allSelections));
+      updateSelections(new Set(filteredSelections));
     } else {
-      setNewSelections(new Set());
+      updateSelections(new Set());
     }
   };
 
@@ -77,20 +79,28 @@ export const StringFilterMenu: React.FC<StringFilterMenuProps> = ({
       <div style={{ marginTop: '10px' }}>
         <div className="checkbox-list">
           <div>
-            <Input type="checkbox" onChange={handleSelectAll} style={{ cursor: 'pointer' }} />
-            <label>Select all ({filteredSelections.length})</label>
+            <Input id={`${id}-select-all`} type="checkbox" onChange={handleSelectAll} style={{ cursor: 'pointer' }} />
+            <Label for={`${id}-select-all`} style={{ cursor: 'pointer' }}>
+              Select all ({filteredSelections.length})
+            </Label>
           </div>
-          {Array.from(filteredSelections).map(selection => (
-            <div key={selection} style={{ display: 'flex', margin: '2px' }}>
-              <Input
-                type="checkbox"
-                checked={newSelections.has(selection)}
-                onChange={e => handleCheckboxChange(selection, e)}
-                style={{ cursor: 'pointer' }}
-              />
-              <label>{selection}</label>
-            </div>
-          ))}
+          {Array.from(filteredSelections).map((selection, index) => {
+            const htmlFor = `string-filter-selection-${id}-${index}`;
+            return (
+              <div key={selection} style={{ display: 'flex', margin: '2px' }}>
+                <Input
+                  id={htmlFor}
+                  type="checkbox"
+                  checked={currSelections.has(selection)}
+                  onChange={e => handleCheckboxChange(selection, e)}
+                  style={{ cursor: 'pointer' }}
+                />
+                <Label for={htmlFor} style={{ cursor: 'pointer' }}>
+                  {selection}
+                </Label>
+              </div>
+            );
+          })}
         </div>
       </div>
       <div className="d-flex justify-content-end mt-2">
@@ -98,7 +108,7 @@ export const StringFilterMenu: React.FC<StringFilterMenuProps> = ({
           color="secondary"
           size="sm"
           onClick={() => {
-            setNewSelections(new Set());
+            updateSelections(new Set());
           }}
         >
           Clear filters
