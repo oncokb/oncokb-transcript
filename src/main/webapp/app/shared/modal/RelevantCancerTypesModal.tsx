@@ -4,7 +4,7 @@ import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
 import { cancerTypeClient } from '../api/clients';
-import OncoKBTable, { SearchColumn } from '../table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from '../table/OncoKBTable';
 import ActionIcon from '../icons/ActionIcon';
 import { DANGER, ONCOKB_BLUE } from 'app/config/colors';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
@@ -19,6 +19,7 @@ import { FaExclamationCircle } from 'react-icons/fa';
 import InfoIcon from '../icons/InfoIcon';
 import pluralize from 'pluralize';
 import { RCT_MODAL_ID } from 'app/config/constants/html-id';
+import { FilterTypes } from '../table/filters/types';
 
 export interface IRelevantCancerTypesModalProps extends StoreProps {
   onConfirm: (newRelevantCancerTypes: CancerType[], noneDeleted: boolean) => void;
@@ -99,13 +100,14 @@ const RelevantCancerTypesModalContent = observer(
       };
     }, []);
 
-    const columns: SearchColumn<RelevantCancerType>[] = [
+    const columns: FilterableColumn<RelevantCancerType>[] = [
       {
         Header: 'Cancer Type',
+        filterType: FilterTypes.STRING,
         getColumnFilterValue(data: RelevantCancerType) {
           return data.mainType ?? '';
         },
-        onFilter(data, keyword) {
+        onSearchFilter(data, keyword) {
           return data.mainType?.toLowerCase().includes(keyword) || false;
         },
         Cell({ original }: CellInfo) {
@@ -128,10 +130,11 @@ const RelevantCancerTypesModalContent = observer(
       },
       {
         Header: 'Cancer Type Details',
+        filterType: FilterTypes.STRING,
         getColumnFilterValue(data: RelevantCancerType) {
           return data.subtype ?? '';
         },
-        onFilter(data, keyword) {
+        onSearchFilter(data, keyword) {
           return data.subtype?.toLowerCase().includes(keyword) || false;
         },
         Cell({ original }: CellInfo) {
@@ -150,7 +153,7 @@ const RelevantCancerTypesModalContent = observer(
         Header: 'Code',
         maxWidth: 120,
         accessor: 'code',
-        onFilter(data, keyword) {
+        onSearchFilter(data, keyword) {
           return data.code?.toLowerCase().includes(keyword) || false;
         },
         Cell({ original }: CellInfo) {

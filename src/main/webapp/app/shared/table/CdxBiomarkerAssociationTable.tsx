@@ -4,14 +4,16 @@ import { IRootStore } from 'app/stores';
 import { getFdaSubmissionLinks } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
 import { IAssociation } from '../model/association.model';
 import { Column } from 'react-table';
-import { getAlterationName, getCancerTypeName, getGeneNamesStringFromAlterations, getTreatmentName } from '../util/utils';
+import { filterByKeyword, getAlterationName, getCancerTypeName, getGeneNamesStringFromAlterations, getTreatmentName } from '../util/utils';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { SimpleConfirmModal } from '../modal/SimpleConfirmModal';
 import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import OncoKBTable from './OncoKBTable';
+import OncoKBTable, { FilterableColumn } from './OncoKBTable';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import _ from 'lodash';
+import { getGeneFilterValue } from '../util/table-filter-utils';
+import { FilterTypes } from './filters/types';
 
 interface CdxBiomarkerAssociationTableProps extends StoreProps {
   editable?: boolean;
@@ -55,12 +57,17 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
     return Object.values(associations);
   }, [props.fdaSubmissions]);
 
-  const columns: Column<IAssociation>[] = [
+  const columns: FilterableColumn<IAssociation>[] = [
     {
       id: 'gene',
       Header: 'Gene',
       Cell(cell: { original: IAssociation }) {
         return <div>{getGeneNamesStringFromAlterations(cell.original.alterations || [])}</div>;
+      },
+      filterType: FilterTypes.STRING,
+      getColumnFilterValue: getGeneFilterValue,
+      onSearchFilter(data: IAssociation, keyword) {
+        return filterByKeyword(getGeneFilterValue(data), keyword);
       },
     },
     {
@@ -69,6 +76,11 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
       Cell(cell: { original: IAssociation }) {
         return <>{cell.original.alterations && getAlterationName(cell.original.alterations)}</>;
       },
+      disableHeaderFiltering: true,
+      onSearchFilter(data: IAssociation, keyword) {
+        const altName = getAlterationName(data.alterations ?? []);
+        return altName ? filterByKeyword(altName, keyword) : false;
+      },
     },
     {
       id: 'cancerType',
@@ -76,10 +88,18 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
       Cell(cell: { original: IAssociation }) {
         return <div>{cell.original.cancerTypes?.map(ct => getCancerTypeName(ct)).join(', ')}</div>;
       },
+      filterType: FilterTypes.STRING,
+      getColumnFilterValue(data: IAssociation) {
+        return data.cancerTypes?.map(ct => getCancerTypeName(ct)).join(', ') ?? '';
+      },
+      onSearchFilter(data: IAssociation, keyword) {
+        const ctName = data.cancerTypes?.map(ct => getCancerTypeName(ct)).join(', ') ?? '';
+        return ctName ? filterByKeyword(ctName, keyword) : false;
+      },
     },
     {
       id: 'drugs',
-      Header: 'Drug',
+      Header: 'Drugs',
       Cell(cell: { original: IAssociation }) {
         return (
           <>
@@ -87,12 +107,31 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
           </>
         );
       },
+      getColumnFilterValue(data: IAssociation) {
+        if (!data.drugs) {
+          return '';
+        }
+        return getTreatmentName(data.drugs, data.rules?.filter(rule => (rule.entity = 'DRUG'))[0]);
+      },
+      filterType: FilterTypes.STRING,
+      onSearchFilter(data: IAssociation, keyword) {
+        if (!data.drugs) return false;
+        const txName = getTreatmentName(data.drugs, data.rules?.filter(rule => (rule.entity = 'DRUG'))[0]);
+        return txName ? filterByKeyword(txName, keyword) : false;
+      },
     },
     {
       id: 'fdaSubmissions',
       Header: 'FDA Submissions',
       Cell(cell: { original: IAssociation }) {
         return <>{cell.original.fdaSubmissions && getFdaSubmissionLinks(cell.original.fdaSubmissions)}</>;
+      },
+      filterType: FilterTypes.STRING,
+      getColumnFilterValue(data: IAssociation) {
+        if (!data.fdaSubmissions) {
+          return '';
+        }
+        return getFdaSubmissionLinks(data.fdaSubmissions, false) as string;
       },
     },
   ];
@@ -119,13 +158,19 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
         );
       },
       minWidth: 50,
+      disableHeaderFiltering: true,
     });
   }
 
   return (
     <>
       <h4>Biomarker Associations</h4>
-      <OncoKBTable data={biomarkerAssociations} columns={columns} showPagination defaultPageSize={5} />
+      <OncoKBTable
+        data={biomarkerAssociations}
+        columns={columns}
+        showPagination
+        defaultPageSize={biomarkerAssociations.length > 5 ? 10 : 5}
+      />
       <SimpleConfirmModal
         show={showModal}
         onCancel={handleCancel}

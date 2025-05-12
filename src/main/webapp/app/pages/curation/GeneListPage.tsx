@@ -6,7 +6,7 @@ import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/load
 import { geneNeedsReview } from 'app/shared/util/firebase/firebase-utils';
 import { Link, RouteComponentProps, generatePath } from 'react-router-dom';
 import { APP_DATETIME_FORMAT, PAGE_ROUTE } from 'app/config/constants/constants';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword } from 'app/shared/util/utils';
 import { TextFormat } from 'react-jhipster';
 import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
@@ -22,7 +22,7 @@ const getCurationPageLink = (hugoSymbol: string, isGermline: boolean) => {
 };
 import CurationDataImportTab from 'app/components/tabs/curation-data-import-tab/CurationDataImportTab';
 import { DATA_IMPORT_TAB_ID, GENE_LIST_TABLE_ID } from 'app/config/constants/html-id';
-import moment from 'moment';
+import { FilterTypes } from 'app/shared/table/filters/types';
 
 type GeneMetaInfo = {
   hugoSymbol: string;
@@ -70,20 +70,21 @@ const GeneListPage = (props: IGeneListPage) => {
     }
   }, [props.metaData]);
 
-  const columns: SearchColumn<GeneMetaInfo>[] = [
+  const columns: FilterableColumn<GeneMetaInfo>[] = [
     {
       accessor: 'hugoSymbol',
       Header: 'Hugo Symbol',
       Cell(cell: { value: string }): any {
         return <Link to={getCurationPageLink(cell.value, isGermline)}>{cell.value}</Link>;
       },
-      onFilter: (data: GeneMetaInfo, keyword) => (data.hugoSymbol ? filterByKeyword(data.hugoSymbol, keyword) : false),
+      onSearchFilter: (data: GeneMetaInfo, keyword) => (data.hugoSymbol ? filterByKeyword(data.hugoSymbol, keyword) : false),
     },
     {
       accessor: 'lastModifiedAt',
       Header: 'Last modified at',
+      filterType: FilterTypes.DATE,
       getColumnFilterValue(data: GeneMetaInfo) {
-        return data.lastModifiedAt ? moment(parseInt(data.lastModifiedAt, 10)).format(APP_DATETIME_FORMAT) : '';
+        return new Date(parseInt(data.lastModifiedAt, 10));
       },
       Cell(cell: { value: string }): any {
         return cell.value ? <TextFormat value={new Date(parseInt(cell.value, 10))} type="date" format={APP_DATETIME_FORMAT} /> : '';
@@ -96,6 +97,7 @@ const GeneListPage = (props: IGeneListPage) => {
     {
       accessor: 'needsReview',
       Header: 'Needs to be Reviewed',
+      filterType: FilterTypes.STRING,
       getColumnFilterValue(data: GeneMetaInfo) {
         return data.needsReview ? 'Yes' : 'No';
       },

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DANGER, GREY, SUCCESS } from 'app/config/colors';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import Collapsible from 'app/pages/curation/collapsible/Collapsible';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import React, { DependencyList, useCallback, useEffect } from 'react';
 import { Col, Form, FormGroup, Input, Row, Label, Button, Spinner } from 'reactstrap';
 import Tabs from './tabs';
@@ -130,18 +130,18 @@ type ValidationResult = {
   data: ValidationData[];
 };
 
-const validationColumns: SearchColumn<ValidationData>[] = [
+const validationColumns: FilterableColumn<ValidationData>[] = [
   {
     accessor: 'target',
     Header: 'Biomarker',
-    onFilter(data: ValidationData, keyword: string) {
+    onSearchFilter(data: ValidationData, keyword: string) {
       return data.target?.toLowerCase().includes(keyword) ?? false;
     },
   },
   {
     accessor: 'reason',
     Header: 'Issue',
-    onFilter(data: ValidationData, keyword: string) {
+    onSearchFilter(data: ValidationData, keyword: string) {
       return data.reason?.toLowerCase().includes(keyword) ?? false;
     },
   },

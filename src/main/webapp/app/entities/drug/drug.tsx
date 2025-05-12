@@ -6,7 +6,7 @@ import { IRootStore } from 'app/stores';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { filterByKeyword, getAlterationName, getEntityTableActionsColumn, getGeneNameFromAlteration } from 'app/shared/util/utils';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import { IAlteration } from 'app/shared/model/alteration.model';
 import _ from 'lodash';
 import * as styles from './styles.module.scss';
@@ -53,16 +53,16 @@ export const Drug = (props: IDrugProps) => {
     return biomarkers;
   };
 
-  const columns: SearchColumn<IDrug>[] = [
+  const columns: FilterableColumn<IDrug>[] = [
     {
       accessor: 'uuid',
       Header: 'UUID',
-      onFilter: (data: IDrug, keyword) => filterByKeyword(data.uuid, keyword),
+      onSearchFilter: (data: IDrug, keyword) => filterByKeyword(data.uuid, keyword),
     },
     {
       accessor: 'name',
       Header: 'Name',
-      onFilter: (data: IDrug, keyword) => filterByKeyword(data.name, keyword),
+      onSearchFilter: (data: IDrug, keyword) => filterByKeyword(data.name, keyword),
     },
     {
       id: 'code',
@@ -70,7 +70,7 @@ export const Drug = (props: IDrugProps) => {
       Cell(cell): JSX.Element {
         return cell.original.nciThesaurus ? cell.original.nciThesaurus.code : '';
       },
-      onFilter: (data: IDrug, keyword) => filterByKeyword(data.nciThesaurus?.code || '', keyword),
+      onSearchFilter: (data: IDrug, keyword) => filterByKeyword(data.nciThesaurus?.code || '', keyword),
     },
     {
       accessor: 'associations',
@@ -94,7 +94,7 @@ export const Drug = (props: IDrugProps) => {
           </>
         );
       },
-      onFilter: (data: IDrug, keyword) =>
+      onSearchFilter: (data: IDrug, keyword) =>
         filterByKeyword(getAllGeneAlterationTexts(getUniqueGenes(data.associations || [])), keyword, true),
       sortMethod: (a: IAssociation[], b: IAssociation[]) =>
         getAllGeneAlterationTexts(getUniqueGenes(a || [])).localeCompare(getAllGeneAlterationTexts(getUniqueGenes(b || []))),

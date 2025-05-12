@@ -11,32 +11,35 @@ import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnosti
 import { TextFormat } from 'react-jhipster';
 import _ from 'lodash';
 import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
+import { FilterTypes } from 'app/shared/table/filters/types';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const getFdaSubmissionNumber = (primaryNumber: string | undefined, supplementNumber: string | undefined) => {
   return supplementNumber ? `${primaryNumber}/${supplementNumber}` : primaryNumber ?? '';
 };
 
-export const getFdaSubmissionLinks = (fdaSubmissions: IFdaSubmission[]) => {
-  return (
-    fdaSubmissions && (
-      <WithSeparator separator=", ">
-        {fdaSubmissions
-          .sort((a, b) =>
-            getFdaSubmissionNumber(a.number, a.supplementNumber).localeCompare(getFdaSubmissionNumber(b.number, b.supplementNumber)),
-          )
-          .map(submission => {
-            const submissionNumber = getFdaSubmissionNumber(submission.number, submission.supplementNumber);
-            return (
-              <Link to={`${PAGE_ROUTE.FDA_SUBMISSION}/${submission.id}`} key={submissionNumber}>
-                {submissionNumber}
-              </Link>
-            );
-          })}
-      </WithSeparator>
+export const getFdaSubmissionLinks = (fdaSubmissions: IFdaSubmission[], linkComponent = true) => {
+  const submissions = fdaSubmissions
+    ?.sort((a, b) =>
+      getFdaSubmissionNumber(a.number, a.supplementNumber).localeCompare(getFdaSubmissionNumber(b.number, b.supplementNumber)),
     )
-  );
+    .map(submission => {
+      const submissionNumber = getFdaSubmissionNumber(submission.number, submission.supplementNumber);
+      if (linkComponent) {
+        return (
+          <Link to={`${PAGE_ROUTE.FDA_SUBMISSION}/${submission.id}`} key={submissionNumber}>
+            {submissionNumber}
+          </Link>
+        );
+      }
+      return submissionNumber;
+    });
+
+  if (linkComponent) {
+    return <WithSeparator separator={', '}>{submissions}</WithSeparator>;
+  }
+  return submissions.join(', ');
 };
 
 export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps) => {
@@ -57,22 +60,28 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
     return _.uniq(drugs);
   };
 
-  const columns: SearchColumn<ICompanionDiagnosticDevice>[] = [
+  const columns: FilterableColumn<ICompanionDiagnosticDevice>[] = [
     {
       accessor: 'name',
       Header: 'Device Name',
-      onFilter: (data: ICompanionDiagnosticDevice, keyword) => filterByKeyword(data.name, keyword),
+      onSearchFilter: (data: ICompanionDiagnosticDevice, keyword) => filterByKeyword(data.name, keyword),
       minWidth: 200,
     },
     {
       accessor: 'manufacturer',
       Header: 'Manufacturer',
-      onFilter: (data: ICompanionDiagnosticDevice, keyword) => filterByKeyword(data.manufacturer, keyword),
+      onSearchFilter: (data: ICompanionDiagnosticDevice, keyword) => filterByKeyword(data.manufacturer, keyword),
       minWidth: 150,
     },
     {
       id: 'drugs',
       Header: 'Associated Drugs',
+      onSearchFilter(data: ICompanionDiagnosticDevice, keyword) {
+        const drugs = getUniqDrugs(data.fdaSubmissions ?? [])
+          .sort()
+          .join(', ');
+        return filterByKeyword(drugs, keyword);
+      },
       Cell(cell: { original: ICompanionDiagnosticDevice }) {
         return (
           <>
@@ -82,25 +91,30 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
           </>
         );
       },
+      disableHeaderFiltering: true,
     },
     {
       id: 'fdaSubmissions',
       Header: 'FDA Submissions',
       sortable: false,
-      onFilter: (data: ICompanionDiagnosticDevice, keyword) =>
+      onSearchFilter: (data: ICompanionDiagnosticDevice, keyword) =>
         data.fdaSubmissions
           ? filterByKeyword(data.fdaSubmissions.map(s => getFdaSubmissionNumber(s.number, s.supplementNumber)).join(', '), keyword)
           : false,
       Cell(cell: { original: ICompanionDiagnosticDevice }) {
         return <>{getFdaSubmissionLinks(cell.original.fdaSubmissions ?? [])}</>;
       },
+      disableHeaderFiltering: true,
       minWidth: 250,
     },
     { accessor: 'platformType', Header: 'Platform Type' },
     {
       accessor: 'lastUpdated',
       Header: 'Last Updated',
-
+      filterType: FilterTypes.DATE,
+      getColumnFilterValue(data: ICompanionDiagnosticDevice) {
+        return data.lastUpdated ? new Date(data.lastUpdated) : undefined;
+      },
       Cell(cell: { original: ICompanionDiagnosticDevice }) {
         return cell.original?.lastUpdated ? <TextFormat value={cell.original.lastUpdated} type="date" format={APP_DATE_FORMAT} /> : null;
       },

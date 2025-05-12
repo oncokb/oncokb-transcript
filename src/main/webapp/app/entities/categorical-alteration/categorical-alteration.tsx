@@ -7,7 +7,7 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
 export interface ICategoricalAlterationProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
@@ -16,21 +16,21 @@ export const CategoricalAlteration = (props: ICategoricalAlterationProps) => {
     props.getEntities({});
   }, []);
 
-  const columns: SearchColumn<ICategoricalAlteration>[] = [
+  const columns: FilterableColumn<ICategoricalAlteration>[] = [
     {
       accessor: 'alterationType',
       Header: 'Alteration Type',
-      onFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.alterationType, keyword),
+      onSearchFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.alterationType, keyword),
     },
     {
       accessor: 'type',
       Header: 'Type',
-      onFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.type, keyword),
+      onSearchFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.type, keyword),
     },
     {
       accessor: 'name',
       Header: 'Name',
-      onFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.name, keyword),
+      onSearchFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.name, keyword),
     },
     {
       accessor: 'consequence.term',
@@ -38,7 +38,8 @@ export const CategoricalAlteration = (props: ICategoricalAlterationProps) => {
       Cell(cell: { original: ICategoricalAlteration }) {
         return cell.original.consequence ? cell.original.consequence.term : '';
       },
-      onFilter: (data: ICategoricalAlteration, keyword) => (data.consequence ? filterByKeyword(data.consequence.term, keyword) : false),
+      onSearchFilter: (data: ICategoricalAlteration, keyword) =>
+        data.consequence ? filterByKeyword(data.consequence.term, keyword) : false,
     },
     getEntityTableActionsColumn(ENTITY_TYPE.CATEGORICAL_ALTERATION),
   ];

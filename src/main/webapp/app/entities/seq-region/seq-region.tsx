@@ -7,7 +7,7 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
 export interface ISeqRegionProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
@@ -16,21 +16,21 @@ export const SeqRegion = (props: ISeqRegionProps) => {
     props.getEntities({});
   }, []);
 
-  const columns: SearchColumn<ISeqRegion>[] = [
+  const columns: FilterableColumn<ISeqRegion>[] = [
     {
       accessor: 'name',
       Header: 'Name',
-      onFilter: (data: ISeqRegion, keyword) => filterByKeyword(data.name, keyword),
+      onSearchFilter: (data: ISeqRegion, keyword) => filterByKeyword(data.name, keyword),
     },
     {
       accessor: 'chromosome',
       Header: 'Chromosome',
-      onFilter: (data: ISeqRegion, keyword) => (data.chromosome ? filterByKeyword(data.chromosome, keyword) : false),
+      onSearchFilter: (data: ISeqRegion, keyword) => (data.chromosome ? filterByKeyword(data.chromosome, keyword) : false),
     },
     {
       accessor: 'description',
       Header: 'Description',
-      onFilter: (data: ISeqRegion, keyword) => (data.description ? filterByKeyword(data.description, keyword) : false),
+      onSearchFilter: (data: ISeqRegion, keyword) => (data.description ? filterByKeyword(data.description, keyword) : false),
     },
     getEntityTableActionsColumn(ENTITY_TYPE.SEQ_REGION),
   ];

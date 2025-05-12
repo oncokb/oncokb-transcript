@@ -1,6 +1,6 @@
 import { ALLELE_STATE, PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
 import { GenomicIndicator, GenomicIndicatorList, Mutation, MutationList, Review } from 'app/shared/model/firebase/firebase.model';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { Database, Unsubscribe, onValue, ref, update } from 'firebase/database';
@@ -104,7 +104,7 @@ const GenomicIndicatorsTable = ({
     };
   }, [genomicIndicatorKeys, genomicIndicatorsPath, firebaseDb]);
 
-  const columns: SearchColumn<{ arrayKey: string }>[] = [
+  const columns: FilterableColumn<{ arrayKey: string }>[] = [
     {
       Header: 'Name',
       width: 200,
