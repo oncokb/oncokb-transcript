@@ -10,12 +10,14 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 
 const getNestedValue = (obj: any, path: string): string => {
   return (
-    path.split('.').reduce((acc, key) => {
-      if (acc && typeof acc === 'object') {
-        return acc[key];
-      }
-      return undefined;
-    }, obj) ?? ''
+    String(
+      path.split('.').reduce((acc, key) => {
+        if (acc && typeof acc === 'object') {
+          return acc[key];
+        }
+        return undefined;
+      }, obj),
+    ) ?? ''
   );
 };
 
