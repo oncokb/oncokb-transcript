@@ -2,10 +2,12 @@ import { evidenceClient } from 'app/shared/api/clients';
 import React, { useState } from 'react';
 import { Button } from 'reactstrap';
 import Select, { GroupBase } from 'react-select';
-import { EvidenceEvidenceTypeEnum, Treatment, TreatmentDrug } from 'app/shared/api/generated/core';
+import { Evidence, EvidenceEvidenceTypeEnum, Treatment, TreatmentDrug } from 'app/shared/api/generated/core';
 import { downloadFile } from 'app/shared/util/file-utils';
 import _ from 'lodash';
 import { convertOncoKbTumorTypeToCancerType, getCancerTypesName, getCancerTypesNameWithExclusion } from 'app/shared/util/utils';
+import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 const getNestedValue = (obj: any, path: string): string => {
   return (
@@ -234,8 +236,32 @@ const groupedDropdownOptions = (): GroupBase<OptionType>[] => {
 };
 
 const EvidenceDownloader = () => {
+  const [isFetchingEvidences, setIsFetchingEvidences] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<readonly OptionType[]>([]);
   const [activeCategory, setActiveCategory] = useState<'gene' | 'mutation' | 'tumor' | 'treatment' | null>(null);
+
+  const fetchEvidenceData = async (evidenceTypes: EvidenceEvidenceTypeEnum[]): Promise<Evidence[] | undefined> => {
+    try {
+      setIsFetchingEvidences(true);
+      const response = await evidenceClient.evidencesLookupGetUsingGET(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        _.uniq(evidenceTypes).join(','),
+      );
+      return response.data;
+    } catch (error) {
+      notifyError('Could not fetch evidences');
+    } finally {
+      setIsFetchingEvidences(false);
+    }
+  };
 
   const handleChange = (newOptions: readonly OptionType[]) => {
     if (newOptions.length === 0) {
@@ -260,19 +286,8 @@ const EvidenceDownloader = () => {
     const evidenceMeta = evidenceKeys.map(key => GeneLevelEvidence[key]);
     const uniqueEvidenceTypes = _.uniq(evidenceMeta.flatMap(meta => meta.evidenceTypes));
 
-    const response = await evidenceClient.evidencesLookupGetUsingGET(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      uniqueEvidenceTypes.join(','),
-    );
-    const evidences = response.data;
+    const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
+    if (!evidences) return;
 
     const selectedEvidences: Record<string, EvidenceMapping> = Object.fromEntries(
       evidenceKeys.filter(key => key in GeneLevelEvidence).map(key => [key, GeneLevelEvidence[key]]),
@@ -312,19 +327,8 @@ const EvidenceDownloader = () => {
     const evidenceMeta = evidenceKeys.map(key => MutationLevelEvidence[key]);
     const uniqueEvidenceTypes = _.uniq(evidenceMeta.flatMap(meta => meta.evidenceTypes));
 
-    const response = await evidenceClient.evidencesLookupGetUsingGET(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      uniqueEvidenceTypes.join(','),
-    );
-    const evidences = response.data;
+    const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
+    if (!evidences) return;
 
     const selectedEvidences: Record<string, EvidenceMapping> = Object.fromEntries(
       evidenceKeys.filter(key => key in MutationLevelEvidence).map(key => [key, MutationLevelEvidence[key]]),
@@ -367,19 +371,8 @@ const EvidenceDownloader = () => {
     const evidenceMeta = evidenceKeys.map(key => TumorLevelEvidence[key]);
     const uniqueEvidenceTypes = _.uniq(evidenceMeta.flatMap(meta => meta.evidenceTypes));
 
-    const response = await evidenceClient.evidencesLookupGetUsingGET(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      uniqueEvidenceTypes.join(','),
-    );
-    const evidences = response.data;
+    const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
+    if (!evidences) return;
 
     const selectedEvidences: Record<string, EvidenceMapping> = Object.fromEntries(
       evidenceKeys.filter(key => key in TumorLevelEvidence).map(key => [key, TumorLevelEvidence[key]]),
@@ -444,19 +437,8 @@ const EvidenceDownloader = () => {
     const evidenceMeta = evidenceKeys.map(key => TreatmentLevelEvidence[key]);
     const uniqueEvidenceTypes = _.uniq(evidenceMeta.flatMap(meta => meta.evidenceTypes));
 
-    const response = await evidenceClient.evidencesLookupGetUsingGET(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      uniqueEvidenceTypes.join(','),
-    );
-    const evidences = response.data;
+    const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
+    if (!evidences) return;
 
     const selectedEvidences: Record<string, EvidenceMapping> = Object.fromEntries(
       evidenceKeys.filter(key => key in TreatmentLevelEvidence).map(key => [key, TreatmentLevelEvidence[key]]),
@@ -552,9 +534,13 @@ const EvidenceDownloader = () => {
         closeMenuOnSelect={false}
       />
       <div className="d-flex justify-content-end mt-2">
-        <Button color="primary" outline onClick={handleDownload}>
-          Download
-        </Button>
+        <AsyncSaveButton
+          color="primary"
+          outline
+          onClick={handleDownload}
+          disabled={isFetchingEvidences}
+          confirmText={isFetchingEvidences ? 'Downloading' : 'Download'}
+        />
       </div>
     </div>
   );
