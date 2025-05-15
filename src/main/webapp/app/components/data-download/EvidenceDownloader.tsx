@@ -86,7 +86,7 @@ const TumorLevelEvidence: Record<string, EvidenceMapping> = {
   },
   diagnosticLevel: {
     header: 'Dx Level',
-    accessor: 'level',
+    accessor: 'levelOfEvidence',
     evidenceTypes: [EvidenceEvidenceTypeEnum.DiagnosticImplication],
   },
   diagnosticDescription: {
@@ -96,7 +96,7 @@ const TumorLevelEvidence: Record<string, EvidenceMapping> = {
   },
   prognosticLevel: {
     header: 'Px Level',
-    accessor: 'level',
+    accessor: 'levelOfEvidence',
     evidenceTypes: [EvidenceEvidenceTypeEnum.PrognosticImplication],
   },
   prognosticImplication: {
@@ -152,6 +152,18 @@ function getTreatmentNameByPriority(treatment: Treatment) {
     .map(drug => getDrugNameFromTreatment(drug))
     .join(' + ');
 }
+
+const getDownloadMetaData = (selectedOptions: readonly OptionType[], someLevelEvidence: Record<string, EvidenceMapping>) => {
+  const evidenceKeys = selectedOptions.flatMap(option => option.evidenceKeys);
+  const evidenceMeta = evidenceKeys.map(key => someLevelEvidence[key]);
+  const uniqueEvidenceTypes = _.uniq(evidenceMeta.flatMap(meta => meta.evidenceTypes));
+
+  const selectedEvidences: Record<string, EvidenceMapping> = Object.fromEntries(
+    evidenceKeys.filter(key => key in someLevelEvidence).map(key => [key, someLevelEvidence[key]]),
+  );
+
+  return { evidenceKeys, uniqueEvidenceTypes, selectedEvidences };
+};
 
 type OptionType = {
   label: string;
@@ -282,16 +294,10 @@ const EvidenceDownloader = () => {
   };
 
   const handleGeneLevelDownload = async () => {
-    const evidenceKeys = selectedOptions.flatMap(option => option.evidenceKeys);
-    const evidenceMeta = evidenceKeys.map(key => GeneLevelEvidence[key]);
-    const uniqueEvidenceTypes = _.uniq(evidenceMeta.flatMap(meta => meta.evidenceTypes));
+    const { uniqueEvidenceTypes, selectedEvidences, evidenceKeys } = getDownloadMetaData(selectedOptions, GeneLevelEvidence);
 
     const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
     if (!evidences) return;
-
-    const selectedEvidences: Record<string, EvidenceMapping> = Object.fromEntries(
-      evidenceKeys.filter(key => key in GeneLevelEvidence).map(key => [key, GeneLevelEvidence[key]]),
-    );
 
     const groupedByGene: Record<string, Record<string, EvidenceMapping>> = {};
 
@@ -323,16 +329,10 @@ const EvidenceDownloader = () => {
   };
 
   const handleMutationLevelDownload = async () => {
-    const evidenceKeys = selectedOptions.flatMap(option => option.evidenceKeys);
-    const evidenceMeta = evidenceKeys.map(key => MutationLevelEvidence[key]);
-    const uniqueEvidenceTypes = _.uniq(evidenceMeta.flatMap(meta => meta.evidenceTypes));
+    const { uniqueEvidenceTypes, selectedEvidences, evidenceKeys } = getDownloadMetaData(selectedOptions, MutationLevelEvidence);
 
     const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
     if (!evidences) return;
-
-    const selectedEvidences: Record<string, EvidenceMapping> = Object.fromEntries(
-      evidenceKeys.filter(key => key in MutationLevelEvidence).map(key => [key, MutationLevelEvidence[key]]),
-    );
 
     const groupedByGeneAndAlteration: Record<string, Record<string, Record<string, EvidenceMapping>>> = {};
 
@@ -367,16 +367,10 @@ const EvidenceDownloader = () => {
   };
 
   const handleTumorLevelDownload = async () => {
-    const evidenceKeys = selectedOptions.flatMap(option => option.evidenceKeys);
-    const evidenceMeta = evidenceKeys.map(key => TumorLevelEvidence[key]);
-    const uniqueEvidenceTypes = _.uniq(evidenceMeta.flatMap(meta => meta.evidenceTypes));
+    const { uniqueEvidenceTypes, selectedEvidences, evidenceKeys } = getDownloadMetaData(selectedOptions, TumorLevelEvidence);
 
     const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
     if (!evidences) return;
-
-    const selectedEvidences: Record<string, EvidenceMapping> = Object.fromEntries(
-      evidenceKeys.filter(key => key in TumorLevelEvidence).map(key => [key, TumorLevelEvidence[key]]),
-    );
 
     // 3 level grouping: hugo | alteration | cancerType | evidence mapping
     const grouped: Record<string, Record<string, Record<string, Record<string, EvidenceMapping>>>> = {};
@@ -433,16 +427,10 @@ const EvidenceDownloader = () => {
   };
 
   const handleTreatmentLevelDownload = async () => {
-    const evidenceKeys = selectedOptions.flatMap(option => option.evidenceKeys);
-    const evidenceMeta = evidenceKeys.map(key => TreatmentLevelEvidence[key]);
-    const uniqueEvidenceTypes = _.uniq(evidenceMeta.flatMap(meta => meta.evidenceTypes));
+    const { uniqueEvidenceTypes, selectedEvidences, evidenceKeys } = getDownloadMetaData(selectedOptions, TreatmentLevelEvidence);
 
     const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
     if (!evidences) return;
-
-    const selectedEvidences: Record<string, EvidenceMapping> = Object.fromEntries(
-      evidenceKeys.filter(key => key in TreatmentLevelEvidence).map(key => [key, TreatmentLevelEvidence[key]]),
-    );
 
     const grouped: Record<string, Record<string, Record<string, Record<string, EvidenceMapping>>>> = {};
 
