@@ -8,6 +8,7 @@ import {
   EvidenceLiquidPropagationLevelEnum,
   EvidenceSolidPropagationLevelEnum,
   TumorType,
+  TumorTypeEntity,
 } from 'app/shared/api/generated/core';
 import {
   createMockCancerType,
@@ -1388,14 +1389,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
           ['a264a9d7-69d5-47b2-9734-09a860dd9d9b']: {
@@ -1408,14 +1409,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
           ['1d36e653-2805-4b23-affc-e4b60f60d24c']: {
@@ -1428,14 +1429,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
           ['7cb9656b-383d-49ef-92eb-35af6803a6f4']: {
@@ -1448,14 +1449,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
           ['70d937cc-1bb7-4315-9d4f-9a97cf9d728b']: {
@@ -1468,14 +1469,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
           // Treatment UUID's
@@ -1489,14 +1490,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
         },
@@ -1575,14 +1576,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
           ['a264a9d7-69d5-47b2-9734-09a860dd9d9b']: {
@@ -1595,14 +1596,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
           ['1d36e653-2805-4b23-affc-e4b60f60d24c']: {
@@ -1615,14 +1616,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
           ['7cb9656b-383d-49ef-92eb-35af6803a6f4']: {
@@ -1635,14 +1636,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
           ['70d937cc-1bb7-4315-9d4f-9a97cf9d728b']: {
@@ -1655,14 +1656,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
           // Treatment UUID's
@@ -1676,14 +1677,14 @@ describe('getEvidence to submit to core', () => {
                 code: 'cancerTypeCode',
                 subtype: 'cancerTypeSubType',
                 mainType: 'cancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
             excludedCancerTypes: [
               {
                 code: 'excludedCancerTypeCode',
                 subtype: 'excludedCancerTypeSubType',
                 mainType: 'excludedCancerTypeMainType',
-              } as TumorType,
+              } as TumorTypeEntity,
             ],
           },
         },

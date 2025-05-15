@@ -17,6 +17,7 @@ import { IRule } from 'app/shared/model/rule.model';
 import { INTEGER_REGEX, REFERENCE_LINK_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_REGEX } from 'app/config/constants/regex';
 import { ProteinExonDTO } from 'app/shared/api/generated/curation';
 import { IQueryParams } from './jhipster-types';
+import { TumorType, TumorTypeEntity } from '../api/generated/core';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   if (!cancerType) return '';
@@ -41,6 +42,14 @@ export const getCancerTypesNameWithExclusion = (
     name += ` {excluding ${getCancerTypesName(excludedCancerTypes, omitCode)}}`;
   }
   return name;
+};
+
+export const convertOncoKbTumorTypeToCancerType = (tumorType: TumorTypeEntity) => {
+  const cancerType = new CancerType();
+  cancerType.code = tumorType.code;
+  cancerType.mainType = tumorType.mainType;
+  cancerType.subtype = tumorType.subtype;
+  return cancerType;
 };
 
 export const getGeneName = (gene: IGene): string => {

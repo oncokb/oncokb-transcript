@@ -12,8 +12,9 @@ import {
   ArticleResourceApi,
   AuditResourceApi,
 } from './generated/curation/api';
+import { EvidencesApi } from './generated/core';
 import { DriveAnnotationApi } from './manual/drive-annotation-api';
-import { EvidenceApi } from './manual/evidence-api';
+import { EvidenceApi as LegacyEvidenceApi } from './manual/evidence-api';
 import { GeneTypeApi } from './manual/gene-type-api';
 import { GeneApi } from 'app/shared/api/manual/gene-api';
 
@@ -30,7 +31,9 @@ export const articleClient = new ArticleResourceApi(undefined, '', axiosInstance
 export const auditClient = new AuditResourceApi(undefined, '', axiosInstance);
 
 // The following are oncokb-core clients
-export const evidenceClient = new EvidenceApi(undefined, '', axiosInstance);
+export const legacyEvidenceClient = new LegacyEvidenceApi(undefined, '', axiosInstance);
 export const geneTypeClient = new GeneTypeApi(undefined, '', axiosInstance);
 export const driveAnnotationClient = new DriveAnnotationApi(undefined, '', axiosInstance);
 export const geneLegacyApi = new GeneApi(undefined, '', axiosInstance);
+
+export const evidenceClient = new EvidencesApi(undefined, 'api/v1', axiosInstance);
