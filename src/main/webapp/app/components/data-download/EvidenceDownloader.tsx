@@ -1,6 +1,5 @@
 import { evidenceClient } from 'app/shared/api/clients';
 import React, { useState } from 'react';
-import { Button } from 'reactstrap';
 import Select, { GroupBase } from 'react-select';
 import { Evidence, EvidenceEvidenceTypeEnum, Treatment, TreatmentDrug } from 'app/shared/api/generated/core';
 import { downloadFile } from 'app/shared/util/file-utils';
@@ -165,6 +164,14 @@ const getDownloadMetaData = (selectedOptions: readonly OptionType[], someLevelEv
   return { evidenceKeys, uniqueEvidenceTypes, selectedEvidences };
 };
 
+const getEvidenceMappingValue = (evidenceMapping: EvidenceMapping | undefined) => {
+  let value = evidenceMapping?.value ?? '';
+  if (value.includes('\n')) {
+    value = `"${value}"`;
+  }
+  return value;
+};
+
 type OptionType = {
   label: string;
   value: string;
@@ -320,7 +327,7 @@ const EvidenceDownloader = () => {
     const tsvRows = [headers.join('\t')];
 
     for (const [gene, data] of Object.entries(groupedByGene).sort()) {
-      const row = [gene, ...evidenceKeys.map(key => data[key].value ?? '')];
+      const row = [gene, ...evidenceKeys.map(key => getEvidenceMappingValue(data[key]))];
       tsvRows.push(row.join('\t'));
     }
 
@@ -357,7 +364,7 @@ const EvidenceDownloader = () => {
 
     for (const [gene, alterationMap] of Object.entries(groupedByGeneAndAlteration).sort()) {
       for (const [alteration, data] of Object.entries(alterationMap).sort()) {
-        const row = [gene, alteration, ...evidenceKeys.map(key => data[key]?.value ?? '')];
+        const row = [gene, alteration, ...evidenceKeys.map(key => getEvidenceMappingValue(data[key]))];
         tsvRows.push(row.join('\t'));
       }
     }
@@ -416,7 +423,7 @@ const EvidenceDownloader = () => {
     for (const [gene, alterationMap] of Object.entries(grouped).sort()) {
       for (const [alteration, tumorMap] of Object.entries(alterationMap).sort()) {
         for (const [tumor, data] of Object.entries(tumorMap).sort()) {
-          const row = [gene, alteration, tumor, ...evidenceKeys.map(key => data[key]?.value ?? '')];
+          const row = [gene, alteration, tumor, ...evidenceKeys.map(key => getEvidenceMappingValue(data[key]))];
           tsvRows.push(row.join('\t'));
         }
       }
@@ -481,7 +488,7 @@ const EvidenceDownloader = () => {
     for (const [gene, alterationMap] of Object.entries(grouped).sort()) {
       for (const [alteration, tumorMap] of Object.entries(alterationMap).sort()) {
         for (const [tumor, data] of Object.entries(tumorMap).sort()) {
-          const row = [gene, alteration, tumor, ...evidenceKeys.map(key => data[key]?.value ?? '')];
+          const row = [gene, alteration, tumor, ...evidenceKeys.map(key => getEvidenceMappingValue(data[key]))];
           tsvRows.push(row.join('\t'));
         }
       }
