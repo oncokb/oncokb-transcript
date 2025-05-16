@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { DateRangePicker, Range } from 'react-date-range';
+import { Button } from 'reactstrap';
 
 export interface DateFilterMenuProp {
   id: string;
   currSelections: Set<Date>;
   allSelections: Set<Date>;
-  updateSelections: (selected: Set<Date>) => void;
+  updateSelections: (selected: Set<Date>, hasFilters: boolean) => void;
 }
 
 const RANGE_KEY = 'selection';
@@ -17,12 +18,7 @@ const DEFAULT_DATE_RANGE: Range[] = [
   },
 ];
 
-export const DateFilterMenu: React.FC<DateFilterMenuProp> = ({
-  id,
-  currSelections,
-  allSelections,
-  updateSelections,
-}: DateFilterMenuProp) => {
+export const DateFilterMenu: React.FC<DateFilterMenuProp> = ({ updateSelections }: DateFilterMenuProp) => {
   const [dateRanges, setDateRanges] = useState<Range[]>(DEFAULT_DATE_RANGE);
 
   const handleRangeChange = (item: { [RANGE_KEY: string]: Range }) => {
@@ -30,17 +26,28 @@ export const DateFilterMenu: React.FC<DateFilterMenuProp> = ({
     setDateRanges([range]);
 
     const { startDate, endDate } = range;
-    if (!startDate || !endDate) return;
+    if (!startDate || !endDate) {
+      return;
+    }
 
-    const filtered = new Set<Date>();
-    allSelections.forEach(date => {
-      if (date >= startDate && date <= endDate) {
-        filtered.add(date);
-      }
-    });
-
-    updateSelections(filtered);
+    updateSelections(new Set([startDate, endDate]), true);
   };
 
-  return <DateRangePicker showDateDisplay ranges={dateRanges} onChange={handleRangeChange} />;
+  return (
+    <div>
+      <DateRangePicker showDateDisplay ranges={dateRanges} onChange={handleRangeChange} />
+      <div className="d-flex justify-content-end mt-2">
+        <Button
+          color="secondary"
+          size="sm"
+          onClick={() => {
+            setDateRanges(DEFAULT_DATE_RANGE);
+            updateSelections(new Set(), false);
+          }}
+        >
+          Clear filters
+        </Button>
+      </div>
+    </div>
+  );
 };

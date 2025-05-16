@@ -9,8 +9,6 @@ export interface NumberFilterMenuProps {
   id: string;
   currSelections: Set<number>;
   allSelections: Set<number>;
-  updateFilterOperator: (newOperator: string) => void;
-  updateFilterRange: (range: NumberRange) => void;
   updateSelections: (selected: Set<number>) => void;
 }
 

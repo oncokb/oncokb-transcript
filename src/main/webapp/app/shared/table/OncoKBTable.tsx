@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import ReactTable, { Column, TableProps } from 'react-table';
 import { FilterIconModal } from './filters/FilterIconModal';
 import { Button } from 'reactstrap';
@@ -78,8 +78,24 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
             return typeof value === 'number' && [...selectedValues].some(v => Number(v) === value);
 
           case FilterTypes.DATE:
-            return value instanceof Date && [...selectedValues].some(v => new Date(v).getTime() === value.getTime());
+            if (value instanceof Date) {
+              const [date1, second] = Array.from(selectedValues as Set<Date>);
+              const date2 = second ?? date1;
 
+              const start = new Date(date1 < date2 ? date1 : date2);
+              const end = new Date(date1 >= date2 ? date1 : date2);
+
+              start.setHours(0, 0, 0, 0);
+
+              if (!second) {
+                // If only one date is selected, set second date to end of day
+                end.setHours(23, 59, 59, 999);
+              } else {
+                end.setHours(0, 0, 0, 0);
+              }
+              return value >= start && value <= end;
+            }
+            return false;
           default:
             // fallback to raw accessor
             if (curColumn.accessor && typeof curColumn.accessor === 'string') {
@@ -155,10 +171,27 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
     });
   }, [props.columns, props.data, selectedFilters]);
 
+  const hasAnyFilters = Object.values(selectedFilters).some(set => set.size > 0);
+
   return (
     <div id="oncokb-table" ref={tableRef}>
       <div className="row">
-        <div className="col-auto">{props.filters === undefined ? <></> : <props.filters />}</div>
+        <div className="col-auto">
+          <div>
+            {props.filters === undefined ? (
+              <></>
+            ) : (
+              <div className="me-1">
+                <props.filters />
+              </div>
+            )}
+            {hasAnyFilters ? (
+              <Button color="primary" outline onClick={() => setSelectedFilters({})}>
+                Reset all filters
+              </Button>
+            ) : undefined}
+          </div>
+        </div>
         <div className="col-sm">
           <div className="d-flex justify-content-center">
             <div className="ms-auto d-flex">

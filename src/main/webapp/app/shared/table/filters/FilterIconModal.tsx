@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react';
 import '../filter-icon-modal.scss';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
@@ -25,6 +25,7 @@ interface IFilterIconModalProps<T extends FilterTypes> {
 
 export const FilterIconModal = observer(
   <T extends FilterTypes>({ id, filterType, allSelections, currSelections, updateSelections }: IFilterIconModalProps<T>) => {
+    const [hasDateFilters, setHasDateFilters] = useState(false);
     const renderFilterMenu = (): JSX.Element | null => {
       switch (filterType) {
         case FilterTypes.STRING:
@@ -44,8 +45,6 @@ export const FilterIconModal = observer(
               currSelections={currSelections as Set<number>}
               allSelections={allSelections as Set<number>}
               updateSelections={updateSelections as (selected: Set<number>) => void}
-              updateFilterOperator={() => {}} // Replace with actual handlers if needed
-              updateFilterRange={() => {}}
             />
           );
 
@@ -55,7 +54,10 @@ export const FilterIconModal = observer(
               id={id}
               currSelections={currSelections as Set<Date>}
               allSelections={allSelections as Set<Date>}
-              updateSelections={updateSelections as (selected: Set<Date>) => void}
+              updateSelections={(selected, hasFilter) => {
+                (updateSelections as (selected: Set<Date>) => void)(selected);
+                setHasDateFilters(hasFilter);
+              }}
             />
           );
 
@@ -63,6 +65,13 @@ export const FilterIconModal = observer(
           return null;
       }
     };
+
+    function isActiveFilter() {
+      if (filterType === FilterTypes.DATE) {
+        return hasDateFilters;
+      }
+      return currSelections.size > 0;
+    }
 
     return (
       <DefaultTooltip
@@ -78,7 +87,7 @@ export const FilterIconModal = observer(
         arrowContent={null}
       >
         <div className="filter-component" onClick={e => e.stopPropagation()}>
-          <FilterIcon isActiveFilter={currSelections.size > 0} />
+          <FilterIcon isActiveFilter={isActiveFilter()} />
         </div>
       </DefaultTooltip>
     );

@@ -143,7 +143,7 @@ const GeneListPage = (props: IGeneListPage) => {
                   <SomaticGermlineToggleButton />
                 </Col>
               </Row>
-              <Row id={GENE_LIST_TABLE_ID}>
+              <Row id={GENE_LIST_TABLE_ID} className="mt-2">
                 <Col>
                   <OncoKBTable
                     loading={tableDataLoading}
