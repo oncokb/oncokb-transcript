@@ -8,10 +8,10 @@ import { convertOncoKbTumorTypeToCancerType, getCancerTypesName, getCancerTypesN
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
-const getNestedValue = (obj: any, path: string): string => {
+const getNestedValueAsString = (obj: any, path: string, sep = '.'): string => {
   return (
     String(
-      path.split('.').reduce((acc, key) => {
+      path.split(sep).reduce((acc, key) => {
         if (acc && typeof acc === 'object') {
           return acc[key];
         }
@@ -311,13 +311,13 @@ const EvidenceDownloader = () => {
     const groupedByGene: Record<string, Record<string, EvidenceMapping>> = {};
 
     for (const evidence of evidences) {
-      const hugo = getNestedValue(evidence, 'gene.hugoSymbol');
+      const hugo = getNestedValueAsString(evidence, 'gene.hugoSymbol');
       if (!hugo) continue;
 
       const populatedEvidences = _.cloneDeep(selectedEvidences);
       for (const [evidenceKey, selectedEvidence] of Object.entries(populatedEvidences)) {
         if (!evidence.evidenceType || !selectedEvidence.evidenceTypes.includes(evidence.evidenceType)) continue;
-        selectedEvidence.value = getNestedValue(evidence, selectedEvidence.accessor);
+        selectedEvidence.value = getNestedValueAsString(evidence, selectedEvidence.accessor);
         if (!groupedByGene[hugo]) {
           groupedByGene[hugo] = {};
         }
@@ -346,14 +346,14 @@ const EvidenceDownloader = () => {
     const groupedByGeneAndAlteration: Record<string, Record<string, Record<string, EvidenceMapping>>> = {};
 
     for (const evidence of evidences) {
-      const hugo = getNestedValue(evidence, 'gene.hugoSymbol');
-      const alteration = getNestedValue(evidence, 'alterations.0.alteration');
+      const hugo = getNestedValueAsString(evidence, 'gene.hugoSymbol');
+      const alteration = getNestedValueAsString(evidence, 'alterations.0.alteration');
       if (!hugo || !alteration) continue;
 
       const populatedEvidences = _.cloneDeep(selectedEvidences);
       for (const [evidenceKey, selectedEvidence] of Object.entries(populatedEvidences)) {
         if (!evidence.evidenceType || !selectedEvidence.evidenceTypes.includes(evidence.evidenceType)) continue;
-        selectedEvidence.value = getNestedValue(evidence, selectedEvidence.accessor);
+        selectedEvidence.value = getNestedValueAsString(evidence, selectedEvidence.accessor);
 
         groupedByGeneAndAlteration[hugo] ??= {};
         groupedByGeneAndAlteration[hugo][alteration] ??= {};
@@ -384,7 +384,7 @@ const EvidenceDownloader = () => {
     // 3 level grouping: hugo | alteration | cancerType | evidence mapping
     const grouped: Record<string, Record<string, Record<string, Record<string, EvidenceMapping>>>> = {};
     for (const evidence of evidences) {
-      const hugo = getNestedValue(evidence, 'gene.hugoSymbol');
+      const hugo = getNestedValueAsString(evidence, 'gene.hugoSymbol');
       const alterations = evidence.alterations ?? [];
       const cancerTypes = evidence.cancerTypes ?? [];
 
@@ -409,7 +409,7 @@ const EvidenceDownloader = () => {
 
         for (const [evidenceKey, selectedEvidence] of Object.entries(populatedEvidences)) {
           if (!evidence.evidenceType || !selectedEvidence.evidenceTypes.includes(evidence.evidenceType)) continue;
-          selectedEvidence.value = getNestedValue(evidence, selectedEvidence.accessor);
+          selectedEvidence.value = getNestedValueAsString(evidence, selectedEvidence.accessor);
 
           grouped[hugo] ??= {};
           grouped[hugo][alteration] ??= {};
@@ -444,7 +444,7 @@ const EvidenceDownloader = () => {
     const grouped: Record<string, Record<string, Record<string, Record<string, EvidenceMapping>>>> = {};
 
     for (const evidence of evidences) {
-      const hugo = getNestedValue(evidence, 'gene.hugoSymbol');
+      const hugo = getNestedValueAsString(evidence, 'gene.hugoSymbol');
       const alterations = evidence.alterations ?? [];
       const cancerTypes = evidence.cancerTypes ?? [];
 
@@ -473,7 +473,7 @@ const EvidenceDownloader = () => {
           if (evidenceKey === 'drugs') {
             selectedEvidence.value = evidence.treatments?.map(treatment => getTreatmentNameByPriority(treatment)).join(', ');
           } else {
-            selectedEvidence.value = getNestedValue(evidence, selectedEvidence.accessor);
+            selectedEvidence.value = getNestedValueAsString(evidence, selectedEvidence.accessor);
           }
 
           grouped[hugo] ??= {};
