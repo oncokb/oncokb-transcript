@@ -7,7 +7,7 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import { getEntityTableActionsColumn } from 'app/shared/util/utils';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IConsequenceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
@@ -15,7 +15,7 @@ export const Consequence = (props: IConsequenceProps) => {
   useEffect(() => {
     props.getEntities({});
   }, []);
-  const columns: SearchColumn<IConsequence>[] = [
+  const columns: FilterableColumn<IConsequence>[] = [
     { accessor: 'term', Header: 'Term' },
     { accessor: 'name', Header: 'Name' },
     {

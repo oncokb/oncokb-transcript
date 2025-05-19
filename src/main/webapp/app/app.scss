@@ -2,6 +2,8 @@
 // Import Bootstrap source files from node_modules
 @import 'node_modules/bootstrap/scss/bootstrap';
 @import './variables.scss';
+@import 'react-date-range/dist/styles.css'; // main style file
+@import 'react-date-range/dist/theme/default.css'; // theme css file
 
 html {
   font-size: $oncokb-font-font-size;
@@ -327,6 +329,15 @@ http://stackoverflow.com/questions/23436430/bootstrap-3-input-group-100-width */
 
 // Overwrite react-table styles
 .oncokbReactTable.ReactTable {
+  .rt-th {
+    align-content: center;
+    font-weight: 500;
+  }
+
+  .rt-th.rt-resizable-header {
+    padding-right: 18px;
+  }
+
   .-sort-desc {
     box-shadow: none !important;
     &:before {
@@ -349,6 +360,7 @@ http://stackoverflow.com/questions/23436430/bootstrap-3-input-group-100-width */
 
   .rt-table {
     .rt-thead {
+      min-height: 49px;
       .rt-resizable-header-content {
         text-align: left;
         white-space: normal;

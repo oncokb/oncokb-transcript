@@ -6,7 +6,7 @@ import { IInfo } from 'app/shared/model/info.model';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { getEntityTableActionsColumn } from 'app/shared/util/utils';
 export interface IInfoProps extends StoreProps, RouteComponentProps<{ url: string }> {}
@@ -16,7 +16,7 @@ export const Info = (props: IInfoProps) => {
     props.getEntities({});
   }, []);
 
-  const columns: SearchColumn<IInfo>[] = [
+  const columns: FilterableColumn<IInfo>[] = [
     { accessor: 'type', Header: 'Type' },
     { accessor: 'value', Header: 'Value' },
     { accessor: 'created', Header: 'Created' },

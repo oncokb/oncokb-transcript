@@ -6,7 +6,7 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { IUser } from 'app/shared/model/user.model';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword, getEntityTableActionsColumn, getUserFullName } from 'app/shared/util/utils';
 
 const getStatus = (activated: boolean) => {
@@ -31,12 +31,12 @@ export const UserManagement = (props: IUserManagementProps) => {
       });
   };
 
-  const columns: SearchColumn<IUser>[] = [
+  const columns: FilterableColumn<IUser>[] = [
     {
       id: 'username',
       accessor: (data: IUser) => getUserFullName(data),
       Header: 'User Name',
-      onFilter: (data: IUser, keyword) => filterByKeyword(getUserFullName(data), keyword),
+      onSearchFilter: (data: IUser, keyword) => filterByKeyword(getUserFullName(data), keyword),
       Cell(cell: { original: IUser }) {
         return getUserFullName(cell.original);
       },
@@ -44,12 +44,13 @@ export const UserManagement = (props: IUserManagementProps) => {
     {
       accessor: 'email',
       Header: 'Email',
-      onFilter: (data: IUser, keyword) => (data.email ? filterByKeyword(data.email, keyword) : false),
+      onSearchFilter: (data: IUser, keyword) => (data.email ? filterByKeyword(data.email, keyword) : false),
     },
     {
       accessor: 'activated',
       Header: 'Activated',
-      onFilter: (data: IUser, keyword) => (data.activated !== undefined ? filterByKeyword(getStatus(data.activated), keyword) : false),
+      onSearchFilter: (data: IUser, keyword) =>
+        data.activated !== undefined ? filterByKeyword(getStatus(data.activated), keyword) : false,
       Cell(cell: { original: IUser }) {
         return (
           <Button color={cell.original.activated ? 'success' : 'danger'} onClick={toggleActive(cell.original)}>
@@ -61,7 +62,7 @@ export const UserManagement = (props: IUserManagementProps) => {
     {
       accessor: 'authorities',
       Header: 'Profiles',
-      onFilter: (data: IUser, keyword) => (data.authorities ? filterByKeyword(data.authorities.join(','), keyword) : false),
+      onSearchFilter: (data: IUser, keyword) => (data.authorities ? filterByKeyword(data.authorities.join(','), keyword) : false),
       Cell(cell: { original: IUser }) {
         return cell.original.authorities
           ? cell.original.authorities.map((authority, i) => (

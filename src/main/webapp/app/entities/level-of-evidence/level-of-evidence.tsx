@@ -6,7 +6,7 @@ import { ILevelOfEvidence } from 'app/shared/model/level-of-evidence.model';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { getEntityTableActionsColumn } from 'app/shared/util/utils';
 export interface ILevelOfEvidenceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
@@ -16,7 +16,7 @@ export const LevelOfEvidence = (props: ILevelOfEvidenceProps) => {
     props.getEntities({});
   }, []);
 
-  const columns: SearchColumn<ILevelOfEvidence>[] = [
+  const columns: FilterableColumn<ILevelOfEvidence>[] = [
     { accessor: 'type', Header: 'Type' },
     { accessor: 'level', Header: 'Level' },
     { accessor: 'description', Header: 'Description' },

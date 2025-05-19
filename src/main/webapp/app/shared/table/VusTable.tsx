@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Mutation, Review, Vus } from 'app/shared/model/firebase/firebase.model';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import { Button, Container, Row } from 'reactstrap';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
 import {
@@ -34,6 +34,7 @@ import AddMutationModal from '../modal/AddMutationModal';
 import { Unsubscribe } from 'firebase/database';
 import { VUS_TABLE_ID } from 'app/config/constants/html-id';
 import { SentryError } from 'app/config/sentry-error';
+import { FilterTypes } from './filters/types';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string | undefined;
@@ -149,11 +150,11 @@ const VusTable = ({
     }
   }
 
-  const columns: SearchColumn<VusTableData>[] = [
+  const columns: FilterableColumn<VusTableData>[] = [
     {
       Header: VUS_NAME,
       accessor: 'name',
-      onFilter(data, keyword) {
+      onSearchFilter(data, keyword) {
         return data.name.toLowerCase().includes(keyword);
       },
     },
@@ -166,6 +167,10 @@ const VusTable = ({
       ),
       id: LAST_EDITED_AT,
       accessor: 'time.value',
+      filterType: FilterTypes.DATE,
+      getColumnFilterValue(data: VusTableData) {
+        return new Date(data.time.value);
+      },
       width: 300,
       Cell(cell: { original: VusTableData }) {
         const time = cell.original.time.value;
@@ -187,7 +192,11 @@ const VusTable = ({
     {
       Header: LAST_EDITED_BY,
       accessor: 'time.by.name',
-      onFilter(data, keyword) {
+      filterType: FilterTypes.STRING,
+      getColumnFilterValue(data) {
+        return data.time.by.name;
+      },
+      onSearchFilter(data, keyword) {
         return data.time.by.name.toLowerCase().includes(keyword);
       },
     },
@@ -201,6 +210,7 @@ const VusTable = ({
           <span>{latestComment.length <= MAX_COMMENT_LENGTH ? latestComment : `${latestComment.slice(0, MAX_COMMENT_LENGTH)}...`}</span>
         );
       },
+      disableHeaderFiltering: true,
     },
     {
       disableHeaderFiltering: true,

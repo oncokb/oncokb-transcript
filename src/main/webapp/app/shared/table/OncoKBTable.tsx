@@ -1,16 +1,43 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import ReactTable, { Column, TableProps } from 'react-table';
-import FilterIconModal from './FilterIconModal';
+import { FilterIconModal } from './filters/FilterIconModal';
 import { Button } from 'reactstrap';
 import { FaCloudDownloadAlt } from 'react-icons/fa';
+import { FilterTypes } from './filters/types';
+
+export type ColumnFilterValue =
+  | { type: FilterTypes.STRING; value: string }
+  | { type: FilterTypes.NUMBER; value: number }
+  | { type: FilterTypes.DATE; value: Date };
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/ban-types */
-export type SearchColumn<T> = Column<T> & {
-  onFilter?: (data: T, keyword: string) => boolean;
+export type BaseColumn<T> = Column<T> & {
+  onSearchFilter?: (data: T, keyword: string) => boolean; // Determines how to filter the table when using searchbox
   disableHeaderFiltering?: boolean;
+};
+
+export type StringFilterColumn<T> = BaseColumn<T> & {
+  filterType: FilterTypes.STRING;
   getColumnFilterValue?: (data: T) => string;
 };
+
+export type NumberFilterColumn<T> = BaseColumn<T> & {
+  filterType: FilterTypes.NUMBER;
+  getColumnFilterValue?: (data: T) => number;
+};
+
+export type DateFilterColumn<T> = BaseColumn<T> & {
+  filterType: FilterTypes.DATE;
+  getColumnFilterValue?: (data: T) => Date | undefined;
+};
+
+export type UnfilteredColumn<T> = BaseColumn<T> & {
+  filterType?: undefined;
+  getColumnFilterValue?: undefined;
+};
+
+export type FilterableColumn<T> = StringFilterColumn<T> | NumberFilterColumn<T> | DateFilterColumn<T> | UnfilteredColumn<T>;
 
 export interface ITableWithSearchBox<T> extends Partial<TableProps<T>> {
   data: T[];
@@ -18,7 +45,7 @@ export interface ITableWithSearchBox<T> extends Partial<TableProps<T>> {
   fixedHeight?: boolean;
   pageSize?: number;
   minRows?: number;
-  columns: SearchColumn<T>[];
+  columns: FilterableColumn<T>[];
   loading?: boolean;
   filters?: React.FunctionComponent;
   className?: string;
@@ -27,7 +54,7 @@ export interface ITableWithSearchBox<T> extends Partial<TableProps<T>> {
 
 export const OncoKBTable = <T extends object>({ disableSearch = false, showPagination = false, ...props }: ITableWithSearchBox<T>) => {
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState<{ [columnId: string]: Set<string> }>({});
+  const [selectedFilters, setSelectedFilters] = useState<{ [columnId: string]: Set<string> | Set<Date> | Set<number> }>({});
   const tableRef = useRef(null);
 
   const filteredData = useMemo(() => {
@@ -37,18 +64,51 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
         if (selectedValues.size === 0) {
           return true;
         }
-        const curColumn = props.columns.find(col => String(col.accessor || col.Header) === columnId)!;
-        if (curColumn.Cell && curColumn.getColumnFilterValue) {
-          return selectedValues.has(curColumn.getColumnFilterValue(item));
-        } else if (curColumn.accessor) {
-          return selectedValues.has(item[String(curColumn.accessor)]);
+
+        const curColumn = props.columns.find(col => String(col.accessor || col.Header) === columnId);
+        if (!curColumn) return true;
+
+        const value = curColumn.getColumnFilterValue?.(item);
+
+        switch (curColumn.filterType) {
+          case FilterTypes.STRING:
+            return typeof value === 'string' && (selectedValues as Set<string>).has(value);
+
+          case FilterTypes.NUMBER:
+            return typeof value === 'number' && [...selectedValues].some(v => Number(v) === value);
+
+          case FilterTypes.DATE:
+            if (value instanceof Date) {
+              const [date1, second] = Array.from(selectedValues as Set<Date>);
+              const date2 = second ?? date1;
+
+              const start = new Date(date1 < date2 ? date1 : date2);
+              const end = new Date(date1 >= date2 ? date1 : date2);
+
+              start.setHours(0, 0, 0, 0);
+
+              if (!second) {
+                // If only one date is selected, set second date to end of day
+                end.setHours(23, 59, 59, 999);
+              } else {
+                end.setHours(0, 0, 0, 0);
+              }
+              return value >= start && value <= end;
+            }
+            return false;
+          default:
+            // fallback to raw accessor
+            if (curColumn.accessor && typeof curColumn.accessor === 'string') {
+              return (selectedValues as Set<string>).has(item[String(curColumn.accessor)]);
+            }
+            return true;
         }
       });
 
       // Search filter
-      const filterableColumns = props.columns.filter(column => !!column.onFilter);
+      const filterableColumns = props.columns.filter(column => !!column.onSearchFilter);
       const keywordSearchResult =
-        filterableColumns.length > 0 ? filterableColumns.some(column => column.onFilter?.(item, searchKeyword)) : true;
+        filterableColumns.length > 0 ? filterableColumns.some(column => column.onSearchFilter?.(item, searchKeyword)) : true;
 
       return columnFilterResult && keywordSearchResult;
     });
@@ -61,7 +121,7 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
     }));
   };
 
-  const allUniqColumnData = useMemo(() => {
+  const allUniqColumnData: { [columnId: string]: Set<string> | Set<number> | Set<Date> } = useMemo(() => {
     const allColumnData = {};
 
     props.columns.forEach(column => {
@@ -72,10 +132,15 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
     props.data.forEach(item => {
       props.columns.forEach(column => {
         const columnId = String(column.accessor || column.Header);
-        if (column.Cell && column.getColumnFilterValue) {
-          allColumnData[columnId].add(column.getColumnFilterValue(item));
+        if (column.getColumnFilterValue) {
+          const filterValue = column.getColumnFilterValue(item);
+          if (filterValue) {
+            allColumnData[columnId].add(column.getColumnFilterValue(item));
+          }
         } else if (column.accessor) {
-          allColumnData[columnId].add(String(item[String(column.accessor)]));
+          if (typeof column.accessor === 'string') {
+            allColumnData[columnId].add(String(item[String(column.accessor)]));
+          }
         }
       });
     });
@@ -94,6 +159,7 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
             {!column.disableHeaderFiltering && (
               <FilterIconModal
                 id={columnId}
+                filterType={column.filterType ?? FilterTypes.STRING}
                 allSelections={allUniqColumnData[columnId]}
                 currSelections={selectedFilters[columnId] || new Set()}
                 updateSelections={newSelections => handleFilterChange(columnId, newSelections)}
@@ -105,10 +171,27 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
     });
   }, [props.columns, props.data, selectedFilters]);
 
+  const hasAnyFilters = Object.values(selectedFilters).some(set => set.size > 0);
+
   return (
     <div id="oncokb-table" ref={tableRef}>
       <div className="row">
-        <div className="col-auto">{props.filters === undefined ? <></> : <props.filters />}</div>
+        <div className="col-auto">
+          <div>
+            {props.filters === undefined ? (
+              <></>
+            ) : (
+              <div className="me-1">
+                <props.filters />
+              </div>
+            )}
+            {hasAnyFilters ? (
+              <Button color="primary" outline onClick={() => setSelectedFilters({})}>
+                Reset all filters
+              </Button>
+            ) : undefined}
+          </div>
+        </div>
         <div className="col-sm">
           <div className="d-flex justify-content-center">
             <div className="ms-auto d-flex">

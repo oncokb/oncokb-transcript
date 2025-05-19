@@ -7,7 +7,7 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import { getEntityTableActionsColumn } from 'app/shared/util/utils';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 
 export interface IFdaSubmissionTypeProps extends StoreProps, RouteComponentProps<{ url: string }> {}
@@ -17,7 +17,7 @@ export const FdaSubmissionType = (props: IFdaSubmissionTypeProps) => {
     props.getEntities({});
   }, []);
 
-  const columns: SearchColumn<IFdaSubmissionType>[] = [
+  const columns: FilterableColumn<IFdaSubmissionType>[] = [
     { accessor: 'type', Header: 'Type' },
     { accessor: 'name', Header: 'Name' },
     { accessor: 'shortName', Header: 'Short Name' },

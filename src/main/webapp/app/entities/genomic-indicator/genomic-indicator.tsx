@@ -8,7 +8,7 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import { IAssociation } from 'app/shared/model/association.model';
 import { IAlleleState } from 'app/shared/model/allele-state.model';
 
@@ -32,17 +32,17 @@ export const GenomicIndicator = (props: IGenomicIndicatorProps) => {
   useEffect(() => {
     props.getEntities({});
   }, []);
-  const columns: SearchColumn<IGenomicIndicator>[] = [
+  const columns: FilterableColumn<IGenomicIndicator>[] = [
     { accessor: 'type', Header: 'Type' },
     {
       accessor: 'uuid',
       Header: 'UUID',
-      onFilter: (data: IGenomicIndicator, keyword) => filterByKeyword(data.uuid, keyword),
+      onSearchFilter: (data: IGenomicIndicator, keyword) => filterByKeyword(data.uuid, keyword),
     },
     {
       accessor: 'name',
       Header: 'Name',
-      onFilter: (data: IGenomicIndicator, keyword) => filterByKeyword(data.name, keyword),
+      onSearchFilter: (data: IGenomicIndicator, keyword) => filterByKeyword(data.name, keyword),
     },
     {
       Header: 'Associated Allele States',
@@ -53,7 +53,7 @@ export const GenomicIndicator = (props: IGenomicIndicatorProps) => {
       Cell(cell: { original }): JSX.Element {
         return <span>{getAssociatedAlleleStates(cell.original.alleleStates)}</span>;
       },
-      onFilter: (data: IGenomicIndicator, keyword) =>
+      onSearchFilter: (data: IGenomicIndicator, keyword) =>
         data.alleleStates ? filterByKeyword(getAssociatedAlleleStates(data.alleleStates), keyword) : false,
     },
     {
@@ -65,7 +65,7 @@ export const GenomicIndicator = (props: IGenomicIndicatorProps) => {
       Cell(cell: { original }): JSX.Element {
         return <span>{getAssociatedAlterations(cell.original.associations)}</span>;
       },
-      onFilter: (data: IGenomicIndicator, keyword) =>
+      onSearchFilter: (data: IGenomicIndicator, keyword) =>
         data.associations ? filterByKeyword(getAssociatedAlterations(data.associations), keyword) : false,
     },
     getEntityTableActionsColumn(ENTITY_TYPE.GENOMIC_INDICATOR),

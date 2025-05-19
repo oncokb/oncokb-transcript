@@ -3,7 +3,7 @@ import { IRootStore } from 'app/stores';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Col, Input, InputGroup, Label, Row } from 'reactstrap';
 import Select, { GroupBase, OptionsOrGroups } from 'react-select';
-import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword } from 'app/shared/util/utils';
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
 import { FirebaseGeneService } from 'app/service/firebase/firebase-gene-service';
@@ -483,7 +483,7 @@ const CurationDataImportTab = observer(
     };
 
     const getTableColumns = () => {
-      const columns: SearchColumn<DataImportObj>[] = [
+      const columns: FilterableColumn<DataImportObj>[] = [
         {
           disableHeaderFiltering: true,
           accessor: ROW_COLUMN_KEY,
@@ -496,6 +496,7 @@ const CurationDataImportTab = observer(
           accessor: IMPORT_STATUS_HEADER_KEY,
           Header: importStatus === 'imported' ? 'Import Status' : 'Upload Status',
           maxWidth: 120,
+          disableHeaderFiltering: true,
           Cell(data) {
             return (
               <div className={'text-center'}>
@@ -511,7 +512,7 @@ const CurationDataImportTab = observer(
             disableHeaderFiltering: true,
             accessor: header,
             Header: header,
-            onFilter: (data, keyword) => filterByKeyword(data[header], keyword),
+            onSearchFilter: (data, keyword) => filterByKeyword(data[header], keyword),
             Cell({ value }: CellInfo) {
               return <LongText text={value} cutoff={LONG_TEXT_CUTOFF_COMPACT}></LongText>;
             },
