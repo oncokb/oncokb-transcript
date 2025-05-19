@@ -7,28 +7,48 @@ import _ from 'lodash';
 import { convertOncoKbTumorTypeToCancerType, getCancerTypesName, getCancerTypesNameWithExclusion } from 'app/shared/util/utils';
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { getValueByNestedKey } from 'app/shared/util/firebase/firebase-utils';
 
-const getNestedValueAsString = (obj: any, path: string, sep = '.'): string => {
-  return (
-    String(
-      path.split(sep).reduce((acc, key) => {
-        if (acc && typeof acc === 'object') {
-          return acc[key];
-        }
-        return undefined;
-      }, obj),
-    ) ?? ''
-  );
+type EvidenceMapping =
+  | {
+      header: string;
+      accessor: string | ((...args: any[]) => string);
+      value?: string;
+      isGroupingField: true;
+      evidenceTypes?: undefined;
+    }
+  | {
+      header: string;
+      accessor: string | ((...args: any[]) => string);
+      value?: string;
+      isGroupingField?: false | undefined;
+      evidenceTypes: EvidenceEvidenceTypeEnum[];
+    };
+
+const HUGOSYMBOL_EVIDENCE_MAPPING: EvidenceMapping = {
+  header: 'Hugo Symbol',
+  accessor: 'gene.hugoSymbol',
+  isGroupingField: true,
+};
+const ALTERATION_EVIDENCE_MAPPING: EvidenceMapping = {
+  header: 'Alteration',
+  accessor: 'alterations.0.alteration',
+  isGroupingField: true,
+};
+const TUMORTYPE_EVIDENCE_MAPPING: EvidenceMapping = {
+  header: 'Cancer Type',
+  accessor: getCancerTypeNameFromEvidence,
+  isGroupingField: true,
+};
+const DRUG_NAME_EVIDENCE_MAPPING: EvidenceMapping = {
+  header: 'Drug(s)',
+  accessor: getDrugsNameFromEvidence,
+  isGroupingField: true,
 };
 
-type EvidenceMapping = {
-  header: string;
-  accessor: string;
-  evidenceTypes: EvidenceEvidenceTypeEnum[];
-  value?: string;
-};
-
-const GeneLevelEvidence: Record<string, EvidenceMapping> = {
+type GeneLevelKeys = 'hugoSymbol' | 'geneSummary' | 'geneBackground' | 'oncogene' | 'tumorSuppressor';
+const GeneLevelEvidence: Record<GeneLevelKeys, EvidenceMapping> = {
+  hugoSymbol: HUGOSYMBOL_EVIDENCE_MAPPING,
   geneSummary: {
     header: 'Gene Summary',
     accessor: 'description',
@@ -51,7 +71,10 @@ const GeneLevelEvidence: Record<string, EvidenceMapping> = {
   },
 };
 
-const MutationLevelEvidence: Record<string, EvidenceMapping> = {
+type MutationLevelKeys = 'hugoSymbol' | 'alteration' | 'oncogenicity' | 'mutationEffect' | 'mutationEffectDescription';
+const MutationLevelEvidence: Record<MutationLevelKeys, EvidenceMapping> = {
+  hugoSymbol: HUGOSYMBOL_EVIDENCE_MAPPING,
+  alteration: ALTERATION_EVIDENCE_MAPPING,
   oncogenicity: {
     header: 'Oncogenicity',
     accessor: 'knownEffect',
@@ -69,7 +92,21 @@ const MutationLevelEvidence: Record<string, EvidenceMapping> = {
   },
 };
 
-const TumorLevelEvidence: Record<string, EvidenceMapping> = {
+type TumorLevelKeys =
+  | 'hugoSymbol'
+  | 'alteration'
+  | 'tumorType'
+  | 'tumorTypeSummary'
+  | 'diagnosticSummary'
+  | 'prognosticSummary'
+  | 'diagnosticLevel'
+  | 'diagnosticDescription'
+  | 'prognosticLevel'
+  | 'prognosticImplication';
+const TumorLevelEvidence: Record<TumorLevelKeys, EvidenceMapping> = {
+  hugoSymbol: HUGOSYMBOL_EVIDENCE_MAPPING,
+  alteration: ALTERATION_EVIDENCE_MAPPING,
+  tumorType: TUMORTYPE_EVIDENCE_MAPPING,
   tumorTypeSummary: {
     header: 'Tumor Type Summary',
     accessor: 'description',
@@ -114,12 +151,20 @@ const treatmentLevelEvidenceTypes = [
   EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
 ];
 
-const TreatmentLevelEvidence: Record<string, EvidenceMapping> = {
-  drugs: {
-    header: 'Drug(s)',
-    accessor: '',
-    evidenceTypes: treatmentLevelEvidenceTypes,
-  },
+type TreatmentLevelKeys =
+  | 'hugoSymbol'
+  | 'alteration'
+  | 'tumorType'
+  | 'drugs'
+  | 'treatmentLevel'
+  | 'treatmentDescription'
+  | 'liquidPropagationLevel'
+  | 'solidPropagationLevel';
+const TreatmentLevelEvidence: Record<TreatmentLevelKeys, EvidenceMapping> = {
+  hugoSymbol: HUGOSYMBOL_EVIDENCE_MAPPING,
+  alteration: ALTERATION_EVIDENCE_MAPPING,
+  tumorType: TUMORTYPE_EVIDENCE_MAPPING,
+  drugs: DRUG_NAME_EVIDENCE_MAPPING,
   treatmentLevel: {
     header: 'Tx Level',
     accessor: 'levelOfEvidence',
@@ -142,6 +187,57 @@ const TreatmentLevelEvidence: Record<string, EvidenceMapping> = {
   },
 };
 
+type CategoryConfig<T extends Record<string, EvidenceMapping>> = {
+  levelEvidenceMap: T;
+  fileName: string;
+  groupingFields: (keyof T)[];
+};
+
+const CATEGORY_CONFIGS: {
+  gene: CategoryConfig<typeof GeneLevelEvidence>;
+  mutation: CategoryConfig<typeof MutationLevelEvidence>;
+  tumor: CategoryConfig<typeof TumorLevelEvidence>;
+  treatment: CategoryConfig<typeof TreatmentLevelEvidence>;
+} = {
+  gene: {
+    levelEvidenceMap: GeneLevelEvidence,
+    fileName: 'gene-level-evidences.tsv',
+    groupingFields: ['hugoSymbol'],
+  },
+  mutation: {
+    levelEvidenceMap: MutationLevelEvidence,
+    fileName: 'mutation-level-evidences.tsv',
+    groupingFields: ['hugoSymbol', 'alteration'],
+  },
+  tumor: {
+    levelEvidenceMap: TumorLevelEvidence,
+    fileName: 'tumor-type-level-evidences.tsv',
+    groupingFields: ['hugoSymbol', 'alteration', 'tumorType'],
+  },
+  treatment: {
+    levelEvidenceMap: TreatmentLevelEvidence,
+    fileName: 'treatment-level-evidences.tsv',
+    groupingFields: ['hugoSymbol', 'alteration', 'tumorType'],
+  },
+};
+
+function getCancerTypeNameFromEvidence(evidence: Evidence): string {
+  if (!evidence.cancerTypes || evidence.cancerTypes.length === 0) return '';
+
+  const ct = evidence.cancerTypes.map(tt => convertOncoKbTumorTypeToCancerType(tt));
+  const ect = evidence.excludedCancerTypes?.map(ett => convertOncoKbTumorTypeToCancerType(ett));
+
+  if (ect) {
+    return getCancerTypesNameWithExclusion(ct, ect);
+  } else {
+    return getCancerTypesName(ct);
+  }
+}
+
+function getDrugsNameFromEvidence(evidence: Evidence): string {
+  return evidence.treatments?.map(treatment => getTreatmentNameByPriority(treatment)).join(', ') ?? '';
+}
+
 function getDrugNameFromTreatment(drug: TreatmentDrug) {
   // Copied from oncokb-public and should be fixed when this issue (https://github.com/oncokb/oncokb/issues/3913) is closed.
   // @ts-expect-error Have to use ignore to escape the actual model structure. The swagger does not reflect the actually json structure
@@ -154,13 +250,19 @@ function getTreatmentNameByPriority(treatment: Treatment) {
     .join(' + ');
 }
 
-const getDownloadMetaData = (selectedOptions: readonly OptionType[], someLevelEvidence: Record<string, EvidenceMapping>) => {
-  const evidenceKeys = selectedOptions.flatMap(option => option.evidenceKeys);
-  const evidenceMeta = evidenceKeys.map(key => someLevelEvidence[key]);
-  const uniqueEvidenceTypes = _.uniq(evidenceMeta.flatMap(meta => meta.evidenceTypes));
+function getNestedValueAsString(obj: any, path: string): string {
+  return String(getValueByNestedKey(obj, path, '.') ?? '');
+}
+
+const getDownloadMetaData = <T extends Record<string, EvidenceMapping>>(selectedOptions: readonly OptionType[], levelEvidenceMap: T) => {
+  const evidenceKeys = selectedOptions.flatMap(option => option.evidenceKeys) as Array<keyof T>;
+
+  const evidenceMeta = evidenceKeys.map(key => levelEvidenceMap[key]);
+
+  const uniqueEvidenceTypes = _.uniq(evidenceMeta.filter(meta => meta.evidenceTypes).flatMap(meta => meta.evidenceTypes || []));
 
   const selectedEvidences: Record<string, EvidenceMapping> = Object.fromEntries(
-    evidenceKeys.filter(key => key in someLevelEvidence).map(key => [key, someLevelEvidence[key]]),
+    evidenceKeys.filter(key => key in levelEvidenceMap).map(key => [key as string, levelEvidenceMap[key]]),
   );
 
   return { evidenceKeys, uniqueEvidenceTypes, selectedEvidences };
@@ -169,7 +271,8 @@ const getDownloadMetaData = (selectedOptions: readonly OptionType[], someLevelEv
 const getEvidenceMappingValue = (evidenceMapping: EvidenceMapping | undefined) => {
   let value = evidenceMapping?.value ?? '';
   if (value.includes('\n')) {
-    value = `"${value}"`;
+    // Some descriptions have newline character which messes up the tsv file
+    value = value.replaceAll('\n', '\\n');
   }
   return value;
 };
@@ -185,14 +288,30 @@ const formatOptionLabel = (key: string): string => {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
 };
 
+const buildOptions = (
+  evidenceObject: Record<string, { isGroupingField?: boolean }>,
+  category: OptionType['category'],
+  extraOptions: OptionType[] = [],
+): OptionType[] => {
+  const options: OptionType[] = [];
+
+  for (const [key, value] of Object.entries(evidenceObject)) {
+    if (value.isGroupingField) continue;
+    options.push({
+      label: formatOptionLabel(key),
+      value: key,
+      evidenceKeys: [key],
+      category,
+    });
+  }
+
+  return [...options, ...extraOptions];
+};
+
 const groupedDropdownOptions = (): GroupBase<OptionType>[] => {
   const geneLevelOptions: OptionType[] = [];
-  const mutationLevelOptions: OptionType[] = [];
-  const tumorLevelOptions: OptionType[] = [];
-  const treatmentLevelOptions: OptionType[] = [];
-
-  for (const key of Object.keys(GeneLevelEvidence)) {
-    if (key === 'oncogene' || key === 'tumorSuppressor') {
+  for (const [key, value] of Object.entries(GeneLevelEvidence)) {
+    if (key === 'oncogene' || key === 'tumorSuppressor' || value.isGroupingField) {
       continue;
     }
     geneLevelOptions.push({
@@ -209,50 +328,15 @@ const groupedDropdownOptions = (): GroupBase<OptionType>[] => {
     category: 'gene',
   });
 
-  for (const key of Object.keys(MutationLevelEvidence)) {
-    mutationLevelOptions.push({
-      label: formatOptionLabel(key),
-      value: key,
-      evidenceKeys: [key],
-      category: 'mutation',
-    });
-  }
-
-  for (const key of Object.keys(TumorLevelEvidence)) {
-    tumorLevelOptions.push({
-      label: formatOptionLabel(key),
-      value: key,
-      evidenceKeys: [key],
-      category: 'tumor',
-    });
-  }
-
-  for (const key of Object.keys(TreatmentLevelEvidence)) {
-    treatmentLevelOptions.push({
-      label: formatOptionLabel(key),
-      value: key,
-      evidenceKeys: [key],
-      category: 'treatment',
-    });
-  }
+  const mutationLevelOptions = buildOptions(MutationLevelEvidence, 'mutation');
+  const tumorLevelOptions = buildOptions(TumorLevelEvidence, 'tumor');
+  const treatmentLevelOptions = buildOptions(TreatmentLevelEvidence, 'treatment');
 
   return [
-    {
-      label: 'Gene Level',
-      options: geneLevelOptions,
-    },
-    {
-      label: 'Mutation Level',
-      options: mutationLevelOptions,
-    },
-    {
-      label: 'Tumor Level',
-      options: tumorLevelOptions,
-    },
-    {
-      label: 'Treatment Level',
-      options: treatmentLevelOptions,
-    },
+    { label: 'Gene Level', options: geneLevelOptions },
+    { label: 'Mutation Level', options: mutationLevelOptions },
+    { label: 'Tumor Level', options: tumorLevelOptions },
+    { label: 'Treatment Level', options: treatmentLevelOptions },
   ];
 };
 
@@ -302,221 +386,99 @@ const EvidenceDownloader = () => {
     }
   };
 
-  const handleGeneLevelDownload = async () => {
-    const { uniqueEvidenceTypes, selectedEvidences, evidenceKeys } = getDownloadMetaData(selectedOptions, GeneLevelEvidence);
+  const handleEvidenceDownload = async <K extends keyof typeof CATEGORY_CONFIGS>(category: K) => {
+    const categoryConfig = CATEGORY_CONFIGS[category];
+    const levelEvidenceMap = categoryConfig.levelEvidenceMap;
+
+    const { uniqueEvidenceTypes, selectedEvidences, evidenceKeys } = getDownloadMetaData(selectedOptions, levelEvidenceMap);
 
     const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
     if (!evidences) return;
 
-    const groupedByGene: Record<string, Record<string, EvidenceMapping>> = {};
+    const grouped = evidences.reduce((acc, evidence) => {
+      const groupValues: string[] = [];
+      let skipEvidence = false;
 
-    for (const evidence of evidences) {
-      const hugo = getNestedValueAsString(evidence, 'gene.hugoSymbol');
-      if (!hugo) continue;
+      for (const field of categoryConfig.groupingFields) {
+        const fieldMapping = levelEvidenceMap[field];
+
+        let value = '';
+        if (typeof fieldMapping.accessor === 'string') {
+          value = getNestedValueAsString(evidence, fieldMapping.accessor);
+        } else if (typeof fieldMapping.accessor === 'function') {
+          value = fieldMapping.accessor(evidence);
+        }
+
+        if (!value) {
+          skipEvidence = true;
+          break;
+        }
+
+        groupValues.push(value);
+      }
+
+      if (skipEvidence) return acc;
 
       const populatedEvidences = _.cloneDeep(selectedEvidences);
+
       for (const [evidenceKey, selectedEvidence] of Object.entries(populatedEvidences)) {
-        if (!evidence.evidenceType || !selectedEvidence.evidenceTypes.includes(evidence.evidenceType)) continue;
-        selectedEvidence.value = getNestedValueAsString(evidence, selectedEvidence.accessor);
-        if (!groupedByGene[hugo]) {
-          groupedByGene[hugo] = {};
+        if (!evidence.evidenceType || !selectedEvidence.evidenceTypes?.includes(evidence.evidenceType)) {
+          continue;
         }
-        groupedByGene[hugo][evidenceKey] = selectedEvidence;
-      }
-    }
 
-    const headers = ['Gene', ...evidenceKeys.map(key => GeneLevelEvidence[key].header)];
-    const tsvRows = [headers.join('\t')];
-
-    for (const [gene, data] of Object.entries(groupedByGene).sort()) {
-      const row = [gene, ...evidenceKeys.map(key => getEvidenceMappingValue(data[key]))];
-      tsvRows.push(row.join('\t'));
-    }
-
-    const tsvContent = tsvRows.join('\n');
-    downloadFile('gene-level-evidences.tsv', tsvContent);
-  };
-
-  const handleMutationLevelDownload = async () => {
-    const { uniqueEvidenceTypes, selectedEvidences, evidenceKeys } = getDownloadMetaData(selectedOptions, MutationLevelEvidence);
-
-    const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
-    if (!evidences) return;
-
-    const groupedByGeneAndAlteration: Record<string, Record<string, Record<string, EvidenceMapping>>> = {};
-
-    for (const evidence of evidences) {
-      const hugo = getNestedValueAsString(evidence, 'gene.hugoSymbol');
-      const alteration = getNestedValueAsString(evidence, 'alterations.0.alteration');
-      if (!hugo || !alteration) continue;
-
-      const populatedEvidences = _.cloneDeep(selectedEvidences);
-      for (const [evidenceKey, selectedEvidence] of Object.entries(populatedEvidences)) {
-        if (!evidence.evidenceType || !selectedEvidence.evidenceTypes.includes(evidence.evidenceType)) continue;
-        selectedEvidence.value = getNestedValueAsString(evidence, selectedEvidence.accessor);
-
-        groupedByGeneAndAlteration[hugo] ??= {};
-        groupedByGeneAndAlteration[hugo][alteration] ??= {};
-        groupedByGeneAndAlteration[hugo][alteration][evidenceKey] = selectedEvidence;
-      }
-    }
-
-    const headers = ['Gene', 'Alteration', ...evidenceKeys.map(key => MutationLevelEvidence[key].header)];
-    const tsvRows = [headers.join('\t')];
-
-    for (const [gene, alterationMap] of Object.entries(groupedByGeneAndAlteration).sort()) {
-      for (const [alteration, data] of Object.entries(alterationMap).sort()) {
-        const row = [gene, alteration, ...evidenceKeys.map(key => getEvidenceMappingValue(data[key]))];
-        tsvRows.push(row.join('\t'));
-      }
-    }
-
-    const tsvContent = tsvRows.join('\n');
-    downloadFile('mutation-level-evidences.tsv', tsvContent);
-  };
-
-  const handleTumorLevelDownload = async () => {
-    const { uniqueEvidenceTypes, selectedEvidences, evidenceKeys } = getDownloadMetaData(selectedOptions, TumorLevelEvidence);
-
-    const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
-    if (!evidences) return;
-
-    // 3 level grouping: hugo | alteration | cancerType | evidence mapping
-    const grouped: Record<string, Record<string, Record<string, Record<string, EvidenceMapping>>>> = {};
-    for (const evidence of evidences) {
-      const hugo = getNestedValueAsString(evidence, 'gene.hugoSymbol');
-      const alterations = evidence.alterations ?? [];
-      const cancerTypes = evidence.cancerTypes ?? [];
-
-      if (!hugo || alterations.length === 0 || cancerTypes.length === 0) continue;
-
-      for (const alt of alterations) {
-        const alteration = alt.alteration;
-        if (!alteration) continue;
-        if (!evidence.cancerTypes) continue;
-
-        const ct = evidence.cancerTypes.map(tt => convertOncoKbTumorTypeToCancerType(tt));
-        const ect = evidence.excludedCancerTypes?.map(ett => convertOncoKbTumorTypeToCancerType(ett));
-        let tumorName: string;
-        if (ect) {
-          tumorName = getCancerTypesNameWithExclusion(ct, ect);
-        } else {
-          tumorName = getCancerTypesName(ct);
-        }
-        if (!tumorName) continue;
-
-        const populatedEvidences = _.cloneDeep(selectedEvidences);
-
-        for (const [evidenceKey, selectedEvidence] of Object.entries(populatedEvidences)) {
-          if (!evidence.evidenceType || !selectedEvidence.evidenceTypes.includes(evidence.evidenceType)) continue;
+        if (typeof selectedEvidence.accessor === 'string') {
           selectedEvidence.value = getNestedValueAsString(evidence, selectedEvidence.accessor);
-
-          grouped[hugo] ??= {};
-          grouped[hugo][alteration] ??= {};
-          grouped[hugo][alteration][tumorName] ??= {};
-          grouped[hugo][alteration][tumorName][evidenceKey] = selectedEvidence;
+        } else if (typeof selectedEvidence.accessor === 'function') {
+          selectedEvidence.value = selectedEvidence.accessor(evidence);
         }
-      }
-    }
 
-    const headers = ['Gene', 'Alteration', 'Cancer Type', ...evidenceKeys.map(key => TumorLevelEvidence[key].header)];
-    const tsvRows = [headers.join('\t')];
-
-    for (const [gene, alterationMap] of Object.entries(grouped).sort()) {
-      for (const [alteration, tumorMap] of Object.entries(alterationMap).sort()) {
-        for (const [tumor, data] of Object.entries(tumorMap).sort()) {
-          const row = [gene, alteration, tumor, ...evidenceKeys.map(key => getEvidenceMappingValue(data[key]))];
-          tsvRows.push(row.join('\t'));
-        }
-      }
-    }
-
-    const tsvContent = tsvRows.join('\n');
-    downloadFile('tumor-type-level-evidences.tsv', tsvContent);
-  };
-
-  const handleTreatmentLevelDownload = async () => {
-    const { uniqueEvidenceTypes, selectedEvidences, evidenceKeys } = getDownloadMetaData(selectedOptions, TreatmentLevelEvidence);
-
-    const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
-    if (!evidences) return;
-
-    const grouped: Record<string, Record<string, Record<string, Record<string, EvidenceMapping>>>> = {};
-
-    for (const evidence of evidences) {
-      const hugo = getNestedValueAsString(evidence, 'gene.hugoSymbol');
-      const alterations = evidence.alterations ?? [];
-      const cancerTypes = evidence.cancerTypes ?? [];
-
-      if (!hugo || alterations.length === 0 || cancerTypes.length === 0) continue;
-
-      for (const alt of alterations) {
-        const alteration = alt.alteration;
-        if (!alteration) continue;
-        if (!evidence.cancerTypes) continue;
-
-        const ct = evidence.cancerTypes.map(tt => convertOncoKbTumorTypeToCancerType(tt));
-        const ect = evidence.excludedCancerTypes?.map(ett => convertOncoKbTumorTypeToCancerType(ett));
-        let tumorName: string;
-        if (ect) {
-          tumorName = getCancerTypesNameWithExclusion(ct, ect);
-        } else {
-          tumorName = getCancerTypesName(ct);
-        }
-        if (!tumorName) continue;
-
-        const populatedEvidences = _.cloneDeep(selectedEvidences);
-
-        for (const [evidenceKey, selectedEvidence] of Object.entries(populatedEvidences)) {
-          if (!evidence.evidenceType || !selectedEvidence.evidenceTypes.includes(evidence.evidenceType)) continue;
-
-          if (evidenceKey === 'drugs') {
-            selectedEvidence.value = evidence.treatments?.map(treatment => getTreatmentNameByPriority(treatment)).join(', ');
+        // Build nested objects for each grouping level
+        let current = acc;
+        for (let i = 0; i < groupValues.length; i++) {
+          const key = groupValues[i];
+          if (i === groupValues.length - 1) {
+            current[key] = current[key] ?? {};
+            current[key][evidenceKey] = selectedEvidence;
           } else {
-            selectedEvidence.value = getNestedValueAsString(evidence, selectedEvidence.accessor);
+            current[key] = current[key] ?? {};
+            current = current[key];
           }
-
-          grouped[hugo] ??= {};
-          grouped[hugo][alteration] ??= {};
-          grouped[hugo][alteration][tumorName] ??= {};
-          grouped[hugo][alteration][tumorName][evidenceKey] = selectedEvidence;
         }
       }
-    }
 
-    const headers = ['Gene', 'Alteration', 'Cancer Type', ...evidenceKeys.map(key => TreatmentLevelEvidence[key].header)];
+      return acc;
+    }, {});
+
+    const headers = [
+      ...categoryConfig.groupingFields.map(field => levelEvidenceMap[field].header),
+      ...evidenceKeys.map(key => levelEvidenceMap[key].header),
+    ];
+
     const tsvRows = [headers.join('\t')];
 
-    for (const [gene, alterationMap] of Object.entries(grouped).sort()) {
-      for (const [alteration, tumorMap] of Object.entries(alterationMap).sort()) {
-        for (const [tumor, data] of Object.entries(tumorMap).sort()) {
-          const row = [gene, alteration, tumor, ...evidenceKeys.map(key => getEvidenceMappingValue(data[key]))];
-          tsvRows.push(row.join('\t'));
-        }
+    const buildRows = (obj: any, depth: number, groupingFieldData: string[]) => {
+      if (depth === categoryConfig.groupingFields.length) {
+        // We've reached the leaf level (finished retrieving grouping field data)
+        const row = [...groupingFieldData, ...evidenceKeys.map(key => getEvidenceMappingValue(obj[key]))];
+        tsvRows.push(row.join('\t'));
+        return;
       }
-    }
+
+      for (const key of Object.keys(obj).sort()) {
+        buildRows(obj[key], depth + 1, [...groupingFieldData, key]);
+      }
+    };
+
+    buildRows(grouped, 0, []);
 
     const tsvContent = tsvRows.join('\n');
-    downloadFile('treatment-level-evidences.tsv', tsvContent);
+    downloadFile(categoryConfig.fileName, tsvContent);
   };
 
   const handleDownload = () => {
-    const category = selectedOptions.map(option => option.category)[0];
-    switch (category) {
-      case 'gene':
-        handleGeneLevelDownload();
-        break;
-      case 'mutation':
-        handleMutationLevelDownload();
-        break;
-      case 'tumor':
-        handleTumorLevelDownload();
-        break;
-      case 'treatment':
-        handleTreatmentLevelDownload();
-        break;
-      default:
-        break;
+    const category = selectedOptions[0]?.category;
+    if (category) {
+      handleEvidenceDownload(category);
     }
   };
 
@@ -535,7 +497,7 @@ const EvidenceDownloader = () => {
           color="primary"
           outline
           onClick={handleDownload}
-          disabled={isFetchingEvidences}
+          disabled={isFetchingEvidences || selectedOptions.length === 0}
           confirmText={isFetchingEvidences ? 'Downloading' : 'Download'}
         />
       </div>
