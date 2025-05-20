@@ -419,7 +419,8 @@ export class Meta {
 
 export class MetaReview {
   currentReviewer = '';
-  [key: string]: string | boolean;
+  lastActiveReview?: number;
+  [key: string]: string | boolean | number | undefined;
 }
 
 export type CommentList = Record<string, Comment>;

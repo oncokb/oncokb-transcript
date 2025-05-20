@@ -49,6 +49,7 @@ export const CurationPage = (props: ICurationPageProps) => {
   const genomicIndicatorsPath = `${firebaseGenePath}/genomic_indicators`;
   const firebaseMetaGeneReviewPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`;
   const firebaseMetaCurrentReviewerPath = `${firebaseMetaGeneReviewPath}/currentReviewer`;
+  const firebaseMetaLastActiveReviewPath = `${firebaseMetaGeneReviewPath}/lastActiveReview`;
 
   useEffect(() => {
     async function checkIfGeneExists() {
@@ -118,6 +119,38 @@ export const CurationPage = (props: ICurationPageProps) => {
 
     return getTooltipHistoryList(tabHistoryList);
   }, [tabHistoryList]);
+
+  useEffect(() => {
+    async function checkLastActiveReview() {
+      if (
+        props.firebaseDb === undefined ||
+        props.clearCurrentReviewer === undefined ||
+        hugoSymbol === undefined ||
+        isGermline === undefined
+      ) {
+        return;
+      }
+
+      const lastActiveReviewSnapshot = await get(ref(props.firebaseDb, firebaseMetaLastActiveReviewPath));
+      const lastActiveReview: number | undefined = lastActiveReviewSnapshot.val();
+
+      if (lastActiveReview !== undefined && Date.now() - lastActiveReview > 5 * 60 * 1000) {
+        props.clearCurrentReviewer(hugoSymbol, isGermline);
+      }
+    }
+
+    checkLastActiveReview();
+    const interval = setInterval(
+      () => {
+        checkLastActiveReview();
+      },
+      5 * 60 * 1000,
+    );
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [props.firebaseDb, firebaseMetaLastActiveReviewPath, hugoSymbol, isGermline, props.clearCurrentReviewer]);
 
   if (!geneIsFound) {
     return <div>the gene &quot;{hugoSymbolParam}&quot; was not found</div>;
@@ -330,6 +363,7 @@ const mapStoreToProps = ({
   layoutStore,
   routerStore,
   curationPageStore,
+  firebaseMetaService,
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   firebaseInitSuccess: firebaseAppStore.firebaseInitSuccess,
@@ -353,6 +387,7 @@ const mapStoreToProps = ({
   setReadOnly: curationPageStore.setReadOnly,
   isMutationListRendered: curationPageStore.isMutationListRendered,
   setIsMutationListRendered: curationPageStore.setIsMutationListRendered,
+  clearCurrentReviewer: firebaseMetaService.clearCurrentReviewer,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

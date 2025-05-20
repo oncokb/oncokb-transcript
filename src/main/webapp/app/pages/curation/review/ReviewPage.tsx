@@ -122,6 +122,21 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     };
   }, [hugoSymbol, isGermline, props.firebaseDb]);
 
+  useEffect(() => {
+    if (hugoSymbol === undefined || isGermline === undefined || props.updateGeneLastActiveReview === undefined) {
+      return;
+    }
+
+    props.updateGeneLastActiveReview?.(hugoSymbol, isGermline);
+    const interval = setInterval(() => {
+      props.updateGeneLastActiveReview?.(hugoSymbol, isGermline);
+    }, 60 * 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [hugoSymbol, isGermline]);
+
   const acceptAllChangesFromEditors = async (editors: string[]) => {
     if (hugoSymbol === undefined) {
       notifyError(new SentryError('Cannot accept all changes because hugo symbol is unknown.', { hugoSymbol, geneData }));
@@ -299,7 +314,7 @@ const mapStoreToProps = ({
   loadingGenes: geneStore.loading,
   firebaseInitSuccess: firebaseAppStore.firebaseInitSuccess,
   isGermline: routerStore.isGermline,
-  updateCurrentReviewer: firebaseMetaService.updateGeneCurrentReviewer,
+  updateGeneLastActiveReview: firebaseMetaService.updateGeneLastActiveReview,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

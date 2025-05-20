@@ -87,6 +87,19 @@ export class FirebaseMetaService {
     });
   };
 
+  updateGeneLastActiveReview = async (hugoSymbol: string, isGermline: boolean) => {
+    await this.firebaseRepository.update(`${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`, {
+      lastActiveReview: Date.now(),
+    });
+  };
+
+  clearCurrentReviewer = async (hugoSymbol: string, isGermline: boolean) => {
+    await this.firebaseRepository.update(`${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`, {
+      currentReviewer: '',
+      lastActiveReview: null,
+    });
+  };
+
   createMetaGene = async (hugoSymbol: string, isGermline: boolean) => {
     await this.firebaseRepository.create(getFirebaseMetaGenePath(isGermline, hugoSymbol), new Meta());
   };
