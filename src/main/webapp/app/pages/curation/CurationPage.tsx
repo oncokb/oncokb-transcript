@@ -120,12 +120,11 @@ export const CurationPage = (props: ICurationPageProps) => {
     return getTooltipHistoryList(tabHistoryList);
   }, [tabHistoryList]);
 
-  /* eslint-disable no-console */
   useEffect(() => {
     async function checkLastActiveReview() {
       if (
         props.firebaseDb === undefined ||
-        props.clearCurrentReviwer === undefined ||
+        props.clearCurrentReviewer === undefined ||
         hugoSymbol === undefined ||
         isGermline === undefined
       ) {
@@ -136,7 +135,7 @@ export const CurationPage = (props: ICurationPageProps) => {
       const lastActiveReview: number | undefined = lastActiveReviewSnapshot.val();
 
       if (lastActiveReview !== undefined && Date.now() - lastActiveReview > 5 * 60 * 1000) {
-        props.clearCurrentReviwer(hugoSymbol, isGermline);
+        props.clearCurrentReviewer(hugoSymbol, isGermline);
       }
     }
 
@@ -149,9 +148,9 @@ export const CurationPage = (props: ICurationPageProps) => {
     );
 
     return () => {
-      clearTimeout(interval);
+      clearInterval(interval);
     };
-  }, [props.firebaseDb, firebaseMetaLastActiveReviewPath, hugoSymbol, isGermline, props.clearCurrentReviwer]);
+  }, [props.firebaseDb, firebaseMetaLastActiveReviewPath, hugoSymbol, isGermline, props.clearCurrentReviewer]);
 
   if (!geneIsFound) {
     return <div>the gene &quot;{hugoSymbolParam}&quot; was not found</div>;
@@ -388,7 +387,7 @@ const mapStoreToProps = ({
   setReadOnly: curationPageStore.setReadOnly,
   isMutationListRendered: curationPageStore.isMutationListRendered,
   setIsMutationListRendered: curationPageStore.setIsMutationListRendered,
-  clearCurrentReviwer: firebaseMetaService.clearCurrentReviewer,
+  clearCurrentReviewer: firebaseMetaService.clearCurrentReviewer,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
