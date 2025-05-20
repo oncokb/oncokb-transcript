@@ -33,7 +33,7 @@ import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertU
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
 import { getTumorNameUuid, getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
 import { SentryError } from 'app/config/sentry-error';
-import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
+import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE, NEW_NAME_UUID_VALUE } from 'app/config/constants/constants';
 import _ from 'lodash';
 import { getDriveAnnotations } from 'app/shared/util/core-drive-annotation-submission/core-drive-annotation-submission';
 import { DriveAnnotationApi } from 'app/shared/api/manual/drive-annotation-api';
@@ -254,13 +254,13 @@ export class FirebaseGeneService {
         updateObject = { ...updateObject, ...deleteArrayReturnVal.updateObject };
       }
       for (const id of [...nestedUuids, uuid]) {
-        updateObject = { ...updateObject, ...this.firebaseMetaService.getUpdateObject(false, hugoSymbol, isGermline, [id]) };
+        updateObject = { ...updateObject, ...this.firebaseMetaService.getUpdateObject(hugoSymbol, isGermline, { [id]: null }) };
       }
     } else {
       updateObject = {
         ...updateObject,
         [`${getFirebaseGenePath(isGermline, hugoSymbol)}/${pathFromGene}_review`]: review,
-        ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, [uuid]),
+        ...this.firebaseMetaService.getUpdateObject(hugoSymbol, isGermline, { [uuid]: true }),
       };
     }
 
@@ -312,7 +312,7 @@ export class FirebaseGeneService {
       throw new SentryError('Could not resolve hugoSymbol', { tumorPath });
     }
 
-    let updateObject = { ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, [tumorNameUuid]) };
+    let updateObject = { ...this.firebaseMetaService.getUpdateObject(hugoSymbol, isGermline, { [tumorNameUuid]: NEW_NAME_UUID_VALUE }) };
     const pushResult = await this.firebaseRepository.push(tumorPath, newTumor, false);
     if (pushResult !== undefined) {
       updateObject = { ...updateObject, ...pushResult.pushUpdateObject };
@@ -397,7 +397,7 @@ export class FirebaseGeneService {
 
     if (hugoSymbol !== undefined) {
       let updateObject = {
-        ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, [newTreatment.name_uuid]),
+        ...this.firebaseMetaService.getUpdateObject(hugoSymbol, isGermline, { [newTreatment.name_uuid]: NEW_NAME_UUID_VALUE }),
       };
       const pushResult = await this.firebaseRepository.push(treatmentPath, newTreatment, false);
       if (pushResult !== undefined) {
@@ -457,12 +457,12 @@ export class FirebaseGeneService {
 
     if (hugoSymbol !== undefined) {
       let updateObject = {
-        ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, [newMutation.name_uuid]),
+        ...this.firebaseMetaService.getUpdateObject(hugoSymbol, isGermline, { [newMutation.name_uuid]: NEW_NAME_UUID_VALUE }),
       };
       if (mutationEffectDescription) {
         updateObject = {
           ...updateObject,
-          ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, isGermline, [newMutation.mutation_effect.description_uuid]),
+          ...this.firebaseMetaService.getUpdateObject(hugoSymbol, isGermline, { [newMutation.mutation_effect.description_uuid]: true }),
         };
       }
 
@@ -511,7 +511,7 @@ export class FirebaseGeneService {
       updateObject[rctPath] = newRelevantCancerTypes;
       updateObject[`${rctPath}_review`] = new Review(this.authStore.fullName, undefined, undefined, undefined, true);
       updateObject[`${rctPath}_uuid`] = uuid;
-      const metaUpdateObject = this.firebaseMetaService.getUpdateObject(true, hugoSymbol!, isGermline, [uuid]);
+      const metaUpdateObject = this.firebaseMetaService.getUpdateObject(hugoSymbol!, isGermline, { [uuid]: true });
       updateObject = { ...updateObject, ...metaUpdateObject };
     } else {
       const rctUpdateObject = await this.firebaseGeneReviewService.updateReviewableContent(
@@ -546,7 +546,7 @@ export class FirebaseGeneService {
   ) => {
     const genePath = parseFirebaseGenePath(genomicIndicatorsPath);
     const newGenomicIndicator = new GenomicIndicator();
-    const uuidsToReview: string[] = [];
+    const uuidsToReview: { [key: string]: string | boolean | null } = {};
     const mutationList = this.firebaseMutationListStore.data;
     const pathogenicVariants = Object.values(mutationList ?? {}).find(mut => mut.name === PATHOGENIC_VARIANTS);
     let pathogenicVariantsNameUuid = pathogenicVariants?.name_uuid;
@@ -568,13 +568,13 @@ export class FirebaseGeneService {
     if (toReview) {
       newGenomicIndicator.name_review = _.cloneDeep(newReview);
       newGenomicIndicator.name_review.added = true;
-      uuidsToReview.push(newGenomicIndicator.name_uuid);
+      uuidsToReview[newGenomicIndicator.name_uuid] = NEW_NAME_UUID_VALUE;
     }
     if (description) {
       newGenomicIndicator.description = description;
       if (toReview) {
         newGenomicIndicator.description_review = newReview;
-        uuidsToReview.push(newGenomicIndicator.description_uuid);
+        uuidsToReview[newGenomicIndicator.description_uuid] = true;
       }
     }
 
@@ -584,7 +584,7 @@ export class FirebaseGeneService {
         newGenomicIndicator.allele_state[asKey] = alleleState;
         if (toReview) {
           newGenomicIndicator.allele_state[`${asKey}_review`] = newReview;
-          uuidsToReview.push(newGenomicIndicator.allele_state[`${asKey}_uuid`]);
+          uuidsToReview[newGenomicIndicator.allele_state[`${asKey}_uuid`]] = true;
         }
       });
     }
@@ -602,7 +602,7 @@ export class FirebaseGeneService {
     }
 
     if (toReview) {
-      updateObject = { ...updateObject, ...this.firebaseMetaService.getUpdateObject(true, hugoSymbol, true, uuidsToReview) };
+      updateObject = { ...updateObject, ...this.firebaseMetaService.getUpdateObject(hugoSymbol, true, uuidsToReview) };
     }
 
     await this.firebaseRepository.update('/', updateObject);

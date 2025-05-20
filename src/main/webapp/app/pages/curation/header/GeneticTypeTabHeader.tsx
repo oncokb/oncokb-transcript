@@ -4,7 +4,7 @@ import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { onValue, ref } from 'firebase/database';
 import { Meta } from 'app/shared/model/firebase/firebase.model';
-import { geneMetaReviewHasUuids, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
+import { geneMetaReviewHasNonNameUuids, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { PAGE_ROUTE } from 'app/config/constants/constants';
 import { Button } from 'reactstrap';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
@@ -60,7 +60,7 @@ const GeneticTypeTabHeader = ({
 
   const getReviewButton = () => {
     let button: JSX.Element;
-    if (geneMetaReviewHasUuids(meta?.review)) {
+    if (geneMetaReviewHasNonNameUuids(meta?.review)) {
       if (isReviewing || isReviewFinished) {
         button = (
           <Button color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID}>

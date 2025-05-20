@@ -458,3 +458,5 @@ export const SOMATIC_GERMLINE_SETTING_KEY = 'oncokbCuration-somaticGermlineSetti
 export const DUPLICATE_THERAPY_ERROR_MESSAGE = 'Each therapy must be unique';
 export const EMPTY_THERAPY_ERROR_MESSAGE = 'You must include at least one drug for each therapy';
 export const THERAPY_ALREADY_EXISTS_ERROR_MESSAGE = 'Therapy already exists';
+
+export const NEW_NAME_UUID_VALUE = 'name';

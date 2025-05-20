@@ -98,7 +98,7 @@ export class FirebaseGeneReviewService {
     const { hugoSymbol } = parseFirebaseGenePath(firebasePath) ?? {};
 
     let updateObject = this.getGeneUpdateObject(updateValue, updatedReview!, firebasePath, uuid!);
-    const metaUpdateObject = this.firebaseMetaService.getUpdateObject(!isChangeReverted, hugoSymbol!, isGermline, [uuid!]);
+    const metaUpdateObject = this.firebaseMetaService.getUpdateObject(hugoSymbol!, isGermline, { [uuid!]: !isChangeReverted });
     updateObject = { ...updateObject, ...metaUpdateObject };
 
     if (!shouldSave) {
@@ -265,7 +265,7 @@ export class FirebaseGeneReviewService {
       } else {
         throw new SentryError('Unexpect accept in review mode', { hugoSymbol, reviewLevel, isGermline, isAcceptAll });
       }
-      const metaUpdateObject = this.firebaseMetaService.getUpdateObject(false, hugoSymbol, isGermline, [uuid]);
+      const metaUpdateObject = this.firebaseMetaService.getUpdateObject(hugoSymbol, isGermline, { [uuid]: null });
       updateObject = { ...updateObject, ...metaUpdateObject };
     }
 
@@ -327,7 +327,7 @@ export class FirebaseGeneReviewService {
         throw new SentryError('Unexpected reject in review mode', { hugoSymbol, reviewLevels, isGermline });
       }
 
-      const metaUpdateObject = this.firebaseMetaService.getUpdateObject(false, hugoSymbol, isGermline, [uuid]);
+      const metaUpdateObject = this.firebaseMetaService.getUpdateObject(hugoSymbol, isGermline, { [uuid]: null });
       updateObject = { ...updateObject, ...metaUpdateObject };
 
       try {
@@ -344,7 +344,7 @@ export class FirebaseGeneReviewService {
     let updateObject = await this.getCreateUpdateObject(hugoSymbol, reviewLevel, isGermline, action);
     updateObject = {
       ...updateObject,
-      ...this.firebaseMetaService.getUpdateObject(false, hugoSymbol, isGermline, [reviewLevel.reviewInfo.uuid]),
+      ...this.firebaseMetaService.getUpdateObject(hugoSymbol, isGermline, { [reviewLevel.reviewInfo.uuid]: null }),
     };
     try {
       await this.firebaseRepository.update('/', updateObject);
