@@ -6,13 +6,10 @@ import { CategoricalAlterationType } from 'app/shared/model/enumerations/categor
 import {
   Alteration,
   CancerType,
-  CancerTypeList,
-  Comment,
   CommentList,
   DX_LEVELS,
   FIREBASE_ONCOGENICITY,
   Gene,
-  Implication,
   Meta,
   MetaReview,
   Mutation,
@@ -33,13 +30,10 @@ import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, isUui
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { hasReview } from './firebase-review-utils';
-import { Database, ref, get } from 'firebase/database';
-import { FirebaseGeneService } from 'app/service/firebase/firebase-gene-service';
-import { SentryError } from 'app/config/sentry-error';
 
-export const getValueByNestedKey = (obj: any, nestedKey = '') => {
-  return nestedKey.split('/').reduce((currObj, currKey) => {
-    if (currObj) return currObj[currKey];
+export const getValueByNestedKey = (obj: any, nestedKey = '', sep = '/') => {
+  return nestedKey.split(sep).reduce((currObj, currKey) => {
+    if (currObj && typeof currObj === 'object') return currObj[currKey];
   }, obj);
 };
 

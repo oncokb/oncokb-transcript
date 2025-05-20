@@ -71,6 +71,7 @@ module.exports = async options =>
             '/websocket',
             '/api',
             '/legacy-api',
+            '/api/v1',
             '/services',
             '/management',
             '/v3/api-docs',

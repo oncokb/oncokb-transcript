@@ -13,6 +13,7 @@ import { auditClient } from 'app/shared/api/clients';
 import { notifyError, notifyInfo } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { downloadFile } from 'app/shared/util/file-utils';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
+import EvidenceDownloader from '../data-download/EvidenceDownloader';
 
 export interface IGeneListPageToolsTab extends StoreProps {
   metaData: MetaCollection | null;
@@ -85,6 +86,12 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGene
           </div>
         </Col>
       </Row>
+      <Row className="pt-3 border-top mb-3">
+        <div>
+          <h6 className="mb-2">Download Latest Data</h6>
+          <EvidenceDownloader />
+        </div>
+      </Row>
       {!isGermline && isDev && (
         <Row className="pt-3 border-top mb-3">
           <div>
@@ -98,7 +105,7 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGene
             overlay={'Click this button to download a file containing a list of newly released genes since the last OncoKB data release.'}
             mouseEnterDelay={0.25}
           >
-            <Button color="primary" onClick={fetchNewlyReleasedGenes}>
+            <Button color="primary" outline onClick={fetchNewlyReleasedGenes}>
               Download New Genes List
             </Button>
           </DefaultTooltip>
