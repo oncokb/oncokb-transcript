@@ -13,6 +13,8 @@ import { GERMLINE_INHERITANCE_MECHANISM, MUTATION_EFFECT, ONCOGENICITY, PATHOGEN
 export enum GENE_TYPE {
   TUMOR_SUPPRESSOR = 'Tumor Suppressor',
   ONCOGENE = 'Oncogene',
+  UNKNOWN = 'Unknown',
+  NEITHER = 'Neither',
 }
 export enum ZYGOSITY {
   HETEROZYGOUS = 'Heterozygous',
@@ -28,6 +30,8 @@ export enum ALLELE_STATE {
 export const GENE_TYPE_KEY: { [key in GENE_TYPE]: string } = {
   [GENE_TYPE.ONCOGENE]: 'type/ocg',
   [GENE_TYPE.TUMOR_SUPPRESSOR]: 'type/tsg',
+  [GENE_TYPE.UNKNOWN]: 'type/unknown',
+  [GENE_TYPE.NEITHER]: 'type/neither',
 };
 
 export enum FB_COLLECTION {
