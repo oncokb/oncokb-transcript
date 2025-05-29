@@ -13,7 +13,7 @@ import { GERMLINE_INHERITANCE_MECHANISM, MUTATION_EFFECT, ONCOGENICITY, PATHOGEN
 export enum GENE_TYPE {
   TUMOR_SUPPRESSOR = 'Tumor Suppressor',
   ONCOGENE = 'Oncogene',
-  UNKNOWN = 'Unknown',
+  INSUFFICIENT_EVIDENCE = 'Insufficient Evidence',
   NEITHER = 'Neither',
 }
 export enum ZYGOSITY {
@@ -30,7 +30,7 @@ export enum ALLELE_STATE {
 export const GENE_TYPE_KEY: { [key in GENE_TYPE]: string } = {
   [GENE_TYPE.ONCOGENE]: 'type/ocg',
   [GENE_TYPE.TUMOR_SUPPRESSOR]: 'type/tsg',
-  [GENE_TYPE.UNKNOWN]: 'type/unknown',
+  [GENE_TYPE.INSUFFICIENT_EVIDENCE]: 'type/insufficient_evidence',
   [GENE_TYPE.NEITHER]: 'type/neither',
 };
 
@@ -302,6 +302,8 @@ export enum READABLE_FIELD {
   GENE_TYPE = 'Gene Type',
   TSG = 'Tumor Suppressor',
   OCG = 'Oncogene',
+  NEITHER = 'Neither',
+  INSUFFICIENT_EVIDENCE = 'Insufficient Evidence',
   SUMMARY = 'Summary',
   NAME = 'Name',
   BACKGROUND = 'Background',
@@ -340,6 +342,8 @@ export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } =
   type: READABLE_FIELD.GENE_TYPE,
   ocg: READABLE_FIELD.OCG,
   tsg: READABLE_FIELD.TSG,
+  neither: READABLE_FIELD.NEITHER,
+  insufficient_evidence: READABLE_FIELD.INSUFFICIENT_EVIDENCE,
   effect: READABLE_FIELD.EFFECT,
   mutation_effect: READABLE_FIELD.MUTATION_EFFECT,
   name: READABLE_FIELD.NAME,

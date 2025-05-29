@@ -206,6 +206,12 @@ export class GeneType {
   tsg: typeof GENE_TYPE.TUMOR_SUPPRESSOR | '' = '';
   tsg_uuid: string = generateUuid();
   tsg_review?: Review;
+  neither: typeof GENE_TYPE.NEITHER | '' = '';
+  neither_uuid: string = generateUuid();
+  neither_review?: Review;
+  insufficient_evidence: typeof GENE_TYPE.INSUFFICIENT_EVIDENCE | '' = '';
+  insufficient_evidence_uuid: string = generateUuid();
+  insufficient_evidence_review?: Review;
 }
 
 export class Alteration {

@@ -169,13 +169,13 @@ export const CurationPage = (props: ICurationPageProps) => {
     const oncogeneRef = labelsToRefs[GENE_TYPE.ONCOGENE].current!;
     const tumorSupressorRef = labelsToRefs[GENE_TYPE.TUMOR_SUPPRESSOR].current!;
     const neitherRef = labelsToRefs[GENE_TYPE.NEITHER].current!;
-    const unknownRef = labelsToRefs[GENE_TYPE.UNKNOWN].current!;
+    const unknownRef = labelsToRefs[GENE_TYPE.INSUFFICIENT_EVIDENCE].current!;
 
     const event = new MouseEvent('click', { bubbles: true });
     if (label === GENE_TYPE.TUMOR_SUPPRESSOR.toString() || label === GENE_TYPE.ONCOGENE.toString()) {
       unknownRef.checked && unknownRef.dispatchEvent(event);
       neitherRef.checked && neitherRef.dispatchEvent(event);
-    } else if (label === GENE_TYPE.UNKNOWN.toString()) {
+    } else if (label === GENE_TYPE.INSUFFICIENT_EVIDENCE.toString()) {
       tumorSupressorRef.checked && tumorSupressorRef.dispatchEvent(event);
       oncogeneRef.checked && oncogeneRef.dispatchEvent(event);
       neitherRef.checked && neitherRef.dispatchEvent(event);
@@ -217,7 +217,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                     }
                   </>
                 }
-                options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE, GENE_TYPE.UNKNOWN, GENE_TYPE.NEITHER].map(label => {
+                options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE, GENE_TYPE.NEITHER, GENE_TYPE.INSUFFICIENT_EVIDENCE].map(label => {
                   return {
                     label,
                     firebasePath: `${firebaseGenePath}/${GENE_TYPE_KEY[label]}`,
