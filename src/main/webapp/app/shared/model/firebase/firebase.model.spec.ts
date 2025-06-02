@@ -42,6 +42,10 @@ describe('Firebase Models', () => {
         isoform_override_grch38: '',
         genomic_indicators: {},
       });
+
+      /* eslint-disable no-console */
+      console.log('HERE');
+      console.log();
     });
   });
 
@@ -54,6 +58,10 @@ describe('Firebase Models', () => {
         ocg_uuid: DEFAULT_UUID,
         tsg: '',
         tsg_uuid: DEFAULT_UUID,
+        neither: '',
+        neither_uuid: DEFAULT_UUID,
+        insufficient_evidence: '',
+        insufficient_evidence_uuid: DEFAULT_UUID,
       });
     });
   });
