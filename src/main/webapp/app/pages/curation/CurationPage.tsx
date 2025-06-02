@@ -171,18 +171,17 @@ export const CurationPage = (props: ICurationPageProps) => {
     const neitherRef = labelsToRefs[GENE_TYPE.NEITHER].current!;
     const unknownRef = labelsToRefs[GENE_TYPE.INSUFFICIENT_EVIDENCE].current!;
 
-    const event = new MouseEvent('click', { bubbles: true });
     if (label === GENE_TYPE.TUMOR_SUPPRESSOR.toString() || label === GENE_TYPE.ONCOGENE.toString()) {
-      unknownRef.checked && unknownRef.dispatchEvent(event);
-      neitherRef.checked && neitherRef.dispatchEvent(event);
+      unknownRef.checked && unknownRef.click();
+      neitherRef.checked && neitherRef.click();
     } else if (label === GENE_TYPE.INSUFFICIENT_EVIDENCE.toString()) {
-      tumorSupressorRef.checked && tumorSupressorRef.dispatchEvent(event);
-      oncogeneRef.checked && oncogeneRef.dispatchEvent(event);
-      neitherRef.checked && neitherRef.dispatchEvent(event);
+      tumorSupressorRef.checked && tumorSupressorRef.click();
+      oncogeneRef.checked && oncogeneRef.click();
+      neitherRef.checked && neitherRef.click();
     } else if (label === GENE_TYPE.NEITHER.toString()) {
-      tumorSupressorRef.checked && tumorSupressorRef.dispatchEvent(event);
-      oncogeneRef.checked && oncogeneRef.dispatchEvent(event);
-      unknownRef.checked && unknownRef.dispatchEvent(event);
+      tumorSupressorRef.checked && tumorSupressorRef.click();
+      oncogeneRef.checked && oncogeneRef.click();
+      unknownRef.checked && unknownRef.click();
     }
   }
 
