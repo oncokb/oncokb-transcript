@@ -1,4 +1,4 @@
-import { APP_EXPANDED_DATETIME_FORMAT, CURRENT_REVIEWER } from 'app/config/constants/constants';
+import { APP_EXPANDED_DATETIME_FORMAT, CURRENT_REVIEWER, NEW_NAME_UUID_VALUE } from 'app/config/constants/constants';
 import { FB_COLLECTION, FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -84,7 +84,7 @@ export const getTxName = (drugList: readonly IDrug[], txUuidName: string | undef
 };
 
 export const geneNeedsReview = (meta: Meta | null | undefined) => {
-  return geneMetaReviewHasUuids(meta?.review);
+  return geneMetaReviewHasNonNameUuids(meta?.review);
 };
 
 export const mutationNeedsReview = (mutation: Mutation, review: MetaReview) => {
@@ -114,10 +114,10 @@ export const mutationNeedsReview = (mutation: Mutation, review: MetaReview) => {
   return false;
 };
 
-export const geneMetaReviewHasUuids = (metaReview: MetaReview | undefined) => {
+export const geneMetaReviewHasNonNameUuids = (metaReview: MetaReview | undefined) => {
   let needsReview = false;
   if (metaReview) {
-    needsReview = !!Object.keys(metaReview).find(key => isUuid(key));
+    needsReview = Object.entries(metaReview).some(([key, val]) => isUuid(key) && val !== NEW_NAME_UUID_VALUE);
   }
   return needsReview;
 };

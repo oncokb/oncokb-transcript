@@ -6,7 +6,7 @@ import { observer } from 'mobx-react';
 import { IRootStore } from 'app/stores';
 import { IGene } from 'app/shared/model/gene.model';
 import DefaultBadge from 'app/shared/badge/DefaultBadge';
-import { geneMetaReviewHasUuids, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
+import { geneMetaReviewHasNonNameUuids, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { GERMLINE_PATH, SOMATIC_GERMLINE_SETTING_KEY, SOMATIC_PATH } from 'app/config/constants/constants';
 import { onValue, ref, Unsubscribe } from 'firebase/database';
 import { MetaReview } from 'app/shared/model/firebase/firebase.model';
@@ -74,8 +74,8 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, location, histor
     const sharedStyle: React.CSSProperties = { fontSize: '0.8rem' };
 
     const needsReview = {
-      [GENETIC_TYPE.SOMATIC]: geneMetaReviewHasUuids(somaticMetaReview),
-      [GENETIC_TYPE.GERMLINE]: geneMetaReviewHasUuids(germlineMetaReview),
+      [GENETIC_TYPE.SOMATIC]: geneMetaReviewHasNonNameUuids(somaticMetaReview),
+      [GENETIC_TYPE.GERMLINE]: geneMetaReviewHasNonNameUuids(germlineMetaReview),
     };
     if (needsReview[type]) {
       badges.push(

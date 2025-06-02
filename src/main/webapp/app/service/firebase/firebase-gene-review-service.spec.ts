@@ -51,9 +51,9 @@ describe('Firebase Gene Review Service', () => {
     jest.useFakeTimers().setSystemTime(DEFAULT_DATE);
 
     // Use original implementation for certain methods
-    mockMetaService.getUpdateObject.mockImplementation((add, hugoSymbol, isGermline, uuid) => {
+    mockMetaService.getUpdateObject.mockImplementation((hugoSymbol, isGermline, uuidUpdateObjects) => {
       const originalMetaService = new FirebaseMetaService(mockFirebaseRepository, mockAuthStore);
-      return originalMetaService.getUpdateObject(add, hugoSymbol, isGermline, uuid);
+      return originalMetaService.getUpdateObject(hugoSymbol, isGermline, uuidUpdateObjects);
     });
 
     mockHistoryService.getUpdateObject.mockImplementation((history, hugoSymbol, isGermline) => {

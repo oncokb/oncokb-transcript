@@ -108,16 +108,15 @@ export class FirebaseMetaService {
     await this.firebaseRepository.delete(getFirebaseMetaGenePath(isGermline, hugoSymbol));
   };
 
-  getUpdateObject = (add: boolean, hugoSymbol: string, isGermline: boolean, uuids: string[]) => {
+  getUpdateObject = (hugoSymbol: string, isGermline: boolean, uuidUpdateObjects: { [key: string]: string | boolean | null }) => {
     const metaGenePath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
-    const uuidUpdateValue = add ? true : null;
     const updateObject: { [key: string]: string | boolean | null } = {
       [`${metaGenePath}/lastModifiedBy`]: this.authStore.fullName,
       [`${metaGenePath}/lastModifiedAt`]: new Date().getTime().toString(),
     };
-    for (const uuid of uuids) {
+    for (const [uuid, uuidUpdateValue] of Object.entries(uuidUpdateObjects)) {
       updateObject[`${metaGenePath}/review/${uuid}`] = uuidUpdateValue;
-      if (!add) {
+      if (uuidUpdateValue === null) {
         const uuidParts = this.getUuidParts(uuid);
         uuidParts.forEach(uuidPart => {
           updateObject[`${metaGenePath}/review/${uuidPart}`] = uuidUpdateValue;
