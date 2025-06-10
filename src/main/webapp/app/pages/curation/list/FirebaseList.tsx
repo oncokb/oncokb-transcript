@@ -28,6 +28,13 @@ function FirebaseList<T>({ path, itemBuilder, pushDirection, scrollOptions, filt
   const [initialLoad, setInitialLoad] = useState(false);
 
   useEffect(() => {
+    return () => {
+      setListItemKeys(null);
+      setAddedListItemKeys([]);
+    };
+  }, [path]);
+
+  useEffect(() => {
     // https://webperf.tips/tip/measuring-paint-time/
     if (!onRender || !listItemKeys) {
       return;
