@@ -48,7 +48,15 @@ export const Logout = (props: ILogoutProps) => {
   }
 
   if (unauthorizedAccess) {
-    return <></>;
+    return (
+      <>
+        <h2>Your account is not authorized to access this application.</h2>
+        <p>Please log in with an authorized google account or contact support for access.</p>
+        <Link to={PAGE_ROUTE.OAUTH} className="login-link">
+          ← Go back to Login
+        </Link>
+      </>
+    );
   }
 
   const unauthorizedAccessContent = (

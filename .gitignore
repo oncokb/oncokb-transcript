@@ -166,3 +166,4 @@ Desktop.ini
 /src/test/javascript/screenshots/diff
 # Sentry Config File
 .env.sentry-build-plugin
+.vscode/settings.json
