@@ -4,6 +4,7 @@ import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores/createStore';
 import { OncoKBError } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
 import { defaultValue as USER_DEFAULT_VALUE, IUser } from 'app/shared/model/user.model';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 export const AUTH_TOKEN_KEY = 'jhi-authenticationToken';
 
@@ -120,7 +121,7 @@ export class AuthStore extends BaseStore {
       this.loginError = e as Error;
       this.loading = false;
       if (!axios.isAxiosError(e) || (e as AxiosError).response?.status !== 401) {
-        throw e;
+        notifyError(e, 'Network error while authenticating');
       }
     }
   }
