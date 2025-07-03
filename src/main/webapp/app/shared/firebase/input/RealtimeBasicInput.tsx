@@ -60,6 +60,7 @@ export interface IRealtimeBasicInput extends React.InputHTMLAttributes<HTMLInput
   parseRefs?: boolean;
   updateMetaData?: boolean;
   disabledMessage?: string;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
 
 const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props: IRealtimeBasicInput) => {
@@ -94,7 +95,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   const [inputValueLoaded, setInputValueLoaded] = useState(false);
   const [inputValueUuid, setInputValueUuid] = useState(null);
 
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
+  const inputRef = props.inputRef ?? useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
   const isCheckType = type === RealtimeInputType.CHECKBOX || type === RealtimeInputType.RADIO;
   const isInlineInputText = type === RealtimeInputType.INLINE_TEXT;
   const isTextType = [RealtimeInputType.INLINE_TEXT, RealtimeInputType.TEXT, RealtimeInputType.TEXTAREA].includes(type);

@@ -54,6 +54,10 @@ describe('Firebase Models', () => {
         ocg_uuid: DEFAULT_UUID,
         tsg: '',
         tsg_uuid: DEFAULT_UUID,
+        neither: '',
+        neither_uuid: DEFAULT_UUID,
+        insufficient_evidence: '',
+        insufficient_evidence_uuid: DEFAULT_UUID,
       });
     });
   });

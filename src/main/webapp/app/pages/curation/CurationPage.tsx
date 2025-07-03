@@ -4,7 +4,7 @@ import { IRootStore } from 'app/stores';
 import { RouteComponentProps, useHistory } from 'react-router-dom';
 import { getFirebaseGenePath, getFirebaseHistoryPath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { Col, Row } from 'reactstrap';
-import { GENE_TYPE, GENE_TYPE_KEY, INHERITANCE_MECHANISM_OPTIONS, READABLE_FIELD, PENETRANCE_OPTIONS } from 'app/config/constants/firebase';
+import { GENE_TYPE, INHERITANCE_MECHANISM_OPTIONS, READABLE_FIELD, PENETRANCE_OPTIONS, GENE_TYPE_KEY } from 'app/config/constants/firebase';
 import { GET_ALL_DRUGS_PAGE_SIZE, PAGE_ROUTE, RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
@@ -13,7 +13,7 @@ import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
 import CurationHistoryTab from 'app/components/tabs/CurationHistoryTab';
 import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
 import Tabs from 'app/components/tabs/tabs';
-import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import { LabelsRefMap, RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import GeneHeader from './header/GeneHeader';
 import VusTable from 'app/shared/table/VusTable';
 import * as styles from './styles.module.scss';
@@ -156,6 +156,39 @@ export const CurationPage = (props: ICurationPageProps) => {
     return <div>the gene &quot;{hugoSymbolParam}&quot; was not found</div>;
   }
 
+  function onGeneTypeClick(_: React.MouseEvent, label: string, labelsToRefs: LabelsRefMap) {
+    Object.values(GENE_TYPE).forEach(type => {
+      if (!labelsToRefs[type].current) return;
+    });
+
+    const isChecked = !labelsToRefs[label].current!.checked;
+    if (!isChecked) {
+      return;
+    }
+
+    const oncogeneRef = labelsToRefs[GENE_TYPE.ONCOGENE].current!;
+    const tumorSupressorRef = labelsToRefs[GENE_TYPE.TUMOR_SUPPRESSOR].current!;
+    const neitherRef = labelsToRefs[GENE_TYPE.NEITHER].current!;
+    const unknownRef = labelsToRefs[GENE_TYPE.INSUFFICIENT_EVIDENCE].current!;
+
+    if (label === GENE_TYPE.TUMOR_SUPPRESSOR.toString() || label === GENE_TYPE.ONCOGENE.toString()) {
+      unknownRef.checked && unknownRef.click();
+      neitherRef.checked && neitherRef.click();
+    } else if (label === GENE_TYPE.INSUFFICIENT_EVIDENCE.toString()) {
+      tumorSupressorRef.checked && tumorSupressorRef.click();
+      oncogeneRef.checked && oncogeneRef.click();
+      neitherRef.checked && neitherRef.click();
+    } else if (label === GENE_TYPE.NEITHER.toString()) {
+      tumorSupressorRef.checked && tumorSupressorRef.click();
+      oncogeneRef.checked && oncogeneRef.click();
+      unknownRef.checked && unknownRef.click();
+    }
+  }
+
+  const geneTypeOptions = isGermline
+    ? [GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE]
+    : [GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE, GENE_TYPE.NEITHER, GENE_TYPE.INSUFFICIENT_EVIDENCE];
+
   return props.firebaseInitSuccess &&
     !props.loadingGenes &&
     props.drugList.length > 0 &&
@@ -187,12 +220,14 @@ export const CurationPage = (props: ICurationPageProps) => {
                     }
                   </>
                 }
-                options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
+                options={geneTypeOptions.map(label => {
                   return {
                     label,
                     firebasePath: `${firebaseGenePath}/${GENE_TYPE_KEY[label]}`,
                   };
                 })}
+                onMouseDown={onGeneTypeClick}
+                labelOnClick={onGeneTypeClick}
               />
               <RealtimeTextAreaInput
                 disabled={props.readOnly}

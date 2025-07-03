@@ -97,7 +97,7 @@ export function CurationToolsTab({
       type: 'required',
     },
     {
-      passed: !!geneType?.ocg || !!geneType?.tsg,
+      passed: !!geneType?.ocg || !!geneType?.tsg || !!geneType?.neither || !!geneType?.insufficient_evidence,
       text: 'Gene type is specified',
       type: 'optional',
     },
