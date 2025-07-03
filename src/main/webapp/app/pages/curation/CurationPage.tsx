@@ -185,6 +185,10 @@ export const CurationPage = (props: ICurationPageProps) => {
     }
   }
 
+  const geneTypeOptions = isGermline
+    ? [GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE]
+    : [GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE, GENE_TYPE.NEITHER, GENE_TYPE.INSUFFICIENT_EVIDENCE];
+
   return props.firebaseInitSuccess &&
     !props.loadingGenes &&
     props.drugList.length > 0 &&
@@ -216,7 +220,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                     }
                   </>
                 }
-                options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE, GENE_TYPE.NEITHER, GENE_TYPE.INSUFFICIENT_EVIDENCE].map(label => {
+                options={geneTypeOptions.map(label => {
                   return {
                     label,
                     firebasePath: `${firebaseGenePath}/${GENE_TYPE_KEY[label]}`,
