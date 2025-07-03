@@ -42,10 +42,6 @@ describe('Firebase Models', () => {
         isoform_override_grch38: '',
         genomic_indicators: {},
       });
-
-      /* eslint-disable no-console */
-      console.log('HERE');
-      console.log();
     });
   });
 
