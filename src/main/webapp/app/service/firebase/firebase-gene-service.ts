@@ -408,20 +408,28 @@ export class FirebaseGeneService {
   };
 
   updateMutationName = async (mutationPath: string, allMutationsPath: string, currentMutationName: string, mutation: Mutation) => {
-    const { name_review } = mutation;
-    if (name_review) {
-      await this.firebaseRepository.update(mutationPath, mutation).then(() => {
-        this.firebaseGeneReviewService.updateReviewableContent(
-          `${mutationPath}/name`,
-          currentMutationName,
-          mutation.name,
-          name_review,
-          mutation.name_uuid,
-        );
-      });
+    let { name_review } = mutation;
+    let mutationToUpdate = mutation;
 
-      await this.firebaseMutationConvertIconStore.fetchData(allMutationsPath);
+    if (!name_review) {
+      name_review = new Review(this.authStore.fullName);
+
+      mutationToUpdate = {
+        ...mutation,
+        name_review,
+      };
     }
+    await this.firebaseRepository.update(mutationPath, mutationToUpdate).then(() => {
+      this.firebaseGeneReviewService.updateReviewableContent(
+        `${mutationPath}/name`,
+        currentMutationName,
+        mutationToUpdate.name,
+        name_review,
+        mutationToUpdate.name_uuid,
+      );
+    });
+
+    await this.firebaseMutationConvertIconStore.fetchData(allMutationsPath);
   };
 
   /**
