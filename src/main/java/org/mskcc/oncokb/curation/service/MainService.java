@@ -127,17 +127,22 @@ public class MainService {
                     referenceGenome,
                     alterationWithEntityStatus.getEntity().getAlteration()
                 );
-                Optional<String> proteinChangeOptional = Optional.ofNullable(variantAnnotation)
-                    .map(VariantAnnotation::getAnnotationSummary)
-                    .map(VariantAnnotationSummary::getTranscriptConsequenceSummary)
-                    .map(TranscriptConsequenceSummary::getHgvspShort)
-                    .map(hgvsp -> hgvsp.replace("p.", ""));
-                if (proteinChangeOptional.isPresent()) {
-                    alterationWithEntityStatus.getEntity().setProteinChange(proteinChangeOptional.orElseThrow());
+
+                String hgvsg = variantAnnotation.getHgvsg();
+                if (hgvsg == null) {
+                    throw new ApiException(variantAnnotation.getErrorMessage());
                 }
+                alterationWithEntityStatus.getEntity().setAlteration(hgvsg);
             } catch (ApiException e) {
-                alterationWithStatus.setMessage("Failed to be annotated by GenomeNexus.");
+                String message = "Failed to be annotated by GenomeNexus";
+                if (!e.getMessage().isEmpty()) {
+                    message += ": " + e.getMessage();
+                }
+                alterationWithStatus.setMessage(message);
+
+                alterationWithStatus.setEntity(alterationWithEntityStatus.getEntity());
                 alterationWithStatus.setType(EntityStatusType.WARNING);
+                return alterationWithStatus;
             }
         }
 
