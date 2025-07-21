@@ -129,7 +129,7 @@ public class MainService {
                 );
 
                 String hgvsg = variantAnnotation.getHgvsg();
-                if (hgvsg == null) {
+                if (StringUtils.isEmpty(hgvsg)) {
                     throw new ApiException(variantAnnotation.getErrorMessage());
                 }
                 alterationWithEntityStatus.getEntity().setAlteration(hgvsg);
