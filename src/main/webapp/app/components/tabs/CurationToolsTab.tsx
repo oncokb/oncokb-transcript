@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button, Col, Row } from 'reactstrap';
 import { FaRegCheckCircle } from 'react-icons/fa';
 import { FaRegCircleXmark, FaArrowRotateLeft } from 'react-icons/fa6';
-import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IGene } from 'app/shared/model/gene.model';
 import _ from 'lodash';
 import { IFlag } from 'app/shared/model/flag.model';
@@ -82,7 +82,9 @@ export function CurationToolsTab({
 
   const tests: ReleaseGeneTestData[] = [
     {
-      passed: reviewList ? !Object.keys(reviewList).some(key => key !== CURRENT_REVIEWER && reviewList[key]) : true,
+      passed: reviewList
+        ? !Object.keys(reviewList).some(key => key !== CURRENT_REVIEWER && key !== 'lastActiveReview' && reviewList[key])
+        : true,
       text: 'Reviewed all content before releasing',
       type: 'required',
     },
