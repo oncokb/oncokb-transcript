@@ -304,7 +304,7 @@
         <dependency>
             <groupId>com.github.genome-nexus</groupId>
             <artifactId>genome-nexus-java-api-client</artifactId>
-            <version>0709b8232b</version>
+            <version>c8ba14d555</version>
         </dependency>
         <dependency>
             <groupId>com.github.oncokb</groupId>

@@ -674,7 +674,8 @@ function AddMutationModal({
   }
 
   function getTabContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    const excludingSection = !_.isNil(excludingIndex) ? <></> : getExcludingSection(alterationData, alterationIndex);
+    const excludingSection =
+      !_.isNil(excludingIndex) || alterationData.type === 'GENOMIC_CHANGE' ? <></> : getExcludingSection(alterationData, alterationIndex);
 
     let content: JSX.Element;
     switch (alterationData.type) {
@@ -815,12 +816,6 @@ function AddMutationModal({
           value={alterationData.name}
           placeholder="Input name"
           onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
-        />
-        <AddMutationModalField
-          label="Protein Change"
-          value={alterationData.proteinChange!}
-          placeholder="Input protein change"
-          onChange={newValue => handleFieldChange(newValue, 'proteinChange', alterationIndex, excludingIndex)}
         />
       </div>
     );
