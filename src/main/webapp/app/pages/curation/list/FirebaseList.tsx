@@ -60,10 +60,14 @@ function FirebaseList<T>({ path, itemBuilder, pushDirection, scrollOptions, filt
       if (!snapshot.val() || !listItemKeys) {
         return;
       }
-
       const currentKeys = Object.keys(snapshot.val() as Record<string, T>);
-      if (currentKeys.length !== listItemKeys.length + addedListItemKeys.length) {
-        setAddedListItemKeys(currentKeys.filter(x => !listItemKeys.includes(x)));
+      const newKeys = currentKeys.filter(x => !listItemKeys.includes(x));
+
+      // Only update if newKeys differ from addedListItemKeys
+      const sameLength = newKeys.length === addedListItemKeys.length;
+      const sameContent = sameLength && newKeys.every(x => addedListItemKeys.includes(x));
+      if (!sameContent) {
+        setAddedListItemKeys(newKeys);
       }
     });
 
