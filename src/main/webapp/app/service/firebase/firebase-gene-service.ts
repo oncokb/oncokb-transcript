@@ -686,6 +686,7 @@ export class FirebaseGeneService {
     );
     const data = searchResponse.data;
     const args: Parameters<typeof getDriveAnnotations>[1] = {
+      isGermline: isGermlineProp,
       gene: nullableGene == null ? undefined : nullableGene,
       vus: nullableVus == null ? undefined : Object.values(nullableVus),
       releaseGene: data.some(gene => geneIsReleased(gene, isGermlineProp)),
