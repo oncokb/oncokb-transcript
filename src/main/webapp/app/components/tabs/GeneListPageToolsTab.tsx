@@ -92,10 +92,10 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGene
           <EvidenceDownloader />
         </div>
       </Row>
-      {!isGermline && isDev && (
+      {isDev && (
         <Row className="pt-3 border-top mb-3">
           <div>
-            <SaveGeneButton />
+            <SaveGeneButton isGermline={isGermline!} />
           </div>
         </Row>
       )}
