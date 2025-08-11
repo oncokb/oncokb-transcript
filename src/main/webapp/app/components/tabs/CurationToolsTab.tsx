@@ -25,12 +25,14 @@ export type ReleaseGeneTestData = {
 
 export interface ICurationToolsTabProps extends StoreProps {
   genePath: string;
+  somaticGenePath: string;
   isGermline: boolean;
   hugoSymbol: string;
 }
 
 export function CurationToolsTab({
   genePath,
+  somaticGenePath,
   firebaseDb,
   metaList,
   addMetaListListener,
@@ -65,12 +67,12 @@ export function CurationToolsTab({
       }),
     );
     callbacks.push(
-      onValue(ref(firebaseDb, `${genePath}/background`), snapshot => {
+      onValue(ref(firebaseDb, `${somaticGenePath}/background`), snapshot => {
         setGeneBackground(snapshot.val());
       }),
     );
     callbacks.push(
-      onValue(ref(firebaseDb, `${genePath}/type`), snapshot => {
+      onValue(ref(firebaseDb, `${somaticGenePath}/type`), snapshot => {
         setGeneType(snapshot.val());
       }),
     );
@@ -95,12 +97,12 @@ export function CurationToolsTab({
     },
     {
       passed: !!geneBackground,
-      text: 'Gene background is not empty',
+      text: 'Somatic gene background is not empty',
       type: 'required',
     },
     {
       passed: !!geneType?.ocg || !!geneType?.tsg || !!geneType?.neither || !!geneType?.insufficient_evidence,
-      text: 'Gene type is specified',
+      text: 'Somatic gene type is specified',
       type: 'optional',
     },
   ];
