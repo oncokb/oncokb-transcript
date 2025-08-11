@@ -43,6 +43,7 @@ export const CurationPage = (props: ICurationPageProps) => {
 
   const { geneEntity, hugoSymbol, geneIsFound } = useMatchGeneEntity(hugoSymbolParam, props.searchGeneEntities, props.geneEntities);
 
+  const somaticFirebaseGenePath = getFirebaseGenePath(false, hugoSymbol);
   const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
   const firebaseHistoryPath = getFirebaseHistoryPath(isGermline, hugoSymbol);
   const mutationsPath = `${firebaseGenePath}/mutations`;
@@ -207,7 +208,7 @@ export const CurationPage = (props: ICurationPageProps) => {
           <Row className={'justify-content-between'}>
             <Col className="pb-2">
               <RealtimeCheckedInputGroup
-                disabled={props.readOnly}
+                disabled={props.readOnly || isGermline}
                 groupHeader={
                   <>
                     <span className="me-2">Gene Type</span>
@@ -223,7 +224,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                 options={geneTypeOptions.map(label => {
                   return {
                     label,
-                    firebasePath: `${firebaseGenePath}/${GENE_TYPE_KEY[label]}`,
+                    firebasePath: `${somaticFirebaseGenePath}/${GENE_TYPE_KEY[label]}`,
                   };
                 })}
                 onMouseDown={onGeneTypeClick}
@@ -253,8 +254,8 @@ export const CurationPage = (props: ICurationPageProps) => {
           <Row className="mb-3">
             <Col>
               <RealtimeTextAreaInput
-                disabled={props.readOnly}
-                firebasePath={`${firebaseGenePath}/background`}
+                disabled={props.readOnly || isGermline}
+                firebasePath={`${somaticFirebaseGenePath}/background`}
                 inputClass={styles.textarea}
                 label="Background"
                 name="geneBackground"
@@ -268,7 +269,9 @@ export const CurationPage = (props: ICurationPageProps) => {
                         locationIdentifier={getLocationIdentifier({ fields: [READABLE_FIELD.BACKGROUND] })}
                       />
                     }
-                    commentIcon={<CommentIcon id={`${hugoSymbol}_gene_background`} path={`${firebaseGenePath}/background_comments`} />}
+                    commentIcon={
+                      <CommentIcon id={`${hugoSymbol}_gene_background`} path={`${somaticFirebaseGenePath}/background_comments`} />
+                    }
                   />
                 }
               />
