@@ -25,8 +25,8 @@ export default function Collapsible({
 }: CollapsibleProps) {
   const defaultColorOptions: CollapsibleColorProps | undefined = colorOptions
     ? {
-        hideLeftBorder: colorOptions?.hideLeftBorder ? colorOptions.hideLeftBorder : false,
         ...colorOptions,
+        hideLeftBorder: colorOptions.hideLeftBorder ?? false,
       }
     : {
         hideLeftBorder: false,

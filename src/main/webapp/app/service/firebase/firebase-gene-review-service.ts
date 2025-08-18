@@ -98,7 +98,9 @@ export class FirebaseGeneReviewService {
     const { hugoSymbol } = parseFirebaseGenePath(firebasePath) ?? {};
 
     let updateObject = this.getGeneUpdateObject(updateValue, updatedReview!, firebasePath, uuid!);
-    const metaUpdateObject = this.firebaseMetaService.getUpdateObject(hugoSymbol!, isGermline, { [uuid!]: !isChangeReverted });
+    const metaUpdateObject = this.firebaseMetaService.getUpdateObject(hugoSymbol!, isGermline, {
+      [uuid!]: !isChangeReverted ? true : null,
+    });
     updateObject = { ...updateObject, ...metaUpdateObject };
 
     if (!shouldSave) {
