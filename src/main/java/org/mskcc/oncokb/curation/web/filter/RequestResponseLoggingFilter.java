@@ -1,4 +1,4 @@
-package org.mskcc.oncokb.curation.filters;
+package org.mskcc.oncokb.curation.web.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
