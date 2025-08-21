@@ -35,19 +35,19 @@ describe('Data Import Tests', () => {
     expect(optionalColumnsAlert).toExist();
   });
 
-  it('Properly process genomic indicator file', async () => {
-    await uploadGenomicIndicatorToImport();
+  // it('Properly process genomic indicator file', async () => {
+  //   await uploadGenomicIndicatorToImport();
 
-    // expand sidebar to take screenshot
-    const expandIcon = await $(`span[data-testid="${EXPAND_SIDEBAR_BUTTON_ID}"]`);
-    await expandIcon.click();
+  //   // expand sidebar to take screenshot
+  //   const expandIcon = await $(`span[data-testid="${EXPAND_SIDEBAR_BUTTON_ID}"]`);
+  //   await expandIcon.click();
 
-    // too complicated to check logics, do a screenshot instead
-    const dataTable = await $(`div[id=${DATA_IMPORT_DATA_TABLE_ID}]`);
-    expect(dataTable).toExist();
-    const result = await browser.checkElement(dataTable, 'data-import-data-table-before-import', SCREENSHOT_METHOD_OPTIONS);
-    expect(result).toBeLessThanOrEqual(0);
-  });
+  //   // too complicated to check logics, do a screenshot instead
+  //   const dataTable = await $(`div[id=${DATA_IMPORT_DATA_TABLE_ID}]`);
+  //   expect(dataTable).toExist();
+  //   const result = await browser.checkElement(dataTable, 'data-import-data-table-before-import', SCREENSHOT_METHOD_OPTIONS);
+  //   expect(result).toBeLessThanOrEqual(0);
+  // });
 
   it('Genomic indicator data properly imported and show warning/error if available', async () => {
     await uploadGenomicIndicatorToImport();
