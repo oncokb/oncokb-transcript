@@ -9,6 +9,7 @@ import {
   CommentList,
   DX_LEVELS,
   FIREBASE_ONCOGENICITY,
+  Flag,
   Gene,
   Meta,
   MetaReview,
@@ -30,6 +31,7 @@ import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, isUui
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { hasReview } from './firebase-review-utils';
+import { IFlag } from 'app/shared/model/flag.model';
 
 export const getValueByNestedKey = (obj: any, nestedKey = '', sep = '/') => {
   return nestedKey.split(sep).reduce((currObj, currKey) => {
@@ -41,11 +43,14 @@ export const isDnaVariant = (alteration: Alteration) => {
   return alteration.alteration && alteration.alteration.startsWith('c.');
 };
 
-export const getAlterationName = (alteration: Alteration) => {
+export const getAlterationName = (alteration: Alteration, omitComment = false) => {
   if (alteration.name) {
     let name = alteration.name;
     if (alteration.proteinChange && alteration.proteinChange !== alteration.alteration) {
       name += ` (p.${alteration.proteinChange})`;
+    }
+    if (omitComment) {
+      name = name.replace(/\(.*?\)/g, '');
     }
     return name;
   } else if (alteration.proteinChange) {
@@ -208,7 +213,16 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
     return true;
   }
 
-  const ignoredKeySuffixes = ['_review', '_uuid', 'TIs', 'cancerTypes', 'excludedCancerTypes', 'name', 'alterations'];
+  const ignoredKeySuffixes = [
+    '_review',
+    '_uuid',
+    'TIs',
+    'excludedCancerTypes',
+    'cancerTypes',
+    'name',
+    'alterations',
+    'alteration_categories',
+  ];
   const isEmpty = isNestedObjectEmpty(sectionValue, ignoredKeySuffixes);
 
   if (!isEmpty) {
@@ -1003,4 +1017,8 @@ export function areCancerTypePropertiesEqual(a: string | undefined, b: string | 
 
 export function isStringEmpty(string: string | undefined | null) {
   return string === '' || _.isNil(string);
+}
+
+export function isFlagEqualToIFlag(flag: Flag, flagEntity: IFlag) {
+  return flag.flag === flagEntity.flag && flag.type === flagEntity.type;
 }

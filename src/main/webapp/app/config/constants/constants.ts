@@ -1,5 +1,5 @@
 import { AlterationTypeEnum } from 'app/shared/api/generated/curation';
-import { GREY } from '../colors';
+import { BS_BORDER_COLOR, GREY } from '../colors';
 import { ToastOptions } from 'react-toastify';
 
 export const AUTHORITIES = {
@@ -460,3 +460,13 @@ export const EMPTY_THERAPY_ERROR_MESSAGE = 'You must include at least one drug f
 export const THERAPY_ALREADY_EXISTS_ERROR_MESSAGE = 'Therapy already exists';
 
 export const NEW_NAME_UUID_VALUE = 'name';
+
+/**
+ * React select styles based on Bootstrap theme
+ */
+export const REACT_SELECT_STYLES = {
+  control: (base, state) => ({
+    ...base,
+    borderColor: BS_BORDER_COLOR,
+  }),
+};

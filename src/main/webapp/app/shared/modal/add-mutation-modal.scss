@@ -3,3 +3,9 @@
   justify-content: center;
   align-items: center;
 }
+
+.alteration-modal-textarea-field {
+  min-height: 20px !important;
+  overflow-y: hidden;
+  resize: none;
+}
