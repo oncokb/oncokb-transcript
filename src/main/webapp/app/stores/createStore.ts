@@ -105,6 +105,7 @@ import { WindowStore } from './window-store';
 import CdxAssociationEditStore from './cdx-association-edit.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 import ManagementStore from 'app/stores/management.store';
+import { AddMutationModalStore } from 'app/shared/modal/MutationModal/add-mutation-modal.store';
 
 export interface IRootStore {
   readonly loadingStore: LoadingBarStore;
@@ -150,6 +151,7 @@ export interface IRootStore {
   readonly modifyTherapyModalStore: ModifyTherapyModalStore;
   readonly relevantCancerTypesModalStore: RelevantCancerTypesModalStore;
   readonly openMutationCollapsibleStore: OpenMutationCollapsibleStore;
+  readonly addMutationModalStore: AddMutationModalStore;
   readonly flagStore: FlagStore;
   readonly commentStore: CommentStore;
   /* Firebase stores */
@@ -218,6 +220,7 @@ export function createStores(history: History): IRootStore {
   rootStore.modifyTherapyModalStore = new ModifyTherapyModalStore();
   rootStore.relevantCancerTypesModalStore = new RelevantCancerTypesModalStore();
   rootStore.openMutationCollapsibleStore = new OpenMutationCollapsibleStore();
+  rootStore.addMutationModalStore = new AddMutationModalStore(rootStore.alterationStore);
   rootStore.commentStore = new CommentStore();
 
   /* Firebase Stores */

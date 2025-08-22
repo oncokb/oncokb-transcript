@@ -1,32 +1,24 @@
-import Tabs from 'app/components/tabs/tabs';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
 import _ from 'lodash';
-import { flow, flowResult } from 'mobx';
-import React, { KeyboardEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FaChevronDown, FaChevronUp, FaExclamationTriangle, FaPlus } from 'react-icons/fa';
-import ReactSelect, { GroupBase, MenuPlacement } from 'react-select';
-import CreatableSelect from 'react-select/creatable';
-import { Alert, Button, Col, Input, Row, Spinner } from 'reactstrap';
-import { Alteration, Mutation, VusObjList } from '../model/firebase/firebase.model';
-import {
-  AlterationAnnotationStatus,
-  AlterationTypeEnum,
-  AnnotateAlterationBody,
-  Gene,
-  Alteration as ApiAlteration,
-} from '../api/generated/curation';
-import { IGene } from '../model/gene.model';
+import { flow } from 'mobx';
+import React, { KeyboardEventHandler, useEffect, useState } from 'react';
+import { Col, Input, InputGroup, InputGroupText, Row } from 'reactstrap';
+import { Mutation, AlterationCategories } from '../model/firebase/firebase.model';
+import { AlterationAnnotationStatus, AlterationTypeEnum, Gene } from '../api/generated/curation';
 import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
-import { hasValue, isEqualIgnoreCase, parseAlterationName } from '../util/utils';
+import {
+  isEqualIgnoreCase,
+  parseAlterationName,
+  convertEntityStatusAlterationToAlterationData,
+  convertAlterationDataToAlteration,
+  convertAlterationToAlterationData,
+  convertIFlagToFlag,
+} from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
 import './add-mutation-modal.scss';
-import classNames from 'classnames';
-import { READABLE_ALTERATION, REFERENCE_GENOME } from 'app/config/constants/constants';
 import { Unsubscribe } from 'firebase/database';
-import Select from 'react-select/dist/declarations/src/Select';
 import InfoIcon from '../icons/InfoIcon';
 import { SopPageLink } from '../links/SopPageLink';
 import {
@@ -48,49 +40,56 @@ interface IAddMutationModalProps extends StoreProps {
   };
 }
 
+type MutationExistsMeta = {
+  exists: boolean;
+  inMutationList: boolean;
+  inVusList: boolean;
+};
+
 function AddMutationModal({
   hugoSymbol,
   isGermline,
   mutationToEditPath,
   mutationList,
-  annotateAlterations,
   geneEntities,
-  consequences,
-  getConsequences,
   onConfirm,
   onCancel,
   firebaseDb,
   convertOptions,
+  getFlagsByType,
+  createFlagEntity,
+  alterationCategoryFlagEntities,
+  setVusList,
+  setMutationToEdit,
+  alterationStates,
+  vusList,
+  mutationToEdit,
+  setShowModifyExonForm,
+  isFetchingAlteration,
+  isFetchingExcludingAlteration,
+  currentMutationNames,
+  cleanup,
+  fetchAlterations,
+  setAlterationStates,
+  selectedAlterationCategoryFlags,
+  alterationCategoryComment,
+  setGeneEntity,
+  updateAlterationStateAfterAlterationAdded,
+  selectedAlterationStateIndex,
+  hasUncommitedExonFormChanges,
+  unCommittedExonFormChangesWarning,
 }: IAddMutationModalProps) {
-  const typeOptions: DropdownOption[] = [
-    AlterationTypeEnum.ProteinChange,
-    AlterationTypeEnum.CopyNumberAlteration,
-    AlterationTypeEnum.StructuralVariant,
-    AlterationTypeEnum.CdnaChange,
-    AlterationTypeEnum.GenomicChange,
-    AlterationTypeEnum.Any,
-  ].map(type => ({ label: READABLE_ALTERATION[type], value: type }));
-  const consequenceOptions: DropdownOption[] =
-    consequences?.map((consequence): DropdownOption => ({ label: consequence.name, value: consequence.id })) ?? [];
-
   const [inputValue, setInputValue] = useState('');
-  const [tabStates, setTabStates] = useState<AlterationData[]>([]);
-  const [excludingInputValue, setExcludingInputValue] = useState('');
-  const [excludingCollapsed, setExcludingCollapsed] = useState(true);
-  const [mutationAlreadyExists, setMutationAlreadyExists] = useState({ exists: false, inMutationList: false, inVusList: false });
-  const [mutationToEdit, setMutationToEdit] = useState<Mutation | null>(null);
+  const [mutationAlreadyExists, setMutationAlreadyExists] = useState<MutationExistsMeta>({
+    exists: false,
+    inMutationList: false,
+    inVusList: false,
+  });
+
+  const [isAddAlterationPending, setIsAddAlterationPending] = useState(false);
+
   const [errorMessagesEnabled, setErrorMessagesEnabled] = useState(true);
-  const [isFetchingAlteration, setIsFetchingAlteration] = useState(false);
-  const [isFetchingExcludingAlteration, setIsFetchingExcludingAlteration] = useState(false);
   const [isConfirmPending, setIsConfirmPending] = useState(false);
-
-  const [vusList, setVusList] = useState<VusObjList | null>(null);
-
-  const inputRef = useRef<Select<AlterationData, true, GroupBase<AlterationData>> | null>(null);
-
-  const geneEntity: IGene | undefined = useMemo(() => {
-    return geneEntities?.find(gene => gene.hugoSymbol === hugoSymbol);
-  }, [geneEntities]);
 
   useEffect(() => {
     if (!firebaseDb) {
@@ -99,20 +98,27 @@ function AddMutationModal({
     const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, getFirebaseVusPath(isGermline, hugoSymbol)), snapshot => {
-        setVusList(snapshot.val());
+        setVusList?.(snapshot.val());
       }),
     );
 
     if (mutationToEditPath) {
       callbacks.push(
         onValue(ref(firebaseDb, mutationToEditPath), snapshot => {
-          setMutationToEdit(snapshot.val());
+          setMutationToEdit?.(snapshot.val());
         }),
       );
     }
 
+    getFlagsByType?.(FlagTypeEnum.ALTERATION_CATEGORY);
+
     return () => callbacks.forEach(callback => callback?.());
   }, []);
+
+  useEffect(() => {
+    const geneEntity = geneEntities?.find(gene => gene.hugoSymbol === hugoSymbol);
+    setGeneEntity?.(geneEntity ?? null);
+  }, [geneEntities]);
 
   useEffect(() => {
     if (convertOptions?.isConverting) {
@@ -121,50 +127,31 @@ function AddMutationModal({
   }, [convertOptions?.isConverting]);
 
   useEffect(() => {
-    if (mutationList) {
-      const dupMutations = getDuplicateMutations(
-        currentMutationNames,
-        mutationList,
-        `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`,
-        vusList ?? {},
-        {
-          useFullAlterationName: true,
-          excludedMutationUuid: mutationToEdit?.name_uuid,
-          excludedVusName: convertOptions?.isConverting ? convertOptions.alteration : '',
-          exact: true,
-        },
-      );
-      setMutationAlreadyExists({
-        exists: dupMutations.length > 0,
-        inMutationList: dupMutations.some(mutation => mutation.inMutationList),
-        inVusList: dupMutations.some(mutation => mutation.inVusList),
-      });
-    }
-  }, [tabStates, mutationList, vusList]);
+    const dupMutations = getDuplicateMutations(
+      currentMutationNames ?? [],
+      mutationList,
+      `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`,
+      vusList ?? {},
+      {
+        useFullAlterationName: true,
+        excludedMutationUuid: mutationToEdit?.name_uuid,
+        excludedVusName: convertOptions?.isConverting ? convertOptions.alteration : '',
+        exact: true,
+      },
+    );
+    setMutationAlreadyExists({
+      exists: dupMutations.length > 0,
+      inMutationList: dupMutations.some(mutation => mutation.inMutationList),
+      inVusList: dupMutations.some(mutation => mutation.inVusList),
+    });
+  }, [alterationStates, mutationList, vusList]);
 
   useEffect(() => {
-    function convertAlterationToAlterationData(alteration: Alteration): AlterationData {
-      const { name: variantName } = parseAlterationName(alteration.name)[0];
-
-      return {
-        type: alteration.type,
-        alteration: alteration.alteration,
-        name: variantName || alteration.alteration,
-        consequence: alteration.consequence,
-        comment: alteration.comment,
-        excluding: alteration.excluding?.map(ex => convertAlterationToAlterationData(ex)) || [],
-        genes: alteration?.genes || [],
-        proteinChange: alteration?.proteinChange,
-        proteinStart: alteration?.proteinStart === -1 ? undefined : alteration?.proteinStart,
-        proteinEnd: alteration?.proteinEnd === -1 ? undefined : alteration?.proteinEnd,
-        refResidues: alteration?.refResidues,
-        varResidues: alteration?.varResidues,
-      };
-    }
-
     async function setExistingAlterations() {
+      /* eslint-disable no-console */
       if (mutationToEdit?.alterations?.length !== undefined && mutationToEdit.alterations.length > 0) {
-        setTabStates(mutationToEdit?.alterations?.map(alt => convertAlterationToAlterationData(alt)) ?? []);
+        // Use the alteration model in Firebase instead of annotation from API
+        setAlterationStates?.(mutationToEdit?.alterations?.map(alt => convertAlterationToAlterationData(alt)) ?? []);
         return;
       }
 
@@ -176,10 +163,14 @@ function AddMutationModal({
         [] as ReturnType<typeof parseAlterationName>,
       );
 
-      const entityStatusAlterationsPromise = fetchAlterations(parsedAlterations?.map(alt => alt.alteration) ?? []);
+      const entityStatusAlterationsPromise = fetchAlterations?.(parsedAlterations?.map(alt => alt.alteration) ?? []);
+      if (!entityStatusAlterationsPromise) return;
       const excludingEntityStatusAlterationsPromises: Promise<AlterationAnnotationStatus[]>[] = [];
       for (const alt of parsedAlterations ?? []) {
-        excludingEntityStatusAlterationsPromises.push(fetchAlterations(alt.excluding));
+        const fetchedAlterations = fetchAlterations?.(alt.excluding);
+        if (fetchedAlterations) {
+          excludingEntityStatusAlterationsPromises.push(fetchedAlterations);
+        }
       }
       const [entityStatusAlterations, entityStatusExcludingAlterations] = await Promise.all([
         entityStatusAlterationsPromise,
@@ -191,31 +182,23 @@ function AddMutationModal({
         for (let i = 0; i < parsedAlterations.length; i++) {
           const excluding: AlterationData[] = [];
           for (let exIndex = 0; exIndex < parsedAlterations[i].excluding.length; exIndex++) {
-            excluding.push(
-              convertEntityStatusAlterationToAlterationData(
-                entityStatusExcludingAlterations[i][exIndex],
-                parsedAlterations[i].excluding[exIndex],
-                [],
-                '',
-              ),
-            );
+            excluding.push(convertEntityStatusAlterationToAlterationData(entityStatusExcludingAlterations[i][exIndex], [], ''));
           }
           excludingAlterations.push(excluding);
         }
       }
 
       if (parsedAlterations) {
-        const alterations = entityStatusAlterations.map((alt, index) =>
+        const newAlerationStates = entityStatusAlterations.map((alt, index) =>
           convertEntityStatusAlterationToAlterationData(
             alt,
-            parsedAlterations[index].alteration,
             excludingAlterations[index] || [],
             parsedAlterations[index].comment,
             parsedAlterations[index].name,
           ),
         );
 
-        setTabStates(alterations);
+        setAlterationStates?.(newAlerationStates);
       }
     }
 
@@ -224,43 +207,18 @@ function AddMutationModal({
     }
   }, [mutationToEdit]);
 
-  useEffect(() => {
-    getConsequences?.({});
-  }, []);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  const currentMutationNames = useMemo(() => {
-    return tabStates.map(state => getFullAlterationName({ ...state, comment: '' }).toLowerCase()).sort();
-  }, [tabStates]);
-
-  function filterAlterationsAndNotify(
-    alterations: ReturnType<typeof parseAlterationName>,
-    alterationData: AlterationData[],
-    alterationIndex?: number,
-  ) {
-    // remove alterations that already exist in modal
-    const newAlterations = alterations.filter(alt => {
-      return !alterationData.some((state, index) => {
-        if (index === alterationIndex) {
-          return false;
-        }
-
-        const stateName = state.alteration.toLowerCase();
-        const stateExcluding = state.excluding.map(ex => ex.alteration.toLowerCase()).sort();
-        const altName = alt.alteration.toLowerCase();
-        const altExcluding = alt.excluding.map(ex => ex.toLowerCase()).sort();
-        return stateName === altName && _.isEqual(stateExcluding, altExcluding);
-      });
-    });
-
-    if (alterations.length !== newAlterations.length) {
-      notifyError(new Error('Duplicate alteration(s) removed'));
+  async function handleAlterationAdded() {
+    let alterationString = inputValue;
+    if (convertOptions?.isConverting) {
+      alterationString = convertOptions.alteration;
     }
-
-    return newAlterations;
+    try {
+      setIsAddAlterationPending(true);
+      await updateAlterationStateAfterAlterationAdded?.(parseAlterationName(alterationString, true));
+    } finally {
+      setIsAddAlterationPending(false);
+    }
+    setInputValue('');
   }
 
   async function fetchAlteration(alterationName: string): Promise<AlterationAnnotationStatus | undefined> {
@@ -295,245 +253,50 @@ function AddMutationModal({
     }
   }
 
-  async function fetchNormalAlteration(newAlteration: string, alterationIndex: number, alterationData: AlterationData[]) {
-    const newParsedAlteration = filterAlterationsAndNotify(parseAlterationName(newAlteration), alterationData, alterationIndex);
-    if (newParsedAlteration.length === 0) {
-      setTabStates(states => {
-        const newStates = _.cloneDeep(states);
-        newStates[alterationIndex].alterationFieldValueWhileFetching = undefined;
-        return newStates;
+  async function handleAlterationCategoriesConfirm() {
+    let newAlterationCategories: AlterationCategories | null = new AlterationCategories();
+    if (selectedAlterationCategoryFlags?.length === 0 || alterationStates?.length === 1) {
+      newAlterationCategories = null;
+    } else {
+      newAlterationCategories.comment = alterationCategoryComment ?? '';
+      const finalFlagArray = await saveNewFlags();
+      if ((selectedAlterationCategoryFlags ?? []).length > 0) {
+        newAlterationCategories.flags = finalFlagArray.map(flag => convertIFlagToFlag(flag));
+      }
+    }
+
+    // Refresh flag entities
+    await getFlagsByType?.(FlagTypeEnum.ALTERATION_CATEGORY);
+
+    return newAlterationCategories;
+  }
+
+  async function saveNewFlags() {
+    const [newFlags, oldFlags] = _.partition(selectedAlterationCategoryFlags ?? [], newFlag => {
+      return !alterationCategoryFlagEntities?.some(existingFlag => {
+        return newFlag.type === existingFlag.type && newFlag.flag === existingFlag.flag;
       });
-    }
-
-    const newComment = newParsedAlteration[0].comment;
-    const newVariantName = newParsedAlteration[0].name;
-
-    let newExcluding: AlterationData[];
-    if (
-      _.isEqual(
-        newParsedAlteration[0].excluding,
-        alterationData[alterationIndex]?.excluding.map(ex => ex.alteration),
-      )
-    ) {
-      newExcluding = alterationData[alterationIndex].excluding;
-    } else {
-      const excludingEntityStatusAlterations = await fetchAlterations(newParsedAlteration[0].excluding);
-      newExcluding =
-        excludingEntityStatusAlterations?.map((ex, index) =>
-          convertEntityStatusAlterationToAlterationData(ex, newParsedAlteration[0].excluding[index], [], ''),
-        ) ?? [];
-    }
-
-    const alterationPromises: Promise<AlterationAnnotationStatus | undefined>[] = [];
-    let newAlterations: AlterationData[] = [];
-    if (newParsedAlteration[0].alteration !== alterationData[alterationIndex]?.alteration) {
-      alterationPromises.push(fetchAlteration(newParsedAlteration[0].alteration));
-    } else {
-      alterationData[alterationIndex].excluding = newExcluding;
-      alterationData[alterationIndex].comment = newComment;
-      alterationData[alterationIndex].name = newVariantName || newParsedAlteration[0].alteration;
-      newAlterations.push(alterationData[alterationIndex]);
-    }
-
-    for (let i = 1; i < newParsedAlteration.length; i++) {
-      alterationPromises.push(fetchAlteration(newParsedAlteration[i].alteration));
-    }
-
-    newAlterations = [
-      ...newAlterations,
-      ...(await Promise.all(alterationPromises))
-        .filter(hasValue)
-        .map((alt, index) =>
-          convertEntityStatusAlterationToAlterationData(
-            alt,
-            newParsedAlteration[index + newAlterations.length].alteration,
-            newExcluding,
-            newComment,
-            newVariantName,
-          ),
-        ),
-    ];
-    newAlterations[0].alterationFieldValueWhileFetching = undefined;
-
-    setTabStates(states => {
-      const newStates = _.cloneDeep(states);
-      newStates.splice(alterationIndex, 1, ...newAlterations);
-      return newStates;
     });
-  }
-
-  const fetchNormalAlterationDebounced = useCallback(
-    _.debounce(async (newAlteration: string, alterationIndex: number, alterationData: AlterationData[]) => {
-      await fetchNormalAlteration(newAlteration, alterationIndex, alterationData);
-      setIsFetchingAlteration(false);
-    }, 1000),
-    [tabStates.length],
-  );
-
-  function handleNormalAlterationChange(newValue: string, alterationIndex: number) {
-    setTabStates(states => {
-      const newStates = _.cloneDeep(states);
-      newStates[alterationIndex].alterationFieldValueWhileFetching = newValue;
-      return newStates;
-    });
-    fetchNormalAlterationDebounced(newValue, alterationIndex, tabStates);
-  }
-
-  async function fetchExcludedAlteration(
-    newAlteration: string,
-    alterationIndex: number,
-    excludingIndex: number,
-    alterationData: AlterationData[],
-  ) {
-    const newParsedAlteration = parseAlterationName(newAlteration);
-
-    const currentState = alterationData[alterationIndex];
-    const alteration = currentState.alteration.toLowerCase();
-    let excluding: string[] = [];
-    for (let i = 0; i < currentState.excluding.length; i++) {
-      if (i === excludingIndex) {
-        excluding.push(...newParsedAlteration.map(alt => alt.alteration.toLowerCase()));
-      } else {
-        excluding.push(currentState.excluding[excludingIndex].alteration.toLowerCase());
+    if (newFlags.length > 0) {
+      for (const newFlag of newFlags) {
+        const savedFlagEntity = await createFlagEntity?.({
+          type: FlagTypeEnum.ALTERATION_CATEGORY,
+          flag: newFlag.flag,
+          name: newFlag.name,
+          description: '',
+          alterations: null,
+          genes: null,
+          transcripts: null,
+          articles: null,
+          drugs: null,
+        });
+        if (savedFlagEntity?.data) {
+          oldFlags.push(savedFlagEntity.data);
+        }
       }
     }
-    excluding = excluding.sort();
-    if (
-      alterationData.some(
-        state =>
-          state.alteration.toLowerCase() === alteration &&
-          _.isEqual(state.excluding.map(ex => ex.alteration.toLowerCase()).sort(), excluding),
-      )
-    ) {
-      notifyError(new Error('Duplicate alteration(s) removed'));
-      setTabStates(states => {
-        const newStates = _.cloneDeep(states);
-        newStates[alterationIndex].excluding.splice(excludingIndex, 1);
-        return newStates;
-      });
-      return;
-    }
 
-    const alterationPromises: Promise<AlterationAnnotationStatus | undefined>[] = [];
-    let newAlterations: AlterationData[] = [];
-    if (newParsedAlteration[0].alteration !== alterationData[alterationIndex]?.excluding[excludingIndex].alteration) {
-      alterationPromises.push(fetchAlteration(newParsedAlteration[0].alteration));
-    } else {
-      newAlterations.push(alterationData[alterationIndex].excluding[excludingIndex]);
-    }
-
-    for (let i = 1; i < newParsedAlteration.length; i++) {
-      alterationPromises.push(fetchAlteration(newParsedAlteration[i].alteration));
-    }
-    newAlterations = [
-      ...newAlterations,
-      ...(await Promise.all(alterationPromises))
-        .map((alt, index) =>
-          alt
-            ? convertEntityStatusAlterationToAlterationData(
-                alt,
-                newParsedAlteration[index].alteration,
-                [],
-                newParsedAlteration[index].comment,
-              )
-            : undefined,
-        )
-        .filter(hasValue),
-    ];
-
-    setTabStates(states => {
-      const newStates = _.cloneDeep(states);
-      newStates[alterationIndex].excluding.splice(excludingIndex, 1, ...newAlterations);
-      return newStates;
-    });
-  }
-
-  const fetchExcludedAlterationDebounced = useCallback(
-    _.debounce(async (newAlteration: string, alterationIndex: number, excludingIndex: number, alterationData: AlterationData[]) => {
-      await fetchExcludedAlteration(newAlteration, alterationIndex, excludingIndex, alterationData);
-      setIsFetchingExcludingAlteration(false);
-    }, 1000),
-    [],
-  );
-
-  async function handleAlterationChange(newValue: string, alterationIndex: number, excludingIndex?: number, isDebounced = true) {
-    if (!_.isNil(excludingIndex)) {
-      setIsFetchingExcludingAlteration(true);
-
-      if (isDebounced) {
-        handleExcludingFieldChange(newValue, 'alteration', alterationIndex, excludingIndex);
-        fetchExcludedAlterationDebounced(newValue, alterationIndex, excludingIndex, tabStates);
-      } else {
-        await fetchExcludedAlteration(newValue, alterationIndex, excludingIndex, tabStates);
-        setIsFetchingExcludingAlteration(false);
-      }
-    } else {
-      setIsFetchingAlteration(true);
-
-      if (isDebounced) {
-        handleNormalAlterationChange(newValue, alterationIndex);
-      } else {
-        await fetchNormalAlteration(newValue, alterationIndex, tabStates);
-        setIsFetchingAlteration(false);
-      }
-    }
-  }
-
-  function handleNormalFieldChange(newValue: string, field: keyof AlterationData, alterationIndex: number) {
-    setTabStates(states => {
-      const newStates = _.cloneDeep(states);
-      newStates[alterationIndex][field as string] = newValue;
-      return newStates;
-    });
-  }
-
-  function handleExcludingFieldChange(newValue: string, field: keyof AlterationData, alterationIndex: number, excludingIndex: number) {
-    setTabStates(states => {
-      const newStates = _.cloneDeep(states);
-      newStates[alterationIndex].excluding[excludingIndex][field as string] = newValue;
-      return newStates;
-    });
-  }
-
-  function handleFieldChange(newValue: string, field: keyof AlterationData, alterationIndex: number, excludingIndex?: number) {
-    !_.isNil(excludingIndex)
-      ? handleExcludingFieldChange(newValue, field, alterationIndex, excludingIndex)
-      : handleNormalFieldChange(newValue, field, alterationIndex);
-  }
-
-  async function handleAlterationAdded() {
-    let alterationString = inputValue;
-    if (convertOptions?.isConverting) {
-      alterationString = convertOptions.alteration;
-    }
-    const newParsedAlteration = filterAlterationsAndNotify(parseAlterationName(alterationString), tabStates);
-
-    if (newParsedAlteration.length === 0) {
-      return;
-    }
-
-    const newEntityStatusAlterationsPromise = fetchAlterations(newParsedAlteration.map(alt => alt.alteration));
-    const newEntityStatusExcludingAlterationsPromise = fetchAlterations(newParsedAlteration[0].excluding);
-    const [newEntityStatusAlterations, newEntityStatusExcludingAlterations] = await Promise.all([
-      newEntityStatusAlterationsPromise,
-      newEntityStatusExcludingAlterationsPromise,
-    ]);
-
-    const newExcludingAlterations = newEntityStatusExcludingAlterations.map((alt, index) =>
-      convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[0].excluding[index], [], ''),
-    );
-    const newAlterations = newEntityStatusAlterations.map((alt, index) =>
-      convertEntityStatusAlterationToAlterationData(
-        alt,
-        newParsedAlteration[index].alteration,
-        _.cloneDeep(newExcludingAlterations),
-        newParsedAlteration[index].comment,
-        newParsedAlteration[index].name,
-      ),
-    );
-
-    setTabStates(states => [...states, ...newAlterations]);
-    setInputValue('');
+    return oldFlags;
   }
 
   const handleKeyDown: KeyboardEventHandler = event => {
@@ -886,130 +649,22 @@ function AddMutationModal({
     );
   }
 
-  function getErrorSection(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    const suggestion = new RegExp('The alteration name is invalid, do you mean (.+)\\?').exec(alterationData.error ?? '')?.[1];
-
-    return (
-      <div>
-        <Alert color="danger" className="alteration-message" fade={false}>
-          {alterationData.error}
-        </Alert>
-        {suggestion && (
-          <div className="d-flex justify-content-end" style={{ marginTop: '-10px' }}>
-            <Button
-              className="me-1"
-              color="danger"
-              outline
-              size="sm"
-              onClick={() => {
-                setTabStates(states => {
-                  const newStates = _.cloneDeep(states);
-                  if (!_.isNil(excludingIndex)) {
-                    newStates[alterationIndex].excluding.splice(excludingIndex, 1);
-                  } else {
-                    newStates.splice(alterationIndex, 1);
-                  }
-                  return newStates;
-                });
-
-                inputRef.current?.focus();
-              }}
-            >
-              No
-            </Button>
-            <Button
-              onClick={() => {
-                const newAlterationData = _.cloneDeep(alterationData);
-                newAlterationData.alteration = suggestion;
-                handleAlterationChange(getFullAlterationName(newAlterationData, false), alterationIndex, excludingIndex, false);
-              }}
-              color="success"
-              outline
-              size="sm"
-            >
-              Yes
-            </Button>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  const modalBody = (
-    <>
-      <Row className="align-items-center mb-3">
-        <Col className={classNames(!convertOptions?.isConverting && 'pe-0')}>
-          <CreatableSelect
-            inputId="add-mutation-modal-input"
-            ref={inputRef}
-            components={{
-              DropdownIndicator: null,
-            }}
-            isMulti
-            isDisabled={convertOptions?.isConverting}
-            menuIsOpen={false}
-            placeholder="Enter alteration(s)"
-            inputValue={inputValue}
-            onInputChange={(newInput, { action }) => {
-              if (action !== 'menu-close' && action !== 'input-blur') {
-                setInputValue(newInput);
-              }
-            }}
-            value={tabStates.map(state => {
-              const fullAlterationName = getFullAlterationName(state);
-              return { label: fullAlterationName, value: fullAlterationName, ...state };
-            })}
-            onChange={(newAlterations: readonly AlterationData[]) =>
-              setTabStates(states =>
-                states.filter(state => newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state))),
-              )
-            }
-            onKeyDown={handleKeyDown}
-          />
-        </Col>
-        {!convertOptions?.isConverting ? (
-          <>
-            <Col className="col-auto ps-2">
-              <div>
-                <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
-                  Add
-                </Button>
-                <InfoIcon className="ms-2" overlay={<AddMutationInputOverlay />}></InfoIcon>
-              </div>
-            </Col>
-          </>
-        ) : undefined}
-      </Row>
-      {tabStates.length > 0 && (
-        <div className="pe-3" data-testid={'add-mutation-modal-tabs'}>
-          <Tabs
-            tabs={tabStates.map((alterationData, index) => {
-              return {
-                title: getTabTitle(alterationData),
-                content: getTabContent(alterationData, index),
-              };
-            })}
-          />
-        </div>
-      )}
-    </>
+  const mutationModalBody = (
+    <div>
+      {!convertOptions?.isConverting && renderInputSection()}
+      {renderMutationListSection()}
+      {renderMutationDetailSection()}
+    </div>
   );
 
-  let modalErrorMessage: string | undefined = undefined;
-  if (mutationAlreadyExists.exists) {
-    modalErrorMessage = 'Mutation already exists in';
-    if (mutationAlreadyExists.inMutationList && mutationAlreadyExists.inVusList) {
-      modalErrorMessage = 'Mutation already in mutation list and VUS list';
-    } else if (mutationAlreadyExists.inMutationList) {
-      modalErrorMessage = 'Mutation already in mutation list';
-    } else {
-      modalErrorMessage = 'Mutation already in VUS list';
-    }
-  }
+  const modalErrorMessage = getModalErrorMessage(mutationAlreadyExists);
 
-  let modalWarningMessage: string | undefined = undefined;
-  if (convertOptions?.isConverting && !isEqualIgnoreCase(convertOptions.alteration, currentMutationNames.join(', '))) {
-    modalWarningMessage = 'Name differs from original VUS name';
+  const modalWarningMessage: string[] = [];
+  if (convertOptions?.isConverting && !isEqualIgnoreCase(convertOptions.alteration, (currentMutationNames ?? []).join(', '))) {
+    modalWarningMessage.push('Name differs from original VUS name');
+  }
+  if (hasUncommitedExonFormChanges && unCommittedExonFormChangesWarning) {
+    modalWarningMessage.push(unCommittedExonFormChangesWarning);
   }
 
   return (
@@ -1034,76 +689,69 @@ function AddMutationModal({
         }
       }}
       errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : undefined}
-      warningMessages={modalWarningMessage ? [modalWarningMessage] : undefined}
+      warningMessages={modalWarningMessage ? modalWarningMessage : undefined}
       confirmButtonDisabled={
-        tabStates.length === 0 ||
+        alterationStates?.length === 0 ||
         mutationAlreadyExists.exists ||
         isFetchingAlteration ||
         isFetchingExcludingAlteration ||
-        tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error)) ||
-        isConfirmPending
+        alterationStates?.some(tab => tab.error || tab.excluding.some(ex => ex.error)) ||
+        isConfirmPending ||
+        (hasUncommitedExonFormChanges ?? false)
       }
       isConfirmPending={isConfirmPending}
     />
   );
 }
 
-interface IAddMutationModalFieldProps {
-  label: string;
-  value: string;
-  placeholder: string;
-  onChange: (newValue: string) => void;
-  isLoading?: boolean;
-  disabled?: boolean;
-}
+const mapStoreToProps = ({
+  alterationStore,
+  consequenceStore,
+  geneStore,
+  firebaseAppStore,
+  firebaseVusStore,
+  firebaseMutationListStore,
+  flagStore,
+  addMutationModalStore,
+  transcriptStore,
+}: IRootStore) => ({
+  annotateAlterations: flow(alterationStore.annotateAlterations),
+  geneEntities: geneStore.entities,
+  consequences: consequenceStore.entities,
+  getConsequences: consequenceStore.getEntities,
+  firebaseDb: firebaseAppStore.firebaseDb,
+  vusList: firebaseVusStore.data,
+  mutationList: firebaseMutationListStore.data,
+  getFlagsByType: flagStore.getFlagsByType,
+  alterationCategoryFlagEntities: flagStore.alterationCategoryFlags,
+  createFlagEntity: flagStore.createEntity,
+  setVusList: addMutationModalStore.setVusList,
+  setMutationToEdit: addMutationModalStore.setMutationToEdit,
+  alterationStates: addMutationModalStore.alterationStates,
+  mutationToEdit: addMutationModalStore.mutationToEdit,
+  setShowModifyExonForm: addMutationModalStore.setShowModifyExonForm,
+  showModifyExonForm: addMutationModalStore.showModifyExonForm,
+  isFetchingAlteration: addMutationModalStore.isFetchingAlteration,
+  isFetchingExcludingAlteration: addMutationModalStore.isFetchingExcludingAlteration,
+  currentMutationNames: addMutationModalStore.currentMutationNames,
+  cleanup: addMutationModalStore.cleanup,
+  filterAlterationsAndNotify: addMutationModalStore.filterAlterationsAndNotify,
+  fetchAlterations: addMutationModalStore.fetchAlterations,
+  setAlterationStates: addMutationModalStore.setAlterationStates,
+  selectedAlterationCategoryFlags: addMutationModalStore.selectedAlterationCategoryFlags,
+  alterationCategoryComment: addMutationModalStore.alterationCategoryComment,
+  setGeneEntity: addMutationModalStore.setGeneEntity,
+  updateAlterationStateAfterAlterationAdded: addMutationModalStore.updateAlterationStateAfterAlterationAdded,
+  selectedAlterationStateIndex: addMutationModalStore.selectedAlterationStateIndex,
+  hasUncommitedExonFormChanges: addMutationModalStore.hasUncommitedExonFormChanges,
+  unCommittedExonFormChangesWarning: addMutationModalStore.unCommittedExonFormChangesWarning,
+  setProteinExons: addMutationModalStore.setProteinExons,
+  proteinExons: addMutationModalStore.proteinExons,
+});
 
-function AddMutationModalField({ label, value: value, placeholder, onChange, isLoading, disabled }: IAddMutationModalFieldProps) {
-  return (
-    <div className="d-flex align-items-center mb-3">
-      <Col className="px-0 col-3 me-3 align-items-center">
-        <div className="d-flex align-items-center">
-          <span className="me-2">{label}</span>
-          {isLoading && <Spinner color="primary" size="sm" />}
-        </div>
-      </Col>
-      <Col className="px-0">
-        <Input
-          disabled={disabled}
-          value={value}
-          onChange={event => {
-            onChange(event.target.value);
-          }}
-          placeholder={placeholder}
-        />
-      </Col>
-    </div>
-  );
-}
+type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
 
-type DropdownOption = {
-  label: string;
-  value: any;
-};
-interface IAddMutationModalDropdownProps {
-  label: string;
-  value: DropdownOption;
-  options: DropdownOption[];
-  menuPlacement?: MenuPlacement;
-  onChange: (newValue: DropdownOption | null) => void;
-}
-
-function AddMutationModalDropdown({ label, value, options, menuPlacement, onChange }: IAddMutationModalDropdownProps) {
-  return (
-    <div className="d-flex align-items-center mb-3">
-      <Col className="px-0 col-3 me-3">
-        <span>{label}</span>
-      </Col>
-      <Col className="px-0">
-        <ReactSelect value={value} options={options} onChange={onChange} menuPlacement={menuPlacement} isClearable />
-      </Col>
-    </div>
-  );
-}
+export default componentInject(mapStoreToProps)(AddMutationModal);
 
 const AddMutationInputOverlay = () => {
   return (
@@ -1113,7 +761,7 @@ const AddMutationInputOverlay = () => {
         <span style={{ fontStyle: 'italic', fontWeight: 'bold' }}>Add button</span> to annotate alteration(s).
       </div>
       <div className="mt-2">
-        <div>Supported inputs:</div>
+        <div>String Mutation:</div>
         <div>
           <ul style={{ marginBottom: 0 }}>
             <li>
@@ -1132,24 +780,3 @@ const AddMutationInputOverlay = () => {
     </div>
   );
 };
-
-const mapStoreToProps = ({
-  alterationStore,
-  consequenceStore,
-  geneStore,
-  firebaseAppStore,
-  firebaseVusStore,
-  firebaseMutationListStore,
-}: IRootStore) => ({
-  annotateAlterations: flow(alterationStore.annotateAlterations),
-  geneEntities: geneStore.entities,
-  consequences: consequenceStore.entities,
-  getConsequences: consequenceStore.getEntities,
-  firebaseDb: firebaseAppStore.firebaseDb,
-  vusList: firebaseVusStore.data,
-  mutationList: firebaseMutationListStore.data,
-});
-
-type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
-
-export default componentInject(mapStoreToProps)(AddMutationModal);
