@@ -91,7 +91,10 @@ const GeneHeader = ({ firebaseGenePath, geneEntity, isReviewing }: IGeneHeaderPr
             <>
               <div className="d-flex">
                 <WithSeparator separator={InlineDivider}>
-                  {!hideEntrezGeneId && geneEntity?.entrezGeneId !== undefined && <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />}
+                  {!hideEntrezGeneId && geneEntity?.entrezGeneId !== undefined && (
+                    // using negative entrez gene id to represent CDKN2A (p14)
+                    <PubmedGeneLink entrezGeneId={Math.abs(geneEntity.entrezGeneId)} />
+                  )}
                   {geneEntity?.hgncId && <HgncLink id={geneEntity.hgncId} />}
                   <ExternalLinkIcon link={getCbioportalResultsPageMutationTabUrl(geneEntity.hugoSymbol)}>{CBIOPORTAL}</ExternalLinkIcon>
                   <ExternalLinkIcon link={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${geneEntity.hugoSymbol}`}>
