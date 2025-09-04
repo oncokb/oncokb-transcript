@@ -568,6 +568,8 @@ public class MainService {
         }
 
         TranscriptDTO transcriptDTO = new TranscriptDTO();
+        transcriptDTO.setGene(ensemblGene.getGene());
+        transcriptDTO.setReferenceGenome(ensemblGene.getReferenceGenome());
         transcriptDTO.setEnsemblGene(ensemblGene);
         transcriptDTO.setEnsemblTranscriptId(transcriptId);
         transcriptDTO.setEnsemblProteinId(ensemblProteinId);
