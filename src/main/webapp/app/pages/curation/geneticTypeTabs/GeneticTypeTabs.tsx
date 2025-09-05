@@ -79,31 +79,41 @@ const GeneticTypeTabs = ({ geneEntity, geneticType, firebaseDb, location, histor
     };
     if (needsReview[type]) {
       badges.push(
-        <DefaultBadge square color={'warning'} className={sharedClassname} style={sharedStyle} key={'genetic-type-tab-needs-review-badge'}>
-          Needs Review
-        </DefaultBadge>,
+        <DefaultBadge
+          isRoundedPill={false}
+          color={'warning'}
+          className={sharedClassname}
+          style={sharedStyle}
+          key={'genetic-type-tab-needs-review-badge'}
+          text="Needs Review"
+        />,
       );
     }
 
     const isGeneReleased = geneReleaseStatus[type];
     if (isGeneReleased) {
       // Todo: In tooltip show when gene was released
+
       badges.push(
-        <DefaultBadge square color="success" className={sharedClassname} style={sharedStyle} key={'genetic-type-tab-gene-released-badge'}>
-          Released
-        </DefaultBadge>,
+        <DefaultBadge
+          isRoundedPill={false}
+          color="success"
+          className={sharedClassname}
+          style={sharedStyle}
+          key={'genetic-type-tab-gene-released-badge'}
+          text="Released"
+        />,
       );
     } else {
       badges.push(
         <DefaultBadge
-          square
+          isRoundedPill={false}
           color={'warning'}
           className={sharedClassname}
           style={sharedStyle}
           key={'genetic-type-tab-pending-release-badge'}
-        >
-          Pending Release
-        </DefaultBadge>,
+          text="Pending Release"
+        />,
       );
     }
 

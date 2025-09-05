@@ -4,22 +4,23 @@ import DefaultTooltip from '../tooltip/DefaultTooltip';
 
 export interface IDefaultBadgeProps {
   color: string;
-  children: React.ReactNode;
+  text: string;
   tooltipOverlay?: (() => React.ReactNode) | React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
-  square?: boolean;
+  isRoundedPill?: boolean;
+  onDeleteCallback?: () => void;
 }
 
 const DefaultBadge: React.FunctionComponent<IDefaultBadgeProps> = props => {
-  const { className, style, color, square, tooltipOverlay } = props;
+  const { className, style, color, text, tooltipOverlay, isRoundedPill = true } = props;
+
+  const badgeClassNames = ['badge', 'mx-1', `text-bg-${color}`];
+  if (isRoundedPill) badgeClassNames.push('rounded-pill');
 
   const badge = (
-    <span
-      className={classNames(`badge ${!square ? 'rounded-pill' : undefined} text-bg-${color} mx-1`, className)}
-      style={{ fontSize: '0.7rem', ...style }}
-    >
-      {props.children}
+    <span className={classNames(badgeClassNames.join(' '), className)} style={{ fontSize: '0.8rem', ...style }}>
+      {text}
     </span>
   );
 
@@ -31,14 +32,7 @@ const DefaultBadge: React.FunctionComponent<IDefaultBadgeProps> = props => {
     );
   }
 
-  return (
-    <span
-      className={classNames(`badge ${!square ? 'rounded-pill' : undefined} text-bg-${color} mx-1`, className)}
-      style={{ fontSize: '0.7rem', ...style }}
-    >
-      {props.children}
-    </span>
-  );
+  return badge;
 };
 
 export default DefaultBadge;

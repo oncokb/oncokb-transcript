@@ -10,6 +10,7 @@ import { FormFeedback, Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/types/lib/Input';
 import * as styles from './styles.module.scss';
 import { Unsubscribe } from 'firebase/database';
+import { useTextareaAutoHeight } from 'app/hooks/useTextareaAutoHeight';
 
 export enum RealtimeInputType {
   TEXT = 'text',
@@ -126,24 +127,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     };
   }, [firebasePath, db]);
 
-  useEffect(() => {
-    if (!inputValueLoaded) return;
-    const input = inputRef.current;
-    if (!input || type !== RealtimeInputType.TEXTAREA) {
-      return;
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
-      window.requestAnimationFrame(() => {
-        resizeTextArea(input);
-      });
-    });
-    resizeObserver.observe(input);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [inputValueLoaded]);
+  useTextareaAutoHeight(inputRef, type);
 
   const labelComponent = label && (
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} onClick={labelOnClick} />

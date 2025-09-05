@@ -9,4 +9,5 @@ public enum FlagType {
     TRANSCRIPT,
     DRUG,
     HOTSPOT,
+    ALTERATION_CATEGORY,
 }

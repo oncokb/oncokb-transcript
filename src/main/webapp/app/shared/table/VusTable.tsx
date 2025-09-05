@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Mutation, Review, Vus } from 'app/shared/model/firebase/firebase.model';
+import { Vus } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
-import { Button, Container, Row } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
 import {
   getAllCommentsString,
@@ -178,13 +178,7 @@ const VusTable = ({
         return (
           <>
             <TextFormat value={new Date(time)} type="date" format={APP_DATETIME_FORMAT} />
-            <span>
-              {color && (
-                <DefaultBadge color={color} style={{ fontSize: '0.8rem' }}>
-                  Outdated
-                </DefaultBadge>
-              )}
-            </span>
+            <span>{color && <DefaultBadge color={color} text={'Outdated'} style={{ fontSize: '0.8rem' }} />}</span>
           </>
         );
       },

@@ -234,6 +234,7 @@ export class Mutation {
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
   mutation_effect_comments?: CommentList = {}; // used for somatic
+  alteration_categories?: AlterationCategories | null;
   name: string = '';
   name_comments?: CommentList = {};
   name_review?: Review;
@@ -255,6 +256,16 @@ export class Mutation {
   constructor(name: string) {
     this.name = name;
   }
+}
+
+export type Flag = {
+  type: string;
+  flag: string;
+};
+
+export class AlterationCategories {
+  flags?: Flag[];
+  comment = '';
 }
 
 export class MutationEffect {

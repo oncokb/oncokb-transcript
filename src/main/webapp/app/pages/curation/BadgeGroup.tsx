@@ -58,19 +58,11 @@ const BadgeGroup = (props: IBadgeGroupProps) => {
   }, [sectionData, props.firebasePath]);
 
   if (props.showDemotedBadge) {
-    return (
-      <DefaultBadge color="danger" tooltipOverlay={DEMOTED_MUTATION_TOOLTIP_OVERLAY}>
-        Demoted
-      </DefaultBadge>
-    );
+    return <DefaultBadge color="danger" text="Demoted" tooltipOverlay={DEMOTED_MUTATION_TOOLTIP_OVERLAY} />;
   }
 
   if (props.showDeletedBadge) {
-    return (
-      <DefaultBadge color="danger" tooltipOverlay={DELETED_SECTION_TOOLTIP_OVERLAY}>
-        Deleted
-      </DefaultBadge>
-    );
+    return <DefaultBadge color="danger" text="Deleted" tooltipOverlay={DELETED_SECTION_TOOLTIP_OVERLAY} />;
   }
 
   if (props.showNotCuratableBadge?.show) {

@@ -30,3 +30,9 @@ export const COLLAPSIBLE_LEVELS = {
 };
 
 export const HOTSPOT = '#ff9900';
+
+/*
+ * Bootstrap colors
+ */
+
+export const BS_BORDER_COLOR = '#dee2e6';
