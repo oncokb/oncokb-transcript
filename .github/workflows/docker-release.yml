@@ -1,5 +1,11 @@
 name: Build/Push docker image
 on:
+  workflow_dispatch:
+      inputs:
+        tag-name:
+          description: "Tag name to use for the image must start with a v"
+          required: true
+          type: string
   release:
     types: [ published ]
 jobs:
@@ -7,6 +13,8 @@ jobs:
     if: github.repository == 'oncokb/oncokb-transcript'
     name: Build and Push
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.tag-name || github.ref }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,12 +30,12 @@ jobs:
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-          TAG_NAME: ${{ github.event.release.tag_name }}
+          TAG_NAME: ${{ inputs.tag-name || github.event.release.tag_name }}
           REPOSITORY: ${{ github.repository }}
         run: |
           ./mvnw -ntp package -Pprod verify jib:build \
           -DskipTests \
-          -Djib.to.image="oncokb/oncokb-curation:${TAG_NAME:1}" \
+          -Djib.to.image="mskcc/oncokb-curation:${TAG_NAME:1}" \
           -Djib.to.auth.username=$DOCKER_USERNAME \
           -Djib.to.auth.password=$DOCKER_PASSWORD
 
@@ -38,7 +46,7 @@ jobs:
           SENTRY_ORG: memorial-sloan-kettering
           SENTRY_PROJECT: oncokb-curation-website
         with:
-          version: ${{ github.ref }}
+          version: ${{ env.VERSION }}
           environment: production
           version_prefix: oncokb-curation-website-
           sourceMapOptions: '{"include": ["target/classes/static/app"]}'
@@ -50,6 +58,6 @@ jobs:
           SENTRY_ORG: memorial-sloan-kettering
           SENTRY_PROJECT: oncokb-curation-backend
         with:
-          version: ${{ github.ref }}
+          version: ${{ env.VERSION }}
           environment: production
           version_prefix: oncokb-curation-backend-
