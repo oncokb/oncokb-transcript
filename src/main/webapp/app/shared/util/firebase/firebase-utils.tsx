@@ -219,11 +219,11 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
   // We skipped the TIs key because TI.name and TI.type always has a value, which will
   // make our function always return isEmpty=False
   const implications: TI[] = [];
-  if (path.match(/mutations\/\d+$/g)) {
+  if (path.match(/mutations\/[^/]+$/g)) {
     for (const tumor of Object.values((sectionValue as Mutation).tumors ?? {})) {
       implications.push(...tumor.TIs);
     }
-  } else if (path.match(/tumors\/\d+$/g)) {
+  } else if (path.match(/tumors\/[^/]+$/g)) {
     implications.push(...(sectionValue as Tumor).TIs);
   }
 
