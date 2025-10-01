@@ -107,18 +107,27 @@ const AddVusModal = (props: IAddVusModalProps) => {
   };
 
   const filterAlterationsAndNotify = (variant: string) => {
-    const currentVariants = variants.map(o => o.label.toLowerCase());
+    const result: string[] = [];
     const alterations = parseAlterationName(variant);
-    const filteredAlterations = alterations.filter(alt => {
-      if (currentVariants.includes(alt.alteration.toLowerCase())) {
-        return false;
+    // should only have a single alteration
+    for (const { alteration } of alterations) {
+      const dropdownAlreadyHasVariant = variants.some(({ label }) => {
+        return label.toLowerCase() === alteration.toLowerCase();
+      });
+
+      const tableAlreadyHasVariant = Object.values(props.vusList ?? {}).some(({ name }) => {
+        return name.toLowerCase() === alteration.toLowerCase();
+      });
+
+      if (dropdownAlreadyHasVariant) {
+        notifyError(new Error(`${alteration} is already selected. The duplicate alteration(s) was not added.`));
+      } else if (tableAlreadyHasVariant) {
+        notifyError(new Error(`${alteration} is already in the VUS table. The duplicate alteration(s) was not added.`));
+      } else {
+        result.push(alteration);
       }
-      return true;
-    });
-    if (alterations.length !== filteredAlterations.length) {
-      notifyError(new Error('Duplicate alteration(s) removed'));
     }
-    return filteredAlterations.map(a => a.alteration);
+    return result;
   };
 
   const selectComponent = (
