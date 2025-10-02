@@ -168,7 +168,7 @@ export const CurationPage = (props: ICurationPageProps) => {
     }
 
     const oncogeneRef = labelsToRefs[GENE_TYPE.ONCOGENE].current!;
-    const tumorSupressorRef = labelsToRefs[GENE_TYPE.TUMOR_SUPPRESSOR].current!;
+    const tumorSuppressorRef = labelsToRefs[GENE_TYPE.TUMOR_SUPPRESSOR].current!;
     const neitherRef = labelsToRefs[GENE_TYPE.NEITHER].current!;
     const unknownRef = labelsToRefs[GENE_TYPE.INSUFFICIENT_EVIDENCE].current!;
 
@@ -176,11 +176,11 @@ export const CurationPage = (props: ICurationPageProps) => {
       unknownRef.checked && unknownRef.click();
       neitherRef.checked && neitherRef.click();
     } else if (label === GENE_TYPE.INSUFFICIENT_EVIDENCE.toString()) {
-      tumorSupressorRef.checked && tumorSupressorRef.click();
+      tumorSuppressorRef.checked && tumorSuppressorRef.click();
       oncogeneRef.checked && oncogeneRef.click();
       neitherRef.checked && neitherRef.click();
     } else if (label === GENE_TYPE.NEITHER.toString()) {
-      tumorSupressorRef.checked && tumorSupressorRef.click();
+      tumorSuppressorRef.checked && tumorSuppressorRef.click();
       oncogeneRef.checked && oncogeneRef.click();
       unknownRef.checked && unknownRef.click();
     }
