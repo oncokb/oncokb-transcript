@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CreatableSelect from 'react-select/creatable';
-import { Mutation, MutationList, VusObjList } from '../model/firebase/firebase.model';
+import { MutationList, VusObjList } from '../model/firebase/firebase.model';
 import { parseAlterationName } from '../util/utils';
 import _ from 'lodash';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
@@ -107,18 +107,33 @@ const AddVusModal = (props: IAddVusModalProps) => {
   };
 
   const filterAlterationsAndNotify = (variant: string) => {
-    const currentVariants = variants.map(o => o.label.toLowerCase());
+    const result: string[] = [];
     const alterations = parseAlterationName(variant);
-    const filteredAlterations = alterations.filter(alt => {
-      if (currentVariants.includes(alt.alteration.toLowerCase())) {
-        return false;
+    // should only have a single alteration
+    for (const { alteration } of alterations) {
+      const dropdownAlreadyHasVariant = variants.some(({ label }) => {
+        return label.toLowerCase() === alteration.toLowerCase();
+      });
+
+      const vusTableAlreadyHasVariant = Object.values(props.vusList ?? {}).some(({ name }) => {
+        return name.toLowerCase() === alteration.toLowerCase();
+      });
+
+      const alreadyHasVariantInMutationList = Object.values(mutationList ?? {}).some(({ name }) => {
+        return name.toLowerCase() === alteration.toLowerCase();
+      });
+
+      if (dropdownAlreadyHasVariant) {
+        notifyError(new Error(`${alteration} is already selected. The duplicate alteration(s) was not added.`));
+      } else if (vusTableAlreadyHasVariant) {
+        notifyError(new Error(`${alteration} is already in the VUS table. The duplicate alteration(s) was not added.`));
+      } else if (alreadyHasVariantInMutationList) {
+        notifyError(new Error(`${alteration} is already in the Mutation List. The duplicate alteration(s) was not added.`));
+      } else {
+        result.push(alteration);
       }
-      return true;
-    });
-    if (alterations.length !== filteredAlterations.length) {
-      notifyError(new Error('Duplicate alteration(s) removed'));
     }
-    return filteredAlterations.map(a => a.alteration);
+    return result;
   };
 
   const selectComponent = (
