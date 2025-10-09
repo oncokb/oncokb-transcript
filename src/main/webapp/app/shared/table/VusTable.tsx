@@ -309,12 +309,10 @@ const VusTable = ({
             try {
               const aggregateComments = getAllCommentsString(vusToPromote.name_comments || {});
               handleDelete();
-              const addMutationResult = await addMutation?.(firebaseMutationsPath, newMutation, isGermline, true, aggregateComments).then(
-                () => {
-                  notifySuccess(`Promoted ${vusToPromote.name}`, { position: 'top-right' });
-                },
-              );
-              if (addMutationResult === undefined) {
+              const addMutationResult = await addMutation?.(firebaseMutationsPath, newMutation, isGermline, true, aggregateComments);
+              if (addMutationResult) {
+                notifySuccess(`Promoted ${vusToPromote.name}`, { position: 'top-right' });
+              } else {
                 throw new SentryError('Failed to promote VUS to mutation', { newMutation, firebaseMutationsPath, isGermline });
               }
               setOpenMutationCollapsibleListKey?.(addMutationResult);
