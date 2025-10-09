@@ -76,7 +76,13 @@
       /*<![CDATA[*/
 
       window.serverConfig = {};
-      window.serverConfig.frontend = /*[[${frontendConfig}]]*/ {};
+
+      const isDev = <%= htmlWebpackPlugin.options.templateParameters.frontendConfig ? "true" : "false" %>;
+      if (isDev) {
+         window.serverConfig.frontend = <%= JSON.stringify(htmlWebpackPlugin.options.templateParameters.frontendConfig ?? {}) %>
+      } else {
+         window.serverConfig.frontend = /*[[${frontendConfig}]]*/ {};
+      }
 
       /*]]>*/
     </script>

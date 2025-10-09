@@ -1,0 +1,14 @@
+{
+  "firebase": {
+    "enabled": true,
+    "apiKey": "",
+    "authDomain": "",
+    "databaseUrl": "",
+    "projectId": "",
+    "storageBucket": "",
+    "messagingSenderId": "",
+    "appId": "",
+    "measurementId": "",
+    "connectToFirebaseEmulators": false
+  }
+}

@@ -3,13 +3,22 @@ const webpackMerge = require('webpack-merge').merge;
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const SimpleProgressWebpackPlugin = require('simple-progress-webpack-plugin');
 const WebpackNotifierPlugin = require('webpack-notifier');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 const sass = require('sass');
+const fs = require('fs');
 
 const utils = require('./utils.js');
 const commonConfig = require('./webpack.common.js');
 
 const ENV = 'development';
+
+const serverConfigFilePath = 'local-frontend-config.json';
+let frontendConfigJson = undefined;
+if (fs.existsSync(serverConfigFilePath)) {
+  frontendConfigJson = fs.readFileSync(serverConfigFilePath);
+}
+const frontendConfig = frontendConfigJson ? JSON.parse(frontendConfigJson) : undefined;
 
 module.exports = async options =>
   webpackMerge(await commonConfig({ ...options, env: ENV }), {
@@ -130,6 +139,15 @@ module.exports = async options =>
       new WebpackNotifierPlugin({
         title: 'Oncokb Curation',
         contentImage: path.join(__dirname, 'logo-oncokb.png'),
+      }),
+      new HtmlWebpackPlugin({
+        template: './src/main/webapp/index.html',
+        chunksSortMode: 'auto',
+        inject: 'body',
+        base: '/',
+        templateParameters: {
+          frontendConfig,
+        },
       }),
     ].filter(Boolean),
   });

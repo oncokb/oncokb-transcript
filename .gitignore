@@ -167,3 +167,7 @@ Desktop.ini
 # Sentry Config File
 .env.sentry-build-plugin
 .vscode/settings.json
+
+local-frontend-config.json
+src/main/resources/firebase.json
+src/main/resources/config/application-dev.yml

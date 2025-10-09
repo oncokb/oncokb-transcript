@@ -54,9 +54,16 @@ export class FirebaseAppStore extends BaseStore {
 
   initializeFirebase() {
     if (!AppConfig.serverConfig.frontend) {
-      throw new Error('No frontend config');
+      alert('No frontend configuration found.');
+      return;
     } else if (!AppConfig.serverConfig.frontend.firebase) {
-      throw new Error('No firebase config');
+      alert(
+        `No firebase configuration.
+Are you running locally?
+Add your local-frontend-config.json file to the root directory.
+See the README.md for more details`,
+      );
+      return;
     }
     const { enabled, connectToFirebaseEmulators, ...firebaseOptions } = AppConfig.serverConfig.frontend.firebase;
     this.firebaseEnabled = enabled;
