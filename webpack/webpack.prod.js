@@ -2,6 +2,7 @@ const webpack = require('webpack');
 const webpackMerge = require('webpack-merge').merge;
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WorkboxPlugin = require('workbox-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const sass = require('sass');
@@ -107,6 +108,12 @@ module.exports = async () =>
         clientsClaim: true,
         skipWaiting: true,
         exclude: [/swagger-ui/],
+      }),
+      new HtmlWebpackPlugin({
+        template: './src/main/webapp/index.html',
+        chunksSortMode: 'auto',
+        inject: 'body',
+        base: '/',
       }),
       // Sentry Webpack plugin needs to be put after all other plugins
       sentryWebpackPlugin({

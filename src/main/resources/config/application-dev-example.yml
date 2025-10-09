@@ -134,7 +134,7 @@ application:
     messaging-sender-id:
     app-id:
     measurement-id:
-    service-account-credentials-path:
+    service-account-credentials-path: firebase.json
   oncokb-data-repo-dir:
   frontend:
     sentry-dsn:

@@ -24,13 +24,22 @@
 
    5. [Yarn](https://classic.yarnpkg.com/lang/en/docs/install/)
 
-2. Run the brew command for the Mac in the [compiling section](https://github.com/Automattic/node-canvas?tab=readme-ov-file#compiling) of the node-canvas readme. For other systems, please see [compiling section](https://github.com/Automattic/node-canvas?tab=readme-ov-file#compiling) for instructions.
+2. Copy the example dev yaml file
 
-```sh
-brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
-```
+   ```sh
+   cp src/main/resources/config/application-dev-example.yml src/main/resources/config/application-dev.yml
+   ```
 
-3. After installing Node and yarn, you should be able to run the following command
+3. Run the brew command for the Mac in the [compiling section](https://github.com/Automattic/node-canvas?tab=readme-ov-file#compiling)
+   of the node-canvas readme. For other systems, please see
+   [compiling section](https://github.com/Automattic/node-canvas?tab=readme-ov-file#compiling)
+   for instructions.
+
+   ```sh
+   brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
+   ```
+
+4. After installing Node and yarn, you should be able to run the following command
    to install development tools. You will only need to run this command when
    dependencies change in [package.json](package.json).
 
@@ -40,7 +49,7 @@ brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
 
    We use yarn scripts and [Webpack](https://webpack.js.org/) as our build system.
 
-4. If you are using redis as a cache, you will have to launch a cache server (Optional).
+5. If you are using redis as a cache, you will have to launch a cache server (Optional).
 
    - To start your cache server, run:
 
@@ -59,7 +68,7 @@ brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
    See [here](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html#boot-features-caching-provider-none)
    for details.
 
-5. Configure Keycloak and Google SSO
+6. Configure Keycloak and Google SSO
 
    To log in to your app, you'll need to have [Keycloak](https://keycloak.org)
    up and running.
@@ -120,7 +129,7 @@ brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
                   scope: openid,profile,email
       ```
 
-6. Configure Firebase
+7. Configure Firebase
 
    1. Go to [Firebase Console](https://console.firebase.google.com/) and create
       a new project
@@ -149,7 +158,9 @@ brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
    9. Click **Project settings**
    10. Choose **Service Accounts** on header
    11. Under **Firebase Admin SDK** section, click on **Generate new private key**
-   12. Move the service account credentials under `src/main/resources/<CREDENTIALS_FILENAME>.json`
+   12. Move the service account credentials under `src/main/resources/firebase.json`
+       > [!WARNING]
+       > Never commit the `firebase.json` file to git!
    13. Update `application.firebase.service-account-credentials-path`
        to the filename
    14. Under **Project Overview** page in the **General** tab under the **Your apps**
@@ -158,10 +169,18 @@ brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
        - You do not need to setup firebase hosting
    16. The resulting credential and paste them in the corresponding fields
        in `application.firebase`
-   17. Expand **Build** and click **Authentication**
-   18. Click the **Sign-in method** section and add email/password provider
+   17. Copy example front configuration file
 
-7. Verify that your mysql configuration in [application-dev.yaml](src/main/resources/config/application-dev.yml)
+       ```sh
+       cp local-frontend-config-example.json local-frontend-config.json
+       ```
+
+   18. Copy the same credentials you put in `application.firebase` into the `local-frontend-config.json`
+       file.
+   19. Expand **Build** and click **Authentication**
+   20. Click the **Sign-in method** section and add email/password provider
+
+8. Verify that your mysql configuration in [application-dev.yaml](src/main/resources/config/application-dev.yml)
    is correct for you mysql server instance.
 
    ```yaml
@@ -172,7 +191,7 @@ brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
        password: root
    ```
 
-8. Run the application (Don't login just yet)
+9. Run the application (Don't login just yet)
 
    - Note your a oncokb_curation schema will be created in your mysql database.
      Data will also be seeded for it.
@@ -181,40 +200,40 @@ brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
    ./mvnw
    ```
 
-9. Wait until the server is listening to requests and is able to redirect you to
-   the login screen. (server url defaults to `http://localhost:9090`)
+10. Wait until the server is listening to requests and is able to redirect you to
+    the login screen. (server url defaults to `http://localhost:9090`)
 
-10. Add a login for yourself into your mysql instance. Replace <your_email>
+11. Add a login for yourself into your mysql instance. Replace <your_email>
     with your gmail email address.
 
-```sql
-INSERT INTO `oncokb_curation`.`user`
-(
-    `login`,
-    `email`,
-    `created_by`,
-    `activated`)
-VALUES
-    ('<your_email>',
-     '<your_email>',
-     'SYSTEM',
-     1);
-
-SET @UserID = (SELECT Id
-    FROM `oncokb_curation`.`user`
-    WHERE email = '<your_email>');
-
-INSERT INTO `oncokb_curation`.`user_authority`
-    (user_id, authority_name)
+    ```sql
+    INSERT INTO `oncokb_curation`.`user`
+    (
+        `login`,
+        `email`,
+        `created_by`,
+        `activated`)
     VALUES
-    (@UserId, 'ROLE_ADMIN'),
-    (@UserId, 'ROLE_DEV'),
-    (@UserId, 'ROLE_CURATOR'),
-    (@UserId, 'ROLE_USER');
+        ('<your_email>',
+         '<your_email>',
+         'SYSTEM',
+         1);
 
-```
+    SET @UserID = (SELECT Id
+        FROM `oncokb_curation`.`user`
+        WHERE email = '<your_email>');
 
-11. Login to curation!
+    INSERT INTO `oncokb_curation`.`user_authority`
+        (user_id, authority_name)
+        VALUES
+        (@UserId, 'ROLE_ADMIN'),
+        (@UserId, 'ROLE_DEV'),
+        (@UserId, 'ROLE_CURATOR'),
+        (@UserId, 'ROLE_USER');
+
+    ```
+
+12. Login to curation!
 
 ## Building for production
 
