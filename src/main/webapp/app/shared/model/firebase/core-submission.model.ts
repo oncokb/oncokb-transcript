@@ -7,7 +7,6 @@ import {
   AssociationVariant,
   CancerRisk,
   CancerType,
-  CommentList,
   DX_LEVELS,
   FDA_LEVELS,
   Gene,
@@ -16,7 +15,6 @@ import {
   Implication,
   Mutation,
   MutationEffect,
-  MutationSpecificInheritanceMechanism,
   MutationSpecificPenetrance,
   PX_LEVELS,
   TI_NAME,
@@ -137,7 +135,6 @@ export class CoreSubmissionMutation {
 
   // Germline
   mutation_specific_penetrance = new MutationSpecificPenetrance();
-  mutation_specific_inheritance_mechanism = new MutationSpecificInheritanceMechanism();
   mutation_specific_cancer_risk = new CancerRisk();
 
   constructor(name: string) {

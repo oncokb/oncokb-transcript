@@ -447,33 +447,33 @@ const MutationCollapsible = ({
                   firebasePath: `${mutationPath}/mutation_effect/oncogenic`,
                 }))}
               />
-              <RealtimeCheckedInputGroup
-                disabled={readOnly}
-                groupHeader={
-                  <>
-                    <span style={{ marginRight: '8px' }}>Mutation Effect</span>
-                    {
-                      <GeneHistoryTooltip
-                        historyData={parsedHistoryList}
-                        location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}, ${
-                          READABLE_FIELD.EFFECT
-                        }`}
-                        locationIdentifier={getLocationIdentifier({
-                          mutationUuid,
-                          fields: [READABLE_FIELD.MUTATION_EFFECT, READABLE_FIELD.EFFECT],
-                        })}
-                      />
-                    }
-                  </>
-                }
-                isRadio
-                options={[...MUTATION_EFFECT_OPTIONS, RADIO_OPTION_NONE].map(label => ({
-                  label,
-                  firebasePath: `${mutationPath}/mutation_effect/effect`,
-                }))}
-              />
             </>
           )}
+          <RealtimeCheckedInputGroup
+            disabled={readOnly}
+            groupHeader={
+              <>
+                <span style={{ marginRight: '8px' }}>Mutation Effect</span>
+                {
+                  <GeneHistoryTooltip
+                    historyData={parsedHistoryList}
+                    location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}, ${
+                      READABLE_FIELD.EFFECT
+                    }`}
+                    locationIdentifier={getLocationIdentifier({
+                      mutationUuid,
+                      fields: [READABLE_FIELD.MUTATION_EFFECT, READABLE_FIELD.EFFECT],
+                    })}
+                  />
+                }
+              </>
+            }
+            isRadio
+            options={[...MUTATION_EFFECT_OPTIONS, RADIO_OPTION_NONE].map(label => ({
+              label,
+              firebasePath: `${mutationPath}/mutation_effect/effect`,
+            }))}
+          />
           <RealtimeTextAreaInput
             disabled={readOnly}
             firebasePath={`${mutationPath}/mutation_effect/description`}
@@ -544,61 +544,6 @@ const MutationCollapsible = ({
                       locationIdentifier={getLocationIdentifier({
                         mutationUuid,
                         fields: [READABLE_FIELD.MUTATION_SPECIFIC_PENETRANCE, READABLE_FIELD.DESCRIPTION],
-                      })}
-                    />
-                  }
-                  name="description"
-                  parseRefs
-                />
-              </>
-            </Collapsible>
-            <Collapsible
-              idPrefix={`${mutationName}-mechanism-of-inheritance`}
-              collapsibleClassName="mt-2"
-              title={'Mutation Specific Mechanism of Inheritance'}
-              colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.INHERITANCE_MECHANISM]] }}
-              badge={<BadgeGroup firebasePath={`${mutationPath}/mutation_specific_inheritance_mechanism`} />}
-            >
-              <>
-                <RealtimeCheckedInputGroup
-                  disabled={readOnly}
-                  groupHeader={
-                    <>
-                      <span style={{ marginRight: '8px' }}>Mechanism of Inheritance</span>
-                      {
-                        <GeneHistoryTooltip
-                          historyData={parsedHistoryList}
-                          location={`${getMutationName(mutationName, mutationAlterations)}, ${
-                            READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE
-                          }, ${READABLE_FIELD.INHERITANCE_MECHANISM}`}
-                          locationIdentifier={getLocationIdentifier({
-                            mutationUuid,
-                            fields: [READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE, READABLE_FIELD.INHERITANCE_MECHANISM],
-                          })}
-                        />
-                      }
-                    </>
-                  }
-                  isRadio
-                  options={[...INHERITANCE_MECHANISM_OPTIONS, RADIO_OPTION_NONE].map(label => ({
-                    label,
-                    firebasePath: `${mutationPath}/mutation_specific_inheritance_mechanism/inheritanceMechanism`,
-                  }))}
-                />
-                <RealtimeTextAreaInput
-                  disabled={readOnly}
-                  firebasePath={`${mutationPath}/mutation_specific_inheritance_mechanism/description`}
-                  inputClass={styles.textarea}
-                  label="Description of Inheritance Mechanism"
-                  labelIcon={
-                    <GeneHistoryTooltip
-                      historyData={parsedHistoryList}
-                      location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE}, ${
-                        READABLE_FIELD.DESCRIPTION
-                      }`}
-                      locationIdentifier={getLocationIdentifier({
-                        mutationUuid,
-                        fields: [READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE, READABLE_FIELD.DESCRIPTION],
                       })}
                     />
                   }
