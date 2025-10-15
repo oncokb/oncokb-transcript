@@ -249,7 +249,6 @@ export class Mutation {
 
   // Germline
   mutation_specific_penetrance = new MutationSpecificPenetrance();
-  mutation_specific_inheritance_mechanism = new MutationSpecificInheritanceMechanism();
   mutation_specific_cancer_risk = new CancerRisk();
 
   constructor(name: string) {
@@ -279,15 +278,6 @@ export class MutationSpecificPenetrance {
   penetrance: `${PENETRANCE}` | '' = '';
   penetrance_review?: Review;
   penetrance_uuid: string = generateUuid();
-  description = '';
-  description_review?: Review;
-  description_uuid: string = generateUuid();
-}
-
-export class MutationSpecificInheritanceMechanism {
-  inheritanceMechanism: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
-  inheritanceMechanism_review?: Review;
-  inheritanceMechanism_uuid: string = generateUuid();
   description = '';
   description_review?: Review;
   description_uuid: string = generateUuid();

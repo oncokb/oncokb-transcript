@@ -12,7 +12,6 @@ import {
   Tumor,
   CancerType,
   CancerRisk,
-  MutationSpecificInheritanceMechanism,
   MutationSpecificPenetrance,
   Vus,
   VusTime,
@@ -98,14 +97,6 @@ export function createMockMutationSpecificPenetrance(
   // coming from firebase the class is not used to create the object so
   // instanceof cannot be used which is why empty object is being used
   return Object.assign({}, new MutationSpecificPenetrance(), mutationSpecificPenetrance);
-}
-
-export function createMockMutationSpecificInheritanceMechanism(
-  mutationSpecificInheritanceMechanism: Partial<MutationSpecificInheritanceMechanism> = {},
-): MutationSpecificInheritanceMechanism {
-  // coming from firebase the class is not used to create the object so
-  // instanceof cannot be used which is why empty object is being used
-  return Object.assign({}, new MutationSpecificInheritanceMechanism(), mutationSpecificInheritanceMechanism);
 }
 
 export function createMockVus(vus: Partial<Vus> = {}): Vus {

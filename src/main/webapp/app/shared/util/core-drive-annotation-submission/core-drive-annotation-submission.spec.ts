@@ -8,7 +8,6 @@ import {
   createMockImplication,
   createMockMutation,
   createMockMutationEffect,
-  createMockMutationSpecificInheritanceMechanism,
   createMockMutationSpecificPenetrance,
   createMockReview,
   createMockTi,
@@ -164,10 +163,6 @@ const mockGene = createMockGene({
         mosaic_uuid: '50a2a7e4-58ee-4f96-8ad4-f431d2f1efa8',
         monoallelic_uuid: '29a8eed7-0d6b-48d5-8e20-d73fc2c639f1',
       }),
-      mutation_specific_inheritance_mechanism: createMockMutationSpecificInheritanceMechanism({
-        description_uuid: '28f7e918-6c1b-45f5-accd-9cb6a7eb6149',
-        inheritanceMechanism_uuid: '59b3e3f9-5339-4bd1-8cc3-d97ca0c2509f',
-      }),
       mutation_specific_penetrance: createMockMutationSpecificPenetrance({
         description_uuid: '531dc775-3c64-4605-9830-e00c92401f64',
         penetrance_uuid: '494467d4-5d02-4bac-b654-ab7f7a88138d',
@@ -214,10 +209,6 @@ const mockGene = createMockGene({
         mosaic_uuid: 'c7c43f59-45d6-4b07-91d1-f2595ff9f90a',
         monoallelic_uuid: '3358cb78-3a48-41c0-a879-71611cd4dbad',
       }),
-      mutation_specific_inheritance_mechanism: createMockMutationSpecificInheritanceMechanism({
-        description_uuid: '59a97f8e-7fb9-4229-b08d-ed29347d8f22',
-        inheritanceMechanism_uuid: '635bcf72-cdc3-4ffd-97db-3e60b847def7',
-      }),
       mutation_specific_penetrance: createMockMutationSpecificPenetrance({
         description_uuid: '4efb278a-8da4-4c4d-abd1-5f2bd463010c',
         penetrance_uuid: 'd4d542a7-c942-47b6-bb44-4559fa742348',
@@ -259,10 +250,6 @@ const mockGene = createMockGene({
         biallelic_uuid: 'a0cf2c62-9e86-4cc6-accf-7d4b6dbc5fbc',
         mosaic_uuid: '72e419cb-0d5e-4533-83cc-14c08df2a869',
         monoallelic_uuid: '3d379ae4-eea1-47ba-a12c-b3f4cae4f78a',
-      }),
-      mutation_specific_inheritance_mechanism: createMockMutationSpecificInheritanceMechanism({
-        description_uuid: '317a7a9e-b50f-4558-aadd-6a7a184e0f0b',
-        inheritanceMechanism_uuid: '65c4e130-703e-46b5-85a5-5bf751d630c1',
       }),
       mutation_specific_penetrance: createMockMutationSpecificPenetrance({
         description_uuid: 'b0a9729d-82b6-4f3a-ae5f-81a42c004f2f',
@@ -676,12 +663,6 @@ const expectedGeneDataNoCommentsAndReviewed = {
         description: '',
         description_uuid: '4efb278a-8da4-4c4d-abd1-5f2bd463010c',
       },
-      mutation_specific_inheritance_mechanism: {
-        inheritanceMechanism: '',
-        inheritanceMechanism_uuid: '635bcf72-cdc3-4ffd-97db-3e60b847def7',
-        description: '',
-        description_uuid: '59a97f8e-7fb9-4229-b08d-ed29347d8f22',
-      },
       mutation_specific_cancer_risk: {
         monoallelic: '',
         monoallelic_uuid: '3358cb78-3a48-41c0-a879-71611cd4dbad',
@@ -920,12 +901,6 @@ const expectedGeneDataNoCommentsAndReviewed = {
         penetrance_uuid: '91308253-0677-44db-bf89-97d79d7ec98a',
         description: '',
         description_uuid: 'b0a9729d-82b6-4f3a-ae5f-81a42c004f2f',
-      },
-      mutation_specific_inheritance_mechanism: {
-        inheritanceMechanism: '',
-        inheritanceMechanism_uuid: '65c4e130-703e-46b5-85a5-5bf751d630c1',
-        description: '',
-        description_uuid: '317a7a9e-b50f-4558-aadd-6a7a184e0f0b',
       },
       mutation_specific_cancer_risk: {
         monoallelic: '',
