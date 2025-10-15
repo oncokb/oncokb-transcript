@@ -653,13 +653,28 @@ export class FirebaseGeneService {
     const geneLookup = ((await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp))).val() as Record<string, Gene>) ?? {};
     const vusLookup =
       ((await this.firebaseRepository.get(getFirebaseVusPath(isGermlineProp))).val() as Record<string, Record<string, Vus>>) ?? {};
+
+    let somaticDataForGermline: Record<string, Gene> = {};
+    if (isGermlineProp) {
+      somaticDataForGermline = ((await this.firebaseRepository.get(getFirebaseGenePath(false))).val() as Record<string, Gene>) ?? {};
+    }
+
     let count = 0;
     for (const [hugoSymbol, gene] of Object.entries(geneLookup)) {
       count++;
       // eslint-disable-next-line no-console
       console.log(`${count} - Saving ${hugoSymbol}...`);
+
+      if (isGermlineProp) {
+        // For germline genes, use the somatic gene type
+        if (somaticDataForGermline[hugoSymbol]?.type) {
+          gene.type = somaticDataForGermline[hugoSymbol].type;
+        }
+      }
+
       const nullableVus: Record<string, Vus> | null = vusLookup[hugoSymbol];
       await this.saveGeneWithData(isGermlineProp, hugoSymbol, drugLookup, gene, nullableVus);
+
       // eslint-disable-next-line no-console
       console.log('\tDone Saving.');
     }
@@ -672,8 +687,17 @@ export class FirebaseGeneService {
       string,
       Vus
     > | null;
+
+    if (isGermlineProp) {
+      const somaticDataForGermline = ((await this.firebaseRepository.get(getFirebaseGenePath(false, hugoSymbolProp))).val() as Gene) ?? {};
+      if (somaticDataForGermline?.type && nullableGene) {
+        nullableGene.type = somaticDataForGermline.type;
+      }
+    }
+
     await this.saveGeneWithData(isGermlineProp, hugoSymbolProp, drugLookup, nullableGene, nullableVus);
   };
+
   saveGeneWithData = async (
     isGermlineProp: boolean,
     hugoSymbolProp: string,

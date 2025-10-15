@@ -11,7 +11,7 @@ export function getGeneData(geneData: Gene, drugList: DrugCollection): CoreSubmi
     return undefined;
   }
   processData(gene, ['summary', 'background']);
-  processData(gene.type, ['tsg', 'ocg']);
+  processData(gene.type, ['tsg', 'ocg', 'neither', 'insufficient_evidence']);
   const tempMutations: Mutation[] = [];
   for (const mutation of Object.values(gene.mutations ?? {})) {
     const tempTumors: Tumor[] = [];
