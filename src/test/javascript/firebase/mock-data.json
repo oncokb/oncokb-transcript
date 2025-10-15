@@ -29376,12 +29376,6 @@
             "mosaic": "",
             "mosaic_uuid": "197f6bf5-d606-4c99-ba63-b653adee2418"
           },
-          "mutation_specific_inheritance_mechanism": {
-            "description": "",
-            "description_uuid": "b81f2cf9-ef6e-48c2-be50-5b27333822a1",
-            "inheritanceMechanism": "",
-            "inheritanceMechanism_uuid": "676a4778-ed07-45c8-8dd5-390926b58dc0"
-          },
           "mutation_specific_penetrance": {
             "description": "",
             "description_uuid": "9ca35353-4526-4247-88eb-cb284f44c403",
@@ -29557,12 +29551,6 @@
             "monoallelic_uuid": "1c6bf22b-06b9-452e-a580-62a3fbfd4650",
             "mosaic": "",
             "mosaic_uuid": "13c2ba3b-bb46-45ea-8724-733421663c9b"
-          },
-          "mutation_specific_inheritance_mechanism": {
-            "description": "",
-            "description_uuid": "eb2dc38b-b1ab-4a9d-a29c-4b79ab89f5b2",
-            "inheritanceMechanism": "",
-            "inheritanceMechanism_uuid": "cab47c1c-d2a4-43f8-9003-1b3e5a5417ce"
           },
           "mutation_specific_penetrance": {
             "description": "",

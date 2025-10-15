@@ -663,12 +663,6 @@ const expectedGeneDataNoCommentsAndReviewed = {
         description: '',
         description_uuid: '4efb278a-8da4-4c4d-abd1-5f2bd463010c',
       },
-      mutation_specific_inheritance_mechanism: {
-        inheritanceMechanism: '',
-        inheritanceMechanism_uuid: '635bcf72-cdc3-4ffd-97db-3e60b847def7',
-        description: '',
-        description_uuid: '59a97f8e-7fb9-4229-b08d-ed29347d8f22',
-      },
       mutation_specific_cancer_risk: {
         monoallelic: '',
         monoallelic_uuid: '3358cb78-3a48-41c0-a879-71611cd4dbad',
@@ -907,12 +901,6 @@ const expectedGeneDataNoCommentsAndReviewed = {
         penetrance_uuid: '91308253-0677-44db-bf89-97d79d7ec98a',
         description: '',
         description_uuid: 'b0a9729d-82b6-4f3a-ae5f-81a42c004f2f',
-      },
-      mutation_specific_inheritance_mechanism: {
-        inheritanceMechanism: '',
-        inheritanceMechanism_uuid: '65c4e130-703e-46b5-85a5-5bf751d630c1',
-        description: '',
-        description_uuid: '317a7a9e-b50f-4558-aadd-6a7a184e0f0b',
       },
       mutation_specific_cancer_risk: {
         monoallelic: '',

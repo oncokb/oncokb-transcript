@@ -241,7 +241,6 @@ export enum HISTORY_LOCATION_STRINGS {
   PENETRANCE = 'Penetrance',
   INHERITANCE_MECHANISM = 'Mechanism of Inheritance',
   MUTATION_SPECIFIC_PENETRANCE = 'Mutation Specific Penetrance',
-  MUTATION_SPECIFIC_INHERITANCE_MECHANISM = 'Mutation Specific Inheritance Mechanism',
   MUTATION_SPECIFIC_CANCER_RISK = 'Mutation Specific Cancer Risk',
   RELEVANT_CANCER_TYPE = 'Relevant Cancer Types',
 }
@@ -348,7 +347,6 @@ export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } =
   mutation_effect: READABLE_FIELD.MUTATION_EFFECT,
   name: READABLE_FIELD.NAME,
   cancerTypes: READABLE_FIELD.NAME,
-  mutation_specific_inheritance_mechanism: READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE,
   inheritanceMechanism: READABLE_FIELD.INHERITANCE_MECHANISM,
   description: READABLE_FIELD.DESCRIPTION,
   summary: READABLE_FIELD.SUMMARY,
