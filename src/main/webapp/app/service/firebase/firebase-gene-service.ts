@@ -26,14 +26,19 @@ import {
 import AuthStore from '../../stores/authentication.store';
 import { FirebaseRepository } from '../../stores/firebase/firebase-repository';
 import { FirebaseMetaService } from './firebase-meta-service';
-import { ALLELE_STATE, FB_COLLECTION, PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
+import { PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
 import { generateUuid, isPromiseOk } from 'app/shared/util/utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
 import { getTumorNameUuid, getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
 import { SentryError } from 'app/config/sentry-error';
-import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE, NEW_NAME_UUID_VALUE } from 'app/config/constants/constants';
+import {
+  GERMLINE_INHERITANCE_MECHANISM,
+  GERMLINE_PATH,
+  GET_ALL_DRUGS_PAGE_SIZE,
+  NEW_NAME_UUID_VALUE,
+} from 'app/config/constants/constants';
 import _ from 'lodash';
 import { getDriveAnnotations } from 'app/shared/util/core-drive-annotation-submission/core-drive-annotation-submission';
 import { DriveAnnotationApi } from 'app/shared/api/manual/drive-annotation-api';
@@ -550,7 +555,7 @@ export class FirebaseGeneService {
     genomicIndicatorsPath: string,
     name: string,
     description?: string,
-    alleleStates?: ALLELE_STATE[],
+    inheritanceMechanisms?: GERMLINE_INHERITANCE_MECHANISM[],
   ) => {
     const genePath = parseFirebaseGenePath(genomicIndicatorsPath);
     const newGenomicIndicator = new GenomicIndicator();
@@ -586,13 +591,13 @@ export class FirebaseGeneService {
       }
     }
 
-    if (alleleStates) {
-      alleleStates.forEach(alleleState => {
-        const asKey = alleleState.toLowerCase();
-        newGenomicIndicator.allele_state[asKey] = alleleState;
+    if (inheritanceMechanisms) {
+      inheritanceMechanisms.forEach(im => {
+        newGenomicIndicator.inheritanceMechanism = im;
+
         if (toReview) {
-          newGenomicIndicator.allele_state[`${asKey}_review`] = newReview;
-          uuidsToReview[newGenomicIndicator.allele_state[`${asKey}_uuid`]] = true;
+          newGenomicIndicator.inheritanceMechanism_review = newReview;
+          uuidsToReview[newGenomicIndicator.inheritanceMechanism_uuid] = true;
         }
       });
     }

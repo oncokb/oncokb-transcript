@@ -13,7 +13,7 @@ import {
   VusObjList,
 } from 'app/shared/model/firebase/firebase.model';
 import pluralize from 'pluralize';
-import { PATHOGENICITY, REFERENCE_GENOME } from 'app/config/constants/constants';
+import { GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, REFERENCE_GENOME } from 'app/config/constants/constants';
 import { uniq } from 'lodash';
 import { FirebaseMetaService } from 'app/service/firebase/firebase-meta-service';
 import { AuthStore } from 'app/stores';
@@ -37,7 +37,7 @@ export type GenericDI = GeneDI & {
 
 export type GenomicIndicatorDI = GeneDI & {
   genomic_indicator: string;
-  allele_state?: string;
+  inheritanceMechanism?: string;
   description?: string;
 };
 
@@ -58,26 +58,25 @@ export type GermlineMutationDI = MutationDI & {
   description?: string;
 };
 
-const alleleStateCheck = async (
-  alleleStates: string[],
-  onValidAlleleStates: () => Promise<DataImportStatus>,
+const inheritanceMechanismsCheck = async (
+  inheritanceMechanisms: string[],
+  onValidInheritanceMechanisms: () => Promise<DataImportStatus>,
 ): Promise<DataImportStatus> => {
   let status = new DataImportStatus();
 
-  const unmappedAlleleStates: string[] = [];
-  if (alleleStates) {
-    // validate allele state is correct
-    alleleStates.forEach(alleleState => {
-      if (!Object.values(ALLELE_STATE).includes(alleleState as ALLELE_STATE)) {
-        unmappedAlleleStates.push(alleleState);
+  const unmappedIM: string[] = [];
+  if (inheritanceMechanisms) {
+    inheritanceMechanisms.forEach(im => {
+      if (!Object.values(GERMLINE_INHERITANCE_MECHANISM).includes(im as GERMLINE_INHERITANCE_MECHANISM)) {
+        unmappedIM.push(im);
       }
     });
   }
-  if (unmappedAlleleStates.length > 0) {
+  if (unmappedIM.length > 0) {
     status.status = 'error';
-    status.message = `${unmappedAlleleStates.join(', ')} ${pluralize('is', unmappedAlleleStates.length)} not supported. Only ${Object.values(ALLELE_STATE).join(', ')} are supported.`;
+    status.message = `${unmappedIM.join(', ')} ${pluralize('is', unmappedIM.length)} not supported. Only ${Object.values(GERMLINE_INHERITANCE_MECHANISM).join(', ')} are supported.`;
   } else {
-    status = await onValidAlleleStates();
+    status = await onValidInheritanceMechanisms();
   }
   return status;
 };
@@ -178,11 +177,11 @@ export const saveGenomicIndicator = async (
     const genePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const gipath = genePath + '/genomic_indicators';
     const giData = await firebaseGeneService.getObject(gipath);
-    const alleleStates = (dataRow.data.allele_state || '')
+    const inheritanceMechanisms = (dataRow.data.inheritanceMechanism ?? '')
       .split(',')
-      .map(state => state.trim())
-      .filter(state => !!state);
-    return await alleleStateCheck(alleleStates, async () => {
+      .map(mi => mi.trim())
+      .filter(mi => !!mi);
+    return await inheritanceMechanismsCheck(inheritanceMechanisms, async () => {
       let status = new DataImportStatus();
       if (giData.exists()) {
         const genomicIndicators: GenomicIndicatorList = giData.val();
@@ -195,7 +194,7 @@ export const saveGenomicIndicator = async (
             gipath,
             genomicIndicatorName,
             dataRow.data.description,
-            alleleStates as ALLELE_STATE[],
+            inheritanceMechanisms as GERMLINE_INHERITANCE_MECHANISM[],
           );
         }
       } else {
@@ -204,7 +203,7 @@ export const saveGenomicIndicator = async (
           gipath,
           genomicIndicatorName,
           dataRow.data.description,
-          alleleStates as ALLELE_STATE[],
+          inheritanceMechanisms as GERMLINE_INHERITANCE_MECHANISM[],
         );
       }
       return status;
@@ -217,9 +216,9 @@ const saveGenomicIndicatorToFirebase = async (
   genomicIndicatorsPath: string,
   name: string,
   description?: string,
-  alleleStates?: ALLELE_STATE[],
+  inheritanceMechanism?: GERMLINE_INHERITANCE_MECHANISM[],
 ): Promise<DataImportStatus> => {
-  await firebaseGeneService.addGenomicIndicator(true, genomicIndicatorsPath, name, description, alleleStates);
+  await firebaseGeneService.addGenomicIndicator(true, genomicIndicatorsPath, name, description, inheritanceMechanism);
   return {
     status: 'complete',
     message: '',
