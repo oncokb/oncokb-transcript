@@ -100,7 +100,6 @@ const mockGene = createMockGene({
   }),
   summary_uuid: '616d02ba-6909-42b2-b145-f7b5627ad0a3',
   type_uuid: 'ea4d7bd1-bc94-4877-987f-37f2f13e571b',
-  inheritanceMechanism_uuid: '99447f53-5908-4dd1-a6fd-732d5ccf0f62',
   type: createMockGeneType({
     ocg_uuid: '1a233927-54d7-4921-97bf-08489a1e9c7d',
     ocg: GENE_TYPE.ONCOGENE,
@@ -919,9 +918,6 @@ const expectedGeneDataNoCommentsAndReviewed = {
   penetrance: '',
   penetrance_uuid: 'fc7ae593-7075-42de-b90f-ee132238274b',
   penetrance_comments: [],
-  inheritanceMechanism: '',
-  inheritanceMechanism_uuid: '99447f53-5908-4dd1-a6fd-732d5ccf0f62',
-  inheritanceMechanism_comments: [],
   type: {
     ocg: 'Tumor Suppressor',
     ocg_uuid: '1a233927-54d7-4921-97bf-08489a1e9c7d',

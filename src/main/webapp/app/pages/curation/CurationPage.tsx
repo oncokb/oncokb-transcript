@@ -4,7 +4,7 @@ import { IRootStore } from 'app/stores';
 import { RouteComponentProps, useHistory } from 'react-router-dom';
 import { getFirebaseGenePath, getFirebaseHistoryPath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { Col, Row } from 'reactstrap';
-import { GENE_TYPE, INHERITANCE_MECHANISM_OPTIONS, READABLE_FIELD, PENETRANCE_OPTIONS, GENE_TYPE_KEY } from 'app/config/constants/firebase';
+import { GENE_TYPE, READABLE_FIELD, PENETRANCE_OPTIONS, GENE_TYPE_KEY } from 'app/config/constants/firebase';
 import { GET_ALL_DRUGS_PAGE_SIZE, PAGE_ROUTE, RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
@@ -299,31 +299,6 @@ export const CurationPage = (props: ICurationPageProps) => {
                   options={[...PENETRANCE_OPTIONS, RADIO_OPTION_NONE].map(label => ({
                     label,
                     firebasePath: `${firebaseGenePath}/penetrance`,
-                  }))}
-                />
-              </div>
-              <div className="mb-3">
-                <RealtimeCheckedInputGroup
-                  disabled={props.readOnly}
-                  groupHeader={
-                    <GeneRealtimeComponentHeader
-                      title="Mechanism of Inheritance"
-                      tooltip={
-                        <GeneHistoryTooltip
-                          historyData={tooltipHistoryList}
-                          location={READABLE_FIELD.INHERITANCE_MECHANISM}
-                          locationIdentifier={getLocationIdentifier({ fields: [READABLE_FIELD.INHERITANCE_MECHANISM] })}
-                        />
-                      }
-                      commentIcon={
-                        <CommentIcon id={`${hugoSymbol}_inheritanceMechanism`} path={`${firebaseGenePath}/inheritanceMechanism_comments`} />
-                      }
-                    />
-                  }
-                  isRadio
-                  options={[...INHERITANCE_MECHANISM_OPTIONS, RADIO_OPTION_NONE].map(label => ({
-                    label,
-                    firebasePath: `${firebaseGenePath}/inheritanceMechanism`,
                   }))}
                 />
               </div>

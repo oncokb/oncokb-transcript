@@ -403,8 +403,9 @@ export enum PENETRANCE {
 }
 
 export enum GERMLINE_INHERITANCE_MECHANISM {
-  RECESSIVE = 'Autosomal Recessive',
-  DOMINANT = 'Autosomal Dominant',
+  AUTOSOMAL_RECESSIVE = 'Autosomal Recessive',
+  AUTOSOMAL_DOMINANT = 'Autosomal Dominant',
+  X_LINKED_RECESSIVE = 'X-linked Recessive',
 }
 
 export const CBIOPORTAL = 'cBioPortal';

@@ -1,4 +1,4 @@
-import { ALLELE_STATE, PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
+import { ALLELE_STATE, INHERITANCE_MECHANISM_OPTIONS, PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
 import { GenomicIndicator, GenomicIndicatorList, Mutation, MutationList, Review } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import { componentInject } from 'app/shared/util/typed-inject';
@@ -20,6 +20,7 @@ import { parseFirebaseGenePath } from '../util/firebase/firebase-path-utils';
 import GenomicIndicatorsHeader from 'app/pages/curation/header/GenomicIndicatorsHeader';
 import { SentryError } from 'app/config/sentry-error';
 import _ from 'lodash';
+import { RADIO_OPTION_NONE } from 'app/config/constants/constants';
 
 export interface IGenomicIndicatorsTableProps extends StoreProps {
   genomicIndicatorsPath: string;
@@ -144,7 +145,7 @@ const GenomicIndicatorsTable = ({
       },
     },
     {
-      Header: 'Allele State',
+      Header: 'Mechanism of Inheritance',
       style: { overflow: 'visible', padding: 0 },
       width: 200,
       Cell(cell: { original: { arrayKey: string } }) {
@@ -160,10 +161,11 @@ const GenomicIndicatorsTable = ({
                   <RealtimeCheckedInputGroup
                     disabled={genomicIndicator.name_review?.removed || readOnly || false}
                     groupHeader={''}
-                    options={[ALLELE_STATE.MONOALLELIC, ALLELE_STATE.BIALLELIC, ALLELE_STATE.MOSAIC, ALLELE_STATE.CARRIER].map(label => {
+                    isRadio
+                    options={[...INHERITANCE_MECHANISM_OPTIONS, RADIO_OPTION_NONE].map(label => {
                       return {
                         label,
-                        firebasePath: `${genomicIndicatorPath}/allele_state/${label.toLowerCase()}`,
+                        firebasePath: `${genomicIndicatorPath}/inheritanceMechanism`,
                       };
                     })}
                   />

@@ -138,7 +138,9 @@ export class GenomicIndicator {
   name = '';
   name_uuid: string = generateUuid();
   name_review?: Review;
-  allele_state: AlleleState = new AlleleState();
+  inheritanceMechanism: GERMLINE_INHERITANCE_MECHANISM | '' = '';
+  inheritanceMechanism_review?: Review;
+  inheritanceMechanism_uuid = generateUuid();
   description = '';
   description_uuid = generateUuid();
   description_review?: Review;
@@ -182,10 +184,6 @@ export class Gene {
   penetrance_review?: Review;
   penetrance_uuid? = generateUuid();
   penetrance_comments?: CommentList = {};
-  inheritanceMechanism: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
-  inheritanceMechanism_review?: Review;
-  inheritanceMechanism_uuid: string = generateUuid();
-  inheritanceMechanism_comments?: CommentList = {};
   type: GeneType = new GeneType();
   type_uuid: string = generateUuid();
   dmp_refseq_id_grch38 = '';

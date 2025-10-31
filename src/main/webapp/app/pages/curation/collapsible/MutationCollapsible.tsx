@@ -2,7 +2,6 @@ import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryToo
 import CancerRiskTabs from 'app/components/tabs/CancerRiskTabs';
 import { RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import {
-  INHERITANCE_MECHANISM_OPTIONS,
   MUTATION_EFFECT_OPTIONS,
   ONCOGENICITY_OPTIONS,
   PATHOGENICITY_OPTIONS,
