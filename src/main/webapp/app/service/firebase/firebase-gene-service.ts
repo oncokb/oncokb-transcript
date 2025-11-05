@@ -39,6 +39,7 @@ import {
   GET_ALL_DRUGS_PAGE_SIZE,
   NEW_NAME_UUID_VALUE,
 } from 'app/config/constants/constants';
+import { dataReleaseClient } from 'app/shared/api/clients';
 import _ from 'lodash';
 import { getDriveAnnotations } from 'app/shared/util/core-drive-annotation-submission/core-drive-annotation-submission';
 import { DriveAnnotationApi } from 'app/shared/api/manual/drive-annotation-api';
@@ -658,8 +659,7 @@ export class FirebaseGeneService {
   saveAllGenes = async (isGermlineProp: boolean) => {
     if (!isGermlineProp) {
       try {
-        const releaseBaseUrl = 'http://oncokb-data-release:8085';
-        await axios.post(`${releaseBaseUrl}/api/v1/gene-data/save`);
+        await dataReleaseClient.triggerSave();
       } catch (e) {
         throw new SentryError('Failed to save all genes', {});
       }
@@ -704,13 +704,8 @@ export class FirebaseGeneService {
     const entrezGeneIds = (data ?? []).map(g => g?.entrezGeneId).filter((id: any) => typeof id === 'number');
     if (!isGermlineProp) {
       try {
-        const releaseBaseUrl = 'http://oncokb-data-release:8085';
         if (entrezGeneIds.length > 0) {
-          await axios.post(
-            `${releaseBaseUrl}/api/v1/gene-data/save`,
-            { entrezGeneIds },
-            { headers: { 'Content-Type': 'application/json' } },
-          );
+          await dataReleaseClient.triggerSave({ headers: { 'Content-Type': 'application/json' }, data: { entrezGeneIds } });
         }
       } catch (e) {
         throw new SentryError('Failed to save gene ', { entrezGeneIds });
