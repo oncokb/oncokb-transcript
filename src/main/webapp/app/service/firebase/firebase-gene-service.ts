@@ -39,6 +39,7 @@ import {
   GET_ALL_DRUGS_PAGE_SIZE,
   NEW_NAME_UUID_VALUE,
 } from 'app/config/constants/constants';
+import { dataReleaseClient } from 'app/shared/api/clients';
 import _ from 'lodash';
 import { getDriveAnnotations } from 'app/shared/util/core-drive-annotation-submission/core-drive-annotation-submission';
 import { DriveAnnotationApi } from 'app/shared/api/manual/drive-annotation-api';
@@ -46,6 +47,8 @@ import GeneStore from 'app/entities/gene/gene.store';
 import { geneIsReleased } from 'app/shared/util/entity-utils/gene-entity-utils';
 import DrugStore from 'app/entities/drug/drug.store';
 import { flow, flowResult } from 'mobx';
+import axios, { AxiosResponse } from 'axios';
+import { IGene } from 'app/shared/model/gene.model';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -654,6 +657,14 @@ export class FirebaseGeneService {
   };
 
   saveAllGenes = async (isGermlineProp: boolean) => {
+    if (!isGermlineProp) {
+      try {
+        await dataReleaseClient.triggerSave();
+      } catch (e) {
+        throw new SentryError('Failed to save all genes', {});
+      }
+      return;
+    }
     const drugLookup = await this.getDrugs();
     const geneLookup = ((await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp))).val() as Record<string, Gene>) ?? {};
     const vusLookup =
@@ -686,10 +697,21 @@ export class FirebaseGeneService {
     nullableGene: Gene | null,
     nullableVus: Record<string, Vus> | null,
   ) => {
-    const searchResponse = await flowResult(
+    const searchResponse = (await flowResult(
       flow(this.geneStore.getSearch.bind(this.geneStore))({ query: hugoSymbolProp, exact: true, noState: true }),
-    );
+    )) as AxiosResponse<IGene[], any>;
     const data = searchResponse.data;
+    const entrezGeneIds = (data ?? []).map(g => g?.entrezGeneId).filter((id: any) => typeof id === 'number');
+    if (!isGermlineProp) {
+      try {
+        if (entrezGeneIds.length > 0) {
+          await dataReleaseClient.triggerSave({ headers: { 'Content-Type': 'application/json' }, data: { entrezGeneIds } });
+        }
+      } catch (e) {
+        throw new SentryError('Failed to save gene ', { entrezGeneIds });
+      }
+      return;
+    }
     const args: Parameters<typeof getDriveAnnotations>[1] = {
       gene: nullableGene == null ? undefined : nullableGene,
       vus: nullableVus == null ? undefined : Object.values(nullableVus),

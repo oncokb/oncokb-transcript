@@ -92,15 +92,7 @@ import { FirebaseVusService } from 'app/service/firebase/firebase-vus-service';
 import { ModifyCancerTypeModalStore } from 'app/shared/modal/modify-cancer-type-modal.store';
 import { ModifyTherapyModalStore } from 'app/shared/modal/modify-therapy-modal.store';
 import { RelevantCancerTypesModalStore } from 'app/shared/modal/relevant-cancer-types-modal-store';
-import {
-  GenomicIndicator,
-  GenomicIndicatorList,
-  HistoryList,
-  MetaCollection,
-  Mutation,
-  MutationList,
-  VusObjList,
-} from 'app/shared/model/firebase/firebase.model';
+import { GenomicIndicatorList, HistoryList, MetaCollection, MutationList, VusObjList } from 'app/shared/model/firebase/firebase.model';
 import { HistoryTabStore } from '../components/tabs/history-tab.store';
 import { FirebaseHistoryService } from '../service/firebase/firebase-history-service';
 import { CommentStore } from './comment.store';
@@ -109,7 +101,7 @@ import { FirebaseRepository } from './firebase/firebase-repository';
 import { OpenMutationCollapsibleStore } from './open-mutation-collapsible.store';
 import { CurationPageStore } from 'app/stores/curation-page.store';
 import CategoricalAlterationStore from 'app/entities/categorical-alteration/categorical-alteration.store';
-import { driveAnnotationClient, legacyEvidenceClient, geneTypeClient, geneLegacyApi } from 'app/shared/api/clients';
+import { driveAnnotationClient, geneLegacyApi } from 'app/shared/api/clients';
 import { WindowStore } from './window-store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 import ManagementStore from 'app/stores/management.store';
@@ -254,15 +246,13 @@ export function createStores(history: History): IRootStore {
   /* Firebase Services */
   const firebaseMetaService = new FirebaseMetaService(firebaseRepository, rootStore.authStore);
   const firebaseHistoryService = new FirebaseHistoryService(firebaseRepository);
-  const firebaseVusService = new FirebaseVusService(firebaseRepository, legacyEvidenceClient, rootStore.authStore);
+  const firebaseVusService = new FirebaseVusService(firebaseRepository, rootStore.authStore);
   const firebaseGeneReviewService = new FirebaseGeneReviewService(
     firebaseRepository,
     rootStore.authStore,
     firebaseMetaService,
     firebaseHistoryService,
     firebaseVusService,
-    legacyEvidenceClient,
-    geneTypeClient,
   );
   const firebaseGeneService = new FirebaseGeneService(
     firebaseRepository,

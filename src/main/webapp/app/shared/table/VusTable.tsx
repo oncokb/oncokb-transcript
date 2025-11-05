@@ -57,7 +57,6 @@ const VusTable = ({
   hugoSymbol,
   mutationsSectionRef,
   isGermline,
-  sendVusToCore,
   addVus,
   refreshVus,
   deleteVus,
@@ -115,7 +114,6 @@ const VusTable = ({
     try {
       if (vusData) {
         await refreshVus?.(`${firebaseVusPath}/${uuid}`, vusData[uuid]);
-        syncVusWithCore();
       }
     } catch (error) {
       notifyError(error);
@@ -125,7 +123,6 @@ const VusTable = ({
   async function handleDelete() {
     try {
       await deleteVus?.(`${firebaseVusPath}/${currentActionVusUuid.current}`);
-      syncVusWithCore();
     } catch (error) {
       notifyError(error);
     }
@@ -134,20 +131,6 @@ const VusTable = ({
   async function handleAddVus(variants: string[]) {
     await addVus?.(firebaseVusPath, variants);
     setShowAddVusModal(false);
-    syncVusWithCore();
-  }
-
-  async function syncVusWithCore() {
-    try {
-      if (firebaseDb && hugoSymbol) {
-        const firebaseVus = (await get(ref(firebaseDb, firebaseVusPath))).val() as Record<string, Vus>;
-        const vus = Object.values(firebaseVus);
-        await sendVusToCore?.(hugoSymbol, vus);
-      }
-    } catch (e) {
-      const error = new SentryError('Fail to submit VUS data to core.', { exception: e, hugoSymbol });
-      console.error(error);
-    }
   }
 
   const columns: FilterableColumn<VusTableData>[] = [
@@ -351,7 +334,6 @@ const mapStoreToProps = ({
   fullName: authStore.fullName,
   addMutation: firebaseGeneService.addMutation,
   setOpenMutationCollapsibleListKey: openMutationCollapsibleStore.setOpenMutationCollapsibleListKey,
-  sendVusToCore: firebaseVusService.sendVusToCore.bind(firebaseVusService),
   readOnly: curationPageStore.readOnly,
 });
 

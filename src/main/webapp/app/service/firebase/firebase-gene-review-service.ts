@@ -4,7 +4,7 @@ import { FirebaseMetaService } from 'app/service/firebase/firebase-meta-service'
 import { AuthStore } from 'app/stores';
 import { FirebaseRepository } from 'app/stores/firebase/firebase-repository';
 import _ from 'lodash';
-import { DrugCollection, Gene, Review } from '../../shared/model/firebase/firebase.model';
+import { Review } from '../../shared/model/firebase/firebase.model';
 import { buildHistoryFromReviews } from '../../shared/util/firebase/firebase-history-utils';
 import { extractArrayPath, parseFirebaseGenePath } from '../../shared/util/firebase/firebase-path-utils';
 import {
@@ -24,25 +24,12 @@ import { FirebaseVusService } from './firebase-vus-service';
 import { SentryError } from 'app/config/sentry-error';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 
-import {
-  getEvidence,
-  pathToDeleteEvidenceArgs,
-  pathToGetEvidenceArgs,
-} from 'app/shared/util/core-evidence-submission/core-evidence-submission';
-import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
-import { createGeneTypePayload, isGeneTypeChange } from 'app/shared/util/core-gene-type-submission/core-gene-type-submission';
-import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
-import { flattenReviewPaths, useLastReviewedOnly } from 'app/shared/util/core-submission-shared/core-submission-utils';
-import { AppConfig } from 'app/appConfig';
-
 export class FirebaseGeneReviewService {
   firebaseRepository: FirebaseRepository;
   authStore: AuthStore;
   firebaseMetaService: FirebaseMetaService;
   firebaseHistoryService: FirebaseHistoryService;
   firebaseVusService: FirebaseVusService;
-  evidenceClient: EvidenceApi;
-  geneTypeClient: GeneTypeApi;
 
   constructor(
     firebaseRepository: FirebaseRepository,
@@ -50,16 +37,12 @@ export class FirebaseGeneReviewService {
     firebaseMetaService: FirebaseMetaService,
     firebaseHistoryService: FirebaseHistoryService,
     firebaseVusService: FirebaseVusService,
-    evidenceClient: EvidenceApi,
-    geneTypeClient: GeneTypeApi,
   ) {
     this.firebaseRepository = firebaseRepository;
     this.authStore = authStore;
     this.firebaseMetaService = firebaseMetaService;
     this.firebaseHistoryService = firebaseHistoryService;
     this.firebaseVusService = firebaseVusService;
-    this.evidenceClient = evidenceClient;
-    this.geneTypeClient = geneTypeClient;
   }
 
   getGeneUpdateObject = (updateValue: any, updatedReview: Review, firebasePath: string, uuid: string | undefined) => {
@@ -116,119 +99,18 @@ export class FirebaseGeneReviewService {
   };
 
   acceptChanges = async ({
-    gene,
     hugoSymbol,
     reviewLevels,
     isGermline,
     isAcceptAll = false,
-    drugListRef,
-    entrezGeneId,
   }: {
-    gene: Gene;
     hugoSymbol: string;
     reviewLevels: ReviewLevel[];
     isGermline: boolean;
     isAcceptAll?: boolean;
-    drugListRef: DrugCollection;
-    entrezGeneId: number;
   }): Promise<undefined | void> => {
     const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
-
-    let evidences: ReturnType<typeof getEvidence> = {};
-    let geneTypePayload: ReturnType<typeof createGeneTypePayload> | undefined = undefined;
-    let hasEvidences = false;
-    try {
-      const flattenedReviewLevels = reviewLevels.flatMap(flattenReviewPaths);
-      // Generate a new version of the gene object (`approvedGene`) for the getEvidence payload.
-      // This ensures that if multiple valuePaths modify the same part of the payload,
-      // the changes are applied consistently, preventing any section from being overwritten unintentionally.
-      const approvedGene = useLastReviewedOnly(gene, firebaseGenePath, ...flattenedReviewLevels.map(x => x.valuePath)) as Gene;
-      for (const reviewLevel of flattenedReviewLevels) {
-        if (!isCreateReview(reviewLevel)) {
-          if (reviewLevel.reviewInfo.review.removed) {
-            const deleteEvidencesPayload = pathToDeleteEvidenceArgs({ valuePath: reviewLevel.valuePath, gene });
-            if (deleteEvidencesPayload !== undefined) {
-              this.evidenceClient.deleteEvidences(deleteEvidencesPayload);
-            }
-          } else if (isGeneTypeChange(reviewLevel.valuePath)) {
-            geneTypePayload = createGeneTypePayload(approvedGene);
-          } else {
-            const args = pathToGetEvidenceArgs({
-              gene: approvedGene,
-              valuePath: reviewLevel.valuePath,
-              updateTime: new Date().getTime(),
-              drugListRef,
-              entrezGeneId,
-            });
-            if (args !== undefined) {
-              evidences = {
-                ...evidences,
-                ...getEvidence(args),
-              };
-              hasEvidences = true;
-            }
-          }
-        }
-      }
-    } catch (error) {
-      const sentryError = new SentryError('Failed to create evidences when accepting changes in review mode', {
-        hugoSymbol,
-        reviewLevels,
-        isGermline,
-        errorMessage: (error as { message: string }).message,
-        errorStack: (error as { stack: string }).stack,
-      });
-      if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
-        throw sentryError;
-      } else {
-        console.error(sentryError);
-      }
-    }
-
-    try {
-      if (geneTypePayload) {
-        await this.geneTypeClient.submitGeneTypeToCore(geneTypePayload);
-      }
-    } catch (error) {
-      const sentryError = new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
-        hugoSymbol,
-        reviewLevels,
-        isGermline,
-        errorMessage: (error as { message: string }).message,
-        errorStack: (error as { stack: string }).stack,
-      });
-      if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
-        throw sentryError;
-      } else {
-        console.error(sentryError);
-      }
-    }
-
-    if (hasEvidences) {
-      const evidenceClient = this.evidenceClient;
-      const submitEvidences = async () => {
-        try {
-          await evidenceClient.submitEvidences(evidences);
-        } catch (error) {
-          const sentryError = new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
-            hugoSymbol,
-            reviewLevels,
-            isGermline,
-            errorMessage: (error as { message: string }).message,
-            errorStack: (error as { stack: string }).stack,
-          });
-          if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
-            throw sentryError;
-          } else {
-            console.error(sentryError);
-          }
-        }
-      };
-      // this is slow so do this submission in parallel
-      // in other words, do not await
-      submitEvidences();
-    }
 
     let updateObject = {};
 

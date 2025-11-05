@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.config.application;
 
 import org.mskcc.oncokb.curation.config.model.OncoKbConfig;
 import org.mskcc.oncokb.curation.config.model.OncoKbCoreConfig;
+import org.mskcc.oncokb.curation.config.model.OncokbDataReleaseConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -23,6 +24,8 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     private OncoKbCoreConfig oncokbCore;
 
+    private OncokbDataReleaseConfig oncokbDataRelease;
+
     private String nihEutilsToken;
 
     public OncoKbCoreConfig getOncokbCore() {
@@ -31,6 +34,14 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     public void setOncokbCore(OncoKbCoreConfig oncokbCore) {
         this.oncokbCore = oncokbCore;
+    }
+
+    public OncokbDataReleaseConfig getOncokbDataRelease() {
+        return this.oncokbDataRelease;
+    }
+
+    public void setOncokbDataRelease(OncokbDataReleaseConfig oncokbDataRelease) {
+        this.oncokbDataRelease = oncokbDataRelease;
     }
 
     public OncoKbConfig getOncokb() {

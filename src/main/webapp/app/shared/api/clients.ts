@@ -11,6 +11,7 @@ import {
   CancerTypeResourceApi,
   ArticleResourceApi,
   AuditResourceApi,
+  OncoKbDataReleaseResourceApi,
 } from './generated/curation/api';
 import { EvidencesApi } from './generated/core';
 import { DriveAnnotationApi } from './manual/drive-annotation-api';
@@ -37,3 +38,5 @@ export const driveAnnotationClient = new DriveAnnotationApi(undefined, '', axios
 export const geneLegacyApi = new GeneApi(undefined, '', axiosInstance);
 
 export const evidenceClient = new EvidencesApi(undefined, 'api/v1', axiosInstance);
+
+export const dataReleaseClient = new OncoKbDataReleaseResourceApi(undefined, '', axiosInstance);
