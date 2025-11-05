@@ -209,7 +209,7 @@ export const ReviewCollapsible = ({
     // After marking collapsible as pending, it will be removed from the view. Now we need to save to firebase
     try {
       if (action === ActionType.ACCEPT) {
-        await handleAccept?.({ hugoSymbol, reviewLevels: getReviewLevelsForActions(), isGermline, drugListRef, entrezGeneId, gene });
+        await handleAccept?.({ hugoSymbol, reviewLevels: getReviewLevelsForActions(), isGermline });
       } else if (action === ActionType.REJECT) {
         await handleReject?.(hugoSymbol, getReviewLevelsForActions(), isGermline);
       }

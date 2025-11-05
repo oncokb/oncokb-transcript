@@ -156,9 +156,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
         reviewLevels,
         isGermline: isGermline ?? false,
         isAcceptAll: true,
-        gene: geneData,
-        entrezGeneId: geneEntity?.entrezGeneId as number,
-        drugListRef,
       });
       await fetchFirebaseData();
     } catch (error) {

@@ -21,14 +21,4 @@ public class FrontendProperties {
     public void setSentryDsn(String sentryDsn) {
         this.sentryDsn = sentryDsn;
     }
-
-    private Boolean stopReviewIfCoreSubmissionFails;
-
-    public Boolean getStopReviewIfCoreSubmissionFails() {
-        return stopReviewIfCoreSubmissionFails;
-    }
-
-    public void setStopReviewIfCoreSubmissionFails(Boolean stopReviewIfCoreSubmissionFails) {
-        this.stopReviewIfCoreSubmissionFails = stopReviewIfCoreSubmissionFails;
-    }
 }
