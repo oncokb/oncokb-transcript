@@ -94,9 +94,11 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGene
       </Row>
       {!isGermline && isDev && (
         <Row className="pt-3 border-top mb-3">
-          <div>
-            <SaveGeneButton />
-          </div>
+          <DefaultTooltip overlay={<span>Please use cronjob to trigger a full refresh</span>}>
+            <div>
+              <SaveGeneButton disabled={!isGermline} />
+            </div>
+          </DefaultTooltip>
         </Row>
       )}
       <Row>

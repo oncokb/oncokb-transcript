@@ -211,7 +211,7 @@ export function CurationToolsTab({
           {!isGermline && (
             <Row className="border-top pt-3">
               <Col>
-                <SaveGeneButton hugoSymbol={hugoSymbol} />
+                <SaveGeneButton gene={geneToUpdate.current} />
               </Col>
             </Row>
           )}

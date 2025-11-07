@@ -4056,6 +4056,56 @@ export interface Rule {
 /**
  *
  * @export
+ * @interface SaveGeneJobStatus
+ */
+export interface SaveGeneJobStatus {
+  /**
+   *
+   * @type {string}
+   * @memberof SaveGeneJobStatus
+   */
+  status?: string;
+  /**
+   *
+   * @type {number}
+   * @memberof SaveGeneJobStatus
+   */
+  stepIndex: number;
+  /**
+   *
+   * @type {number}
+   * @memberof SaveGeneJobStatus
+   */
+  stepTotal: number;
+  /**
+   *
+   * @type {string}
+   * @memberof SaveGeneJobStatus
+   */
+  error?: string;
+}
+/**
+ *
+ * @export
+ * @interface SaveGeneResponse
+ */
+export interface SaveGeneResponse {
+  /**
+   *
+   * @type {Array<number>}
+   * @memberof SaveGeneResponse
+   */
+  queued?: Array<number>;
+  /**
+   *
+   * @type {Array<number>}
+   * @memberof SaveGeneResponse
+   */
+  skipped?: Array<number>;
+}
+/**
+ *
+ * @export
  * @interface SearchResultDTO
  */
 export interface SearchResultDTO {
@@ -20778,6 +20828,36 @@ export const OncoKbDataReleaseResourceApiAxiosParamCreator = function (configura
   return {
     /**
      *
+     * @param {number} geneId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getGeneStatus: async (geneId: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'geneId' is not null or undefined
+      assertParamExists('getGeneStatus', 'geneId', geneId);
+      const localVarPath = `/api/v1/data-release/status/{geneId}`.replace(`{${'geneId'}}`, encodeURIComponent(String(geneId)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -20815,10 +20895,23 @@ export const OncoKbDataReleaseResourceApiFp = function (configuration?: Configur
   return {
     /**
      *
+     * @param {number} geneId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async triggerSave(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+    async getGeneStatus(
+      geneId: number,
+      options?: AxiosRequestConfig,
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SaveGeneJobStatus>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getGeneStatus(geneId, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async triggerSave(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SaveGeneResponse>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.triggerSave(options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
@@ -20834,10 +20927,19 @@ export const OncoKbDataReleaseResourceApiFactory = function (configuration?: Con
   return {
     /**
      *
+     * @param {number} geneId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    triggerSave(options?: AxiosRequestConfig): AxiosPromise<void> {
+    getGeneStatus(geneId: number, options?: AxiosRequestConfig): AxiosPromise<SaveGeneJobStatus> {
+      return localVarFp.getGeneStatus(geneId, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    triggerSave(options?: AxiosRequestConfig): AxiosPromise<SaveGeneResponse> {
       return localVarFp.triggerSave(options).then(request => request(axios, basePath));
     },
   };
@@ -20850,6 +20952,19 @@ export const OncoKbDataReleaseResourceApiFactory = function (configuration?: Con
  * @extends {BaseAPI}
  */
 export class OncoKbDataReleaseResourceApi extends BaseAPI {
+  /**
+   *
+   * @param {number} geneId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof OncoKbDataReleaseResourceApi
+   */
+  public getGeneStatus(geneId: number, options?: AxiosRequestConfig) {
+    return OncoKbDataReleaseResourceApiFp(this.configuration)
+      .getGeneStatus(geneId, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
   /**
    *
    * @param {*} [options] Override http request option.

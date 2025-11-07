@@ -1,14 +1,15 @@
 package org.mskcc.oncokb.curation.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.mskcc.oncokb.curation.service.dto.datarelease.SaveGeneJobStatus;
+import org.mskcc.oncokb.curation.service.dto.datarelease.SaveGeneResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,32 +17,49 @@ import org.springframework.web.client.RestTemplate;
 public class OncoKbDataReleaseService {
 
     private final ApplicationProperties applicationProperties;
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public OncoKbDataReleaseService(ApplicationProperties applicationProperties) {
         this.applicationProperties = applicationProperties;
     }
 
-    public ResponseEntity<String> triggerSaveAll() {
-        String baseUrl = applicationProperties.getOncokbDataRelease().getUrl();
-        String url = String.format("%s/api/v1/gene-data/save", baseUrl);
-
-        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.exchange(url, HttpMethod.POST, HttpEntity.EMPTY, String.class);
+    public ResponseEntity<SaveGeneResponse> triggerSaveAll() {
+        String url = applicationProperties.getOncokbDataRelease().getUrl() + "/api/v1/gene-data/save";
+        return restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(null, jsonHeaders()), SaveGeneResponse.class);
     }
 
-    public ResponseEntity<String> triggerSaveByEntrezIds(List<Integer> entrezGeneIds) {
-        String baseUrl = applicationProperties.getOncokbDataRelease().getUrl();
-        String url = String.format("%s/api/v1/gene-data/save", baseUrl);
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+    public ResponseEntity<SaveGeneResponse> triggerSaveByEntrezIds(List<Integer> entrezGeneIds) {
+        String url = applicationProperties.getOncokbDataRelease().getUrl() + "/api/v1/gene-data/save";
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("entrezGeneIds", entrezGeneIds);
 
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(payload, headers);
-        return restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+        return restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(payload, jsonHeaders()), SaveGeneResponse.class);
+    }
+
+    public ResponseEntity<SaveGeneJobStatus> getGeneStatus(Integer geneId) {
+        String url = applicationProperties.getOncokbDataRelease().getUrl() + "/api/v1/gene-data/status/" + geneId;
+
+        ResponseEntity<String> raw = restTemplate.getForEntity(url, String.class);
+
+        try {
+            SaveGeneJobStatus parsed = objectMapper.readValue(raw.getBody(), SaveGeneJobStatus.class);
+            return ResponseEntity.status(raw.getStatusCode()).body(parsed);
+        } catch (JsonProcessingException e) {
+            SaveGeneJobStatus errorResponse = new SaveGeneJobStatus();
+            errorResponse.setStatus("error");
+            errorResponse.setError("Failed to process JSON response: " + e.getOriginalMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    private HttpHeaders jsonHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
     }
 }
