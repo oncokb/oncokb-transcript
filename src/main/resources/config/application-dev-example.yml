@@ -115,6 +115,8 @@ sentry:
 application:
   oncokb-core:
     url: http://localhost:8000/oncokb
+  oncokb-data-release:
+    url: http://localhost:8085 # URL to trigger a gene(s) save to staging core
   oncokb:
     api-key:
     url:

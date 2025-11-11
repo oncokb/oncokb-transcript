@@ -109,6 +109,8 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     // Clear reviewer when user exits review or closes the tab/browser
     const handleBeforeUnload = () => {
       if (hugoSymbol && isGermline !== undefined && props.firebaseDb) {
+        // Trigger a save when user leaves review page
+        props.firebaseGeneService?.saveGene(isGermline, hugoSymbol);
         set(ref(props.firebaseDb, `${firebaseMetaReviewPath}/currentReviewer`), '');
       }
     };
@@ -297,6 +299,7 @@ const mapStoreToProps = ({
   geneStore,
   routerStore,
   firebaseMetaService,
+  firebaseGeneService,
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   fullName: authStore.fullName,
@@ -312,6 +315,7 @@ const mapStoreToProps = ({
   firebaseInitSuccess: firebaseAppStore.firebaseInitSuccess,
   isGermline: routerStore.isGermline,
   updateGeneLastActiveReview: firebaseMetaService.updateGeneLastActiveReview,
+  firebaseGeneService,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
