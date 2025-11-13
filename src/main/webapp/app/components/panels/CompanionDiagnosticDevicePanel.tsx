@@ -4,8 +4,6 @@ import { Button, Container, Form } from 'reactstrap';
 import {
   DUPLICATE_THERAPY_ERROR_MESSAGE,
   EMPTY_THERAPY_ERROR_MESSAGE,
-  ENTITY_ACTION,
-  ENTITY_TYPE,
   RULE_ENTITY,
   SearchOptionType,
 } from 'app/config/constants/constants';
@@ -30,9 +28,9 @@ import _ from 'lodash';
 import { ErrorMessage } from 'app/shared/error/ErrorMessage';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
 import FdaSubmissionUpdateForm from 'app/entities/fda-submission/fda-submission-update-form';
-import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
 import { getCancerTypeName } from 'app/shared/util/utils';
 import { getFdaSubmissionNumber } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
+import AlterationUpdateForm from 'app/entities/alteration/alteration-update-form';
 
 const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties; children: React.ReactNode; className?: string }> = ({
   className,
@@ -62,8 +60,8 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({
   const [selectedTreatments, setSelectedTreatments] = useState<DrugSelectOption[][]>([[]]);
   const [fdaSubmissionValue, setFdaSubmissionValue] = useState<readonly FdaSubmissionSelectOption[]>([]);
   const [showAddFdaSubmissionModal, setShowFdaSubmissionModal] = useState(false);
+  const [showAddAlterationModal, setShowAddAlterationModal] = useState(false);
 
-  const history = useHistory();
   const location = useLocation();
   const id = parseInt(location.pathname.split('/')[2], 10);
 
@@ -224,9 +222,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({
       .catch(error => notifyError(error));
   };
 
-  const redirectToCreateAlteration = () => {
-    history.push(getEntityActionRoute(ENTITY_TYPE.ALTERATION, ENTITY_ACTION.ADD));
-  };
+  const openCreateAlterationModal = () => setShowAddAlterationModal(true);
 
   const cancelEditing = () => {
     resetValues();
@@ -236,6 +232,16 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({
   const onTreatmentChange = (drugOptions: DrugSelectOption[], index: number) => {
     setSelectedTreatments(prevItems => prevItems.map((item, i) => (i === index ? drugOptions : item)));
   };
+
+  // Clear panel state when leaving the page (on unmount)
+  useEffect(() => {
+    return () => {
+      resetValues();
+      clearEditingAssociation();
+      setShowFdaSubmissionModal(false);
+      setShowAddAlterationModal(false);
+    };
+  }, []);
 
   const isEmptyTreatments = selectedTreatments.some(drugs => drugs.length === 0);
   const hasDuplicateTreatments = useMemo(() => {
@@ -269,7 +275,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({
                   />
                 </div>
                 <DefaultTooltip overlay={'Create new alteration'}>
-                  <Button className="ms-1" color="primary" onClick={redirectToCreateAlteration} outline>
+                  <Button className="ms-1" color="primary" onClick={openCreateAlterationModal} outline>
                     <FontAwesomeIcon icon={faPlus} size="sm" />
                   </Button>
                 </DefaultTooltip>
@@ -364,6 +370,18 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({
         onCancel={() => setShowFdaSubmissionModal(false)}
         confirmText="Done"
         onConfirm={() => setShowFdaSubmissionModal(false)}
+        bodyStyle={{ overflowY: 'scroll', height: '75vh' }}
+      />
+      <SimpleConfirmModal
+        title={'Create Alteration'}
+        size="lg"
+        show={showAddAlterationModal}
+        body={<AlterationUpdateForm isNew defaultGene={geneValue} />}
+        onCancel={() => setShowAddAlterationModal(false)}
+        confirmText="Done"
+        onConfirm={() => {
+          setShowAddAlterationModal(false);
+        }}
         bodyStyle={{ overflowY: 'scroll', height: '75vh' }}
       />
     </>
