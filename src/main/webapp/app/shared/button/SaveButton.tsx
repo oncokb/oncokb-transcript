@@ -2,11 +2,11 @@ import React from 'react';
 import { Button, ButtonProps } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-export const SaveButton: React.FunctionComponent<ButtonProps & React.HTMLAttributes<HTMLButtonElement>> = props => {
+export const SaveButton: React.FunctionComponent<ButtonProps & React.HTMLAttributes<HTMLButtonElement>> = ({ children, ...props }) => {
   return (
     <Button color="primary" type="submit" size="sm" {...props}>
       <FontAwesomeIcon icon="save" />
-      <span className="ms-2">Save</span>
+      <span className="ms-2">{children ?? 'Save'}</span>
     </Button>
   );
 };

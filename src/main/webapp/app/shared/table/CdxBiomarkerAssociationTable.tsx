@@ -1,11 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from '../util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { getFdaSubmissionLinks } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
 import { IAssociation } from '../model/association.model';
-import { Column } from 'react-table';
 import { filterByKeyword, getAlterationName, getCancerTypeName, getGeneNamesStringFromAlterations, getTreatmentName } from '../util/utils';
-import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faTrashAlt, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { SimpleConfirmModal } from '../modal/SimpleConfirmModal';
 import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -37,6 +36,10 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   const handleCancel = () => {
     setShowModal(false);
     setCurrentBiomarkerAssociationId(null);
+  };
+
+  const handleEditIndication = (association: IAssociation) => {
+    props.setEditingAssociation(association);
   };
 
   const biomarkerAssociations: IAssociation[] = useMemo(() => {
@@ -103,7 +106,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
       Cell(cell: { original: IAssociation }) {
         return (
           <>
-            {cell.original.drugs && getTreatmentName(cell.original.drugs, cell.original.rules?.filter(rule => (rule.entity = 'DRUG'))[0])}
+            {cell.original.drugs && getTreatmentName(cell.original.drugs, cell.original.rules?.filter(rule => rule.entity === 'DRUG')[0])}
           </>
         );
       },
@@ -111,12 +114,12 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
         if (!data.drugs) {
           return '';
         }
-        return getTreatmentName(data.drugs, data.rules?.filter(rule => (rule.entity = 'DRUG'))[0]);
+        return getTreatmentName(data.drugs, data.rules?.filter(rule => rule.entity === 'DRUG')[0]);
       },
       filterType: FilterTypes.STRING,
       onSearchFilter(data: IAssociation, keyword) {
         if (!data.drugs) return false;
-        const txName = getTreatmentName(data.drugs, data.rules?.filter(rule => (rule.entity = 'DRUG'))[0]);
+        const txName = getTreatmentName(data.drugs, data.rules?.filter(rule => rule.entity === 'DRUG')[0]);
         return txName ? filterByKeyword(txName, keyword) : false;
       },
     },
@@ -138,13 +141,15 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
 
   if (props.editable) {
     columns.push({
-      id: 'remove',
-      Header: 'Remove',
+      id: 'actions',
+      Header: 'Actions',
       Cell(cell: { original: IAssociation }) {
         return (
-          <>
+          <div className="d-flex gap-1">
+            <Button color="primary" size="sm" onClick={() => handleEditIndication(cell.original)}>
+              <FontAwesomeIcon icon={faEdit} />
+            </Button>
             <Button
-              text="Delete"
               color="danger"
               size="sm"
               onClick={() => {
@@ -154,10 +159,10 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
             >
               <FontAwesomeIcon icon={faTrashAlt} />
             </Button>
-          </>
+          </div>
         );
       },
-      minWidth: 50,
+      minWidth: 100,
       disableHeaderFiltering: true,
     });
   }
@@ -181,8 +186,9 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   );
 };
 
-const mapStoreToProps = ({ associationStore }: IRootStore) => ({
+const mapStoreToProps = ({ associationStore, cdxAssociationEditStore }: IRootStore) => ({
   deleteEntity: associationStore.deleteEntity,
+  setEditingAssociation: cdxAssociationEditStore.setEditingAssociation,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

@@ -19,8 +19,7 @@ import GeneSelect, { GeneSelectOption } from 'app/shared/select/GeneSelect';
 import AlterationSelect, { AlterationSelectOption } from 'app/shared/select/AlterationSelect';
 import DrugSelect, { DrugSelectOption } from 'app/shared/select/DrugSelect';
 import FdaSubmissionSelect, { FdaSubmissionSelectOption } from 'app/shared/select/FdaSubmissionSelect';
-import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
-import { Alteration, Association, CancerType, Drug, FdaSubmission, Rule } from 'app/shared/api/generated/curation';
+import { Alteration, Association, CancerType, FdaSubmission, Rule } from 'app/shared/api/generated/curation';
 import { associationClient } from 'app/shared/api/clients';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IRootStore } from 'app/stores';
@@ -31,6 +30,9 @@ import _ from 'lodash';
 import { ErrorMessage } from 'app/shared/error/ErrorMessage';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
 import FdaSubmissionUpdateForm from 'app/entities/fda-submission/fda-submission-update-form';
+import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
+import { getCancerTypeName } from 'app/shared/util/utils';
+import { getFdaSubmissionNumber } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
 
 const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties; children: React.ReactNode; className?: string }> = ({
   className,
@@ -49,7 +51,11 @@ export const defaultAdditional = {
   type: SearchOptionType.GENE,
 };
 
-const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ getEntity }: StoreProps) => {
+const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({
+  getEntity,
+  editingAssociation,
+  clearEditingAssociation,
+}: StoreProps) => {
   const [geneValue, setGeneValue] = useState<GeneSelectOption | null>(null);
   const [alterationValue, setAlterationValue] = useState<readonly AlterationSelectOption[]>();
   const [cancerTypeValue, setCancerTypeValue] = useState<CancerTypeSelectOption | null>(null);
@@ -75,8 +81,82 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
     setFdaSubmissionValue([]);
   };
 
-  const createBiomarkerAssociation = (e: any) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (editingAssociation) {
+      const firstAlt = editingAssociation.alterations?.[0];
+      if (firstAlt && firstAlt.genes && firstAlt.genes.length > 0) {
+        setGeneValue({ value: firstAlt.genes[0].id, label: firstAlt.genes[0].hugoSymbol });
+      } else {
+        setGeneValue(null);
+      }
+
+      setAlterationValue(editingAssociation.alterations?.map(alt => ({ value: alt.id, label: alt.name })) ?? []);
+
+      const ct =
+        editingAssociation.cancerTypes && editingAssociation.cancerTypes.length > 0 ? editingAssociation.cancerTypes[0] : undefined;
+      if (ct) {
+        setCancerTypeValue({
+          value: ct.id,
+          label: getCancerTypeName(ct),
+          code: ct.code ?? '',
+          mainType: ct.mainType,
+          subtype: ct.subtype ?? '',
+          level: ct.level,
+        });
+      } else {
+        setCancerTypeValue(null);
+      }
+
+      const drugOptionsMap = new Map<number, DrugSelectOption>();
+      editingAssociation.drugs?.forEach(drug => {
+        const label = `${drug.name}${drug.nciThesaurus ? ` (${drug.nciThesaurus.code})` : ''}`;
+        drugOptionsMap.set(drug.id, {
+          value: drug.id,
+          label,
+          drugName: drug.name,
+          uuid: drug.uuid,
+          synonyms: drug.nciThesaurus?.synonyms ?? undefined,
+          ncit: drug.nciThesaurus ?? undefined,
+        });
+      });
+      const drugRule = editingAssociation.rules?.find(r => r.entity === 'DRUG');
+      let groups: DrugSelectOption[][] = [[]];
+      if (drugRule?.rule) {
+        groups = drugRule.rule.split(',').map(group =>
+          group
+            .split('+')
+            .filter(s => s)
+            .map(idStr => {
+              const drugId = parseInt(idStr, 10);
+              return (
+                drugOptionsMap.get(drugId) || {
+                  value: drugId,
+                  label: `${drugId}`,
+                }
+              );
+            }),
+        );
+      } else if (editingAssociation.drugs) {
+        groups = [
+          editingAssociation.drugs.map(
+            d =>
+              drugOptionsMap.get(d.id) ?? {
+                value: d.id,
+                label: d.name,
+              },
+          ),
+        ];
+      }
+      setSelectedTreatments(groups);
+
+      setFdaSubmissionValue(
+        editingAssociation.fdaSubmissions?.map(fs => ({ value: fs.id, label: getFdaSubmissionNumber(fs.number, fs.supplementNumber) })) ??
+          [],
+      );
+    }
+  }, [editingAssociation]);
+
+  const buildAssociationFromState = (): Association => {
     const association: Association = {
       fdaSubmissions: fdaSubmissionValue?.map((fdaSubmission): FdaSubmission => {
         return {
@@ -102,7 +182,6 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
         'id',
       ),
     };
-
     if (!_.isEmpty(association.drugs)) {
       const rule: Rule = {
         entity: RULE_ENTITY.DRUG,
@@ -110,10 +189,15 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
       };
       association.rules = [rule];
     }
-
     if (cancerTypeValue) {
       association.cancerTypes = [{ id: cancerTypeValue.value } as CancerType];
     }
+    return association;
+  };
+
+  const createBiomarkerAssociation = (e: any) => {
+    e.preventDefault();
+    const association = buildAssociationFromState();
     associationClient
       .createAssociation(association)
       .then(() => {
@@ -124,12 +208,29 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
       .catch(error => notifyError(error));
   };
 
-  const redirectToCreateAlteration = () => {
-    history.push(getEntityActionRoute(ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE, ENTITY_ACTION.ADD));
+  const updateBiomarkerAssociation = (e: any) => {
+    e.preventDefault();
+    if (!editingAssociation) return;
+    const association = buildAssociationFromState();
+    associationClient
+      .deleteAssociation(editingAssociation.id)
+      .then(() => associationClient.createAssociation(association))
+      .then(() => {
+        getEntity(id);
+        resetValues();
+        clearEditingAssociation();
+        notifySuccess('Biomarker association updated.');
+      })
+      .catch(error => notifyError(error));
   };
 
-  const redirectToCreateFdaSubmission = () => {
-    history.push(getEntityActionRoute(ENTITY_TYPE.FDA_SUBMISSION, ENTITY_ACTION.ADD));
+  const redirectToCreateAlteration = () => {
+    history.push(getEntityActionRoute(ENTITY_TYPE.ALTERATION, ENTITY_ACTION.ADD));
+  };
+
+  const cancelEditing = () => {
+    resetValues();
+    clearEditingAssociation();
   };
 
   const onTreatmentChange = (drugOptions: DrugSelectOption[], index: number) => {
@@ -152,8 +253,8 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
         <h4 style={{ marginBottom: '1rem' }}>Curation Panel</h4>
         <div className="border-top py-3"></div>
         <Menu>
-          <Form onSubmit={createBiomarkerAssociation}>
-            <h5 className="ms-1">Add Biomarker Association</h5>
+          <Form onSubmit={editingAssociation ? updateBiomarkerAssociation : createBiomarkerAssociation}>
+            <h5 className="ms-1">{editingAssociation ? 'Edit Biomarker Association' : 'Add Biomarker Association'}</h5>
             <SidebarMenuItem>
               <GeneSelect onChange={setGeneValue} value={geneValue} />
             </SidebarMenuItem>
@@ -241,7 +342,16 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
               </div>
             </SidebarMenuItem>
             <SidebarMenuItem style={{ display: 'flex', justifyContent: 'end' }}>
-              <SaveButton disabled={isSaveButtonDisabled} />
+              {editingAssociation ? (
+                <>
+                  <Button color="danger" size="sm" className="me-2" onClick={cancelEditing}>
+                    Cancel
+                  </Button>
+                  <SaveButton disabled={isSaveButtonDisabled}>Update</SaveButton>
+                </>
+              ) : (
+                <SaveButton disabled={isSaveButtonDisabled}>Save</SaveButton>
+              )}
             </SidebarMenuItem>
           </Form>
         </Menu>
@@ -260,8 +370,10 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
   );
 };
 
-const mapStoreToProps = ({ companionDiagnosticDeviceStore }: IRootStore) => ({
+const mapStoreToProps = ({ companionDiagnosticDeviceStore, cdxAssociationEditStore }: IRootStore) => ({
   getEntity: companionDiagnosticDeviceStore.getEntity,
+  editingAssociation: cdxAssociationEditStore.editingAssociation,
+  clearEditingAssociation: cdxAssociationEditStore.clear,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
