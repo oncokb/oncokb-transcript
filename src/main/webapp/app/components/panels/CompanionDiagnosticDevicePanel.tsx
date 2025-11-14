@@ -90,8 +90,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({
 
       setAlterationValue(editingAssociation.alterations?.map(alt => ({ value: alt.id, label: alt.name })) ?? []);
 
-      const ct =
-        editingAssociation.cancerTypes && editingAssociation.cancerTypes.length > 0 ? editingAssociation.cancerTypes[0] : undefined;
+      const ct = editingAssociation?.cancerTypes?.[0];
       if (ct) {
         setCancerTypeValue({
           value: ct.id,
