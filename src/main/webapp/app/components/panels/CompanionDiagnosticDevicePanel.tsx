@@ -210,6 +210,8 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({
     e.preventDefault();
     if (!editingAssociation) return;
     const association = buildAssociationFromState();
+    // TODO: Add a resource endpoint to update association instead
+    // of having to delete and create new.
     associationClient
       .deleteAssociation(editingAssociation.id)
       .then(() => associationClient.createAssociation(association))

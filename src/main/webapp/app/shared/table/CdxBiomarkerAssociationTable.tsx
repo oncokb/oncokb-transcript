@@ -162,7 +162,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
           </div>
         );
       },
-      minWidth: 100,
+      minWidth: 50,
       disableHeaderFiltering: true,
     });
   }
