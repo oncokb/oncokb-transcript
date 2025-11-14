@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Association;
-import org.mskcc.oncokb.curation.repository.AssociationRepository;
 import org.mskcc.oncokb.curation.service.AssociationService;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
@@ -39,11 +38,8 @@ public class AssociationResource {
 
     private final AssociationService associationService;
 
-    private final AssociationRepository associationRepository;
-
-    public AssociationResource(AssociationService associationService, AssociationRepository associationRepository) {
+    public AssociationResource(AssociationService associationService) {
         this.associationService = associationService;
-        this.associationRepository = associationRepository;
     }
 
     /**

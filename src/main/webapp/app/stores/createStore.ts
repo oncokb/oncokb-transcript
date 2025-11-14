@@ -103,6 +103,7 @@ import { CurationPageStore } from 'app/stores/curation-page.store';
 import CategoricalAlterationStore from 'app/entities/categorical-alteration/categorical-alteration.store';
 import { driveAnnotationClient, geneLegacyApi } from 'app/shared/api/clients';
 import { WindowStore } from './window-store';
+import CdxAssociationEditStore from './cdx-association-edit.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 import ManagementStore from 'app/stores/management.store';
 import { GeneApi } from 'app/shared/api/manual/gene-api';
@@ -117,6 +118,7 @@ export interface IRootStore {
   readonly managementStore: ManagementStore;
   readonly curationPageStore: CurationPageStore;
   readonly windowStore: WindowStore;
+  readonly cdxAssociationEditStore: CdxAssociationEditStore;
 
   readonly categoricalAlterationStore: CategoricalAlterationStore;
   readonly sequenceStore: SequenceStore;
@@ -185,6 +187,7 @@ export function createStores(history: History): IRootStore {
   rootStore.managementStore = new ManagementStore(rootStore);
   rootStore.curationPageStore = new CurationPageStore(rootStore);
   rootStore.windowStore = new WindowStore();
+  rootStore.cdxAssociationEditStore = new CdxAssociationEditStore(rootStore);
 
   /* Entity stores */
   rootStore.categoricalAlterationStore = new CategoricalAlterationStore(rootStore);
