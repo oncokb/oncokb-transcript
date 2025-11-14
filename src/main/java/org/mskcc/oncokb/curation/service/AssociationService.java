@@ -1,6 +1,5 @@
 package org.mskcc.oncokb.curation.service;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -135,49 +134,20 @@ public class AssociationService {
         if (associationOptional.isEmpty()) {
             throw new Exception("Association id: " + id + " does not exist");
         }
-        Association association = associationOptional.orElseThrow();
-
-        // Detach owning-side many-to-many relationships to ensure join rows are deleted first
-        if (association.getAlterations() != null && !association.getAlterations().isEmpty()) {
-            for (var alteration : new HashSet<>(association.getAlterations())) {
-                association.removeAlteration(alteration);
-            }
-        }
-        if (association.getCancerTypes() != null && !association.getCancerTypes().isEmpty()) {
-            for (var cancerType : new HashSet<>(association.getCancerTypes())) {
-                association.removeCancerType(cancerType);
-            }
-        }
-        if (association.getArticles() != null && !association.getArticles().isEmpty()) {
-            for (var article : new HashSet<>(association.getArticles())) {
-                association.removeArticle(article);
-            }
-        }
-        if (association.getDrugs() != null && !association.getDrugs().isEmpty()) {
-            for (var drug : new HashSet<>(association.getDrugs())) {
-                association.removeDrug(drug);
-            }
-        }
-
-        // Detach inverse-side many-to-many: update the owning side entities then clear our view
-        if (association.getFdaSubmissions() != null && !association.getFdaSubmissions().isEmpty()) {
-            Iterator<FdaSubmission> iterator = association.getFdaSubmissions().iterator();
+        if (associationOptional.orElseThrow().getFdaSubmissions() != null) {
+            associationOptional.orElseThrow().getFdaSubmissions().remove(this);
+            Iterator<FdaSubmission> iterator = associationOptional.orElseThrow().getFdaSubmissions().iterator();
             while (iterator.hasNext()) {
                 FdaSubmission fdaSubmission = iterator.next();
                 if (fdaSubmission.getId() != null) {
                     Optional<FdaSubmission> fdaSubmissionOptional = fdaSubmissionService.findOne(fdaSubmission.getId());
                     if (fdaSubmissionOptional.isPresent()) {
-                        fdaSubmissionOptional.orElseThrow().getAssociations().remove(association);
+                        fdaSubmissionOptional.orElseThrow().getAssociations().remove(associationOptional.orElseThrow());
                         fdaSubmissionService.save(fdaSubmissionOptional.orElseThrow());
                     }
                 }
             }
-            association.getFdaSubmissions().clear();
         }
-
-        // Persist detachments to delete join rows before parent row
-        associationRepository.saveAndFlush(association);
-
-        associationRepository.delete(association);
+        associationRepository.delete(associationOptional.orElseThrow());
     }
 }
