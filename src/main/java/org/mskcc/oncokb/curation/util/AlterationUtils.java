@@ -26,7 +26,7 @@ public class AlterationUtils {
         Alteration alt = new Alteration();
 
         Consequence consequence = new Consequence();
-        consequence.setTerm(SVConsequence.FUSION.name());
+        consequence.setTerm(SVConsequence.SV_FUSION.name());
         alt.setType(AlterationType.STRUCTURAL_VARIANT);
         alt.setConsequence(consequence);
 
@@ -50,7 +50,7 @@ public class AlterationUtils {
     }
 
     private Alteration parseCopyNumberAlteration(String alteration) {
-        CNAConsequence cnaTerm = CNAConsequence.UNKNOWN;
+        CNAConsequence cnaTerm = CNAConsequence.CNA_UNKNOWN;
 
         Optional<CNAConsequence> cnaConsequenceOptional = getCNAConsequence(alteration);
         if (cnaConsequenceOptional.isPresent()) {

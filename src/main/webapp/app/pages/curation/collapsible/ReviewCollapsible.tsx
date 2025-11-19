@@ -295,9 +295,8 @@ export const ReviewCollapsible = ({
     if (isUnderCreationOrDeletion) {
       return undefined;
     }
-    return (
-      <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction ?? '']}>{ReviewActionLabels[reviewAction ?? '']}</DefaultBadge>
-    );
+
+    return <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction ?? '']} text={ReviewActionLabels[reviewAction ?? '']} />;
   };
 
   const getReviewableContent = () => {
