@@ -23,7 +23,7 @@ const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ m
   const [mutationsWithoutEffect, mutationsWithEffect] = useMemo(() => {
     const mutationStrings: [string[], string[]] = [[], []];
     for (const name of mutationName.split(',')) {
-      const trimmedName = name.trim();
+      const trimmedName = name.replace(/\([^)]*\)/g, '').trim();
       if (!isMutationEffectCuratable(trimmedName)) {
         continue;
       }
