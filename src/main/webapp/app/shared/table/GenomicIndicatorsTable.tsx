@@ -37,6 +37,7 @@ const GenomicIndicatorsTable = ({
   fetchGenomicIndicators,
   readOnly,
   deleteFromArray,
+  updateGenomicIndicatorAssociationVariants,
 }: IGenomicIndicatorsTableProps) => {
   const [genomicIndicatorKeys, setGenomicIndicatorKeys] = useState<string[]>([]);
 
@@ -234,13 +235,10 @@ const GenomicIndicatorsTable = ({
                     })) || []),
                   ]}
                   onChange={async (newValue: readonly { label: string; value: string }[]) => {
-                    await updateReviewableContent?.(
+                    await updateGenomicIndicatorAssociationVariants?.(
                       `${genomicIndicatorPath}/associationVariants`,
                       genomicIndicator.associationVariants,
-                      newValue.map(value => ({
-                        name: value.label,
-                        uuid: value.value,
-                      })),
+                      newValue,
                       genomicIndicator.associationVariants_review,
                       genomicIndicator.associationVariants_uuid,
                     );
@@ -317,6 +315,7 @@ const mapStoreToProps = ({
   firebaseGenomicIndicatorsStore,
   curationPageStore,
   firebaseRepository,
+  firebaseGeneService,
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   authStore,
@@ -328,6 +327,7 @@ const mapStoreToProps = ({
   updateMeta: firebaseMetaService.updateMeta,
   readOnly: curationPageStore.readOnly,
   deleteFromArray: firebaseRepository.deleteFromArray,
+  updateGenomicIndicatorAssociationVariants: firebaseGeneService.updateGenomicIndicatorAssociationVariants,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
