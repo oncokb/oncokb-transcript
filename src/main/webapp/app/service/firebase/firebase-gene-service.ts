@@ -13,6 +13,7 @@ import {
   Treatment,
   Tumor,
   Vus,
+  AssociationVariantList,
 } from 'app/shared/model/firebase/firebase.model';
 import { isTxLevelPresent } from 'app/shared/util/firebase/firebase-level-utils';
 import { extractArrayPath, parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
@@ -636,6 +637,29 @@ export class FirebaseGeneService {
 
   updateObject = async (path: string, value: any) => {
     await this.firebaseRepository.update(path, value);
+  };
+
+  updateGenomicIndicatorAssociationVariants = async (
+    arrayPath: string,
+    current: AssociationVariantList | undefined,
+    selected: readonly { label: string; value: string }[],
+    review: Review | null | undefined,
+    uuid: string | null | undefined,
+  ) => {
+    const uuidToKey = Object.entries(current ?? {}).reduce((acc, [key, item]) => {
+      acc[item.uuid] = key;
+      return acc;
+    }, {});
+
+    const newList: AssociationVariantList = {};
+    for (const s of selected) {
+      const key = uuidToKey[s.value] ?? this.firebaseRepository.getArrayKey(arrayPath);
+      if (key) {
+        newList[key] = { name: s.label, uuid: s.value };
+      }
+    }
+
+    await this.firebaseGeneReviewService.updateReviewableContent(arrayPath, current ?? {}, newList, review, uuid);
   };
 
   getDrugs = async () => {
