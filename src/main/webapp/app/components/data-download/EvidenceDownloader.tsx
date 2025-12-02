@@ -46,7 +46,7 @@ const DRUG_NAME_EVIDENCE_MAPPING: EvidenceMapping = {
   isGroupingField: true,
 };
 
-type GeneLevelKeys = 'hugoSymbol' | 'geneSummary' | 'geneBackground' | 'oncogene' | 'tumorSuppressor';
+type GeneLevelKeys = 'hugoSymbol' | 'geneSummary' | 'geneBackground' | 'geneType';
 const GeneLevelEvidence: Record<GeneLevelKeys, EvidenceMapping> = {
   hugoSymbol: HUGOSYMBOL_EVIDENCE_MAPPING,
   geneSummary: {
@@ -59,15 +59,10 @@ const GeneLevelEvidence: Record<GeneLevelKeys, EvidenceMapping> = {
     accessor: 'description',
     evidenceTypes: [EvidenceEvidenceTypeEnum.GeneBackground],
   },
-  oncogene: {
-    header: 'Oncogene',
-    accessor: 'gene.oncogene',
-    evidenceTypes: [EvidenceEvidenceTypeEnum.GeneSummary], // There is no specific evidence type for ocg or tsg, so we use GENE_SUMMARY
-  },
-  tumorSuppressor: {
-    header: 'Tumor Suppressor',
-    accessor: 'gene.tsg',
-    evidenceTypes: [EvidenceEvidenceTypeEnum.GeneSummary], // There is no specific evidence type for ocg or tsg, so we use GENE_SUMMARY
+  geneType: {
+    header: 'Gene Type',
+    accessor: 'gene.geneType',
+    evidenceTypes: [EvidenceEvidenceTypeEnum.GeneSummary], // There is no specific evidence type for gene type, so we use GENE_SUMMARY
   },
 };
 
@@ -311,7 +306,7 @@ const buildOptions = (
 const groupedDropdownOptions = (): GroupBase<OptionType>[] => {
   const geneLevelOptions: OptionType[] = [];
   for (const [key, value] of Object.entries(GeneLevelEvidence)) {
-    if (key === 'oncogene' || key === 'tumorSuppressor' || value.isGroupingField) {
+    if (value.isGroupingField) {
       continue;
     }
     geneLevelOptions.push({
@@ -321,12 +316,6 @@ const groupedDropdownOptions = (): GroupBase<OptionType>[] => {
       category: 'gene',
     });
   }
-  geneLevelOptions.push({
-    label: 'Gene Type',
-    value: 'geneType',
-    evidenceKeys: ['oncogene', 'tumorSuppressor'],
-    category: 'gene',
-  });
 
   const mutationLevelOptions = buildOptions(MutationLevelEvidence, 'mutation');
   const tumorLevelOptions = buildOptions(TumorLevelEvidence, 'tumor');
