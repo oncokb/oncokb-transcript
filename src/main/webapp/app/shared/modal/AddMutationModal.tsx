@@ -28,26 +28,13 @@ import { READABLE_ALTERATION, REFERENCE_GENOME } from 'app/config/constants/cons
 import { Unsubscribe } from 'firebase/database';
 import Select from 'react-select/dist/declarations/src/Select';
 import InfoIcon from '../icons/InfoIcon';
-import { Linkout } from '../links/Linkout';
 import { SopPageLink } from '../links/SopPageLink';
-
-type AlterationData = {
-  type: AlterationTypeEnum;
-  alteration: string;
-  name: string;
-  consequence: string;
-  comment: string;
-  excluding: AlterationData[];
-  genes?: Gene[];
-  proteinChange?: string;
-  proteinStart?: number;
-  proteinEnd?: number;
-  refResidues?: string;
-  varResidues?: string;
-  warning?: string;
-  error?: string;
-  alterationFieldValueWhileFetching?: string;
-};
+import {
+  AlterationData,
+  convertAlterationDataToAlteration,
+  convertEntityStatusAlterationToAlterationData,
+  getFullAlterationName,
+} from '../util/alteration-utils';
 
 interface IAddMutationModalProps extends StoreProps {
   hugoSymbol: string | undefined;
@@ -306,39 +293,6 @@ function AddMutationModal({
       notifyError(error);
       return [];
     }
-  }
-
-  function convertEntityStatusAlterationToAlterationData(
-    entityStatusAlteration: AlterationAnnotationStatus,
-    alterationName: string,
-    excluding: AlterationData[],
-    comment: string,
-    variantName?: string,
-  ): AlterationData {
-    const alteration = entityStatusAlteration.entity;
-    const alterationData: AlterationData = {
-      type: alteration?.type ?? AlterationTypeEnum.Unknown,
-      alteration: alterationName,
-      name: (variantName || alteration?.name) ?? '',
-      consequence: alteration?.consequence?.name ?? '',
-      comment,
-      excluding,
-      genes: alteration?.genes,
-      proteinChange: alteration?.proteinChange,
-      proteinStart: alteration?.start,
-      proteinEnd: alteration?.end,
-      refResidues: alteration?.refResidues,
-      varResidues: alteration?.variantResidues,
-      warning: entityStatusAlteration.warning ? entityStatusAlteration.message : undefined,
-      error: entityStatusAlteration.error ? entityStatusAlteration.message : undefined,
-    };
-
-    // if the backend's response is different from the frontend response, set them equal to each other.
-    if (alteration?.alteration !== alterationName) {
-      alterationData.alteration = alteration?.alteration ?? '';
-    }
-
-    return alterationData;
   }
 
   async function fetchNormalAlteration(newAlteration: string, alterationIndex: number, alterationData: AlterationData[]) {
@@ -635,14 +589,6 @@ function AddMutationModal({
       event.preventDefault();
     }
   };
-
-  function getFullAlterationName(alterationData: AlterationData, includeVariantName = true) {
-    const variantName = includeVariantName && alterationData.name !== alterationData.alteration ? ` [${alterationData.name}]` : '';
-    const excluding =
-      alterationData.excluding.length > 0 ? ` {excluding ${alterationData.excluding.map(ex => ex.alteration).join(' ; ')}}` : '';
-    const comment = alterationData.comment ? ` (${alterationData.comment})` : '';
-    return `${alterationData.alteration}${variantName}${excluding}${comment}`;
-  }
 
   function getTabTitle(tabAlterationData: AlterationData, isExcluding = false) {
     if (!tabAlterationData) {
@@ -1073,23 +1019,6 @@ function AddMutationModal({
       modalBody={modalBody}
       onCancel={onCancel}
       onConfirm={async () => {
-        function convertAlterationDataToAlteration(alterationData: AlterationData) {
-          const alteration = new Alteration();
-          alteration.type = alterationData.type;
-          alteration.alteration = alterationData.alteration;
-          alteration.name = getFullAlterationName(alterationData);
-          alteration.proteinChange = alterationData.proteinChange || '';
-          alteration.proteinStart = alterationData.proteinStart || -1;
-          alteration.proteinEnd = alterationData.proteinEnd || -1;
-          alteration.refResidues = alterationData.refResidues || '';
-          alteration.varResidues = alterationData.varResidues || '';
-          alteration.consequence = alterationData.consequence;
-          alteration.comment = alterationData.comment;
-          alteration.excluding = alterationData.excluding.map(ex => convertAlterationDataToAlteration(ex));
-          alteration.genes = alterationData.genes || [];
-          return alteration;
-        }
-
         const newMutation = mutationToEdit ? _.cloneDeep(mutationToEdit) : new Mutation('');
         const newAlterations = tabStates.map(state => convertAlterationDataToAlteration(state));
         newMutation.name = newAlterations.map(alteration => alteration.name).join(', ');
