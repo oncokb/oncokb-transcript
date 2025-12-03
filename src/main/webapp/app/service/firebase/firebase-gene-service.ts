@@ -39,8 +39,9 @@ import {
   GERMLINE_PATH,
   GET_ALL_DRUGS_PAGE_SIZE,
   NEW_NAME_UUID_VALUE,
+  REFERENCE_GENOME,
 } from 'app/config/constants/constants';
-import { dataReleaseClient } from 'app/shared/api/clients';
+import { alterationControllerClient, dataReleaseClient } from 'app/shared/api/clients';
 import _ from 'lodash';
 import { getDriveAnnotations } from 'app/shared/util/core-drive-annotation-submission/core-drive-annotation-submission';
 import { DriveAnnotationApi } from 'app/shared/api/manual/drive-annotation-api';
@@ -48,8 +49,10 @@ import GeneStore from 'app/entities/gene/gene.store';
 import { geneIsReleased } from 'app/shared/util/entity-utils/gene-entity-utils';
 import DrugStore from 'app/entities/drug/drug.store';
 import { flow, flowResult } from 'mobx';
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import { IGene } from 'app/shared/model/gene.model';
+import { AnnotateAlterationBody, Alteration as ApiAlteration, Gene as ApiGene } from 'app/shared/api/generated/curation';
+import { convertAlterationDataToAlteration, convertEntityStatusAlterationToAlterationData } from 'app/shared/util/alteration-utils';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -113,6 +116,27 @@ export class FirebaseGeneService {
     this.firebaseGeneReviewService = firebaseGeneReviewService;
     this.driveAnnotationApi = driveAnnotationApi;
   }
+
+  private annotatePathogenicVariantsAlteration = async (hugoSymbol: string) => {
+    try {
+      const request: AnnotateAlterationBody[] = [
+        {
+          referenceGenome: REFERENCE_GENOME.GRCH37,
+          alteration: { alteration: PATHOGENIC_VARIANTS, genes: [{ hugoSymbol } as ApiGene] } as ApiAlteration,
+        },
+      ];
+      const response = await alterationControllerClient.annotateAlterations(request);
+      const annotation = response.data?.[0];
+      if (!annotation) {
+        return undefined;
+      }
+      const alterationData = convertEntityStatusAlterationToAlterationData(annotation, PATHOGENIC_VARIANTS, [], '');
+      return convertAlterationDataToAlteration(alterationData);
+    } catch (error) {
+      notifyError(error);
+      return undefined;
+    }
+  };
 
   getAllLevelMutationSummaryStats = (mutations: MutationList) => {
     const summary: AllLevelSummary = {};
@@ -568,8 +592,18 @@ export class FirebaseGeneService {
     const pathogenicVariants = Object.values(mutationList ?? {}).find(mut => mut.name === PATHOGENIC_VARIANTS);
     let pathogenicVariantsNameUuid = pathogenicVariants?.name_uuid;
 
+    const hugoSymbol = genePath?.hugoSymbol;
+    if (!hugoSymbol) {
+      throw new SentryError('Hugo symbol is missing', genePath ?? {});
+    }
+
     if (pathogenicVariantsNameUuid === undefined) {
       const newMut = new Mutation(PATHOGENIC_VARIANTS);
+      const alteration = await this.annotatePathogenicVariantsAlteration(hugoSymbol);
+      if (!alteration) {
+        throw new SentryError('Failed to annotate Pathogenic Variants alteration', { hugoSymbol });
+      }
+      newMut.alterations = [alteration];
       await this.addMutation(`${genePath?.genePath}/mutations`, newMut, true, false);
       pathogenicVariantsNameUuid = newMut.name_uuid;
     }
@@ -604,11 +638,6 @@ export class FirebaseGeneService {
           uuidsToReview[newGenomicIndicator.inheritanceMechanism_uuid] = true;
         }
       });
-    }
-
-    const hugoSymbol = genePath?.hugoSymbol;
-    if (!hugoSymbol) {
-      throw new SentryError('Hugo symbol is missing', genePath ?? {});
     }
 
     let updateObject = {};
