@@ -38,7 +38,7 @@ services:
       - "4400:4400"
     healthcheck:
       test: ["CMD", "curl", "http://localhost:4400"]
-    command: firebase emulators:start --import firebase --project oncokb-curation-test-54b6c # change config here 
+    command: firebase emulators:start --project oncokb-curation-test-54b6c # change config here 
 
   chrome:
     image: seleniarm/standalone-chromium # for those with m1 processors
