@@ -689,7 +689,7 @@ export class FirebaseGeneService {
       }
     } catch (e) {
       /* eslint-disable no-console */
-      console.log(e);
+      console.error(e);
       throw new SentryError('Failed to save gene ', { entrezGeneIds });
     }
     return;
