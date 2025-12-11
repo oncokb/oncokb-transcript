@@ -44,7 +44,6 @@ export function CurationToolsTab({
   hugoSymbol,
   isDev,
   firebaseGeneService,
-  geneLegacyApi,
 }: ICurationToolsTabProps) {
   const [geneName, setGeneName] = useState<string>();
   const [geneSummary, setGeneSummary] = useState<string>();
@@ -182,7 +181,6 @@ export function CurationToolsTab({
       }
       await updateGene?.(newGene);
       await searchGenes?.({ query: geneName, exact: true }); // repopulate gene store entities
-      geneLegacyApi!.removeGene(newGene);
     } catch (error) {
       notifyError(error);
     }
@@ -252,15 +250,7 @@ export function CurationToolsTab({
   return getContent();
 }
 
-const mapStoreToProps = ({
-  firebaseAppStore,
-  firebaseMetaStore,
-  geneStore,
-  flagStore,
-  authStore,
-  firebaseGeneService,
-  geneLegacyApi,
-}: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, firebaseMetaStore, geneStore, flagStore, authStore, firebaseGeneService }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   metaList: firebaseMetaStore.data,
   addMetaListListener: firebaseMetaStore.addListener,
@@ -270,7 +260,6 @@ const mapStoreToProps = ({
   searchFlags: flagStore.searchEntities,
   isDev: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.DEV]),
   firebaseGeneService,
-  geneLegacyApi,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

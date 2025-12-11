@@ -7,7 +7,6 @@ import { AsyncSaveButton } from './AsyncSaveButton';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IGene } from '../model/gene.model';
 import { dataReleaseClient } from '../api/clients';
-import { SentryError } from 'app/config/sentry-error';
 
 type ISaveGeneButtonProps = StoreProps & {
   gene?: IGene;
@@ -128,9 +127,8 @@ function SaveGeneButton({ gene, firebaseGeneService, ...buttonProps }: ISaveGene
   const onClickHandler = async () => {
     setIsPending(true);
     try {
-      const isGermline = false;
-
       if (!entrezGeneId || !hugoSymbol) {
+        setIsPending(false);
         return;
       }
 

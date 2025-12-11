@@ -1,7 +1,6 @@
 import {
   CancerTypeList,
   DX_LEVELS,
-  DrugCollection,
   FIREBASE_ONCOGENICITY,
   Gene,
   GenomicIndicator,
@@ -34,20 +33,10 @@ import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertU
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
 import { getTumorNameUuid, getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
 import { SentryError } from 'app/config/sentry-error';
-import {
-  GERMLINE_INHERITANCE_MECHANISM,
-  GERMLINE_PATH,
-  GET_ALL_DRUGS_PAGE_SIZE,
-  NEW_NAME_UUID_VALUE,
-  REFERENCE_GENOME,
-} from 'app/config/constants/constants';
+import { GERMLINE_INHERITANCE_MECHANISM, GERMLINE_PATH, NEW_NAME_UUID_VALUE, REFERENCE_GENOME } from 'app/config/constants/constants';
 import { alterationControllerClient, dataReleaseClient } from 'app/shared/api/clients';
 import _ from 'lodash';
-import { getDriveAnnotations } from 'app/shared/util/core-drive-annotation-submission/core-drive-annotation-submission';
-import { DriveAnnotationApi } from 'app/shared/api/manual/drive-annotation-api';
 import GeneStore from 'app/entities/gene/gene.store';
-import { geneIsReleased } from 'app/shared/util/entity-utils/gene-entity-utils';
-import DrugStore from 'app/entities/drug/drug.store';
 import { flow, flowResult } from 'mobx';
 import { AxiosResponse } from 'axios';
 import { IGene } from 'app/shared/model/gene.model';
@@ -88,33 +77,27 @@ export class FirebaseGeneService {
   firebaseRepository: FirebaseRepository;
   authStore: AuthStore;
   geneStore: GeneStore;
-  drugStore: DrugStore;
   firebaseMutationListStore: FirebaseDataStore<MutationList>;
   firebaseMutationConvertIconStore: FirebaseDataStore<MutationList>;
   firebaseMetaService: FirebaseMetaService;
   firebaseGeneReviewService: FirebaseGeneReviewService;
-  driveAnnotationApi: DriveAnnotationApi;
 
   constructor(
     firebaseRepository: FirebaseRepository,
     authStore: AuthStore,
     geneStore: GeneStore,
-    drugStore: DrugStore,
     firebaseMutationListStore: FirebaseDataStore<MutationList>,
     firebaseMutationConvertIconStore: FirebaseDataStore<MutationList>,
     firebaseMetaService: FirebaseMetaService,
     firebaseGeneReviewService: FirebaseGeneReviewService,
-    driveAnnotationApi: DriveAnnotationApi,
   ) {
     this.firebaseRepository = firebaseRepository;
     this.authStore = authStore;
     this.geneStore = geneStore;
-    this.drugStore = drugStore;
     this.firebaseMutationListStore = firebaseMutationListStore;
     this.firebaseMutationConvertIconStore = firebaseMutationConvertIconStore;
     this.firebaseMetaService = firebaseMetaService;
     this.firebaseGeneReviewService = firebaseGeneReviewService;
-    this.driveAnnotationApi = driveAnnotationApi;
   }
 
   private annotatePathogenicVariantsAlteration = async (hugoSymbol: string) => {
@@ -689,24 +672,6 @@ export class FirebaseGeneService {
     }
 
     await this.firebaseGeneReviewService.updateReviewableContent(arrayPath, current ?? {}, newList, review, uuid);
-  };
-
-  getDrugs = async () => {
-    const drugs = await this.drugStore.getEntities({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
-    return (
-      drugs.data.reduce((acc, next) => {
-        acc[next.uuid] = {
-          uuid: next.uuid,
-          description: '',
-          priority: 0,
-          synonyms: next.nciThesaurus?.synonyms?.map(synonym => synonym.name) || [],
-          ncitCode: next.nciThesaurus?.code || '',
-          ncitName: next.nciThesaurus?.displayName || '',
-          drugName: next.name,
-        };
-        return acc;
-      }, {} as DrugCollection) || {}
-    );
   };
 
   saveGene = async (hugoSymbolProp: string) => {
