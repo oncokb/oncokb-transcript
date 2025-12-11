@@ -12,7 +12,7 @@ services:
   wdio:
     build: 
       context: .
-      dockerfile:  ./docker/app/Dockerfile
+      dockerfile: ./docker/app/Dockerfile
     depends_on:
       app:
         condition: service_healthy
@@ -41,9 +41,10 @@ services:
     command: firebase emulators:start --import firebase --project oncokb-curation-test-54b6c # change config here 
 
   chrome:
-    image: seleniarm/standalone-chromium # for those with m1 processors
+    image: seleniarm/standalone-chromium # for those with m1 processors (arm)
     shm_size: 2g
     healthcheck:
-      test: ["CMD", "/opt/bin/check-grid.sh", "--host", "0.0.0.0", "--port", "4444"]
+      test:
+        ["CMD", "/opt/bin/check-grid.sh", "--host", "0.0.0.0", "--port", "4444"]
     ports:
       - 4444:4444
