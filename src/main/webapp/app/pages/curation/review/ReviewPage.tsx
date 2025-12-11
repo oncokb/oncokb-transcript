@@ -110,7 +110,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     const handleBeforeUnload = () => {
       if (hugoSymbol && isGermline !== undefined && props.firebaseDb) {
         // Trigger a save when user leaves review page
-        props.firebaseGeneService?.saveGene(isGermline, hugoSymbol);
+        props.firebaseGeneService?.saveGene(hugoSymbol);
         set(ref(props.firebaseDb, `${firebaseMetaReviewPath}/currentReviewer`), '');
       }
     };

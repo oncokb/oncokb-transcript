@@ -709,69 +709,25 @@ export class FirebaseGeneService {
     );
   };
 
-  saveAllGenes = async (isGermlineProp: boolean) => {
-    if (!isGermlineProp) {
-      try {
-        await dataReleaseClient.triggerSave();
-      } catch (e) {
-        throw new SentryError('Failed to save all genes', {});
-      }
-      return;
-    }
-    const drugLookup = await this.getDrugs();
-    const geneLookup = ((await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp))).val() as Record<string, Gene>) ?? {};
-    const vusLookup =
-      ((await this.firebaseRepository.get(getFirebaseVusPath(isGermlineProp))).val() as Record<string, Record<string, Vus>>) ?? {};
-    let count = 0;
-    for (const [hugoSymbol, gene] of Object.entries(geneLookup)) {
-      count++;
-      // eslint-disable-next-line no-console
-      console.log(`${count} - Saving ${hugoSymbol}...`);
-      const nullableVus: Record<string, Vus> | null = vusLookup[hugoSymbol];
-      await this.saveGeneWithData(isGermlineProp, hugoSymbol, drugLookup, gene, nullableVus);
-      // eslint-disable-next-line no-console
-      console.log('\tDone Saving.');
-    }
+  saveGene = async (hugoSymbolProp: string) => {
+    await this.saveGeneWithData(hugoSymbolProp);
   };
-
-  saveGene = async (isGermlineProp: boolean, hugoSymbolProp: string) => {
-    const drugLookup = await this.getDrugs();
-    const nullableGene = (await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp, hugoSymbolProp))).val() as Gene | null;
-    const nullableVus = (await this.firebaseRepository.get(getFirebaseVusPath(isGermlineProp, hugoSymbolProp))).val() as Record<
-      string,
-      Vus
-    > | null;
-    await this.saveGeneWithData(isGermlineProp, hugoSymbolProp, drugLookup, nullableGene, nullableVus);
-  };
-  saveGeneWithData = async (
-    isGermlineProp: boolean,
-    hugoSymbolProp: string,
-    drugLookup: DrugCollection,
-    nullableGene: Gene | null,
-    nullableVus: Record<string, Vus> | null,
-  ) => {
+  saveGeneWithData = async (hugoSymbolProp: string) => {
     const searchResponse = (await flowResult(
       flow(this.geneStore.getSearch.bind(this.geneStore))({ query: hugoSymbolProp, exact: true, noState: true }),
     )) as AxiosResponse<IGene[], any>;
     const data = searchResponse.data;
     const entrezGeneIds = (data ?? []).map(g => g?.entrezGeneId).filter((id: any) => typeof id === 'number');
-    if (!isGermlineProp) {
-      try {
-        if (entrezGeneIds.length > 0) {
-          await dataReleaseClient.triggerSave({ headers: { 'Content-Type': 'application/json' }, data: { entrezGeneIds } });
-        }
-      } catch (e) {
-        throw new SentryError('Failed to save gene ', { entrezGeneIds });
+    try {
+      if (entrezGeneIds.length > 0) {
+        await dataReleaseClient.triggerSave({ headers: { 'Content-Type': 'application/json' }, data: { entrezGeneIds } });
       }
-      return;
+    } catch (e) {
+      /* eslint-disable no-console */
+      console.log(e);
+      throw new SentryError('Failed to save gene ', { entrezGeneIds });
     }
-    const args: Parameters<typeof getDriveAnnotations>[1] = {
-      gene: nullableGene == null ? undefined : nullableGene,
-      vus: nullableVus == null ? undefined : Object.values(nullableVus),
-      releaseGene: data.some(gene => geneIsReleased(gene, isGermlineProp)),
-    };
-    const driveAnnotation = getDriveAnnotations(drugLookup, args);
-    await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);
+    return;
   };
 
   /**

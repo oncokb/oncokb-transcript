@@ -161,7 +161,7 @@ export function CurationToolsTab({
       }
       await updateGene?.(newGene);
       await searchGenes?.({ query: geneName, exact: true }); // repopulate gene store entities
-      await firebaseGeneService?.saveGene(isGermline, hugoSymbol);
+      await firebaseGeneService?.saveGene(hugoSymbol);
     } catch (error) {
       notifyError(error);
     }
@@ -208,13 +208,11 @@ export function CurationToolsTab({
               </Tooltip>
             </Col>
           </Row>
-          {!isGermline && (
-            <Row className="border-top pt-3">
-              <Col>
-                <SaveGeneButton gene={geneToUpdate.current} />
-              </Col>
-            </Row>
-          )}
+          <Row className="border-top pt-3">
+            <Col>
+              <SaveGeneButton gene={geneToUpdate.current} />
+            </Col>
+          </Row>
         </>
       );
     }

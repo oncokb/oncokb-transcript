@@ -92,11 +92,11 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGene
           <EvidenceDownloader />
         </div>
       </Row>
-      {!isGermline && isDev && (
+      {isDev && (
         <Row className="pt-3 border-top mb-3">
-          <DefaultTooltip overlay={<span>Please use cronjob to trigger a full refresh</span>}>
+          <DefaultTooltip overlay={<span>Developers: use ArgoCD to trigger a cronjob to refresh</span>}>
             <div>
-              <SaveGeneButton disabled={!isGermline} />
+              <SaveGeneButton disabled />
             </div>
           </DefaultTooltip>
         </Row>
