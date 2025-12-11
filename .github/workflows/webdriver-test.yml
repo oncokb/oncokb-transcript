@@ -12,10 +12,19 @@ jobs:
         - name: Build Docker images
           run: docker compose build
 
-        - name: Run Docker containers
-          run: |
-            docker compose up -d
-            docker compose run --rm wdio
+        - name: Start Docker stack
+          run: docker compose up -d
+
+        - name: Run Webdriver tests
+          run: docker compose run --rm wdio
+
+        - name: Firebase logs
+          if: always()
+          run: docker compose logs firebase || true
+
+        - name: Teardown
+          if: always()
+          run: docker compose down
 
         - name: Archive screenshots
           if: failure()
