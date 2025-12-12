@@ -1,7 +1,6 @@
 import {
   CancerTypeList,
   DX_LEVELS,
-  DrugCollection,
   FIREBASE_ONCOGENICITY,
   Gene,
   GenomicIndicator,
@@ -34,20 +33,10 @@ import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertU
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
 import { getTumorNameUuid, getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
 import { SentryError } from 'app/config/sentry-error';
-import {
-  GERMLINE_INHERITANCE_MECHANISM,
-  GERMLINE_PATH,
-  GET_ALL_DRUGS_PAGE_SIZE,
-  NEW_NAME_UUID_VALUE,
-  REFERENCE_GENOME,
-} from 'app/config/constants/constants';
+import { GERMLINE_INHERITANCE_MECHANISM, GERMLINE_PATH, NEW_NAME_UUID_VALUE, REFERENCE_GENOME } from 'app/config/constants/constants';
 import { alterationControllerClient, dataReleaseClient } from 'app/shared/api/clients';
 import _ from 'lodash';
-import { getDriveAnnotations } from 'app/shared/util/core-drive-annotation-submission/core-drive-annotation-submission';
-import { DriveAnnotationApi } from 'app/shared/api/manual/drive-annotation-api';
 import GeneStore from 'app/entities/gene/gene.store';
-import { geneIsReleased } from 'app/shared/util/entity-utils/gene-entity-utils';
-import DrugStore from 'app/entities/drug/drug.store';
 import { flow, flowResult } from 'mobx';
 import { AxiosResponse } from 'axios';
 import { IGene } from 'app/shared/model/gene.model';
@@ -88,33 +77,27 @@ export class FirebaseGeneService {
   firebaseRepository: FirebaseRepository;
   authStore: AuthStore;
   geneStore: GeneStore;
-  drugStore: DrugStore;
   firebaseMutationListStore: FirebaseDataStore<MutationList>;
   firebaseMutationConvertIconStore: FirebaseDataStore<MutationList>;
   firebaseMetaService: FirebaseMetaService;
   firebaseGeneReviewService: FirebaseGeneReviewService;
-  driveAnnotationApi: DriveAnnotationApi;
 
   constructor(
     firebaseRepository: FirebaseRepository,
     authStore: AuthStore,
     geneStore: GeneStore,
-    drugStore: DrugStore,
     firebaseMutationListStore: FirebaseDataStore<MutationList>,
     firebaseMutationConvertIconStore: FirebaseDataStore<MutationList>,
     firebaseMetaService: FirebaseMetaService,
     firebaseGeneReviewService: FirebaseGeneReviewService,
-    driveAnnotationApi: DriveAnnotationApi,
   ) {
     this.firebaseRepository = firebaseRepository;
     this.authStore = authStore;
     this.geneStore = geneStore;
-    this.drugStore = drugStore;
     this.firebaseMutationListStore = firebaseMutationListStore;
     this.firebaseMutationConvertIconStore = firebaseMutationConvertIconStore;
     this.firebaseMetaService = firebaseMetaService;
     this.firebaseGeneReviewService = firebaseGeneReviewService;
-    this.driveAnnotationApi = driveAnnotationApi;
   }
 
   private annotatePathogenicVariantsAlteration = async (hugoSymbol: string) => {
@@ -691,87 +674,25 @@ export class FirebaseGeneService {
     await this.firebaseGeneReviewService.updateReviewableContent(arrayPath, current ?? {}, newList, review, uuid);
   };
 
-  getDrugs = async () => {
-    const drugs = await this.drugStore.getEntities({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
-    return (
-      drugs.data.reduce((acc, next) => {
-        acc[next.uuid] = {
-          uuid: next.uuid,
-          description: '',
-          priority: 0,
-          synonyms: next.nciThesaurus?.synonyms?.map(synonym => synonym.name) || [],
-          ncitCode: next.nciThesaurus?.code || '',
-          ncitName: next.nciThesaurus?.displayName || '',
-          drugName: next.name,
-        };
-        return acc;
-      }, {} as DrugCollection) || {}
-    );
+  saveGene = async (hugoSymbolProp: string) => {
+    await this.saveGeneWithData(hugoSymbolProp);
   };
-
-  saveAllGenes = async (isGermlineProp: boolean) => {
-    if (!isGermlineProp) {
-      try {
-        await dataReleaseClient.triggerSave();
-      } catch (e) {
-        throw new SentryError('Failed to save all genes', {});
-      }
-      return;
-    }
-    const drugLookup = await this.getDrugs();
-    const geneLookup = ((await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp))).val() as Record<string, Gene>) ?? {};
-    const vusLookup =
-      ((await this.firebaseRepository.get(getFirebaseVusPath(isGermlineProp))).val() as Record<string, Record<string, Vus>>) ?? {};
-    let count = 0;
-    for (const [hugoSymbol, gene] of Object.entries(geneLookup)) {
-      count++;
-      // eslint-disable-next-line no-console
-      console.log(`${count} - Saving ${hugoSymbol}...`);
-      const nullableVus: Record<string, Vus> | null = vusLookup[hugoSymbol];
-      await this.saveGeneWithData(isGermlineProp, hugoSymbol, drugLookup, gene, nullableVus);
-      // eslint-disable-next-line no-console
-      console.log('\tDone Saving.');
-    }
-  };
-
-  saveGene = async (isGermlineProp: boolean, hugoSymbolProp: string) => {
-    const drugLookup = await this.getDrugs();
-    const nullableGene = (await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp, hugoSymbolProp))).val() as Gene | null;
-    const nullableVus = (await this.firebaseRepository.get(getFirebaseVusPath(isGermlineProp, hugoSymbolProp))).val() as Record<
-      string,
-      Vus
-    > | null;
-    await this.saveGeneWithData(isGermlineProp, hugoSymbolProp, drugLookup, nullableGene, nullableVus);
-  };
-  saveGeneWithData = async (
-    isGermlineProp: boolean,
-    hugoSymbolProp: string,
-    drugLookup: DrugCollection,
-    nullableGene: Gene | null,
-    nullableVus: Record<string, Vus> | null,
-  ) => {
+  saveGeneWithData = async (hugoSymbolProp: string) => {
     const searchResponse = (await flowResult(
       flow(this.geneStore.getSearch.bind(this.geneStore))({ query: hugoSymbolProp, exact: true, noState: true }),
     )) as AxiosResponse<IGene[], any>;
     const data = searchResponse.data;
     const entrezGeneIds = (data ?? []).map(g => g?.entrezGeneId).filter((id: any) => typeof id === 'number');
-    if (!isGermlineProp) {
-      try {
-        if (entrezGeneIds.length > 0) {
-          await dataReleaseClient.triggerSave({ headers: { 'Content-Type': 'application/json' }, data: { entrezGeneIds } });
-        }
-      } catch (e) {
-        throw new SentryError('Failed to save gene ', { entrezGeneIds });
+    try {
+      if (entrezGeneIds.length > 0) {
+        await dataReleaseClient.triggerSave({ headers: { 'Content-Type': 'application/json' }, data: { entrezGeneIds } });
       }
-      return;
+    } catch (e) {
+      /* eslint-disable no-console */
+      console.error(e);
+      throw new SentryError('Failed to save gene ', { entrezGeneIds });
     }
-    const args: Parameters<typeof getDriveAnnotations>[1] = {
-      gene: nullableGene == null ? undefined : nullableGene,
-      vus: nullableVus == null ? undefined : Object.values(nullableVus),
-      releaseGene: data.some(gene => geneIsReleased(gene, isGermlineProp)),
-    };
-    const driveAnnotation = getDriveAnnotations(drugLookup, args);
-    await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);
+    return;
   };
 
   /**

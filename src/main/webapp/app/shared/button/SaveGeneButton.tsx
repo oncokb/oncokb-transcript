@@ -127,16 +127,12 @@ function SaveGeneButton({ gene, firebaseGeneService, ...buttonProps }: ISaveGene
   const onClickHandler = async () => {
     setIsPending(true);
     try {
-      const isGermline = false;
-
-      if (!hugoSymbol || !entrezGeneId) {
-        await firebaseGeneService?.saveAllGenes(isGermline);
-        notifySuccess('All genes saved!');
+      if (!entrezGeneId || !hugoSymbol) {
         setIsPending(false);
         return;
       }
 
-      await firebaseGeneService?.saveGene(isGermline, hugoSymbol);
+      await firebaseGeneService?.saveGene(hugoSymbol);
       setProgressPercent(0);
       startPolling(entrezGeneId);
     } catch (e) {
