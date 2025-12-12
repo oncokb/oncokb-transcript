@@ -1,4 +1,4 @@
-FROM sapmachine:11-jre-headless-ubuntu as base
+FROM eclipse-temurin:11-jre-jammy as base
 
 RUN apt-get update
 RUN apt-get install curl -y
