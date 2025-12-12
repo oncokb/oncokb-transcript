@@ -41,7 +41,9 @@ services:
     command: firebase emulators:start --import firebase --project oncokb-curation-test-54b6c # change config here
 
   chrome:
-    image: seleniarm/standalone-chromium # for those with m1 processors
+    # Use amd64-compatible Selenium image for CI runners
+    image: selenium/standalone-chrome:latest
+    platform: linux/amd64
     shm_size: 2g
     healthcheck:
       test:
