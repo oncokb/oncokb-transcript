@@ -374,6 +374,7 @@ export class Drug {
 
 export class Vus {
   name = '';
+  name_uuid = generateUuid();
   name_comments?: CommentList = {};
   time: VusTime;
 
