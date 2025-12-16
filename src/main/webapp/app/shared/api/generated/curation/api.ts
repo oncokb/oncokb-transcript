@@ -2967,6 +2967,25 @@ export interface GeneCriteria {
 /**
  *
  * @export
+ * @interface GeneReleaseStatus
+ */
+export interface GeneReleaseStatus {
+  /**
+   *
+   * @type {string}
+   * @memberof GeneReleaseStatus
+   */
+  hugoSymbol?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof GeneReleaseStatus
+   */
+  releaseType?: string;
+}
+/**
+ *
+ * @export
  * @interface GenomeFragment
  */
 export interface GenomeFragment {
@@ -8400,7 +8419,7 @@ export const AuditResourceApiFp = function (configuration?: Configuration) {
      */
     async getNewlyReleasedGenes(
       options?: AxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<GeneReleaseStatus>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getNewlyReleasedGenes(options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
@@ -8460,7 +8479,7 @@ export const AuditResourceApiFactory = function (configuration?: Configuration, 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getNewlyReleasedGenes(options?: AxiosRequestConfig): AxiosPromise<Array<string>> {
+    getNewlyReleasedGenes(options?: AxiosRequestConfig): AxiosPromise<Array<GeneReleaseStatus>> {
       return localVarFp.getNewlyReleasedGenes(options).then(request => request(axios, basePath));
     },
     /**

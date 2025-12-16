@@ -5,7 +5,7 @@ import { IRootStore, hasAnyAuthority } from 'app/stores';
 import { observer } from 'mobx-react';
 import React, { useRef, useState } from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
-import { Button, Col, Row } from 'reactstrap';
+import { Button, Col, Row, Spinner } from 'reactstrap';
 import './curation-tools-tab.scss';
 import { MetaCollection } from 'app/shared/model/firebase/firebase.model';
 import SaveGeneButton from 'app/shared/button/SaveGeneButton';
@@ -19,10 +19,11 @@ export interface IGeneListPageToolsTab extends StoreProps {
   metaData: MetaCollection | null;
 }
 
-function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGeneListPageToolsTab) {
+function GeneListPageToolsTab({ metaData, isDev, createGene }: IGeneListPageToolsTab) {
   const selectedGene = useRef<string>();
   const [createButtonDisabled, setCreateButtonDisabled] = useState(true);
   const [showGeneExistsWarning, setShowGeneExistsWarning] = useState(false);
+  const [downloadPending, setDownloadPending] = useState(false);
 
   function handleChangeSelectedGene(option) {
     const gene = option?.label;
@@ -47,19 +48,31 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGene
   }
 
   async function fetchNewlyReleasedGenes() {
+    setDownloadPending(true);
     try {
       const newGenesResp = await auditClient.getNewlyReleasedGenes();
-      const newGenes = newGenesResp.data;
+      const newGenes = newGenesResp.data ?? [];
       if (newGenes.length === 0) {
         notifyInfo(
           'No new genes released. If you believe this is an error, please check if the gene is released. Otherwise, contact developer.',
         );
         return;
       }
-      const fileContent = [`Addition of ${newGenesResp.data.length} new genes`, ...newGenesResp.data].join('\n');
+
+      const somaticGenes = newGenes.filter(entry => entry.releaseType === 'SOMATIC').map(entry => entry.hugoSymbol);
+      const germlineGenes = newGenes.filter(entry => entry.releaseType === 'GERMLINE').map(entry => entry.hugoSymbol);
+      const maxRows = Math.max(somaticGenes.length, germlineGenes.length);
+
+      const fileContent = [
+        `Addition of ${somaticGenes.length} somatic and ${germlineGenes.length} germline new genes`,
+        'Somatic Gene\tGermline Gene',
+        ...Array.from({ length: maxRows }).map((_, idx) => `${somaticGenes[idx] ?? ''}\t${germlineGenes[idx] ?? ''}`),
+      ].join('\n');
       downloadFile(`new-gene-releases-${new Date().getTime().toString()}`, fileContent);
     } catch (error) {
       notifyError(error, 'Issue fetching newly released gene list');
+    } finally {
+      setDownloadPending(false);
     }
   }
 
@@ -107,7 +120,8 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGene
             overlay={'Click this button to download a file containing a list of newly released genes since the last OncoKB data release.'}
             mouseEnterDelay={0.25}
           >
-            <Button color="primary" outline onClick={fetchNewlyReleasedGenes}>
+            <Button color="primary" outline onClick={fetchNewlyReleasedGenes} disabled={downloadPending}>
+              {downloadPending && <Spinner size="sm" className="me-2" />}
               Download New Genes List
             </Button>
           </DefaultTooltip>
@@ -120,7 +134,6 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, isGermline }: IGene
 const mapStoreToProps = ({ firebaseGeneService, authStore, routerStore }: IRootStore) => ({
   createGene: firebaseGeneService.createGene,
   isDev: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.DEV]),
-  isGermline: routerStore.isGermline,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
