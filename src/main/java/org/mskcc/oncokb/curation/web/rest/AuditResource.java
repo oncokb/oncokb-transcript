@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -14,12 +15,12 @@ import org.javers.core.Javers;
 import org.javers.core.metamodel.object.CdoSnapshot;
 import org.javers.core.metamodel.object.InstanceId;
 import org.javers.repository.jql.QueryBuilder;
-import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.enumeration.AuditEntity;
 import org.mskcc.oncokb.curation.domain.enumeration.FlagType;
 import org.mskcc.oncokb.curation.service.FlagService;
 import org.mskcc.oncokb.curation.service.OncoKbUrlService;
 import org.mskcc.oncokb.curation.service.dto.EntityAuditEvent;
+import org.mskcc.oncokb.curation.service.dto.GeneReleaseStatus;
 import org.oncokb.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,37 +149,62 @@ public class AuditResource {
     }
 
     /**
-     * Fetches all newly released somatic genes (germline TBD)
+     * Fetches all newly released somatic or germline genes, including release type.
      */
     @RequestMapping(value = "/audits/entity/genes/newly-released", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<String>> getNewlyReleasedGenes() throws ClassNotFoundException, ApiException {
-        Class geneEntityClass = Class.forName(ENTITY_PACKAGE_PATH + AuditEntity.GENE.getClassName());
+    public ResponseEntity<List<GeneReleaseStatus>> getNewlyReleasedGenes() throws ClassNotFoundException, ApiException {
+        List<GeneReleaseStatus> releases = new ArrayList<>();
+        releases.addAll(toGeneReleaseStatuses(getNewlyReleasedGenesByFlag("ONCOKB_SOMATIC"), "SOMATIC"));
+        releases.addAll(toGeneReleaseStatuses(getNewlyReleasedGenesByFlag("ONCOKB_GERMLINE"), "GERMLINE"));
+        return new ResponseEntity<>(releases, HttpStatus.OK);
+    }
 
-        // Get the latest OncoKB date of release
+    private List<String> getNewlyReleasedGenesByFlag(String flagName) throws ClassNotFoundException, ApiException {
+        Class<?> geneEntityClass = Class.forName(ENTITY_PACKAGE_PATH + AuditEntity.GENE.getClassName());
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        LocalDate localDate = LocalDate.parse(oncoKbUrlService.getInfo().getDataVersion().getDate(), formatter);
+        LocalDate releaseDate = LocalDate.parse(oncoKbUrlService.getInfo().getDataVersion().getDate(), formatter);
 
-        // Get the flag id of the somatic flag (germline TBD)
-        Optional<Flag> optionalFlag = flagService.findByTypeAndFlag(FlagType.GENE_PANEL, "ONCOKB_SOMATIC");
-        Long flagId = optionalFlag.orElseThrow().getId();
+        Long targetFlagId = flagService.findByTypeAndFlag(FlagType.GENE_PANEL, flagName).orElseThrow().getId();
 
-        QueryBuilder jqlQuery = QueryBuilder.byClass(geneEntityClass).withChangedProperty("flags").from(localDate);
+        QueryBuilder changesQuery = QueryBuilder.byClass(geneEntityClass).withChangedProperty("flags").from(releaseDate);
 
-        List<CdoSnapshot> snapshots = javers.findSnapshots(jqlQuery.build());
+        List<CdoSnapshot> snapshots = javers.findSnapshots(changesQuery.build());
 
-        // Extract hugoSymbols where flag changes include the target release flag id
-        List<String> hugoSymbols = snapshots
+        return snapshots
             .stream()
-            .map(snapshot -> snapshot.getState())
-            .filter(snapshotState -> {
-                Collection<InstanceId> flags = (Collection<InstanceId>) snapshotState.getPropertyValue("flags");
-                return flags != null && flags.stream().anyMatch(flag -> flagId.equals(flag.getCdoId()));
-            })
-            .map(snapshotState -> (String) snapshotState.getPropertyValue("hugoSymbol"))
-            .filter(hugoSymbol -> StringUtils.isNotEmpty(hugoSymbol))
+            .filter(snapshot -> snapshot.getGlobalId() instanceof InstanceId)
+            .filter(snapshot -> isFlagNewlyAdded(snapshot, targetFlagId, geneEntityClass))
+            .map(snapshot -> (String) snapshot.getState().getPropertyValue("hugoSymbol"))
+            .filter(StringUtils::isNotEmpty)
             .distinct()
             .collect(Collectors.toList());
+    }
 
-        return new ResponseEntity<>(hugoSymbols, HttpStatus.OK);
+    private List<GeneReleaseStatus> toGeneReleaseStatuses(List<String> hugoSymbols, String releaseType) {
+        return hugoSymbols.stream().map(symbol -> new GeneReleaseStatus(symbol, releaseType)).collect(Collectors.toList());
+    }
+
+    // Determine if the target flag was added in this snapshot We compare with the immediately previous
+    // snapshot to ensure the flag truly became newly added in this commit.
+    private boolean isFlagNewlyAdded(CdoSnapshot snapshot, Long targetFlagId, Class<?> geneEntityClass) {
+        Collection<InstanceId> currentFlags = (Collection<InstanceId>) snapshot.getState().getPropertyValue("flags");
+        boolean hasFlagNow = currentFlags != null && currentFlags.stream().anyMatch(flag -> targetFlagId.equals(flag.getCdoId()));
+        if (!hasFlagNow) {
+            return false;
+        }
+
+        QueryBuilder previousSnapshotQuery = QueryBuilder.byInstanceId(((InstanceId) snapshot.getGlobalId()).getCdoId(), geneEntityClass)
+            .to(snapshot.getCommitMetadata().getCommitDate())
+            .limit(2);
+
+        List<CdoSnapshot> previousSnapshots = javers.findSnapshots(previousSnapshotQuery.build());
+        if (previousSnapshots.size() < 2) {
+            return true;
+        }
+
+        Collection<InstanceId> previousFlags = (Collection<InstanceId>) previousSnapshots.get(1).getState().getPropertyValue("flags");
+        boolean hadFlagBefore = previousFlags != null && previousFlags.stream().anyMatch(flag -> targetFlagId.equals(flag.getCdoId()));
+        return !hadFlagBefore;
     }
 }
