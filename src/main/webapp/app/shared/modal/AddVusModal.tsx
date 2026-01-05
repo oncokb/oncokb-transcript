@@ -135,9 +135,7 @@ const AddVusModal = (props: IAddVusModalProps) => {
           },
         ];
         const response = await alterationControllerClient.annotateAlterations(request);
-        if (response.data[0].annotation?.hotspot) {
-          isHotspot = true;
-        }
+        isHotspot = response.data[0].annotation?.hotspot?.hotspot || false;
       } catch (error) {
         notifyError(`Error annotating alteration: ${error}`);
         continue;
