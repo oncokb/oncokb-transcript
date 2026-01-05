@@ -88,11 +88,11 @@ const AddVusModal = (props: IAddVusModalProps) => {
     handleInitialVariantsAdd();
   }, []);
 
-  function handleInitialVariantsAdd() {
-    props.convertOptions?.initialAlterations.forEach(async initAlt => {
+  async function handleInitialVariantsAdd() {
+    for (const initAlt of props.convertOptions?.initialAlterations || []) {
       const filteredAlts = await filterAlterationsAndNotify(initAlt);
       setVariants(state => [...state, ...filteredAlts.map(alt => createOption(alt))]);
-    });
+    }
   }
 
   async function handleVariantAdded() {
