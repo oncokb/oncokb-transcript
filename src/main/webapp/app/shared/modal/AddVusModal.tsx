@@ -13,6 +13,9 @@ import { onValue, ref, get } from 'firebase/database';
 import { Button, Col, Row } from 'reactstrap';
 import { GroupBase } from 'react-select';
 import Select from 'react-select/dist/declarations/src/Select';
+import { alterationControllerClient } from '../api/clients';
+import { AnnotateAlterationBody, Alteration as ApiAlteration, Gene as ApiGene } from 'app/shared/api/generated/curation';
+import { REFERENCE_GENOME } from 'app/config/constants/constants';
 
 export interface IAddVusModalProps extends StoreProps {
   hugoSymbol: string | undefined;
@@ -85,15 +88,15 @@ const AddVusModal = (props: IAddVusModalProps) => {
     handleInitialVariantsAdd();
   }, []);
 
-  function handleInitialVariantsAdd() {
-    props.convertOptions?.initialAlterations.forEach(initAlt => {
-      const filteredAlts = filterAlterationsAndNotify(initAlt);
+  async function handleInitialVariantsAdd() {
+    for (const initAlt of props.convertOptions?.initialAlterations || []) {
+      const filteredAlts = await filterAlterationsAndNotify(initAlt);
       setVariants(state => [...state, ...filteredAlts.map(alt => createOption(alt))]);
-    });
+    }
   }
 
-  function handleVariantAdded() {
-    const filteredAlterations = filterAlterationsAndNotify(inputValue);
+  async function handleVariantAdded() {
+    const filteredAlterations = await filterAlterationsAndNotify(inputValue);
     setVariants(state => [...state, ...filteredAlterations.map(alt => createOption(alt))]);
     setInputValue('');
   }
@@ -106,7 +109,7 @@ const AddVusModal = (props: IAddVusModalProps) => {
     }
   };
 
-  const filterAlterationsAndNotify = (variant: string) => {
+  const filterAlterationsAndNotify = async (variant: string) => {
     const result: string[] = [];
     const alterations = parseAlterationName(variant);
     // should only have a single alteration
@@ -123,12 +126,29 @@ const AddVusModal = (props: IAddVusModalProps) => {
         return name.toLowerCase() === alteration.toLowerCase();
       });
 
+      let isHotspot = false;
+      try {
+        const request: AnnotateAlterationBody[] = [
+          {
+            referenceGenome: REFERENCE_GENOME.GRCH37,
+            alteration: { alteration, genes: [{ hugoSymbol: props.hugoSymbol } as ApiGene] } as ApiAlteration,
+          },
+        ];
+        const response = await alterationControllerClient.annotateAlterations(request);
+        isHotspot = response.data[0].annotation?.hotspot?.hotspot || false;
+      } catch (error) {
+        notifyError(`Error annotating alteration: ${error}`);
+        continue;
+      }
+
       if (dropdownAlreadyHasVariant) {
         notifyError(new Error(`${alteration} is already selected. The duplicate alteration(s) was not added.`));
       } else if (vusTableAlreadyHasVariant) {
         notifyError(new Error(`${alteration} is already in the VUS table. The duplicate alteration(s) was not added.`));
       } else if (alreadyHasVariantInMutationList) {
         notifyError(new Error(`${alteration} is already in the Mutation List. The duplicate alteration(s) was not added.`));
+      } else if (isHotspot) {
+        notifyError(new Error(`${alteration} is a hotspot. The alteration(s) was not added.`));
       } else {
         result.push(alteration);
       }
