@@ -21,6 +21,7 @@ import { TumorTypeEntity } from '../api/generated/core';
 import { IFlag } from '../model/flag.model';
 import InfoIcon from '../icons/InfoIcon';
 import { AlterationData } from '../modal/AddMutationModal';
+import { PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   if (!cancerType) return '';
@@ -335,11 +336,12 @@ export function convertEntityStatusAlterationToAlterationData(
   excluding: AlterationData[],
   comment: string,
   variantName?: string,
+  isPathogenicVariants: boolean = false,
 ): AlterationData {
   const alteration = entityStatusAlteration.entity;
   const alterationData: AlterationData = {
     type: alteration?.type ?? AlterationTypeEnum.Unknown,
-    alteration: alteration?.alteration ?? '',
+    alteration: isPathogenicVariants ? PATHOGENIC_VARIANTS : alteration?.alteration ?? '',
     name: (variantName || alteration?.name) ?? '',
     consequence: alteration?.consequence?.name ?? '',
     comment,

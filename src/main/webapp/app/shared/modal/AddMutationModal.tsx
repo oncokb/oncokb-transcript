@@ -21,12 +21,46 @@ import './add-mutation-modal.scss';
 import { Unsubscribe } from 'firebase/database';
 import InfoIcon from '../icons/InfoIcon';
 import { SopPageLink } from '../links/SopPageLink';
-import {
-  AlterationData,
-  convertAlterationDataToAlteration,
-  convertEntityStatusAlterationToAlterationData,
-  getFullAlterationName,
-} from '../util/alteration-utils';
+import { FlagTypeEnum } from '../model/enumerations/flag-type.enum.model';
+import { AsyncSaveButton } from '../button/AsyncSaveButton';
+import MutationDetails from './MutationModal/MutationDetails';
+import ExcludedAlterationContent from './MutationModal/ExcludedAlterationContent';
+import MutationListSection from './MutationModal/MutationListSection';
+import classNames from 'classnames';
+import { ADD_MUTATION_MODAL_INPUT_ID } from 'app/config/constants/html-id';
+
+function getModalErrorMessage(mutationAlreadyExists: MutationExistsMeta) {
+  let modalErrorMessage: string | undefined = undefined;
+  if (mutationAlreadyExists.exists) {
+    modalErrorMessage = 'Mutation already exists in';
+    if (mutationAlreadyExists.inMutationList && mutationAlreadyExists.inVusList) {
+      modalErrorMessage = 'Mutation already in mutation list and VUS list';
+    } else if (mutationAlreadyExists.inMutationList) {
+      modalErrorMessage = 'Mutation already in mutation list';
+    } else {
+      modalErrorMessage = 'Mutation already in VUS list';
+    }
+  }
+  return modalErrorMessage;
+}
+
+export type AlterationData = {
+  type: AlterationTypeEnum;
+  alteration: string;
+  name: string;
+  consequence: string;
+  comment: string;
+  excluding: AlterationData[];
+  genes?: Gene[];
+  proteinChange?: string;
+  proteinStart?: number;
+  proteinEnd?: number;
+  refResidues?: string;
+  varResidues?: string;
+  warning?: string;
+  error?: string;
+  alterationFieldValueWhileFetching?: string;
+};
 
 interface IAddMutationModalProps extends StoreProps {
   hugoSymbol: string | undefined;
@@ -221,35 +255,23 @@ function AddMutationModal({
     setInputValue('');
   }
 
-  async function fetchAlteration(alterationName: string): Promise<AlterationAnnotationStatus | undefined> {
-    try {
-      const request: AnnotateAlterationBody[] = [
-        {
-          referenceGenome: REFERENCE_GENOME.GRCH37,
-          alteration: { alteration: alterationName, genes: [{ id: geneEntity?.id } as Gene] } as ApiAlteration,
-        },
-      ];
-      const alts = await flowResult(annotateAlterations?.(request));
-      return alts[0];
-    } catch (error) {
-      notifyError(error);
-    }
-  }
+  async function handleConfirm() {
+    const newMutation = mutationToEdit ? _.cloneDeep(mutationToEdit) : new Mutation('');
+    const newAlterations = alterationStates?.map(state => convertAlterationDataToAlteration(state)) ?? [];
+    newMutation.name = newAlterations.map(alteration => alteration.name).join(', ');
+    newMutation.alterations = newAlterations;
 
-  async function fetchAlterations(alterationNames: string[]) {
+    const newAlterationCategories = await handleAlterationCategoriesConfirm();
+    newMutation.alteration_categories = newAlterationCategories;
+
+    setErrorMessagesEnabled(false);
+    setIsConfirmPending(true);
     try {
-      const alterationPromises = alterationNames.map(name => fetchAlteration(name));
-      const alterations = await Promise.all(alterationPromises);
-      const filtered: AlterationAnnotationStatus[] = [];
-      for (const alteration of alterations) {
-        if (alteration !== undefined) {
-          filtered.push(alteration);
-        }
-      }
-      return filtered;
-    } catch (error) {
-      notifyError(error);
-      return [];
+      await onConfirm(newMutation);
+    } finally {
+      setErrorMessagesEnabled(true);
+      setIsConfirmPending(false);
+      cleanup?.();
     }
   }
 
@@ -307,347 +329,75 @@ function AddMutationModal({
     }
   };
 
-  async function handleAlterationAddedExcluding(alterationIndex: number) {
-    const newParsedAlteration = parseAlterationName(excludingInputValue);
-
-    const currentState = tabStates[alterationIndex];
-    const alteration = currentState.alteration.toLowerCase();
-    let excluding = currentState.excluding.map(ex => ex.alteration.toLowerCase());
-    excluding.push(...newParsedAlteration.map(alt => alt.alteration.toLowerCase()));
-    excluding = excluding.sort();
-
-    if (
-      tabStates.some(
-        state =>
-          state.alteration.toLowerCase() === alteration &&
-          _.isEqual(state.excluding.map(ex => ex.alteration.toLowerCase()).sort(), excluding),
-      )
-    ) {
-      notifyError(new Error('Duplicate alteration(s) removed'));
-      return;
-    }
-
-    const newComment = newParsedAlteration[0].comment;
-    const newVariantName = newParsedAlteration[0].name;
-
-    const newEntityStatusAlterations = await fetchAlterations(newParsedAlteration.map(alt => alt.alteration));
-
-    const newAlterations = newEntityStatusAlterations.map((alt, index) =>
-      convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[index].alteration, [], newComment, newVariantName),
-    );
-
-    setTabStates(states => {
-      const newStates = _.cloneDeep(states);
-      newStates[alterationIndex].excluding.push(...newAlterations);
-      return newStates;
-    });
-
-    setExcludingInputValue('');
-  }
-
-  const handleKeyDownExcluding = (event: React.KeyboardEvent<Element>, alterationIndex: number) => {
-    if (!excludingInputValue) return;
-    if (event.key === 'Enter' || event.key === 'tab') {
-      handleAlterationAddedExcluding(alterationIndex);
-      event.preventDefault();
-    }
+  const handleCancel = () => {
+    cleanup?.();
+    onCancel();
   };
 
-  function getTabTitle(tabAlterationData: AlterationData, isExcluding = false) {
-    if (!tabAlterationData) {
-      // loading state
-      return <></>;
-    }
+  const renderInputSection = () => (
+    <Row className="mb-2 d-flex align-items-center justify-content-between">
+      <Col>
+        <InputGroup>
+          <Input
+            id={ADD_MUTATION_MODAL_INPUT_ID}
+            placeholder="Enter alteration(s)"
+            onKeyDown={handleKeyDown}
+            style={{ borderRight: '0' }}
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            onClick={() => setShowModifyExonForm?.(false)}
+          />
+          <InputGroupText style={{ backgroundColor: 'transparent', borderLeft: '0' }}>
+            <InfoIcon overlay={<AddMutationInputOverlay />} />
+          </InputGroupText>
+          <AsyncSaveButton
+            isSavePending={isAddAlterationPending}
+            onClick={handleAlterationAdded}
+            confirmText="Add"
+            disabled={isAddAlterationPending || !inputValue}
+          />
+        </InputGroup>
+      </Col>
+    </Row>
+  );
 
-    const fullAlterationName = getFullAlterationName(tabAlterationData, isExcluding ? false : true);
-
-    if (tabAlterationData.error) {
+  // Helper function to render exon or mutation list section
+  const renderMutationListSection = () => {
+    if (alterationStates?.length !== 0) {
       return (
-        <span>
-          <FaExclamationTriangle className="text-danger me-1 mb-1" />
-          {fullAlterationName}
-        </span>
-      );
-    }
-
-    if (tabAlterationData.warning) {
-      return (
-        <span>
-          <FaExclamationTriangle className="text-warning me-1 mb-1" />
-          {fullAlterationName}
-        </span>
-      );
-    }
-
-    return fullAlterationName;
-  }
-
-  function getTabContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    const excludingSection =
-      !_.isNil(excludingIndex) || alterationData.type === 'GENOMIC_CHANGE' ? <></> : getExcludingSection(alterationData, alterationIndex);
-
-    let content: JSX.Element;
-    switch (alterationData.type) {
-      case AlterationTypeEnum.ProteinChange:
-        content = getProteinChangeContent(alterationData, alterationIndex, excludingIndex);
-        break;
-      case AlterationTypeEnum.CopyNumberAlteration:
-        content = getCopyNumberAlterationContent(alterationData, alterationIndex, excludingIndex);
-        break;
-      case AlterationTypeEnum.CdnaChange:
-        content = getCdnaChangeContent(alterationData, alterationIndex, excludingIndex);
-        break;
-      case AlterationTypeEnum.GenomicChange:
-        content = getGenomicChangeContent(alterationData, alterationIndex, excludingIndex);
-        break;
-      case AlterationTypeEnum.StructuralVariant:
-        content = getStructuralVariantContent(alterationData, alterationIndex, excludingIndex);
-        break;
-      default:
-        content = getOtherContent(alterationData, alterationIndex, excludingIndex);
-        break;
-    }
-
-    if (alterationData.error) {
-      return getErrorSection(alterationData, alterationIndex, excludingIndex);
-    }
-
-    return (
-      <>
-        {alterationData.warning && (
-          <Alert color="warning" className="alteration-message" fade={false}>
-            {alterationData.warning}
-          </Alert>
-        )}
-        <AddMutationModalDropdown
-          label="Type"
-          options={typeOptions}
-          value={typeOptions.find(option => option.value === alterationData.type) ?? { label: '', value: undefined }}
-          onChange={newValue => handleFieldChange(newValue?.value, 'type', alterationIndex, excludingIndex)}
-        />
-        <AddMutationModalField
-          label="Alteration"
-          value={
-            !_.isNil(alterationData.alterationFieldValueWhileFetching)
-              ? alterationData.alterationFieldValueWhileFetching
-              : getFullAlterationName(alterationData, !_.isNil(excludingIndex) ? false : true)
-          }
-          isLoading={_.isNil(excludingIndex) ? isFetchingAlteration : isFetchingExcludingAlteration}
-          placeholder="Input alteration"
-          onChange={newValue => handleAlterationChange(newValue, alterationIndex, excludingIndex)}
-        />
-        {content}
-        <AddMutationModalField
-          label="Comment"
-          value={alterationData.comment}
-          placeholder="Input comment"
-          onChange={newValue => handleFieldChange(newValue, 'comment', alterationIndex, excludingIndex)}
-        />
-        {excludingSection}
-      </>
-    );
-  }
-
-  function getProteinChangeContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    return (
-      <div>
-        <AddMutationModalField
-          label="Name"
-          value={alterationData.name}
-          placeholder="Input name"
-          onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
-        />
-        <AddMutationModalField
-          label="Protein Change"
-          value={alterationData.proteinChange ?? ''}
-          placeholder="Input protein change"
-          onChange={newValue => handleFieldChange(newValue, 'proteinChange', alterationIndex, excludingIndex)}
-        />
-        <AddMutationModalField
-          label="Protein Start"
-          value={alterationData.proteinStart?.toString() || ''}
-          placeholder="Input protein start"
-          onChange={newValue => handleFieldChange(newValue, 'proteinStart', alterationIndex, excludingIndex)}
-        />
-        <AddMutationModalField
-          label="Protein End"
-          value={alterationData.proteinEnd?.toString() || ''}
-          placeholder="Input protein end"
-          onChange={newValue => handleFieldChange(newValue, 'proteinEnd', alterationIndex, excludingIndex)}
-        />
-        <AddMutationModalField
-          label="Ref Residues"
-          value={alterationData.refResidues || ''}
-          placeholder="Input ref residues"
-          onChange={newValue => handleFieldChange(newValue, 'refResidues', alterationIndex, excludingIndex)}
-        />
-        <AddMutationModalField
-          label="Var residues"
-          value={alterationData.varResidues || ''}
-          placeholder="Input var residues"
-          onChange={newValue => handleFieldChange(newValue, 'varResidues', alterationIndex, excludingIndex)}
-        />
-        <AddMutationModalDropdown
-          label="Consequence"
-          value={consequenceOptions.find(option => option.label === alterationData.consequence) ?? { label: '', value: undefined }}
-          options={consequenceOptions}
-          menuPlacement="top"
-          onChange={newValue => handleFieldChange(newValue?.label ?? '', 'consequence', alterationIndex, excludingIndex)}
-        />
-      </div>
-    );
-  }
-
-  function getCdnaChangeContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    return (
-      <div>
-        <AddMutationModalField
-          label="Name"
-          value={alterationData.name}
-          placeholder="Input name"
-          onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
-        />
-        <AddMutationModalField
-          label="Protein Change"
-          value={alterationData.proteinChange!}
-          placeholder="Input protein change"
-          onChange={newValue => handleFieldChange(newValue, 'proteinChange', alterationIndex, excludingIndex)}
-        />
-      </div>
-    );
-  }
-
-  function getGenomicChangeContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    return (
-      <div>
-        <AddMutationModalField
-          label="Name"
-          value={alterationData.name}
-          placeholder="Input name"
-          onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
-        />
-      </div>
-    );
-  }
-
-  function getCopyNumberAlterationContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    return (
-      <div>
-        <AddMutationModalField
-          label="Name"
-          value={alterationData.name}
-          placeholder="Input name"
-          onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
-        />
-      </div>
-    );
-  }
-
-  function getStructuralVariantContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    return (
-      <div>
-        <AddMutationModalField
-          label="Name"
-          value={alterationData.name}
-          placeholder="Input name"
-          onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
-        />
-        <AddMutationModalField
-          label="Genes"
-          value={alterationData.genes?.map(gene => gene.hugoSymbol).join(', ') ?? ''}
-          placeholder="Input genes"
-          disabled
-          onChange={newValue => handleFieldChange(newValue, 'genes', alterationIndex, excludingIndex)}
-        />
-      </div>
-    );
-  }
-
-  function getOtherContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    return (
-      <div>
-        <AddMutationModalField
-          label="Name"
-          value={alterationData.name}
-          placeholder="Input name"
-          onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
-        />
-      </div>
-    );
-  }
-
-  function getExcludingSection(alterationData: AlterationData, alterationIndex: number) {
-    const isSectionEmpty = alterationData.excluding.length === 0;
-
-    return (
-      <>
-        <div className="d-flex align-items-center mb-3">
-          <Col className="px-0 col-3 me-3">
-            <span className="me-2">Excluding</span>
-            {!isSectionEmpty && (
-              <>
-                {excludingCollapsed ? (
-                  <FaChevronDown style={{ cursor: 'pointer' }} onClick={isSectionEmpty ? undefined : () => setExcludingCollapsed(false)} />
-                ) : (
-                  <FaChevronUp style={{ cursor: 'pointer' }} onClick={() => setExcludingCollapsed(true)} />
-                )}
-              </>
-            )}
-          </Col>
-          <Col className="px-0">
-            <CreatableSelect
-              components={{
-                DropdownIndicator: null,
-              }}
-              isMulti
-              menuIsOpen={false}
-              placeholder="Enter alteration(s)"
-              inputValue={excludingInputValue}
-              onInputChange={(newInput, { action }) => {
-                if (action !== 'menu-close' && action !== 'input-blur') {
-                  setExcludingInputValue(newInput);
-                }
-              }}
-              value={tabStates[alterationIndex].excluding.map(state => {
-                const fullAlterationName = getFullAlterationName(state, false);
-                return { label: fullAlterationName, value: fullAlterationName, ...state };
-              })}
-              onChange={(newAlterations: readonly AlterationData[]) =>
-                setTabStates(states => {
-                  const newStates = _.cloneDeep(states);
-                  newStates[alterationIndex].excluding = newStates[alterationIndex].excluding.filter(state =>
-                    newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state)),
-                  );
-                  return newStates;
-                })
-              }
-              onKeyDown={event => handleKeyDownExcluding(event, alterationIndex)}
-            />
-          </Col>
-          <Col className="col-auto ps-2 pe-0">
-            <Button color="primary" disabled={!excludingInputValue} onClick={() => handleAlterationAddedExcluding(alterationIndex)}>
-              <FaPlus />
-            </Button>
-          </Col>
-        </div>
-        {!isSectionEmpty && (
-          <Row className="align-items-center">
-            <Col className="px-0">
-              <div className="pe-3">
-                <Tabs
-                  tabs={alterationData.excluding.map((ex, index) => ({
-                    title: getTabTitle(ex, true),
-                    content: getTabContent(ex, alterationIndex, index),
-                  }))}
-                  isCollapsed={excludingCollapsed}
-                />
-              </div>
+        <>
+          <div className={classNames(!convertOptions?.isConverting && 'border-top my-4')}></div>
+          <Row className="mb-2">
+            <Col>
+              <MutationListSection />
             </Col>
           </Row>
-        )}
-      </>
-    );
-  }
+        </>
+      );
+    }
+    return null;
+  };
+
+  // Helper function to render selected alteration state content
+  const renderMutationDetailSection = () => {
+    if (
+      alterationStates !== undefined &&
+      selectedAlterationStateIndex !== undefined &&
+      selectedAlterationStateIndex > -1 &&
+      !_.isNil(alterationStates[selectedAlterationStateIndex])
+    ) {
+      return (
+        <>
+          <div className="border-top my-4"></div>
+          <>
+            <MutationDetails alterationData={alterationStates[selectedAlterationStateIndex]} />
+            {alterationStates[selectedAlterationStateIndex].type !== AlterationTypeEnum.GenomicChange && <ExcludedAlterationContent />}
+          </>
+        </>
+      );
+    }
+    return null;
+  };
 
   const mutationModalBody = (
     <div>
@@ -671,23 +421,9 @@ function AddMutationModal({
     <DefaultAddMutationModal
       isUpdate={!!mutationToEdit}
       modalHeader={convertOptions?.isConverting ? <div>Promoting Variant(s) to Mutation</div> : undefined}
-      modalBody={modalBody}
-      onCancel={onCancel}
-      onConfirm={async () => {
-        const newMutation = mutationToEdit ? _.cloneDeep(mutationToEdit) : new Mutation('');
-        const newAlterations = tabStates.map(state => convertAlterationDataToAlteration(state));
-        newMutation.name = newAlterations.map(alteration => alteration.name).join(', ');
-        newMutation.alterations = newAlterations;
-
-        setErrorMessagesEnabled(false);
-        setIsConfirmPending(true);
-        try {
-          await onConfirm(newMutation);
-        } finally {
-          setErrorMessagesEnabled(true);
-          setIsConfirmPending(false);
-        }
-      }}
+      modalBody={mutationModalBody}
+      onCancel={handleCancel}
+      onConfirm={handleConfirm}
       errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : undefined}
       warningMessages={modalWarningMessage ? modalWarningMessage : undefined}
       confirmButtonDisabled={

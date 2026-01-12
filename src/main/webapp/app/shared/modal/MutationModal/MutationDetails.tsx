@@ -127,12 +127,6 @@ const MutationDetails = ({
           placeholder="Input name"
           onChange={newValue => handleFieldChange(newValue, 'name')}
         />
-        <AddMutationModalField
-          label="Protein Change"
-          value={alterationData.proteinChange!}
-          placeholder="Input protein change"
-          onChange={newValue => handleFieldChange(newValue, 'proteinChange')}
-        />
       </div>
     );
   };
