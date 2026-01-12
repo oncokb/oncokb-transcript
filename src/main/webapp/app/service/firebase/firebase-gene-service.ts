@@ -27,7 +27,12 @@ import AuthStore from '../../stores/authentication.store';
 import { FirebaseRepository } from '../../stores/firebase/firebase-repository';
 import { FirebaseMetaService } from './firebase-meta-service';
 import { PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
-import { generateUuid, isPromiseOk } from 'app/shared/util/utils';
+import {
+  convertAlterationDataToAlteration,
+  convertEntityStatusAlterationToAlterationData,
+  generateUuid,
+  isPromiseOk,
+} from 'app/shared/util/utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
@@ -41,7 +46,6 @@ import { flow, flowResult } from 'mobx';
 import { AxiosResponse } from 'axios';
 import { IGene } from 'app/shared/model/gene.model';
 import { AnnotateAlterationBody, Alteration as ApiAlteration, Gene as ApiGene } from 'app/shared/api/generated/curation';
-import { convertAlterationDataToAlteration, convertEntityStatusAlterationToAlterationData } from 'app/shared/util/alteration-utils';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -113,7 +117,7 @@ export class FirebaseGeneService {
       if (!annotation) {
         return undefined;
       }
-      const alterationData = convertEntityStatusAlterationToAlterationData(annotation, PATHOGENIC_VARIANTS, [], '');
+      const alterationData = convertEntityStatusAlterationToAlterationData(annotation, [], '', undefined, true);
       return convertAlterationDataToAlteration(alterationData);
     } catch (error) {
       notifyError(error);

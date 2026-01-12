@@ -69,9 +69,8 @@ const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ m
           )}
         </div>
       }
-    >
-      Not Curatable
-    </DefaultBadge>
+      text="Not Curatable"
+    />
   );
 };
 

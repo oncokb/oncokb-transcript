@@ -26,6 +26,7 @@ import { extractPositionFromSingleNucleotideAlteration } from 'app/shared/util/u
 import { MUTATION_LIST_ID, SINGLE_MUTATION_VIEW_ID } from 'app/config/constants/html-id';
 import { SentryError } from 'app/config/sentry-error';
 import { MutationQuery } from 'app/stores/curation-page.store';
+import { FlagTypeEnum } from 'app/shared/model/enumerations/flag-type.enum.model';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -47,6 +48,7 @@ function MutationsSection({
   firebaseDb,
   annotatedAltsCache,
   fetchMutationListForConvertIcon,
+  getFlagsByType,
   setIsMutationListRendered,
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
@@ -54,6 +56,10 @@ function MutationsSection({
   const [sortMethod, setSortMethod] = useState<SortOptions>(SortOptions.DEFAULT);
 
   const mutationSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    getFlagsByType?.(FlagTypeEnum.ALTERATION_CATEGORY);
+  }, []);
 
   useEffect(() => {
     fetchMutationListForConvertIcon?.(mutationsPath);
@@ -250,6 +256,7 @@ const mapStoreToProps = ({
   firebaseAppStore,
   curationPageStore,
   firebaseMutationConvertIconStore,
+  flagStore,
 }: IRootStore) => ({
   addMutation: firebaseGeneService.addMutation,
   openMutationCollapsibleListKey: openMutationCollapsibleStore.listKey,
@@ -258,6 +265,7 @@ const mapStoreToProps = ({
   annotatedAltsCache: curationPageStore.annotatedAltsCache,
   fetchMutationListForConvertIcon: firebaseMutationConvertIconStore.fetchData,
   setIsMutationListRendered: curationPageStore.setIsMutationListRendered,
+  getFlagsByType: flagStore.getFlagsByType,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
