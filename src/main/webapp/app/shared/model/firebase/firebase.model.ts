@@ -33,6 +33,14 @@ export type HistoryList = {
   [uuid: string]: History;
 };
 
+export type RangeCollection = {
+  [hugoSymbol: string]: RangeList;
+};
+
+export type RangeList = {
+  [uuid: string]: MutationRange;
+};
+
 export enum FIREBASE_ONCOGENICITY {
   YES = 'Yes',
   LIKELY = 'Likely',
@@ -515,3 +523,11 @@ export class HistoryInfo {
   };
   fields?: READABLE_FIELD[];
 }
+
+export type MutationRange = {
+  alias: string;
+  start: number;
+  end: number;
+  oncogencities: string;
+  mutationTypes: string;
+};

@@ -156,6 +156,15 @@ export const getFirebaseMetaGeneReviewPath = (isGermline: boolean | undefined, h
   return getFirebasePath(isGermline ? 'GERMLINE_META_GENE_REVIEW' : 'META_GENE_REVIEW', hugoSymbol, uuid);
 };
 
+export const getFirebaseRangesPath = (isGermline: boolean | undefined, hugoSymbol?: string) => {
+  if (hugoSymbol !== undefined) {
+    const basePath = isGermline ? 'GERMLINE_RANGE' : 'RANGE';
+    return getFirebasePath(basePath, hugoSymbol);
+  } else {
+    return isGermline ? FB_COLLECTION.GERMLINE_RANGES : FB_COLLECTION.RANGES;
+  }
+};
+
 export function getMostRecentComment(comments: CommentList) {
   const commentsArray = Object.values(comments);
   let latestComment = commentsArray[0];

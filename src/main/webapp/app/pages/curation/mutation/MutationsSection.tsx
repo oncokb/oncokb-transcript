@@ -26,6 +26,7 @@ import { extractPositionFromSingleNucleotideAlteration } from 'app/shared/util/u
 import { MUTATION_LIST_ID, SINGLE_MUTATION_VIEW_ID } from 'app/config/constants/html-id';
 import { SentryError } from 'app/config/sentry-error';
 import { MutationQuery } from 'app/stores/curation-page.store';
+import AddRangeModal from 'app/shared/modal/AddRangeModal';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -42,6 +43,7 @@ function MutationsSection({
   isGermline,
   parsedHistoryList,
   addMutation,
+  addRange,
   openMutationCollapsibleListKey,
   setOpenMutationCollapsibleListKey,
   firebaseDb,
@@ -50,6 +52,7 @@ function MutationsSection({
   setIsMutationListRendered,
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
+  const [showAddRangeModal, setShowAddRangeModal] = useState(false);
   const [filteredMutationKeys, setFilteredMutationKeys] = useState<string[]>([]);
   const [sortMethod, setSortMethod] = useState<SortOptions>(SortOptions.DEFAULT);
 
@@ -213,6 +216,7 @@ function MutationsSection({
               setFilteredMutationKeys={setFilteredMutationKeys}
               showAddMutationModal={showAddMutationModal}
               setShowAddMutationModal={setShowAddMutationModal}
+              setShowAddRangeModal={setShowAddRangeModal}
               setSortMethod={setSortMethod}
             />
           </Col>
@@ -240,18 +244,31 @@ function MutationsSection({
           }}
         />
       )}
+      {showAddRangeModal && (
+        <AddRangeModal
+          hugoSymbol={hugoSymbol}
+          isGermline={isGermline}
+          onCancel={() => setShowAddRangeModal(false)}
+          onConfirm={(alias, start, end, oncogencities, mutationTypes) => {
+            addRange?.(hugoSymbol, alias, start, end, oncogencities, mutationTypes, false);
+            setShowAddRangeModal(false);
+          }}
+        />
+      )}
     </>
   );
 }
 
 const mapStoreToProps = ({
   firebaseGeneService,
+  firebaseRangeService,
   openMutationCollapsibleStore,
   firebaseAppStore,
   curationPageStore,
   firebaseMutationConvertIconStore,
 }: IRootStore) => ({
   addMutation: firebaseGeneService.addMutation,
+  addRange: firebaseRangeService.addRange,
   openMutationCollapsibleListKey: openMutationCollapsibleStore.listKey,
   setOpenMutationCollapsibleListKey: openMutationCollapsibleStore.setOpenMutationCollapsibleListKey,
   firebaseDb: firebaseAppStore.firebaseDb,
