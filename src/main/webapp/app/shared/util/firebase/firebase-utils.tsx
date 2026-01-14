@@ -1,5 +1,5 @@
 import { APP_EXPANDED_DATETIME_FORMAT, CURRENT_REVIEWER, NEW_NAME_UUID_VALUE } from 'app/config/constants/constants';
-import { FB_COLLECTION, FB_COLLECTION_PATH } from 'app/config/constants/firebase';
+import { FB_COLLECTION, FB_COLLECTION_PATH, FIREBASE_ONCOGENICITY_MAPPING } from 'app/config/constants/firebase';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
 import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
@@ -30,6 +30,7 @@ import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, isUui
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { hasReview } from './firebase-review-utils';
+import { IAddRangeModalProps } from 'app/shared/modal/AddRangeModal';
 
 export const getValueByNestedKey = (obj: any, nestedKey = '', sep = '/') => {
   return nestedKey.split(sep).reduce((currObj, currKey) => {
@@ -1012,4 +1013,16 @@ export function areCancerTypePropertiesEqual(a: string | undefined, b: string | 
 
 export function isStringEmpty(string: string | undefined | null) {
   return string === '' || _.isNil(string);
+}
+
+export function getMutationNameFromRange(alias: string, start: number, end: number, oncogencities: string[], mutationTypes: string[]) {
+  let mutationName = '';
+  if (oncogencities.length > 0) {
+    mutationName += oncogencities.map(onc => FIREBASE_ONCOGENICITY_MAPPING[onc]).join('/') + ' ';
+  }
+  if (mutationTypes.length > 0) {
+    mutationName += mutationTypes.join('/') + ' ';
+  }
+  mutationName += `mutations at positions ${start}-${end}`;
+  return `${alias}, (${mutationName})`; // add comma to make it a string mutation
 }

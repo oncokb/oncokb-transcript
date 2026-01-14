@@ -252,6 +252,7 @@ export class Mutation {
   summary = '';
   summary_review?: Review;
   summary_uuid: string = generateUuid();
+  associatedRangeId?: string;
 
   // Germline
   mutation_specific_penetrance = new MutationSpecificPenetrance();

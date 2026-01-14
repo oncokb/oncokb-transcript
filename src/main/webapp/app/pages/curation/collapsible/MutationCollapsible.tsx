@@ -18,13 +18,15 @@ import MutationConvertIcon from 'app/shared/icons/MutationConvertIcon';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import AddVusModal from 'app/shared/modal/AddVusModal';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
-import { Alteration, Review } from 'app/shared/model/firebase/firebase.model';
+import { Alteration, Mutation, Review } from 'app/shared/model/firebase/firebase.model';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import {
   getFirebaseGenePath,
+  getFirebaseRangesPath,
   getFirebaseVusPath,
   getMutationName,
+  getMutationNameFromRange,
   isMutationEffectCuratable,
   isSectionRemovableWithoutReview,
 } from 'app/shared/util/firebase/firebase-utils';
@@ -49,6 +51,7 @@ import { RemovableCollapsible } from './RemovableCollapsible';
 import { Unsubscribe } from 'firebase/database';
 import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
+import AddRangeModal from 'app/shared/modal/AddRangeModal';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -73,6 +76,8 @@ const MutationCollapsible = ({
   deleteSection,
   updateMutationName,
   addTumor,
+  updateRange,
+  deleteRange,
   modifyCancerTypeModalStore,
   annotatedAltsCache,
   genomicIndicators,
@@ -93,6 +98,7 @@ const MutationCollapsible = ({
   const [showSimpleConfirmModal, setShowSimpleConfirmModal] = useState<boolean>(false);
   const [simpleConfirmModalBody, setSimpleConfirmModalBody] = useState<string | undefined>(undefined);
   const [mutationSummaryRef, setMutationSummaryRef] = useState<HTMLElement | null>(null);
+  const [associatedRangeId, setAssociatedRangeId] = useState(undefined);
 
   useEffect(() => {
     const arr = annotatedAltsCache?.get(hugoSymbol ?? '', [{ name: mutationName, alterations: mutationAlterations }]) ?? [];
@@ -147,6 +153,7 @@ const MutationCollapsible = ({
   const [vusData, setVusData] = useState(null);
 
   const [isEditingMutation, setIsEditingMutation] = useState(false);
+  const [isEditingRange, setIsEditingRange] = useState(false);
   const [isConvertingToVus, setIsConvertingToVus] = useState(false);
 
   useEffect(() => {
@@ -184,6 +191,11 @@ const MutationCollapsible = ({
     callbacks.push(
       onValue(ref(firebaseDb, `${mutationPath}/mutation_effect/oncogenic`), snapshot => {
         setOncogenicity(snapshot.val());
+      }),
+    );
+    callbacks.push(
+      onValue(ref(firebaseDb, `${mutationPath}/associatedRangeId`), snapshot => {
+        setAssociatedRangeId(snapshot.val());
       }),
     );
 
@@ -247,7 +259,15 @@ const MutationCollapsible = ({
       return;
     }
     const snapshot = await get(ref(firebaseDb, mutationPath));
-    await deleteSection?.(`${mutationPath}/name`, snapshot.val(), mutationNameReview, mutationUuid, toVus);
+
+    const promises: Promise<any>[] = [];
+    if (deleteSection) {
+      promises.push(deleteSection(`${mutationPath}/name`, snapshot.val(), mutationNameReview, mutationUuid, toVus));
+    }
+    if (associatedRangeId && deleteRange) {
+      promises.push(deleteRange(hugoSymbol, associatedRangeId, isGermline));
+    }
+    await Promise.all(promises);
     if (toVus) setIsConvertingToVus(false);
   }
 
@@ -323,7 +343,7 @@ const MutationCollapsible = ({
             />
             <EditIcon
               onClick={() => {
-                setIsEditingMutation(true);
+                associatedRangeId ? setIsEditingRange(true) : setIsEditingMutation(true);
               }}
               tooltipProps={
                 isAssociatedWithGenomicIndicator
@@ -607,6 +627,32 @@ const MutationCollapsible = ({
           }}
         />
       ) : undefined}
+      {isEditingRange && associatedRangeId && (
+        <AddRangeModal
+          hugoSymbol={hugoSymbol}
+          isGermline={isGermline}
+          onCancel={() => {
+            setIsEditingRange(false);
+          }}
+          onConfirm={async (alias, start, end, oncogenicities, mutationTypes) => {
+            if (!firebaseDb) {
+              return;
+            }
+            const newMutation = (await get(ref(firebaseDb, mutationPath))).val() as Mutation;
+            newMutation.name = getMutationNameFromRange(alias, start, end, oncogenicities, mutationTypes);
+            try {
+              await Promise.all([
+                updateMutationName?.(mutationPath, firebaseMutationsPath, mutationName, newMutation),
+                updateRange?.(hugoSymbol, associatedRangeId, alias, start, end, oncogenicities, mutationTypes, isGermline),
+              ]);
+            } catch (error) {
+              notifyError(error);
+            }
+            setIsEditingRange(false);
+          }}
+          rangeToEditPath={`${getFirebaseRangesPath(isGermline, hugoSymbol)}/${associatedRangeId}`}
+        />
+      )}
       {isConvertingToVus ? (
         <AddVusModal
           hugoSymbol={hugoSymbol}
@@ -634,6 +680,7 @@ const MutationCollapsible = ({
 const mapStoreToProps = ({
   firebaseAppStore,
   firebaseGeneService,
+  firebaseRangeService,
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,
   relevantCancerTypesModalStore,
@@ -644,6 +691,8 @@ const mapStoreToProps = ({
   deleteSection: firebaseGeneService.deleteSection,
   addTumor: firebaseGeneService.addTumor,
   updateMutationName: firebaseGeneService.updateMutationName,
+  updateRange: firebaseRangeService.updateRange,
+  deleteRange: firebaseRangeService.deleteRange,
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,
   relevantCancerTypesModalStore,

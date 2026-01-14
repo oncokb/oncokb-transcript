@@ -4,7 +4,7 @@ import { ONCOGENICITY_OPTIONS } from 'app/config/constants/firebase';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import { componentInject } from '../util/typed-inject';
-import { onValue, ref } from 'firebase/database';
+import { onValue, ref, Unsubscribe } from 'firebase/database';
 import { getFirebaseRangesPath } from '../util/firebase/firebase-utils';
 import { MutationRange, RangeList } from '../model/firebase/firebase.model';
 
@@ -21,9 +21,10 @@ export interface IAddRangeModalProps extends StoreProps {
   isGermline: boolean;
   onCancel: () => void;
   onConfirm: (alias: string, start: number, end: number, oncogencities: string[], mutationTypes: string[]) => void;
+  rangeToEditPath?: string;
 }
 
-function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, firebaseDb }: IAddRangeModalProps) {
+function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, rangeToEditPath, firebaseDb }: IAddRangeModalProps) {
   const [currentStep, setCurrentStep] = useState(AddRangeStep.POSITION);
   const [position, setPosition] = useState<[number | undefined, number | undefined]>([undefined, undefined]);
   const [selectedOncogenicity, setSelectedOncogenicity] = useState<string[]>([]);
@@ -31,19 +32,37 @@ function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, firebaseDb
   const [alias, setAlias] = useState('');
   const [existingAliases, setExistingAliases] = useState<string[]>([]);
 
+  const [initialAlias, setInitialAlias] = useState<string | undefined>(undefined);
+
   useEffect(() => {
     if (!firebaseDb) {
       return;
     }
-    const callback = onValue(ref(firebaseDb, getFirebaseRangesPath(isGermline, hugoSymbol)), snapshot => {
-      const ranges: RangeList | undefined = snapshot.val();
-      if (ranges) {
-        setExistingAliases(Object.values(ranges).map(range => range.alias));
-      }
-    });
+    const callbacks: Unsubscribe[] = [];
+    callbacks.push(
+      onValue(ref(firebaseDb, getFirebaseRangesPath(isGermline, hugoSymbol)), snapshot => {
+        const ranges: RangeList | undefined = snapshot.val();
+        if (ranges) {
+          setExistingAliases(Object.values(ranges).map(range => range.alias));
+        }
+      }),
+    );
+    if (rangeToEditPath) {
+      callbacks.push(
+        onValue(ref(firebaseDb, rangeToEditPath), snapshot => {
+          const range = snapshot.val() as MutationRange;
+          setPosition([range.start, range.end]);
+          setSelectedOncogenicity(range.oncogencities.split(','));
+          setSelectedMutationTypes(range.mutationTypes.split(','));
+          setAlias(range.alias);
+          setInitialAlias(range.alias);
+          setCurrentStep(AddRangeStep.ALIAS);
+        }),
+      );
+    }
 
     return () => {
-      callback();
+      callbacks.forEach(callback => callback());
     };
   }, [firebaseDb]);
 
@@ -55,7 +74,7 @@ function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, firebaseDb
     case AddRangeStep.CRITERIA:
       break;
     case AddRangeStep.ALIAS:
-      errorMessage = validateAlias(alias, existingAliases);
+      errorMessage = validateAlias(alias, existingAliases, initialAlias);
       break;
     default:
   }
@@ -84,6 +103,7 @@ function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, firebaseDb
         <div className="d-flex align-items-center gap-2 mb-2">
           <Input
             type="number"
+            value={position[0]}
             disabled={currentStep !== AddRangeStep.POSITION}
             placeholder="Start"
             onChange={event => setPosition(pos => [event.target.value ? Number(event.target.value) : undefined, pos[1]])}
@@ -91,6 +111,7 @@ function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, firebaseDb
           <span>&mdash;</span>
           <Input
             type="number"
+            value={position[1]}
             disabled={currentStep !== AddRangeStep.POSITION}
             placeholder="End"
             onChange={event => setPosition(pos => [pos[0], event.target.value ? Number(event.target.value) : undefined])}
@@ -191,12 +212,16 @@ function validateRange(start: number | undefined, end: number | undefined): stri
   // TODO: transcript validation
 }
 
-function validateAlias(alias: string, existingAliases: string[]) {
+function validateAlias(alias: string, existingAliases: string[], existingAlias?: string) {
   alias = alias.trim();
   if (!alias) {
     return 'Alias must be specified.';
   }
-  if (existingAliases.some(existing => alias.toLowerCase() === existing.toLowerCase())) {
+  if (
+    existingAliases.some(
+      existing => alias.toLowerCase() === existing.toLowerCase() && existing.toLowerCase() !== existingAlias?.toLowerCase(),
+    )
+  ) {
     return 'Alias already exists.';
   }
   return undefined;
