@@ -21,7 +21,7 @@ export class FirebaseRangeService {
       alias,
       start,
       end,
-      oncogencities: oncogenicities.join(','),
+      oncogenicities: oncogenicities.join(','),
       mutationTypes: mutationTypes.join(','),
     });
   };
