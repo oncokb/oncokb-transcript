@@ -8,6 +8,7 @@ import React, { KeyboardEventHandler, useCallback, useEffect, useMemo, useRef, u
 import { FaChevronDown, FaChevronUp, FaExclamationTriangle, FaPlus } from 'react-icons/fa';
 import ReactSelect, { GroupBase, MenuPlacement } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
+import { isNumber } from 'react-jhipster';
 import { Alert, Button, Col, Input, Row, Spinner } from 'reactstrap';
 import { Alteration, Mutation, VusObjList } from '../model/firebase/firebase.model';
 import {
@@ -501,6 +502,20 @@ function AddMutationModal({
       : handleNormalFieldChange(newValue, field, alterationIndex);
   }
 
+  function getProteinPositionValidation(alterationData: AlterationData) {
+    const proteinStartValue = alterationData.proteinStart?.toString() || '';
+    const proteinEndValue = alterationData.proteinEnd?.toString() || '';
+    const proteinStartError = isNumber(proteinStartValue) ? '' : 'Must be a number';
+    const proteinEndError = isNumber(proteinEndValue) ? '' : 'Must be a number';
+    return {
+      proteinStartValue,
+      proteinEndValue,
+      proteinStartError,
+      proteinEndError,
+      hasInvalid: !!proteinStartError || !!proteinEndError,
+    };
+  }
+
   async function handleAlterationAdded() {
     let alterationString = inputValue;
     if (convertOptions?.isConverting) {
@@ -686,6 +701,7 @@ function AddMutationModal({
   }
 
   function getProteinChangeContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
+    const { proteinStartValue, proteinEndValue, proteinStartError, proteinEndError } = getProteinPositionValidation(alterationData);
     return (
       <div>
         <AddMutationModalField
@@ -702,15 +718,17 @@ function AddMutationModal({
         />
         <AddMutationModalField
           label="Protein Start"
-          value={alterationData.proteinStart?.toString() || ''}
+          value={proteinStartValue}
           placeholder="Input protein start"
           onChange={newValue => handleFieldChange(newValue, 'proteinStart', alterationIndex, excludingIndex)}
+          errorMessage={proteinStartError}
         />
         <AddMutationModalField
           label="Protein End"
-          value={alterationData.proteinEnd?.toString() || ''}
+          value={proteinEndValue}
           placeholder="Input protein end"
           onChange={newValue => handleFieldChange(newValue, 'proteinEnd', alterationIndex, excludingIndex)}
+          errorMessage={proteinEndError}
         />
         <AddMutationModalField
           label="Ref Residues"
@@ -1012,6 +1030,10 @@ function AddMutationModal({
     modalWarningMessage = 'Name differs from original VUS name';
   }
 
+  const hasInvalidProteinPositions = tabStates.some(
+    tab => getProteinPositionValidation(tab).hasInvalid || tab.excluding.some(ex => getProteinPositionValidation(ex).hasInvalid),
+  );
+
   return (
     <DefaultAddMutationModal
       isUpdate={!!mutationToEdit}
@@ -1041,6 +1063,7 @@ function AddMutationModal({
         isFetchingAlteration ||
         isFetchingExcludingAlteration ||
         tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error)) ||
+        hasInvalidProteinPositions ||
         isConfirmPending
       }
       isConfirmPending={isConfirmPending}
@@ -1055,9 +1078,18 @@ interface IAddMutationModalFieldProps {
   onChange: (newValue: string) => void;
   isLoading?: boolean;
   disabled?: boolean;
+  errorMessage?: string;
 }
 
-function AddMutationModalField({ label, value: value, placeholder, onChange, isLoading, disabled }: IAddMutationModalFieldProps) {
+function AddMutationModalField({
+  label,
+  value: value,
+  placeholder,
+  onChange,
+  isLoading,
+  disabled,
+  errorMessage,
+}: IAddMutationModalFieldProps) {
   return (
     <div className="d-flex align-items-center mb-3">
       <Col className="px-0 col-3 me-3 align-items-center">
@@ -1069,12 +1101,14 @@ function AddMutationModalField({ label, value: value, placeholder, onChange, isL
       <Col className="px-0">
         <Input
           disabled={disabled}
+          invalid={!!errorMessage}
           value={value}
           onChange={event => {
             onChange(event.target.value);
           }}
           placeholder={placeholder}
         />
+        {errorMessage && <div className="text-danger small mt-1">{errorMessage}</div>}
       </Col>
     </div>
   );
