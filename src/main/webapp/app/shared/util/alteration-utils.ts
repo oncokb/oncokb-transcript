@@ -1,4 +1,5 @@
 import { Alteration } from 'app/shared/model/firebase/firebase.model';
+import { isNumber } from 'react-jhipster';
 import { AlterationAnnotationStatus, AlterationTypeEnum, Gene as ApiGene } from 'app/shared/api/generated/curation';
 
 export type AlterationData = {
@@ -17,6 +18,13 @@ export type AlterationData = {
   warning?: string;
   error?: string;
   alterationFieldValueWhileFetching?: string;
+};
+
+const toProteinPosition = (value?: number | string) => {
+  if (!isNumber(value)) {
+    return undefined;
+  }
+  return Number(value);
 };
 
 export function getFullAlterationName(alterationData: AlterationData, includeVariantName = true): string {
@@ -65,8 +73,14 @@ export function convertAlterationDataToAlteration(alterationData: AlterationData
   alteration.alteration = alterationData.alteration;
   alteration.name = getFullAlterationName(alterationData);
   alteration.proteinChange = alterationData.proteinChange || '';
-  alteration.proteinStart = alterationData.proteinStart || -1;
-  alteration.proteinEnd = alterationData.proteinEnd || -1;
+  const proteinStart = toProteinPosition(alterationData.proteinStart);
+  if (proteinStart !== undefined) {
+    alteration.proteinStart = proteinStart;
+  }
+  const proteinEnd = toProteinPosition(alterationData.proteinEnd);
+  if (proteinEnd !== undefined) {
+    alteration.proteinEnd = proteinEnd;
+  }
   alteration.refResidues = alterationData.refResidues || '';
   alteration.varResidues = alterationData.varResidues || '';
   alteration.consequence = alterationData.consequence;
