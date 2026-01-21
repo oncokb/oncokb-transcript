@@ -45,6 +45,11 @@ const DRUG_NAME_EVIDENCE_MAPPING: EvidenceMapping = {
   accessor: getDrugsNameFromEvidence,
   isGroupingField: true,
 };
+const EVIDENCE_ID_EVIDENCE_MAPPING: EvidenceMapping = {
+  header: 'Evidence ID',
+  accessor: 'id',
+  isGroupingField: true,
+};
 
 type GeneLevelKeys = 'hugoSymbol' | 'geneSummary' | 'geneBackground' | 'geneType';
 const GeneLevelEvidence: Record<GeneLevelKeys, EvidenceMapping> = {
@@ -150,6 +155,7 @@ type TreatmentLevelKeys =
   | 'hugoSymbol'
   | 'alteration'
   | 'tumorType'
+  | 'evidenceId'
   | 'drugs'
   | 'treatmentLevel'
   | 'treatmentDescription'
@@ -159,6 +165,7 @@ const TreatmentLevelEvidence: Record<TreatmentLevelKeys, EvidenceMapping> = {
   hugoSymbol: HUGOSYMBOL_EVIDENCE_MAPPING,
   alteration: ALTERATION_EVIDENCE_MAPPING,
   tumorType: TUMORTYPE_EVIDENCE_MAPPING,
+  evidenceId: EVIDENCE_ID_EVIDENCE_MAPPING,
   drugs: DRUG_NAME_EVIDENCE_MAPPING,
   treatmentLevel: {
     header: 'Tx Level',
@@ -186,6 +193,7 @@ type CategoryConfig<T extends Record<string, EvidenceMapping>> = {
   levelEvidenceMap: T;
   fileName: string;
   groupingFields: (keyof T)[];
+  outputGroupingFields?: (keyof T)[];
 };
 
 const CATEGORY_CONFIGS: {
@@ -212,7 +220,8 @@ const CATEGORY_CONFIGS: {
   treatment: {
     levelEvidenceMap: TreatmentLevelEvidence,
     fileName: 'treatment-level-evidences.tsv',
-    groupingFields: ['hugoSymbol', 'alteration', 'tumorType'],
+    groupingFields: ['hugoSymbol', 'alteration', 'tumorType', 'evidenceId'],
+    outputGroupingFields: ['hugoSymbol', 'alteration', 'tumorType'],
   },
 };
 
@@ -438,8 +447,9 @@ const EvidenceDownloader = () => {
       return acc;
     }, {});
 
+    const outputGroupingFields = categoryConfig.outputGroupingFields ?? categoryConfig.groupingFields;
     const headers = [
-      ...categoryConfig.groupingFields.map(field => levelEvidenceMap[field].header),
+      ...outputGroupingFields.map(field => levelEvidenceMap[field].header),
       ...evidenceKeys.map(key => levelEvidenceMap[key].header),
     ];
 
@@ -448,7 +458,11 @@ const EvidenceDownloader = () => {
     const buildRows = (obj: any, depth: number, groupingFieldData: string[]) => {
       if (depth === categoryConfig.groupingFields.length) {
         // We've reached the leaf level (finished retrieving grouping field data)
-        const row = [...groupingFieldData, ...evidenceKeys.map(key => getEvidenceMappingValue(obj[key]))];
+        const groupingFieldValueMap = Object.fromEntries(
+          categoryConfig.groupingFields.map((field, index) => [field, groupingFieldData[index]]),
+        );
+        const outputGroupingFieldData = outputGroupingFields.map(field => groupingFieldValueMap[field] ?? '');
+        const row = [...outputGroupingFieldData, ...evidenceKeys.map(key => getEvidenceMappingValue(obj[key]))];
         tsvRows.push(row.join('\t'));
         return;
       }
