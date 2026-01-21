@@ -251,10 +251,10 @@ function MutationsSection({
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
           onCancel={() => setShowAddRangeModal(false)}
-          onConfirm={async (alias, start, end, oncogencities, mutationTypes) => {
-            const range = await addRange?.(hugoSymbol, alias, start, end, oncogencities, mutationTypes, isGermline);
+          onConfirm={async (alias, start, end, oncogenicities, mutationTypes) => {
+            const range = await addRange?.(hugoSymbol, alias, start, end, oncogenicities, mutationTypes, isGermline);
             if (range?.pushKey) {
-              const mutation = new Mutation(getMutationNameFromRange(alias, start, end, oncogencities, mutationTypes));
+              const mutation = new Mutation(getMutationNameFromRange(alias, start, end, oncogenicities, mutationTypes));
               mutation.associatedRangeId = range.pushKey;
               await addMutation?.(`${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`, mutation, isGermline, false);
             }

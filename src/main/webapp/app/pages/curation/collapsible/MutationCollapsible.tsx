@@ -98,7 +98,7 @@ const MutationCollapsible = ({
   const [showSimpleConfirmModal, setShowSimpleConfirmModal] = useState<boolean>(false);
   const [simpleConfirmModalBody, setSimpleConfirmModalBody] = useState<string | undefined>(undefined);
   const [mutationSummaryRef, setMutationSummaryRef] = useState<HTMLElement | null>(null);
-  const [associatedRangeId, setAssociatedRangeId] = useState(undefined);
+  const [associatedRangeId, setAssociatedRangeId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const arr = annotatedAltsCache?.get(hugoSymbol ?? '', [{ name: mutationName, alterations: mutationAlterations }]) ?? [];
@@ -281,7 +281,7 @@ const MutationCollapsible = ({
 
   const title = getMutationName(mutationName, mutationAlterations);
   const isStringMutation = title.includes(',');
-  const isMECuratable = isMutationEffectCuratable(title);
+  const isMECuratable = isMutationEffectCuratable(title, !!associatedRangeId);
   const isMutationPendingDelete = mutationNameReview?.removed || false;
 
   return (
@@ -300,7 +300,7 @@ const MutationCollapsible = ({
             {showLastModified && (
               <MutationLastModified className="me-2" mutationUuid={mutationUuid} hugoSymbol={hugoSymbol ?? ''} isGermline={isGermline} />
             )}
-            <MutationLevelSummary mutationPath={mutationPath} hideOncogenicity={isStringMutation} />
+            <MutationLevelSummary mutationPath={mutationPath} hideOncogenicity={isStringMutation || !!associatedRangeId} />
             {hotspots.length > 0 && <HotspotIcon associatedHotspots={hotspots} />}
             {exonRanges.length > 0 && (
               <DefaultTooltip

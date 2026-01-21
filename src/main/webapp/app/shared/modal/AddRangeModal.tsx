@@ -20,7 +20,7 @@ export interface IAddRangeModalProps extends StoreProps {
   hugoSymbol: string;
   isGermline: boolean;
   onCancel: () => void;
-  onConfirm: (alias: string, start: number, end: number, oncogencities: string[], mutationTypes: string[]) => void;
+  onConfirm: (alias: string, start: number, end: number, oncogenicities: string[], mutationTypes: string[]) => void;
   rangeToEditPath?: string;
 }
 
@@ -52,7 +52,7 @@ function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, rangeToEdi
         onValue(ref(firebaseDb, rangeToEditPath), snapshot => {
           const range = snapshot.val() as MutationRange;
           setPosition([range.start, range.end]);
-          setSelectedOncogenicity(range.oncogencities.split(','));
+          setSelectedOncogenicity(range.oncogenicities.split(','));
           setSelectedMutationTypes(range.mutationTypes.split(','));
           setAlias(range.alias);
           setInitialAlias(range.alias);

@@ -529,6 +529,6 @@ export type MutationRange = {
   alias: string;
   start: number;
   end: number;
-  oncogencities: string;
+  oncogenicities: string;
   mutationTypes: string;
 };

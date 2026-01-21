@@ -465,7 +465,11 @@ const addDuplicateMutationInfo = (
 export const hasMultipleMutations = (mutationName: string) => {
   return mutationName.includes(',');
 };
-export const isMutationEffectCuratable = (mutationName: string) => {
+export const isMutationEffectCuratable = (mutationName: string, hasAssociatedRange: boolean = false) => {
+  if (hasAssociatedRange) {
+    return false;
+  }
+
   const multipleMuts = hasMultipleMutations(mutationName);
   if (multipleMuts && !areSameAlterationsWithDifferentReferenceGenomes(mutationName)) {
     return false;
@@ -1015,14 +1019,14 @@ export function isStringEmpty(string: string | undefined | null) {
   return string === '' || _.isNil(string);
 }
 
-export function getMutationNameFromRange(alias: string, start: number, end: number, oncogencities: string[], mutationTypes: string[]) {
+export function getMutationNameFromRange(alias: string, start: number, end: number, oncogenicities: string[], mutationTypes: string[]) {
   let mutationName = '';
-  if (oncogencities.length > 0) {
-    mutationName += oncogencities.map(onc => FIREBASE_ONCOGENICITY_MAPPING[onc]).join('/') + ' ';
+  if (oncogenicities.length > 0) {
+    mutationName += oncogenicities.map(onc => FIREBASE_ONCOGENICITY_MAPPING[onc]).join('/') + ' ';
   }
   if (mutationTypes.length > 0) {
     mutationName += mutationTypes.join('/') + ' ';
   }
   mutationName += `mutations at positions ${start}-${end}`;
-  return `${alias}, (${mutationName})`; // add comma to make it a string mutation
+  return `${mutationName} [${alias}]`; // add comma to make it a string mutation
 }
