@@ -122,6 +122,15 @@ type ValidationData = {
   target: string | null | undefined;
   reason: string | null | undefined;
 };
+type MismatchRefAAData = {
+  gene: string;
+  variant: string;
+  vusOrCurated: string;
+  oncokbTranscript: string;
+  incorrectReferenceAllele: string;
+  correctReferenceAllele: string;
+  reason: string;
+};
 
 type ValidationResult = {
   key: string;
@@ -130,19 +139,143 @@ type ValidationResult = {
   data: ValidationData[];
 };
 
-const validationColumns: FilterableColumn<ValidationData>[] = [
+const MISMATCH_REF_AA_KEY = 'Whether all variants have matched reference amino acid on the position curated';
+
+const matchesKeyword = (value: string | null | undefined, keyword: string) => value?.toLowerCase().includes(keyword) ?? false;
+
+const parseMismatchTarget = (target: string | null | undefined) => {
+  const parsed = {
+    gene: '',
+    variant: '',
+    vusOrCurated: '',
+    oncokbTranscript: '',
+  };
+  if (!target) {
+    return parsed;
+  }
+  const parts = target
+    .split(' / ')
+    .map(part => part.trim())
+    .filter(part => part.length > 0);
+  if (parts.length === 0) {
+    return parsed;
+  }
+  parsed.gene = parts[0];
+  const hasIsoform = parts.length > 1 && parts[1].startsWith('Isoform: ');
+  if (hasIsoform) {
+    parsed.oncokbTranscript = parts[1].slice('Isoform: '.length).trim();
+  }
+  const variantStartIndex = hasIsoform ? 2 : 1;
+  const lastPart = parts[parts.length - 1];
+  parsed.vusOrCurated = lastPart;
+  if (parts.length - 1 > variantStartIndex) {
+    parsed.variant = parts[variantStartIndex];
+  }
+  return parsed;
+};
+
+const extractIncorrectReferenceAllele = (variant: string) => {
+  if (!variant) {
+    return '';
+  }
+  let cleaned = variant.trim();
+  if (cleaned.toLowerCase().startsWith('p.')) {
+    cleaned = cleaned.slice(2).trim();
+  }
+  return cleaned ? cleaned[0] : '';
+};
+
+const extractCorrectReferenceAllele = (reason: string | null | undefined) => {
+  if (!reason) {
+    return '';
+  }
+  const marker = 'expected aa is ';
+  const lower = reason.toLowerCase();
+  const markerIndex = lower.lastIndexOf(marker);
+  if (markerIndex === -1) {
+    return '';
+  }
+  return reason.slice(markerIndex + marker.length).trim();
+};
+
+const parseMismatchRefAAData = (entry: ValidationData): MismatchRefAAData => {
+  const parsedTarget = parseMismatchTarget(entry.target);
+  return {
+    gene: parsedTarget.gene,
+    variant: parsedTarget.variant,
+    vusOrCurated: parsedTarget.vusOrCurated,
+    oncokbTranscript: parsedTarget.oncokbTranscript,
+    incorrectReferenceAllele: extractIncorrectReferenceAllele(parsedTarget.variant),
+    correctReferenceAllele: extractCorrectReferenceAllele(entry.reason),
+    reason: entry.reason ?? '',
+  };
+};
+
+const defaultValidationColumns: FilterableColumn<ValidationData>[] = [
   {
     accessor: 'target',
     Header: 'Biomarker',
     onSearchFilter(data: ValidationData, keyword: string) {
-      return data.target?.toLowerCase().includes(keyword) ?? false;
+      return matchesKeyword(data.target, keyword);
     },
   },
   {
     accessor: 'reason',
     Header: 'Issue',
     onSearchFilter(data: ValidationData, keyword: string) {
-      return data.reason?.toLowerCase().includes(keyword) ?? false;
+      return matchesKeyword(data.reason, keyword);
+    },
+  },
+];
+
+const mismatchRefAAColumns: FilterableColumn<MismatchRefAAData>[] = [
+  {
+    accessor: 'gene',
+    Header: 'Gene',
+    onSearchFilter(data: MismatchRefAAData, keyword: string) {
+      return matchesKeyword(data.gene, keyword);
+    },
+  },
+  {
+    accessor: 'variant',
+    Header: 'Variant',
+    onSearchFilter(data: MismatchRefAAData, keyword: string) {
+      return matchesKeyword(data.variant, keyword);
+    },
+  },
+  {
+    accessor: 'vusOrCurated',
+    Header: 'VUS or curated',
+    onSearchFilter(data: MismatchRefAAData, keyword: string) {
+      return matchesKeyword(data.vusOrCurated, keyword);
+    },
+  },
+  {
+    accessor: 'oncokbTranscript',
+    Header: 'OncoKB transcript',
+    onSearchFilter(data: MismatchRefAAData, keyword: string) {
+      return matchesKeyword(data.oncokbTranscript, keyword);
+    },
+  },
+  {
+    accessor: 'incorrectReferenceAllele',
+    Header: 'Incorrect reference allele',
+    onSearchFilter(data: MismatchRefAAData, keyword: string) {
+      return matchesKeyword(data.incorrectReferenceAllele, keyword);
+    },
+  },
+  {
+    accessor: 'correctReferenceAllele',
+    Header: 'Correct reference allele',
+    onSearchFilter(data: MismatchRefAAData, keyword: string) {
+      return matchesKeyword(data.correctReferenceAllele, keyword);
+    },
+  },
+  {
+    accessor: 'reason',
+    Header: 'Reason',
+    onSearchFilter(data: MismatchRefAAData, keyword: string) {
+      return matchesKeyword(data.reason, keyword);
     },
   },
 ];
@@ -181,17 +314,29 @@ function ValidationResults({ filter, validationType, messages }: ValidationResul
     }
   });
 
-  function handleDownload(validationResult: ValidationResult) {
-    const headerRow = validationColumns.map(column => column.Header).join('\t');
+  const isMismatchRefAAValidation = (validationKey: string) => validationKey === MISMATCH_REF_AA_KEY;
+
+  const getValidationColumns = (validationResult: ValidationResult): FilterableColumn<any>[] =>
+    isMismatchRefAAValidation(validationResult.key) ? mismatchRefAAColumns : defaultValidationColumns;
+
+  const getValidationData = (validationResult: ValidationResult): Array<ValidationData | MismatchRefAAData> =>
+    isMismatchRefAAValidation(validationResult.key) ? validationResult.data.map(parseMismatchRefAAData) : validationResult.data;
+
+  function handleDownload(rows: Array<ValidationData | MismatchRefAAData>, columns: FilterableColumn<any>[]) {
+    const headerRow = columns.map(column => String(column.Header)).join('\t');
     const dataRows: string[] = [];
-    for (const data of validationResult.data) {
+    for (const row of rows) {
       const dataRow: string[] = [];
-      for (const column of validationColumns) {
-        if (column.accessor) {
-          dataRow.push(data[column.accessor.toString()]);
+      for (const column of columns) {
+        if (typeof column.accessor === 'string') {
+          const value = row[column.accessor];
+          dataRow.push(value == null ? '' : String(value));
         } else if (column.id) {
           // required if accessor not string
-          dataRow.push(data[column.id]);
+          const value = row[column.id];
+          dataRow.push(value == null ? '' : String(value));
+        } else {
+          dataRow.push('');
         }
       }
       dataRows.push(dataRow.join('\t'));
@@ -208,6 +353,9 @@ function ValidationResults({ filter, validationType, messages }: ValidationResul
         const color = status === 'IS_COMPLETE' ? SUCCESS : status === 'IS_ERROR' ? DANGER : GREY;
         const showLoadingSpinner = status === 'IS_PENDING';
         const isLarge = validationResult.data.length > 10;
+        const columns = getValidationColumns(validationResult);
+        const tableData = getValidationData(validationResult);
+        const defaultSortId = isMismatchRefAAValidation(validationResult.key) ? 'gene' : 'target';
         return (
           <Collapsible
             title={validationResult.key}
@@ -223,17 +371,17 @@ function ValidationResults({ filter, validationType, messages }: ValidationResul
           >
             <div className="py-3">
               <OncoKBTable
-                data={validationResult.data}
-                columns={validationColumns}
+                data={tableData}
+                columns={columns}
                 showPagination={isLarge}
                 disableSearch={!isLarge}
                 defaultSorted={[
                   {
-                    id: 'target',
+                    id: defaultSortId,
                     desc: false,
                   },
                 ]}
-                handleDownload={() => handleDownload(validationResult)}
+                handleDownload={() => handleDownload(tableData, columns)}
               />
             </div>
           </Collapsible>
