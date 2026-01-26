@@ -307,8 +307,20 @@ public class TranscriptService {
     public Optional<EnsemblTranscript> getEnsemblTranscript(String transcriptId, ReferenceGenome referenceGenome) {
         EnsemblControllerApi controllerApi = genomeNexusService.getEnsemblControllerApi(referenceGenome);
         try {
-            EnsemblTranscript ensemblTranscript = controllerApi.fetchEnsemblTranscriptByTranscriptIdGET(transcriptId);
-            return ensemblTranscript == null ? Optional.empty() : Optional.of(ensemblTranscript);
+            String[] versions = transcriptId.split("\\.");
+
+            if (versions.length > 2) {
+                return Optional.empty();
+            }
+
+            String mainVersion = versions[0];
+            EnsemblTranscript ensemblTranscript = controllerApi.fetchEnsemblTranscriptByTranscriptIdGET(mainVersion);
+
+            if ((ensemblTranscript == null) || (versions.length == 2 && !versions[1].equals(ensemblTranscript.getTranscriptIdVersion()))) {
+                return Optional.empty();
+            }
+
+            return Optional.of(ensemblTranscript);
         } catch (Exception e) {
             e.printStackTrace();
             return Optional.empty();
