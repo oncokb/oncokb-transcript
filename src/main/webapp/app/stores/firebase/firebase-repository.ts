@@ -46,19 +46,22 @@ export class FirebaseRepository {
 
   /**
    * Add an item to firebase array (object structure)
-   * @param path The path to the array
+   * @param arrayPath The path to the array
    * @param value the array item to add
-   * @param setValue if true, then changes will be commited to firebase. If false, then an object is returned (useful for multi-location updates)
+   * @param commit if true, then changes will be commited to firebase
    */
   push = async (arrayPath: string, value: any, commit = true) => {
     if (this.firebaseAppStore.firebaseDb) {
       const listRef = ref(this.firebaseAppStore.firebaseDb, arrayPath);
       const newItemRef = push(listRef);
+      const output: { pushKey: string | null; pushUpdateObject?: { [path: string]: any } } = { pushKey: newItemRef.key };
       if (commit) {
-        return await set(newItemRef, value);
+        await set(newItemRef, value);
+      } else {
+        const fullPath = `${arrayPath}/${newItemRef.key}`;
+        output.pushUpdateObject = { [fullPath]: value };
       }
-      const fullPath = `${arrayPath}/${newItemRef.key}`;
-      return Promise.resolve({ pushUpdateObject: { [fullPath]: value }, pushKey: newItemRef.key });
+      return Promise.resolve(output);
     } else {
       throwMissingFirebaseDBError();
     }

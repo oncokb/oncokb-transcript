@@ -7,7 +7,7 @@ import { IRootStore } from 'app/stores';
 import { DataSnapshot, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FaFilter, FaSort } from 'react-icons/fa';
+import { FaFilter, FaPlus, FaSort } from 'react-icons/fa';
 import { Button, Col, Container, FormGroup, Input, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
 import AddMutationButton from '../button/AddMutationButton';
 import ReactSelect from 'react-select';
@@ -23,6 +23,7 @@ export interface IMutationsSectionHeaderProps extends StoreProps {
   setFilteredMutationKeys: React.Dispatch<React.SetStateAction<string[]>>;
   showAddMutationModal: boolean;
   setShowAddMutationModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowAddRangeModal: React.Dispatch<React.SetStateAction<boolean>>;
   setSortMethod: React.Dispatch<React.SetStateAction<SortOptions>>;
 }
 
@@ -61,6 +62,7 @@ function MutationsSectionHeader({
   setFilteredMutationKeys,
   showAddMutationModal,
   setShowAddMutationModal,
+  setShowAddRangeModal,
   setSortMethod,
   firebaseDb,
   annotatedAltsCache,
@@ -326,6 +328,16 @@ function MutationsSectionHeader({
       <div className={'d-flex align-items-center mb-2'}>
         <h5 className="mb-0 me-2">Mutations:</h5>
         <AddMutationButton showAddMutationModal={showAddMutationModal} onClickHandler={(show: boolean) => setShowAddMutationModal(!show)} />
+        <Button
+          size="sm"
+          outline
+          color="primary"
+          className="d-flex align-items-center text-nowrap"
+          onClick={() => setShowAddRangeModal(true)}
+        >
+          <FaPlus className="me-2" />
+          Add Range
+        </Button>
       </div>
       <div style={{ width: '100%' }} className="d-flex align-items-center justify-content-between mb-2">
         {mutationsAreFiltered ? (
