@@ -26,7 +26,6 @@ import {
   getFirebaseRangesPath,
   getFirebaseVusPath,
   getMutationName,
-  getMutationNameFromRange,
   isMutationEffectCuratable,
   isSectionRemovableWithoutReview,
 } from 'app/shared/util/firebase/firebase-utils';
@@ -634,16 +633,16 @@ const MutationCollapsible = ({
           onCancel={() => {
             setIsEditingRange(false);
           }}
-          onConfirm={async (alias, start, end, oncogenicities, mutationTypes) => {
+          onConfirm={async (alias, start, end, oncogenicities, mutationTypes, description) => {
             if (!firebaseDb) {
               return;
             }
             const newMutation = (await get(ref(firebaseDb, mutationPath))).val() as Mutation;
-            newMutation.name = getMutationNameFromRange(alias, start, end, oncogenicities, mutationTypes);
+            newMutation.name = `${description} [${alias}]`;
             try {
               await Promise.all([
                 updateMutationName?.(mutationPath, firebaseMutationsPath, mutationName, newMutation),
-                updateRange?.(hugoSymbol, associatedRangeId, alias, start, end, oncogenicities, mutationTypes, isGermline),
+                updateRange?.(hugoSymbol, associatedRangeId, alias, start, end, oncogenicities, mutationTypes, description, isGermline),
               ]);
             } catch (error) {
               notifyError(error);
