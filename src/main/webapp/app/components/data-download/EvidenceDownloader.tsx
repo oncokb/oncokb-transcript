@@ -71,7 +71,7 @@ const GeneLevelEvidence: Record<GeneLevelKeys, EvidenceMapping> = {
   },
 };
 
-type MutationLevelKeys = 'hugoSymbol' | 'alteration' | 'oncogenicity' | 'mutationEffect' | 'mutationEffectDescription';
+type MutationLevelKeys = 'hugoSymbol' | 'alteration' | 'oncogenicity' | 'pathogenicity' | 'mutationEffect' | 'mutationEffectDescription';
 const MutationLevelEvidence: Record<MutationLevelKeys, EvidenceMapping> = {
   hugoSymbol: HUGOSYMBOL_EVIDENCE_MAPPING,
   alteration: ALTERATION_EVIDENCE_MAPPING,
@@ -79,6 +79,11 @@ const MutationLevelEvidence: Record<MutationLevelKeys, EvidenceMapping> = {
     header: 'Oncogenicity',
     accessor: 'knownEffect',
     evidenceTypes: [EvidenceEvidenceTypeEnum.Oncogenic],
+  },
+  pathogenicity: {
+    header: 'Pathogenicity',
+    accessor: 'knownEffect',
+    evidenceTypes: [EvidenceEvidenceTypeEnum.Pathogenic],
   },
   mutationEffect: {
     header: 'Mutation Effect',
@@ -91,6 +96,39 @@ const MutationLevelEvidence: Record<MutationLevelKeys, EvidenceMapping> = {
     evidenceTypes: [EvidenceEvidenceTypeEnum.MutationEffect],
   },
 };
+
+type MutationLevelOptionKey = Exclude<MutationLevelKeys, 'hugoSymbol' | 'alteration'>;
+
+const MUTATION_LEVEL_SOMATIC_KEYS: MutationLevelOptionKey[] = ['oncogenicity', 'mutationEffect', 'mutationEffectDescription'];
+const MUTATION_LEVEL_GERMLINE_KEYS: MutationLevelOptionKey[] = ['pathogenicity', 'mutationEffect', 'mutationEffectDescription'];
+
+type GenomicIndicatorLevelKeys = 'hugoSymbol' | 'name' | 'inheritanceMechanism' | 'description' | 'associatedVariants';
+const GenomicIndicatorLevelEvidence: Record<GenomicIndicatorLevelKeys, EvidenceMapping> = {
+  hugoSymbol: HUGOSYMBOL_EVIDENCE_MAPPING,
+  name: {
+    header: 'Name',
+    accessor: 'name',
+    isGroupingField: true,
+  },
+  inheritanceMechanism: {
+    header: 'Inheritance Mechanism',
+    accessor: 'knownEffect',
+    evidenceTypes: [EvidenceEvidenceTypeEnum.GenomicIndicator],
+  },
+  description: {
+    header: 'Description',
+    accessor: 'description',
+    evidenceTypes: [EvidenceEvidenceTypeEnum.GenomicIndicator],
+  },
+  associatedVariants: {
+    header: 'Associated Variants',
+    accessor: getAssociatedVariantsFromEvidence,
+    evidenceTypes: [EvidenceEvidenceTypeEnum.GenomicIndicator],
+  },
+};
+
+type GenomicIndicatorLevelOptionKey = Exclude<GenomicIndicatorLevelKeys, 'hugoSymbol' | 'name'>;
+const GENOMIC_INDICATOR_LEVEL_KEYS: GenomicIndicatorLevelOptionKey[] = ['inheritanceMechanism', 'description', 'associatedVariants'];
 
 type TumorLevelKeys =
   | 'hugoSymbol'
@@ -199,6 +237,7 @@ type CategoryConfig<T extends Record<string, EvidenceMapping>> = {
 const CATEGORY_CONFIGS: {
   gene: CategoryConfig<typeof GeneLevelEvidence>;
   mutation: CategoryConfig<typeof MutationLevelEvidence>;
+  genomicIndicator: CategoryConfig<typeof GenomicIndicatorLevelEvidence>;
   tumor: CategoryConfig<typeof TumorLevelEvidence>;
   treatment: CategoryConfig<typeof TreatmentLevelEvidence>;
 } = {
@@ -211,6 +250,12 @@ const CATEGORY_CONFIGS: {
     levelEvidenceMap: MutationLevelEvidence,
     fileName: 'mutation-level-evidences.tsv',
     groupingFields: ['hugoSymbol', 'alteration'],
+  },
+  genomicIndicator: {
+    levelEvidenceMap: GenomicIndicatorLevelEvidence,
+    fileName: 'genomic-indicator-level-evidences.tsv',
+    groupingFields: ['hugoSymbol', 'name'],
+    outputGroupingFields: ['hugoSymbol', 'name'],
   },
   tumor: {
     levelEvidenceMap: TumorLevelEvidence,
@@ -236,6 +281,13 @@ function getCancerTypeNameFromEvidence(evidence: Evidence): string {
   } else {
     return getCancerTypesName(ct);
   }
+}
+
+function getAssociatedVariantsFromEvidence(evidence: Evidence): string {
+  return (evidence.alterations ?? [])
+    .map(alteration => alteration.alteration)
+    .filter((value): value is string => Boolean(value))
+    .join(', ');
 }
 
 function getDrugsNameFromEvidence(evidence: Evidence): string {
@@ -285,7 +337,8 @@ type OptionType = {
   label: string;
   value: string;
   evidenceKeys: string[];
-  category: 'gene' | 'mutation' | 'tumor' | 'treatment';
+  category: 'gene' | 'mutation' | 'genomicIndicator' | 'tumor' | 'treatment';
+  isDisabled?: boolean;
 };
 
 type GeneticTypeOption = {
@@ -322,7 +375,21 @@ const buildOptions = (
   return [...options, ...extraOptions];
 };
 
-const groupedDropdownOptions = (): GroupBase<OptionType>[] => {
+const buildOptionsFromKeys = <T extends Record<string, EvidenceMapping>>(
+  evidenceObject: T,
+  category: OptionType['category'],
+  keys: Array<keyof T>,
+): OptionType[] =>
+  keys
+    .filter(key => key in evidenceObject)
+    .map(key => ({
+      label: formatOptionLabel(String(key)),
+      value: String(key),
+      evidenceKeys: [String(key)],
+      category,
+    }));
+
+const groupedDropdownOptions = (isGermline: boolean): GroupBase<OptionType>[] => {
   const geneLevelOptions: OptionType[] = [];
   for (const [key, value] of Object.entries(GeneLevelEvidence)) {
     if (value.isGroupingField) {
@@ -336,22 +403,34 @@ const groupedDropdownOptions = (): GroupBase<OptionType>[] => {
     });
   }
 
-  const mutationLevelOptions = buildOptions(MutationLevelEvidence, 'mutation');
+  const mutationLevelOptionKeys = isGermline ? MUTATION_LEVEL_GERMLINE_KEYS : MUTATION_LEVEL_SOMATIC_KEYS;
+  const mutationLevelOptions = buildOptionsFromKeys(MutationLevelEvidence, 'mutation', mutationLevelOptionKeys);
+  const genomicIndicatorOptions = buildOptionsFromKeys(GenomicIndicatorLevelEvidence, 'genomicIndicator', GENOMIC_INDICATOR_LEVEL_KEYS);
   const tumorLevelOptions = buildOptions(TumorLevelEvidence, 'tumor');
   const treatmentLevelOptions = buildOptions(TreatmentLevelEvidence, 'treatment');
 
-  return [
+  const groupedOptions: GroupBase<OptionType>[] = [
     { label: 'Gene Level', options: geneLevelOptions },
     { label: 'Mutation Level', options: mutationLevelOptions },
-    { label: 'Tumor Level', options: tumorLevelOptions },
-    { label: 'Treatment Level', options: treatmentLevelOptions },
   ];
+
+  if (isGermline) {
+    groupedOptions.push({ label: 'Genomic Indicator Level', options: genomicIndicatorOptions });
+  }
+
+  const tumorOptions = isGermline ? tumorLevelOptions.map(option => ({ ...option, isDisabled: true })) : tumorLevelOptions;
+  const treatmentOptions = isGermline ? treatmentLevelOptions.map(option => ({ ...option, isDisabled: true })) : treatmentLevelOptions;
+
+  groupedOptions.push({ label: isGermline ? 'Tumor Level (Coming soon)' : 'Tumor Level', options: tumorOptions });
+  groupedOptions.push({ label: isGermline ? 'Treatment Level (Coming soon)' : 'Treatment Level', options: treatmentOptions });
+
+  return groupedOptions;
 };
 
 const EvidenceDownloader = () => {
   const [isFetchingEvidences, setIsFetchingEvidences] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<readonly OptionType[]>([]);
-  const [activeCategory, setActiveCategory] = useState<'gene' | 'mutation' | 'tumor' | 'treatment' | null>(null);
+  const [activeCategory, setActiveCategory] = useState<'gene' | 'mutation' | 'genomicIndicator' | 'tumor' | 'treatment' | null>(null);
   const [selectedGeneticType, setSelectedGeneticType] = useState<GeneticTypeOption>(GENETIC_TYPE_OPTIONS[0]);
 
   const fetchEvidenceData = async (evidenceTypes: EvidenceEvidenceTypeEnum[], germline: boolean): Promise<Evidence[] | undefined> => {
@@ -381,7 +460,16 @@ const EvidenceDownloader = () => {
 
   const handleGeneticTypeChange = (option: GeneticTypeOption | null) => {
     if (option) {
+      const isGermline = option.value === 'germline';
       setSelectedGeneticType(option);
+      if (
+        activeCategory === 'mutation' ||
+        (isGermline && (activeCategory === 'tumor' || activeCategory === 'treatment')) ||
+        (!isGermline && activeCategory === 'genomicIndicator')
+      ) {
+        setSelectedOptions([]);
+        setActiveCategory(null);
+      }
     }
   };
 
@@ -446,7 +534,13 @@ const EvidenceDownloader = () => {
         if (typeof selectedEvidence.accessor === 'string') {
           selectedEvidence.value = getNestedValueAsString(evidence, selectedEvidence.accessor);
         } else if (typeof selectedEvidence.accessor === 'function') {
-          selectedEvidence.value = selectedEvidence.accessor(evidence);
+          const rawValue = selectedEvidence.accessor(evidence);
+          selectedEvidence.value = Array.isArray(rawValue)
+            ? rawValue
+                .map(item => String(item))
+                .filter(Boolean)
+                .join(', ')
+            : String(rawValue ?? '');
         }
 
         // Build nested objects for each grouping level
@@ -494,7 +588,11 @@ const EvidenceDownloader = () => {
     buildRows(grouped, 0, []);
 
     const tsvContent = tsvRows.join('\n');
-    downloadFile(categoryConfig.fileName, tsvContent);
+    const fileNameSuffix = selectedGeneticType.value;
+    const outputFileName = categoryConfig.fileName.endsWith('.tsv')
+      ? categoryConfig.fileName.replace(/\.tsv$/i, `-${fileNameSuffix}.tsv`)
+      : `${categoryConfig.fileName}-${fileNameSuffix}`;
+    downloadFile(outputFileName, tsvContent);
   };
 
   const handleDownload = () => {
@@ -511,11 +609,11 @@ const EvidenceDownloader = () => {
       </div>
       <Select
         isMulti
-        options={groupedDropdownOptions()}
+        options={groupedDropdownOptions(selectedGeneticType.value === 'germline')}
         placeholder="Select data type"
         onChange={handleChange}
         value={selectedOptions}
-        isOptionDisabled={option => activeCategory !== null && option.category !== activeCategory}
+        isOptionDisabled={option => !!option.isDisabled || (activeCategory !== null && option.category !== activeCategory)}
         closeMenuOnSelect={false}
       />
       <div className="d-flex justify-content-end mt-2">

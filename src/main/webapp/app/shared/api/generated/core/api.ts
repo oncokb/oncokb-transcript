@@ -1299,6 +1299,11 @@ export const EvidenceEvidenceTypeEnum = {
   StandardTherapeuticImplicationsForDrugResistance: 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE',
   InvestigationalTherapeuticImplicationsDrugSensitivity: 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY',
   InvestigationalTherapeuticImplicationsDrugResistance: 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE',
+  Pathogenic: 'PATHOGENIC',
+  GenomicIndicator: 'GENOMIC_INDICATOR',
+  GenePenetrance: 'GENE_PENETRANCE',
+  VariantPenetrance: 'VARIANT_PENETRANCE',
+  VariantCancerRisk: 'VARIANT_CANCER_RISK',
 } as const;
 
 export type EvidenceEvidenceTypeEnum = (typeof EvidenceEvidenceTypeEnum)[keyof typeof EvidenceEvidenceTypeEnum];
@@ -1679,6 +1684,11 @@ export const GeneEvidenceEvidenceTypeEnum = {
   StandardTherapeuticImplicationsForDrugResistance: 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE',
   InvestigationalTherapeuticImplicationsDrugSensitivity: 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY',
   InvestigationalTherapeuticImplicationsDrugResistance: 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE',
+  Pathogenic: 'PATHOGENIC',
+  GenomicIndicator: 'GENOMIC_INDICATOR',
+  GenePenetrance: 'GENE_PENETRANCE',
+  VariantPenetrance: 'VARIANT_PENETRANCE',
+  VariantCancerRisk: 'VARIANT_CANCER_RISK',
 } as const;
 
 export type GeneEvidenceEvidenceTypeEnum = (typeof GeneEvidenceEvidenceTypeEnum)[keyof typeof GeneEvidenceEvidenceTypeEnum];
