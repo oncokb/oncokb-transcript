@@ -288,6 +288,16 @@ type OptionType = {
   category: 'gene' | 'mutation' | 'tumor' | 'treatment';
 };
 
+type GeneticTypeOption = {
+  label: string;
+  value: 'somatic' | 'germline';
+};
+
+const GENETIC_TYPE_OPTIONS: GeneticTypeOption[] = [
+  { label: 'Somatic', value: 'somatic' },
+  { label: 'Germline', value: 'germline' },
+];
+
 const formatOptionLabel = (key: string): string => {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
 };
@@ -342,8 +352,9 @@ const EvidenceDownloader = () => {
   const [isFetchingEvidences, setIsFetchingEvidences] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<readonly OptionType[]>([]);
   const [activeCategory, setActiveCategory] = useState<'gene' | 'mutation' | 'tumor' | 'treatment' | null>(null);
+  const [selectedGeneticType, setSelectedGeneticType] = useState<GeneticTypeOption>(GENETIC_TYPE_OPTIONS[0]);
 
-  const fetchEvidenceData = async (evidenceTypes: EvidenceEvidenceTypeEnum[]): Promise<Evidence[] | undefined> => {
+  const fetchEvidenceData = async (evidenceTypes: EvidenceEvidenceTypeEnum[], germline: boolean): Promise<Evidence[] | undefined> => {
     try {
       setIsFetchingEvidences(true);
       const response = await evidenceClient.evidencesLookupGetUsingGET(
@@ -357,12 +368,20 @@ const EvidenceDownloader = () => {
         undefined,
         undefined,
         _.uniq(evidenceTypes).join(','),
+        undefined,
+        germline,
       );
       return response.data;
     } catch (error) {
       notifyError('Could not fetch evidences');
     } finally {
       setIsFetchingEvidences(false);
+    }
+  };
+
+  const handleGeneticTypeChange = (option: GeneticTypeOption | null) => {
+    if (option) {
+      setSelectedGeneticType(option);
     }
   };
 
@@ -390,7 +409,7 @@ const EvidenceDownloader = () => {
 
     const { uniqueEvidenceTypes, selectedEvidences, evidenceKeys } = getDownloadMetaData(selectedOptions, levelEvidenceMap);
 
-    const evidences = await fetchEvidenceData(uniqueEvidenceTypes);
+    const evidences = await fetchEvidenceData(uniqueEvidenceTypes, selectedGeneticType.value === 'germline');
     if (!evidences) return;
 
     const grouped = evidences.reduce((acc, evidence) => {
@@ -487,9 +506,13 @@ const EvidenceDownloader = () => {
 
   return (
     <div>
+      <div className="mb-2">
+        <Select options={GENETIC_TYPE_OPTIONS} value={selectedGeneticType} onChange={handleGeneticTypeChange} isSearchable={false} />
+      </div>
       <Select
         isMulti
         options={groupedDropdownOptions()}
+        placeholder="Select data type"
         onChange={handleChange}
         value={selectedOptions}
         isOptionDisabled={option => activeCategory !== null && option.category !== activeCategory}
