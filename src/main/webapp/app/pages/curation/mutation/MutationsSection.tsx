@@ -8,7 +8,6 @@ import {
   compareMutationsByProteinChangePosition,
   compareMutationsDefault,
   getFirebaseGenePath,
-  getMutationNameFromRange,
 } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -251,10 +250,10 @@ function MutationsSection({
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
           onCancel={() => setShowAddRangeModal(false)}
-          onConfirm={async (alias, start, end, oncogenicities, mutationTypes) => {
-            const range = await addRange?.(hugoSymbol, alias, start, end, oncogenicities, mutationTypes, isGermline);
+          onConfirm={async (alias, start, end, oncogenicities, mutationTypes, description) => {
+            const range = await addRange?.(hugoSymbol, alias, start, end, oncogenicities, mutationTypes, description, isGermline);
             if (range?.pushKey) {
-              const mutation = new Mutation(getMutationNameFromRange(alias, start, end, oncogenicities, mutationTypes));
+              const mutation = new Mutation(`${description} [${alias}]`);
               mutation.associatedRangeId = range.pushKey;
               await addMutation?.(`${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`, mutation, isGermline, false);
             }
