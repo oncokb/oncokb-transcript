@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import DiffMatchPatch from 'diff-match-patch';
 import Tabs from 'app/components/tabs/tabs';
 import { Input } from 'reactstrap';
@@ -17,6 +17,19 @@ type DiffViewerProps = {
   old: string | undefined;
   type: 'tabs' | 'stack' | 'merged';
   className?: string;
+};
+
+const AutoSizeTextarea = ({ value, className }: { value?: string; className?: string }) => {
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    const textArea = textAreaRef.current;
+    if (!textArea) return;
+    textArea.style.height = 'auto';
+    textArea.style.height = `${textArea.scrollHeight}px`;
+  }, [value]);
+
+  return <Input type={'textarea'} value={value ?? ''} disabled className={className} innerRef={textAreaRef} />;
 };
 
 const getMergedDiff = (newContent = '', oldContent = '') => {
@@ -57,7 +70,7 @@ const TabsDiff = (props: DiffViewerProps) => {
           title: 'New',
           content: (
             <div>
-              {typeof props.new === 'string' && <Input type={'textarea'} value={props.new} disabled className={styles.disabledText} />}
+              {typeof props.new === 'string' && <AutoSizeTextarea value={props.new} className={styles.disabledText} />}
               {typeof props.new === 'object' && (
                 <RealtimeTextAreaInput firebasePath={props.new.path} label="" name="description" parseRefs updateMetaData={false} />
               )}
@@ -70,7 +83,7 @@ const TabsDiff = (props: DiffViewerProps) => {
         },
         {
           title: 'Old',
-          content: <Input type={'textarea'} value={props.old} disabled className={styles.disabledText} />,
+          content: <AutoSizeTextarea value={props.old} className={styles.disabledText} />,
         },
       ]}
     />
