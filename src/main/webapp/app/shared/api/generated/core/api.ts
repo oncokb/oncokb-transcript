@@ -1299,6 +1299,11 @@ export const EvidenceEvidenceTypeEnum = {
   StandardTherapeuticImplicationsForDrugResistance: 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE',
   InvestigationalTherapeuticImplicationsDrugSensitivity: 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY',
   InvestigationalTherapeuticImplicationsDrugResistance: 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE',
+  Pathogenic: 'PATHOGENIC',
+  GenomicIndicator: 'GENOMIC_INDICATOR',
+  GenePenetrance: 'GENE_PENETRANCE',
+  VariantPenetrance: 'VARIANT_PENETRANCE',
+  VariantCancerRisk: 'VARIANT_CANCER_RISK',
 } as const;
 
 export type EvidenceEvidenceTypeEnum = (typeof EvidenceEvidenceTypeEnum)[keyof typeof EvidenceEvidenceTypeEnum];
@@ -1679,6 +1684,11 @@ export const GeneEvidenceEvidenceTypeEnum = {
   StandardTherapeuticImplicationsForDrugResistance: 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE',
   InvestigationalTherapeuticImplicationsDrugSensitivity: 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY',
   InvestigationalTherapeuticImplicationsDrugResistance: 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE',
+  Pathogenic: 'PATHOGENIC',
+  GenomicIndicator: 'GENOMIC_INDICATOR',
+  GenePenetrance: 'GENE_PENETRANCE',
+  VariantPenetrance: 'VARIANT_PENETRANCE',
+  VariantCancerRisk: 'VARIANT_CANCER_RISK',
 } as const;
 
 export type GeneEvidenceEvidenceTypeEnum = (typeof GeneEvidenceEvidenceTypeEnum)[keyof typeof GeneEvidenceEvidenceTypeEnum];
@@ -5745,6 +5755,7 @@ export const EvidencesApiAxiosParamCreator = function (configuration?: Configura
      * @param {string} [levelOfEvidence] Separate by comma. LEVEL_1, LEVEL_2A, LEVEL_2B, LEVEL_3A, LEVEL_3B, LEVEL_4, LEVEL_R1, LEVEL_R2, LEVEL_R3
      * @param {string} [evidenceTypes] Separate by comma. Evidence type includes GENE_SUMMARY, GENE_BACKGROUND, MUTATION_SUMMARY, ONCOGENIC, MUTATION_EFFECT, VUS, PROGNOSTIC_IMPLICATION, DIAGNOSTIC_IMPLICATION, TUMOR_TYPE_SUMMARY, DIAGNOSTIC_SUMMARY, PROGNOSTIC_SUMMARY, STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY, STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE, INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY, INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE
      * @param {string} [fields] The fields to be returned.
+     * @param {boolean} [germline] false
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -5760,6 +5771,7 @@ export const EvidencesApiAxiosParamCreator = function (configuration?: Configura
       levelOfEvidence?: string,
       evidenceTypes?: string,
       fields?: string,
+      germline?: boolean,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       const localVarPath = `/evidences/lookup`;
@@ -5816,6 +5828,10 @@ export const EvidencesApiAxiosParamCreator = function (configuration?: Configura
 
       if (fields !== undefined) {
         localVarQueryParameter['fields'] = fields;
+      }
+
+      if (germline !== undefined) {
+        localVarQueryParameter['germline'] = germline;
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -5973,6 +5989,7 @@ export const EvidencesApiFp = function (configuration?: Configuration) {
      * @param {string} [levelOfEvidence] Separate by comma. LEVEL_1, LEVEL_2A, LEVEL_2B, LEVEL_3A, LEVEL_3B, LEVEL_4, LEVEL_R1, LEVEL_R2, LEVEL_R3
      * @param {string} [evidenceTypes] Separate by comma. Evidence type includes GENE_SUMMARY, GENE_BACKGROUND, MUTATION_SUMMARY, ONCOGENIC, MUTATION_EFFECT, VUS, PROGNOSTIC_IMPLICATION, DIAGNOSTIC_IMPLICATION, TUMOR_TYPE_SUMMARY, DIAGNOSTIC_SUMMARY, PROGNOSTIC_SUMMARY, STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY, STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE, INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY, INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE
      * @param {string} [fields] The fields to be returned.
+     * @param {boolean} [germline] false
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -5988,6 +6005,7 @@ export const EvidencesApiFp = function (configuration?: Configuration) {
       levelOfEvidence?: string,
       evidenceTypes?: string,
       fields?: string,
+      germline?: boolean,
       options?: RawAxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Evidence>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.evidencesLookupGetUsingGET(
@@ -6002,6 +6020,7 @@ export const EvidencesApiFp = function (configuration?: Configuration) {
         levelOfEvidence,
         evidenceTypes,
         fields,
+        germline,
         options,
       );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
@@ -6094,6 +6113,7 @@ export const EvidencesApiFactory = function (configuration?: Configuration, base
      * @param {string} [levelOfEvidence] Separate by comma. LEVEL_1, LEVEL_2A, LEVEL_2B, LEVEL_3A, LEVEL_3B, LEVEL_4, LEVEL_R1, LEVEL_R2, LEVEL_R3
      * @param {string} [evidenceTypes] Separate by comma. Evidence type includes GENE_SUMMARY, GENE_BACKGROUND, MUTATION_SUMMARY, ONCOGENIC, MUTATION_EFFECT, VUS, PROGNOSTIC_IMPLICATION, DIAGNOSTIC_IMPLICATION, TUMOR_TYPE_SUMMARY, DIAGNOSTIC_SUMMARY, PROGNOSTIC_SUMMARY, STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY, STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE, INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY, INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE
      * @param {string} [fields] The fields to be returned.
+     * @param {boolean} [germline] false
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -6109,6 +6129,7 @@ export const EvidencesApiFactory = function (configuration?: Configuration, base
       levelOfEvidence?: string,
       evidenceTypes?: string,
       fields?: string,
+      germline?: boolean,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<Array<Evidence>> {
       return localVarFp
@@ -6124,6 +6145,7 @@ export const EvidencesApiFactory = function (configuration?: Configuration, base
           levelOfEvidence,
           evidenceTypes,
           fields,
+          germline,
           options,
         )
         .then(request => request(axios, basePath));
@@ -6189,6 +6211,7 @@ export class EvidencesApi extends BaseAPI {
    * @param {string} [levelOfEvidence] Separate by comma. LEVEL_1, LEVEL_2A, LEVEL_2B, LEVEL_3A, LEVEL_3B, LEVEL_4, LEVEL_R1, LEVEL_R2, LEVEL_R3
    * @param {string} [evidenceTypes] Separate by comma. Evidence type includes GENE_SUMMARY, GENE_BACKGROUND, MUTATION_SUMMARY, ONCOGENIC, MUTATION_EFFECT, VUS, PROGNOSTIC_IMPLICATION, DIAGNOSTIC_IMPLICATION, TUMOR_TYPE_SUMMARY, DIAGNOSTIC_SUMMARY, PROGNOSTIC_SUMMARY, STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY, STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE, INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY, INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE
    * @param {string} [fields] The fields to be returned.
+   * @param {boolean} [germline] false
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof EvidencesApi
@@ -6205,6 +6228,7 @@ export class EvidencesApi extends BaseAPI {
     levelOfEvidence?: string,
     evidenceTypes?: string,
     fields?: string,
+    germline?: boolean,
     options?: RawAxiosRequestConfig,
   ) {
     return EvidencesApiFp(this.configuration)
@@ -6220,6 +6244,7 @@ export class EvidencesApi extends BaseAPI {
         levelOfEvidence,
         evidenceTypes,
         fields,
+        germline,
         options,
       )
       .then(request => request(this.axios, this.basePath));
