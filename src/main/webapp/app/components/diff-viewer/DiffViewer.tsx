@@ -7,6 +7,7 @@ import * as styles from './style.module.scss';
 import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import { Database, onValue, ref } from 'firebase/database';
 import { Unsubscribe } from 'firebase/database';
+import { useTextareaAutoHeight } from 'app/hooks/useTextareaAutoHeight';
 
 export type FirebaseContent = {
   path: string;
@@ -21,13 +22,11 @@ type DiffViewerProps = {
 
 const AutoSizeTextarea = ({ value, className }: { value?: string; className?: string }) => {
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const resize = useTextareaAutoHeight(textAreaRef, 'textarea');
 
   useEffect(() => {
-    const textArea = textAreaRef.current;
-    if (!textArea) return;
-    textArea.style.height = 'auto';
-    textArea.style.height = `${textArea.scrollHeight}px`;
-  }, [value]);
+    resize();
+  }, [resize, value]);
 
   return <Input type={'textarea'} value={value ?? ''} disabled className={className} innerRef={textAreaRef} />;
 };
