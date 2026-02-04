@@ -1,5 +1,5 @@
 import { APP_EXPANDED_DATETIME_FORMAT, CURRENT_REVIEWER, NEW_NAME_UUID_VALUE } from 'app/config/constants/constants';
-import { FB_COLLECTION, FB_COLLECTION_PATH, FIREBASE_ONCOGENICITY_MAPPING } from 'app/config/constants/firebase';
+import { FB_COLLECTION, FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
 import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
@@ -30,7 +30,6 @@ import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, isUui
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { hasReview } from './firebase-review-utils';
-import { IAddRangeModalProps } from 'app/shared/modal/AddRangeModal';
 
 export const getValueByNestedKey = (obj: any, nestedKey = '', sep = '/') => {
   return nestedKey.split(sep).reduce((currObj, currKey) => {
@@ -155,15 +154,6 @@ export const getFirebaseVusPath = (isGermline: boolean | undefined, hugoSymbol?:
 
 export const getFirebaseMetaGeneReviewPath = (isGermline: boolean | undefined, hugoSymbol: string, uuid: string) => {
   return getFirebasePath(isGermline ? 'GERMLINE_META_GENE_REVIEW' : 'META_GENE_REVIEW', hugoSymbol, uuid);
-};
-
-export const getFirebaseRangesPath = (isGermline: boolean | undefined, hugoSymbol?: string) => {
-  if (hugoSymbol !== undefined) {
-    const basePath = isGermline ? 'GERMLINE_RANGE' : 'RANGE';
-    return getFirebasePath(basePath, hugoSymbol);
-  } else {
-    return isGermline ? FB_COLLECTION.GERMLINE_RANGES : FB_COLLECTION.RANGES;
-  }
 };
 
 export function getMostRecentComment(comments: CommentList) {
@@ -465,11 +455,7 @@ const addDuplicateMutationInfo = (
 export const hasMultipleMutations = (mutationName: string) => {
   return mutationName.includes(',');
 };
-export const isMutationEffectCuratable = (mutationName: string, hasAssociatedRange: boolean = false) => {
-  if (hasAssociatedRange) {
-    return false;
-  }
-
+export const isMutationEffectCuratable = (mutationName: string) => {
   const multipleMuts = hasMultipleMutations(mutationName);
   if (multipleMuts && !areSameAlterationsWithDifferentReferenceGenomes(mutationName)) {
     return false;
@@ -1017,16 +1003,4 @@ export function areCancerTypePropertiesEqual(a: string | undefined, b: string | 
 
 export function isStringEmpty(string: string | undefined | null) {
   return string === '' || _.isNil(string);
-}
-
-export function getMutationNameFromRange(alias: string, start: number, end: number, oncogenicities: string[], mutationTypes: string[]) {
-  let mutationName = '';
-  if (oncogenicities.length > 0) {
-    mutationName += oncogenicities.map(onc => FIREBASE_ONCOGENICITY_MAPPING[onc]).join('/') + ' ';
-  }
-  if (mutationTypes.length > 0) {
-    mutationName += mutationTypes.join('/') + ' ';
-  }
-  mutationName += `mutations at positions ${start}-${end}`;
-  return `${mutationName} [${alias}]`; // add comma to make it a string mutation
 }
