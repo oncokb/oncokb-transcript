@@ -46,8 +46,6 @@ export enum FB_COLLECTION {
   SETTING = 'Setting',
   VUS = 'VUS',
   GERMLINE_VUS = 'Germline_VUS',
-  RANGES = 'Ranges',
-  GERMLINE_RANGES = 'Germline_Ranges',
 }
 
 export const FB_COLLECTION_PATH = {
@@ -67,8 +65,6 @@ export const FB_COLLECTION_PATH = {
   GERMLINE_VUS: `${FB_COLLECTION.GERMLINE_VUS}/:hugoSymbol`,
   HISTORY: `${FB_COLLECTION.HISTORY}/:hugoSymbol/api`,
   GERMLINE_HISTORY: `${FB_COLLECTION.GERMLINE_HISTORY}/:hugoSymbol/api`,
-  RANGE: `${FB_COLLECTION.RANGES}/:hugoSymbol`,
-  GERMLINE_RANGE: `${FB_COLLECTION.GERMLINE_RANGES}/:hugoSymbol`,
 };
 
 export enum ONCOKB_STYLES_ONCOGENICITY_CLASSNAMES {
