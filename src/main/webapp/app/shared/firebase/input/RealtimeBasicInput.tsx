@@ -10,6 +10,7 @@ import { FormFeedback, Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/types/lib/Input';
 import * as styles from './styles.module.scss';
 import { Unsubscribe } from 'firebase/database';
+import { useTextareaAutoHeight } from 'app/hooks/useTextareaAutoHeight';
 
 export enum RealtimeInputType {
   TEXT = 'text',
@@ -92,13 +93,14 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
 
   const [inputValue, setInputValue] = useState(undefined);
   const [inputValueReview, setInputValueReview] = useState<Review | null>(null);
-  const [inputValueLoaded, setInputValueLoaded] = useState(false);
   const [inputValueUuid, setInputValueUuid] = useState(null);
 
   const inputRef = props.inputRef ?? useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
   const isCheckType = type === RealtimeInputType.CHECKBOX || type === RealtimeInputType.RADIO;
   const isInlineInputText = type === RealtimeInputType.INLINE_TEXT;
   const isTextType = [RealtimeInputType.INLINE_TEXT, RealtimeInputType.TEXT, RealtimeInputType.TEXTAREA].includes(type);
+  const shouldAutosize = type === RealtimeInputType.TEXTAREA;
+  const resizeTextArea = useTextareaAutoHeight(inputRef, type);
 
   useEffect(() => {
     if (!db) {
@@ -108,7 +110,6 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     callbacks.push(
       onValue(ref(db, firebasePath), snapshot => {
         setInputValue(snapshot.val());
-        setInputValueLoaded(true);
       }),
     );
     callbacks.push(
@@ -127,23 +128,10 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   }, [firebasePath, db]);
 
   useEffect(() => {
-    if (!inputValueLoaded) return;
-    const input = inputRef.current;
-    if (!input || type !== RealtimeInputType.TEXTAREA) {
-      return;
+    if (shouldAutosize) {
+      resizeTextArea();
     }
-
-    const resizeObserver = new ResizeObserver(() => {
-      window.requestAnimationFrame(() => {
-        resizeTextArea(input);
-      });
-    });
-    resizeObserver.observe(input);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [inputValueLoaded]);
+  }, [inputValue, resizeTextArea, shouldAutosize]);
 
   const labelComponent = label && (
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} onClick={labelOnClick} />
@@ -163,9 +151,8 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       onChange(e);
     }
 
-    const input = inputRef.current;
-    if (type === RealtimeInputType.TEXTAREA && input) {
-      resizeTextArea(input);
+    if (shouldAutosize) {
+      resizeTextArea();
     }
   };
 
@@ -174,11 +161,6 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       return inputValue === label;
     }
     return label === RADIO_OPTION_NONE;
-  }
-
-  function resizeTextArea(textArea: HTMLInputElement | HTMLTextAreaElement) {
-    textArea.style.height = 'auto';
-    textArea.style.height = `${textArea.scrollHeight}px`;
   }
 
   const inputStyle: React.CSSProperties | undefined = isCheckType ? { marginRight: '0.25rem', ...style } : undefined;

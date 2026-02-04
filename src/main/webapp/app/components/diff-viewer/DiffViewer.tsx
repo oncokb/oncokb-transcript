@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import DiffMatchPatch from 'diff-match-patch';
 import Tabs from 'app/components/tabs/tabs';
 import { Input } from 'reactstrap';
@@ -7,6 +7,7 @@ import * as styles from './style.module.scss';
 import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import { Database, onValue, ref } from 'firebase/database';
 import { Unsubscribe } from 'firebase/database';
+import { useTextareaAutoHeight } from 'app/hooks/useTextareaAutoHeight';
 
 export type FirebaseContent = {
   path: string;
@@ -17,6 +18,17 @@ type DiffViewerProps = {
   old: string | undefined;
   type: 'tabs' | 'stack' | 'merged';
   className?: string;
+};
+
+const AutoSizeTextarea = ({ value, className }: { value?: string; className?: string }) => {
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const resize = useTextareaAutoHeight(textAreaRef, 'textarea');
+
+  useEffect(() => {
+    resize();
+  }, [resize, value]);
+
+  return <Input type={'textarea'} value={value ?? ''} disabled className={className} innerRef={textAreaRef} />;
 };
 
 const getMergedDiff = (newContent = '', oldContent = '') => {
@@ -57,7 +69,7 @@ const TabsDiff = (props: DiffViewerProps) => {
           title: 'New',
           content: (
             <div>
-              {typeof props.new === 'string' && <Input type={'textarea'} value={props.new} disabled className={styles.disabledText} />}
+              {typeof props.new === 'string' && <AutoSizeTextarea value={props.new} className={styles.disabledText} />}
               {typeof props.new === 'object' && (
                 <RealtimeTextAreaInput firebasePath={props.new.path} label="" name="description" parseRefs updateMetaData={false} />
               )}
@@ -70,7 +82,7 @@ const TabsDiff = (props: DiffViewerProps) => {
         },
         {
           title: 'Old',
-          content: <Input type={'textarea'} value={props.old} disabled className={styles.disabledText} />,
+          content: <AutoSizeTextarea value={props.old} className={styles.disabledText} />,
         },
       ]}
     />
