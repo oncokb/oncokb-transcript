@@ -174,6 +174,12 @@ export interface Alteration {
   name?: string;
   /**
    *
+   * @type {string}
+   * @memberof Alteration
+   */
+  proteinChange?: string;
+  /**
+   *
    * @type {number}
    * @memberof Alteration
    */
@@ -1256,6 +1262,12 @@ export interface Evidence {
    * @memberof Evidence
    */
   liquidPropagationLevel?: EvidenceLiquidPropagationLevelEnum;
+  /**
+   *
+   * @type {string}
+   * @memberof Evidence
+   */
+  name?: string;
   /**
    *
    * @type {Array<TumorTypeEntity>}
