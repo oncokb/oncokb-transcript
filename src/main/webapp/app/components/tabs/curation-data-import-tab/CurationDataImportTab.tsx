@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Col, Input, InputGroup, Label, Row } from 'reactstrap';
 import Select, { GroupBase, OptionsOrGroups } from 'react-select';
 import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
-import { filterByKeyword } from 'app/shared/util/utils';
+import { filterByKeyword, parseAlterationName } from 'app/shared/util/utils';
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
 import { FirebaseGeneService } from 'app/service/firebase/firebase-gene-service';
 import { observer } from 'mobx-react';
@@ -40,6 +40,7 @@ import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/N
 import { CellInfo } from 'react-table';
 import { LongText } from 'app/shared/text/LongText';
 import { LONG_TEXT_CUTOFF_COMPACT } from 'app/config/constants/constants';
+import InfoIcon from 'app/shared/icons/InfoIcon';
 
 export interface ICurationToolsTabProps extends StoreProps {}
 
@@ -63,6 +64,9 @@ type DataImportTypeSelectOption = {
   value: DataImportType;
   label: string;
 };
+
+const SOMATIC_MATCH_HEADER_KEY = 'somatic_match';
+const SOMATIC_MATCH_HEADER_LABEL = 'Somatic Match';
 
 enum DataImportType {
   GENE_GENOMIC_INDICATOR,
@@ -117,6 +121,80 @@ const DATA_IMPORT_TYPES_LABEL: { [key in DataImportType]: string } = {
 };
 
 export type DataImportObj = GenomicIndicatorDI | GenericDI | SomaticMutationDI | GermlineMutationDI;
+
+const isMutationRow = (row: DataRow<DataImportObj>): row is DataRow<SomaticMutationDI | GermlineMutationDI> => {
+  return 'protein_change' in row.data && 'alteration' in row.data;
+};
+
+const splitVariantName = (value: string | undefined) => {
+  if (!value) return [];
+  return value
+    .split(',')
+    .flatMap(part => parseAlterationName(part.trim()).map(parsed => parsed.alteration))
+    .map(part => {
+      let result = part.trim().toLowerCase();
+      if (result.startsWith('p.')) {
+        result = result.slice(2);
+      }
+      return result;
+    })
+    .filter(part => part.length > 0);
+};
+
+const buildSomaticVariantSet = (mutations: MutationList | null | undefined) => {
+  const set = new Set<string>();
+  if (!mutations) return set;
+  for (const mutation of Object.values(mutations)) {
+    if (mutation.name) {
+      splitVariantName(mutation.name).forEach(key => set.add(key));
+    }
+  }
+  return set;
+};
+
+const buildVusVariantSet = (vusList: VusObjList | null | undefined) => {
+  const set = new Set<string>();
+  if (!vusList) return set;
+  for (const vus of Object.values(vusList)) {
+    if (vus.name) {
+      splitVariantName(vus.name).forEach(key => set.add(key));
+    }
+  }
+  return set;
+};
+
+const fetchSomaticMutationList = async (
+  firebaseGeneService: FirebaseGeneService,
+  isGermline: boolean,
+  hugoSymbol: string,
+  dataType: DataImportType,
+): Promise<{
+  mutations: MutationList;
+  vus: VusObjList;
+  somaticVariantSet?: Set<string>;
+  somaticVusVariantSet?: Set<string>;
+}> => {
+  const genePath = getFirebaseGenePath(isGermline, hugoSymbol);
+  const mutations: MutationList = (await firebaseGeneService.firebaseRepository.get(`${genePath}/mutations`)).val() ?? {};
+  const vus: VusObjList = (await firebaseGeneService.firebaseRepository.get(getFirebaseVusPath(isGermline, hugoSymbol))).val() ?? {};
+
+  let somaticVariantSet: Set<string> | undefined;
+  let somaticVusVariantSet: Set<string> | undefined;
+  if (dataType === DataImportType.GERMLINE_MUTATION) {
+    const somaticGenePath = getFirebaseGenePath(false, hugoSymbol);
+    const somaticMutations: MutationList = (await firebaseGeneService.firebaseRepository.get(`${somaticGenePath}/mutations`)).val() ?? {};
+    somaticVariantSet = buildSomaticVariantSet(somaticMutations);
+    const somaticVus: VusObjList = (await firebaseGeneService.firebaseRepository.get(getFirebaseVusPath(false, hugoSymbol))).val() ?? {};
+    somaticVusVariantSet = buildVusVariantSet(somaticVus);
+  }
+
+  return {
+    mutations,
+    vus,
+    somaticVariantSet,
+    somaticVusVariantSet,
+  };
+};
 
 const getRequiredColumns = <T extends DataImportObj>(dataType: DataImportType): RequiredKeys<T>[] => {
   switch (dataType) {
@@ -414,11 +492,30 @@ const CurationDataImportTab = observer(
             Promise.resolve(new DataImportStatus()),
           );
           if (status.status !== 'error') {
-            const genePath: string = getFirebaseGenePath(isGermline, hugoSymbol);
-            const mutations: MutationList = (await firebaseGeneService.firebaseRepository.get(`${genePath}/mutations`)).val();
-            const vus: VusObjList = (await firebaseGeneService.firebaseRepository.get(getFirebaseVusPath(isGermline, hugoSymbol))).val();
+            const mutationContext = await fetchSomaticMutationList(
+              firebaseGeneService,
+              isGermline,
+              hugoSymbol,
+              selectedDataTypeOption.value,
+            );
+            const { mutations, vus, somaticVariantSet, somaticVusVariantSet } = mutationContext;
 
             for (let i = 0; i < group.length; i++) {
+              const row = group[i];
+              if (selectedDataTypeOption.value === DataImportType.GERMLINE_MUTATION && isMutationRow(row)) {
+                const proteinChange = row.data.protein_change;
+                const alteration = row.data.alteration;
+                const candidates = splitVariantName(proteinChange || alteration);
+                let matchLabel = 'No';
+                if (candidates.length === 0) {
+                  matchLabel = 'Unknown';
+                } else if (somaticVariantSet && candidates.some(key => somaticVariantSet.has(key))) {
+                  matchLabel = 'Mutation';
+                } else if (somaticVusVariantSet && candidates.some(key => somaticVusVariantSet.has(key))) {
+                  matchLabel = 'VUS';
+                }
+                row.data[SOMATIC_MATCH_HEADER_KEY] = matchLabel;
+              }
               switch (selectedDataTypeOption.value) {
                 case DataImportType.GENE_SUMMARY:
                 case DataImportType.GENE_BACKGROUND:
@@ -504,6 +601,39 @@ const CurationDataImportTab = observer(
               </div>
             );
           },
+        });
+      }
+      if (selectedDataTypeOption?.value === DataImportType.GERMLINE_MUTATION && importStatus === 'imported') {
+        columns.push({
+          accessor: SOMATIC_MATCH_HEADER_KEY,
+          Header: (
+            <div className="d-flex align-items-center">
+              <span>{SOMATIC_MATCH_HEADER_LABEL}</span>
+              <span className="ms-1">
+                <InfoIcon
+                  placement="top"
+                  overlay={
+                    <div>
+                      <div>
+                        <b>Mutation</b>: Found in somatic mutations list for this gene.
+                      </div>
+                      <div>
+                        <b>VUS</b>: Found in somatic VUS list for this gene.
+                      </div>
+                      <div>
+                        <b>No</b>: Not found in somatic mutations or VUS lists.
+                      </div>
+                      <div>
+                        <b>Unknown</b>: Missing or empty protein change.
+                      </div>
+                    </div>
+                  }
+                />
+              </span>
+            </div>
+          ),
+          maxWidth: 140,
+          disableHeaderFiltering: true,
         });
       }
       columns.push(
