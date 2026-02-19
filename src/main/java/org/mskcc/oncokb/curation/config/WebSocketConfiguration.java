@@ -31,9 +31,14 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         var handler = registry.addHandler(new ProxyWebSocketHandler(this.applicationProperties), "/websocket/**");
 
-        List<String> allowOrigins = jHipsterProperties.getCors().getAllowedOrigins();
+        List<String> allowedOriginPatterns = jHipsterProperties.getCors().getAllowedOriginPatterns();
+        if (allowedOriginPatterns != null && !allowedOriginPatterns.isEmpty()) {
+            handler.setAllowedOriginPatterns(allowedOriginPatterns.toArray(new String[0]));
+            return;
+        }
 
-        if (allowOrigins != null) {
+        List<String> allowOrigins = jHipsterProperties.getCors().getAllowedOrigins();
+        if (allowOrigins != null && !allowOrigins.isEmpty()) {
             handler.setAllowedOrigins(allowOrigins.toArray(new String[0]));
         }
     }
