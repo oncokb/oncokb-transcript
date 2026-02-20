@@ -8,7 +8,6 @@ import java.util.*;
 import java.util.function.Supplier;
 import org.mskcc.oncokb.curation.security.*;
 import org.mskcc.oncokb.curation.web.filter.SpaWebFilter;
-import org.mskcc.oncokb.curation.web.filter.WebsocketAuthDebugFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,7 +59,6 @@ public class SecurityConfigurationOAuth {
                         .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
             )
             .addFilterAfter(new SpaWebFilter(), BasicAuthenticationFilter.class)
-            .addFilterAfter(new WebsocketAuthDebugFilter(), BasicAuthenticationFilter.class)
             .addFilterAfter(new CookieCsrfFilter(), BasicAuthenticationFilter.class)
             .headers(
                 headers ->
