@@ -65,7 +65,7 @@ const ReviewCollapsibleBootstrapClass = {
   [ReviewAction.DEMOTE_MUTATION]: 'danger',
 };
 
-const TREATMENT_NAME_REGEX = /treatments\/\d+\/name$/;
+const TREATMENT_NAME_REGEX = /treatments\/[^/]+\/name$/;
 
 export interface IReviewCollapsibleProps {
   drugListRef: DrugCollection;
