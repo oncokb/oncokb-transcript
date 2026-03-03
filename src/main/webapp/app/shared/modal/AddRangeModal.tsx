@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { ONCOGENICITY_OPTIONS } from 'app/config/constants/firebase';
 import { IRootStore } from 'app/stores';
-import { observer } from 'mobx-react';
-import { componentInject } from '../util/typed-inject';
 import { onValue, ref, Unsubscribe } from 'firebase/database';
-import { getFirebaseRangesPath } from '../util/firebase/firebase-utils';
-import { MutationRange, RangeList } from '../model/firebase/firebase.model';
+import { observer } from 'mobx-react';
+import React, { useEffect, useState } from 'react';
+import { Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { FIREBASE_ONCOGENICITY, MutationRange, RangeList } from '../model/firebase/firebase.model';
+import { getDescriptionFromRange, getFirebaseRangesPath } from '../util/firebase/firebase-utils';
+import { componentInject } from '../util/typed-inject';
 
 enum AddRangeStep {
   POSITION = 1,
   CRITERIA,
   ALIAS,
+  DESCRIPTION,
 }
 const addRangeStepLength = Object.keys(AddRangeStep).length / 2;
 const mutationTypes = ['Missense', 'Insertion', 'Deletion'];
@@ -20,19 +21,29 @@ export interface IAddRangeModalProps extends StoreProps {
   hugoSymbol: string;
   isGermline: boolean;
   onCancel: () => void;
-  onConfirm: (alias: string, start: number, end: number, oncogenicities: string[], mutationTypes: string[]) => void;
+  onConfirm: (alias: string, start: number, end: number, oncogenicities: string[], mutationTypes: string[], description: string) => void;
   rangeToEditPath?: string;
 }
 
 function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, rangeToEditPath, firebaseDb }: IAddRangeModalProps) {
   const [currentStep, setCurrentStep] = useState(AddRangeStep.POSITION);
   const [position, setPosition] = useState<[number | undefined, number | undefined]>([undefined, undefined]);
-  const [selectedOncogenicity, setSelectedOncogenicity] = useState<string[]>([]);
+  const [selectedOncogenicity, setSelectedOncogenicity] = useState<FIREBASE_ONCOGENICITY[]>([]);
   const [selectedMutationTypes, setSelectedMutationTypes] = useState<string[]>([]);
   const [alias, setAlias] = useState('');
   const [existingAliases, setExistingAliases] = useState<string[]>([]);
-
+  const [editedDescription, setEditedDescription] = useState('');
+  const [description, setDescription] = useState('');
   const [initialAlias, setInitialAlias] = useState<string | undefined>(undefined);
+
+  function updateEditedDescription(newDescription: string, ...args: Parameters<typeof getDescriptionFromRange>) {
+    const generatedDescription = getDescriptionFromRange(...args);
+    if (newDescription === generatedDescription) {
+      setEditedDescription('');
+    } else {
+      setEditedDescription(newDescription);
+    }
+  }
 
   useEffect(() => {
     if (!firebaseDb) {
@@ -52,11 +63,15 @@ function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, rangeToEdi
         onValue(ref(firebaseDb, rangeToEditPath), snapshot => {
           const range = snapshot.val() as MutationRange;
           setPosition([range.start, range.end]);
-          setSelectedOncogenicity(range.oncogenicities.split(','));
-          setSelectedMutationTypes(range.mutationTypes.split(','));
+          const oncogencities = range.oncogenicities.split(',') as FIREBASE_ONCOGENICITY[];
+          setSelectedOncogenicity(oncogencities);
+          const existingMutationTypes = range.mutationTypes.split(',');
+          setSelectedMutationTypes(existingMutationTypes);
           setAlias(range.alias);
           setInitialAlias(range.alias);
-          setCurrentStep(AddRangeStep.ALIAS);
+          setDescription(range.description);
+          updateEditedDescription(range.description, range.start, range.end, oncogencities, existingMutationTypes);
+          setCurrentStep(AddRangeStep.DESCRIPTION);
         }),
       );
     }
@@ -76,10 +91,16 @@ function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, rangeToEdi
     case AddRangeStep.ALIAS:
       errorMessage = validateAlias(alias, existingAliases, initialAlias);
       break;
+    case AddRangeStep.DESCRIPTION:
+      errorMessage = validateDescription(description);
+      break;
     default:
   }
 
   function nextStep() {
+    if (currentStep.valueOf() === AddRangeStep.DESCRIPTION.valueOf() - 1 && !editedDescription) {
+      setDescription(getDescriptionFromRange(position[0]!, position[1]!, selectedOncogenicity, selectedMutationTypes));
+    }
     setCurrentStep(step => step.valueOf() + 1);
   }
 
@@ -87,8 +108,13 @@ function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, rangeToEdi
     setCurrentStep(step => step.valueOf() - 1);
   }
 
-  function toggleOncogenicity(value: string) {
-    setSelectedOncogenicity(prev => (prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]));
+  function toggleOncogenicity(value: FIREBASE_ONCOGENICITY) {
+    setSelectedOncogenicity(prev => {
+      const newSelectedOncogenicities = prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value];
+      return newSelectedOncogenicities.sort(
+        (a, b) => Object.values(FIREBASE_ONCOGENICITY).indexOf(a) - Object.values(FIREBASE_ONCOGENICITY).indexOf(b),
+      );
+    });
   }
 
   function toggleMutationType(value: string) {
@@ -156,9 +182,27 @@ function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, rangeToEdi
           </>
         )}
         {currentStep.valueOf() >= AddRangeStep.ALIAS.valueOf() && (
-          <>
+          <div className="mb-2">
             <Label>Alias</Label>
-            <Input value={alias} placeholder="Enter an alias for the range" onChange={event => setAlias(event.target.value)} />
+            <Input
+              disabled={currentStep !== AddRangeStep.ALIAS}
+              value={alias}
+              placeholder="Enter an alias for the range"
+              onChange={event => setAlias(event.target.value)}
+            />
+          </div>
+        )}
+        {currentStep.valueOf() >= AddRangeStep.DESCRIPTION.valueOf() && (
+          <>
+            <Label>Description</Label>
+            <Input
+              value={description}
+              placeholder="Enter an alias for the range"
+              onChange={event => {
+                setDescription(event.target.value);
+                updateEditedDescription(event.target.value, position[0]!, position[1]!, selectedOncogenicity, selectedMutationTypes);
+              }}
+            />
           </>
         )}
       </ModalBody>
@@ -182,7 +226,7 @@ function AddRangeModal({ hugoSymbol, isGermline, onCancel, onConfirm, rangeToEdi
             disabled={!!errorMessage}
             color="primary"
             onClick={() => {
-              onConfirm(alias, position[0]!, position[1]!, selectedOncogenicity, selectedMutationTypes);
+              onConfirm(alias, position[0]!, position[1]!, selectedOncogenicity, selectedMutationTypes, editedDescription || description);
             }}
           >
             Confirm
@@ -223,6 +267,14 @@ function validateAlias(alias: string, existingAliases: string[], existingAlias?:
     )
   ) {
     return 'Alias already exists.';
+  }
+  return undefined;
+}
+
+function validateDescription(description: string) {
+  description = description.trim();
+  if (!description) {
+    return 'Description must be specified';
   }
   return undefined;
 }

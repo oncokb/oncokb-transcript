@@ -531,4 +531,5 @@ export type MutationRange = {
   end: number;
   oncogenicities: string;
   mutationTypes: string;
+  description: string;
 };

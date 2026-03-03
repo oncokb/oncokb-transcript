@@ -1019,14 +1019,15 @@ export function isStringEmpty(string: string | undefined | null) {
   return string === '' || _.isNil(string);
 }
 
-export function getMutationNameFromRange(alias: string, start: number, end: number, oncogenicities: string[], mutationTypes: string[]) {
+export function getDescriptionFromRange(start: number, end: number, oncogenicities: string[], mutationTypes: string[]) {
   let mutationName = '';
   if (oncogenicities.length > 0) {
-    mutationName += oncogenicities.map(onc => FIREBASE_ONCOGENICITY_MAPPING[onc]).join('/') + ' ';
+    mutationName += oncogenicities.map(onc => FIREBASE_ONCOGENICITY_MAPPING[onc]).join('/');
+  } else {
+    mutationName += 'All';
   }
   if (mutationTypes.length > 0) {
-    mutationName += mutationTypes.join('/') + ' ';
+    mutationName += ' ' + mutationTypes.join('/');
   }
-  mutationName += `mutations at positions ${start}-${end}`;
-  return `${mutationName} [${alias}]`; // add comma to make it a string mutation
+  return (mutationName = `${mutationName} mutations at positions ${start}-${end}`);
 }

@@ -15,6 +15,7 @@ export class FirebaseRangeService {
     end: number,
     oncogenicities: string[],
     mutationTypes: string[],
+    description: string,
     isGermline: boolean,
   ) => {
     return await this.firebaseRepository.push(getFirebaseRangesPath(isGermline, hugoSymbol), {
@@ -23,6 +24,7 @@ export class FirebaseRangeService {
       end,
       oncogenicities: oncogenicities.join(','),
       mutationTypes: mutationTypes.join(','),
+      description,
     });
   };
 
@@ -39,6 +41,7 @@ export class FirebaseRangeService {
     end: number,
     oncogenicities: string[],
     mutationTypes: string[],
+    description: string,
     isGermline: boolean,
   ) => {
     return await this.firebaseRepository.update(`${getFirebaseRangesPath(isGermline, hugoSymbol)}/${rangeId}`, {
@@ -47,6 +50,7 @@ export class FirebaseRangeService {
       end,
       oncogenicities: oncogenicities.join(','),
       mutationTypes: mutationTypes.join(','),
+      description,
     });
   };
 }
