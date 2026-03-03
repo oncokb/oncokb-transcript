@@ -89,6 +89,7 @@ import NciThesaurusStore from 'app/entities/nci-thesaurus/nci-thesaurus.store';
 import SynonymStore from 'app/entities/synonym/synonym.store';
 import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-review-service';
 import { FirebaseVusService } from 'app/service/firebase/firebase-vus-service';
+import { FirebaseRangeService } from 'app/service/firebase/firebase-range-service';
 import { ModifyCancerTypeModalStore } from 'app/shared/modal/modify-cancer-type-modal.store';
 import { ModifyTherapyModalStore } from 'app/shared/modal/modify-therapy-modal.store';
 import { RelevantCancerTypesModalStore } from 'app/shared/modal/relevant-cancer-types-modal-store';
@@ -168,6 +169,7 @@ export interface IRootStore {
   readonly firebaseMetaService: FirebaseMetaService;
   readonly firebaseHistoryService: FirebaseHistoryService;
   readonly firebaseVusService: FirebaseVusService;
+  readonly firebaseRangeService: FirebaseRangeService;
 }
 
 export function createStores(history: History): IRootStore {
@@ -261,12 +263,14 @@ export function createStores(history: History): IRootStore {
     firebaseMetaService,
     firebaseGeneReviewService,
   );
+  const firebaseRangeService = new FirebaseRangeService(firebaseRepository);
 
   rootStore.firebaseMetaService = firebaseMetaService;
   rootStore.firebaseHistoryService = firebaseHistoryService;
   rootStore.firebaseGeneReviewService = firebaseGeneReviewService;
   rootStore.firebaseGeneService = firebaseGeneService;
   rootStore.firebaseVusService = firebaseVusService;
+  rootStore.firebaseRangeService = firebaseRangeService;
 
   /* jhipster-needle-add-store-init - JHipster will add store here */
   return rootStore;

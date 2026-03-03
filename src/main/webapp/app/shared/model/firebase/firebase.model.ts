@@ -33,6 +33,14 @@ export type HistoryList = {
   [uuid: string]: History;
 };
 
+export type RangeCollection = {
+  [hugoSymbol: string]: RangeList;
+};
+
+export type RangeList = {
+  [uuid: string]: MutationRange;
+};
+
 export enum FIREBASE_ONCOGENICITY {
   YES = 'Yes',
   LIKELY = 'Likely',
@@ -244,6 +252,7 @@ export class Mutation {
   summary = '';
   summary_review?: Review;
   summary_uuid: string = generateUuid();
+  associatedRangeId?: string;
 
   // Germline
   mutation_specific_penetrance = new MutationSpecificPenetrance();
@@ -515,3 +524,11 @@ export class HistoryInfo {
   };
   fields?: READABLE_FIELD[];
 }
+
+export type MutationRange = {
+  alias: string;
+  start: number;
+  end: number;
+  oncogenicities: string;
+  mutationTypes: string;
+};

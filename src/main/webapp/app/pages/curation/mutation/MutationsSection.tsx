@@ -8,6 +8,7 @@ import {
   compareMutationsByProteinChangePosition,
   compareMutationsDefault,
   getFirebaseGenePath,
+  getMutationNameFromRange,
 } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -26,6 +27,8 @@ import { extractPositionFromSingleNucleotideAlteration } from 'app/shared/util/u
 import { MUTATION_LIST_ID, SINGLE_MUTATION_VIEW_ID } from 'app/config/constants/html-id';
 import { SentryError } from 'app/config/sentry-error';
 import { MutationQuery } from 'app/stores/curation-page.store';
+import AddRangeModal from 'app/shared/modal/AddRangeModal';
+import { FIREBASE_ONCOGENICITY_MAPPING } from 'app/config/constants/firebase';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -42,6 +45,7 @@ function MutationsSection({
   isGermline,
   parsedHistoryList,
   addMutation,
+  addRange,
   openMutationCollapsibleListKey,
   setOpenMutationCollapsibleListKey,
   firebaseDb,
@@ -50,6 +54,7 @@ function MutationsSection({
   setIsMutationListRendered,
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
+  const [showAddRangeModal, setShowAddRangeModal] = useState(false);
   const [filteredMutationKeys, setFilteredMutationKeys] = useState<string[]>([]);
   const [sortMethod, setSortMethod] = useState<SortOptions>(SortOptions.DEFAULT);
 
@@ -213,6 +218,7 @@ function MutationsSection({
               setFilteredMutationKeys={setFilteredMutationKeys}
               showAddMutationModal={showAddMutationModal}
               setShowAddMutationModal={setShowAddMutationModal}
+              setShowAddRangeModal={setShowAddRangeModal}
               setSortMethod={setSortMethod}
             />
           </Col>
@@ -240,18 +246,36 @@ function MutationsSection({
           }}
         />
       )}
+      {showAddRangeModal && (
+        <AddRangeModal
+          hugoSymbol={hugoSymbol}
+          isGermline={isGermline}
+          onCancel={() => setShowAddRangeModal(false)}
+          onConfirm={async (alias, start, end, oncogenicities, mutationTypes) => {
+            const range = await addRange?.(hugoSymbol, alias, start, end, oncogenicities, mutationTypes, isGermline);
+            if (range?.pushKey) {
+              const mutation = new Mutation(getMutationNameFromRange(alias, start, end, oncogenicities, mutationTypes));
+              mutation.associatedRangeId = range.pushKey;
+              await addMutation?.(`${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`, mutation, isGermline, false);
+            }
+            setShowAddRangeModal(false);
+          }}
+        />
+      )}
     </>
   );
 }
 
 const mapStoreToProps = ({
   firebaseGeneService,
+  firebaseRangeService,
   openMutationCollapsibleStore,
   firebaseAppStore,
   curationPageStore,
   firebaseMutationConvertIconStore,
 }: IRootStore) => ({
   addMutation: firebaseGeneService.addMutation,
+  addRange: firebaseRangeService.addRange,
   openMutationCollapsibleListKey: openMutationCollapsibleStore.listKey,
   setOpenMutationCollapsibleListKey: openMutationCollapsibleStore.setOpenMutationCollapsibleListKey,
   firebaseDb: firebaseAppStore.firebaseDb,
