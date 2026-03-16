@@ -21,7 +21,7 @@ export type AlterationData = {
 };
 
 const toProteinPosition = (value?: number | string) => {
-  if (!isNumber(value)) {
+  if (!value || !isNumber(value)) {
     return undefined;
   }
   return Number(value);
