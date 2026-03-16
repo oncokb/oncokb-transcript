@@ -104,19 +104,19 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb, isLoadingDrugLi
   }
 
   function parseLocationPath(path: string): PathInfo | undefined {
-    let mutationIndex = -1;
+    let mutationKey = '';
     let mutation: Mutation | undefined;
-    let parsedPath = path.replace(/mutations, (\d+)/g, (match, index: string) => {
-      mutationIndex = Number(index);
-      mutation = gene?.mutations[mutationIndex];
+    let parsedPath = path.replace(/mutations, ([^,]+)/g, (match, key: string) => {
+      mutationKey = key;
+      mutation = gene?.mutations[mutationKey];
       return getMutationName(mutation?.name, mutation?.alterations);
     });
 
-    let tumorIndex = -1;
-    if (mutationIndex > -1) {
-      parsedPath = parsedPath.replace(/tumors, (\d+)/g, (match, index: string) => {
-        tumorIndex = Number(index);
-        const tumor = gene?.mutations[mutationIndex].tumors[tumorIndex];
+    let tumorKey = '';
+    if (mutationKey) {
+      parsedPath = parsedPath.replace(/tumors, ([^,]+)/g, (match, key: string) => {
+        tumorKey = key;
+        const tumor = gene?.mutations[mutationKey].tumors[tumorKey];
         return getCancerTypesNameWithExclusion(
           Object.values(tumor?.cancerTypes ?? {}),
           Object.values(tumor?.excludedCancerTypes ?? {}),
@@ -125,9 +125,9 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb, isLoadingDrugLi
       });
     }
 
-    if (tumorIndex > -1) {
-      parsedPath = parsedPath.replace(/TIs, (\d+), treatments, (\d+)/g, (match, tiIndex, treatmentIndex) => {
-        const treatmentName = gene?.mutations[mutationIndex].tumors[tumorIndex].TIs[tiIndex].treatments[treatmentIndex].name;
+    if (tumorKey) {
+      parsedPath = parsedPath.replace(/TIs, ([^,]+), treatments, ([^,]+)/g, (match, tiIndex, treatmentKey) => {
+        const treatmentName = gene?.mutations[mutationKey].tumors[tumorKey].TIs[tiIndex].treatments[treatmentKey].name;
         return getTxName(drugList ?? [], treatmentName);
       });
     }
