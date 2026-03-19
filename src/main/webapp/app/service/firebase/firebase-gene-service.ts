@@ -690,7 +690,8 @@ export class FirebaseGeneService {
     } catch (e) {
       /* eslint-disable no-console */
       console.error(e);
-      throw new SentryError('Failed to save gene ', { entrezGeneIds });
+      // avoid annoying dev error page when you are not connected to staging core.
+      notifyError(new SentryError('Failed to save gene to Staging', { entrezGeneIds }));
     }
     return;
   };

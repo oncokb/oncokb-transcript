@@ -10,7 +10,7 @@ import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/fi
 import { componentInject } from 'app/shared/util/typed-inject';
 import { getSectionClassName, useDrugListRef } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
-import { get, ref, set } from 'firebase/database';
+import { onValue, ref, set } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { Alert, Col, Row } from 'reactstrap';
@@ -51,23 +51,30 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const [editorsToAcceptChangesFrom, setEditorsToAcceptChangesFrom] = useState<string[]>([]);
   const [isAcceptingAll, setIsAcceptingAll] = useState(false);
 
-  const fetchFirebaseData = async () => {
-    if (!props.firebaseDb) {
+  useEffect(() => {
+    if (!geneEntity || !props.firebaseInitSuccess || !props.firebaseDb || !hugoSymbol) {
       return;
     }
-    // Fetch the data when the user enters review mode. We don't use a listener
-    // because there shouldn't be another user editing the gene when it is being reviewed.
-    const geneDataSnapshot = await get(ref(props.firebaseDb, firebaseGenePath));
-    setGeneData(geneDataSnapshot.val());
-    const metaReviewSnapshot = await get(ref(props.firebaseDb, firebaseMetaReviewPath));
-    setMetaReview(metaReviewSnapshot.val());
-  };
 
-  useEffect(() => {
-    if (geneEntity && props.firebaseInitSuccess) {
-      fetchFirebaseData();
-    }
-  }, [geneEntity, props.firebaseDb, props.firebaseInitSuccess]);
+    const geneRef = ref(props.firebaseDb, firebaseGenePath);
+    const metaReviewRef = ref(props.firebaseDb, firebaseMetaReviewPath);
+
+    // Review mode still needs live listeners because changes to the gene or review meta can
+    // change the computed root review tree. Components under ReviewCollapsible rely on that
+    // root value updating so they rerender against current Firebase state, even if only one
+    // reviewer is expected to be editing the gene at a time.
+    const unsubscribeGene = onValue(geneRef, snapshot => {
+      setGeneData(snapshot.val());
+    });
+    const unsubscribeMetaReview = onValue(metaReviewRef, snapshot => {
+      setMetaReview(snapshot.val());
+    });
+
+    return () => {
+      unsubscribeGene();
+      unsubscribeMetaReview();
+    };
+  }, [geneEntity, props.firebaseDb, props.firebaseInitSuccess, firebaseGenePath, firebaseMetaReviewPath, hugoSymbol]);
 
   const drugListRef = useDrugListRef(props.drugList);
 
@@ -159,7 +166,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
         isGermline: isGermline ?? false,
         isAcceptAll: true,
       });
-      await fetchFirebaseData();
     } catch (error) {
       notifyError(error);
     } finally {
