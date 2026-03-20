@@ -15,9 +15,11 @@ import {
   Treatment,
   Tumor,
   TumorList,
+  TxDescAddendum,
+  TxDescAddendumList,
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
-import { generateUuid, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
+import { generateUuid, getCancerTypeName, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
 import { areCancerTypeArraysEqual, getMutationName, getTxName } from './firebase-utils';
 import { FB_COLLECTION, READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -339,6 +341,11 @@ const buildHistoryLocation = (parentReview: BaseReviewLevel, readablePath: strin
   return [parentHistory, ...readablePath.split('/')].filter(part => part !== '').join(', ');
 };
 
+const getTxDescAddendumTitle = (addendum: TxDescAddendum, addendumKey: string) => {
+  const addendumCancerType = Object.values(addendum?.cancer_type ?? {})[0];
+  return addendumCancerType ? getCancerTypeName(addendumCancerType) : addendumKey;
+};
+
 const isNestedUnderCreateOrDelete = (parentReview: BaseReviewLevel) => {
   if (parentReview.reviewLevelType === ReviewLevelType.META) {
     return parentReview.nestedUnderCreateOrDelete;
@@ -417,7 +424,7 @@ export const isIgnoredKey = (key: string) => {
 };
 
 export const findReviewRecursive = (
-  currObj: Gene | GenomicIndicator | Mutation | Tumor | Treatment,
+  currObj: Gene | GenomicIndicator | Mutation | Tumor | Treatment | TxDescAddendum,
   currValuePath: string,
   uuids: string[],
   parentReview: BaseReviewLevel,
@@ -484,6 +491,32 @@ export const findReviewRecursive = (
         continue;
       }
 
+      if (key === 'description_addendums') {
+        const txDescAddendums = value as TxDescAddendumList;
+        const txDescAddendumsPath = joinPathParts(currValuePath, key);
+
+        const txDescAddendumsReview = buildObjectReview(value, key, parentReview, uuids, editorReviewMap);
+
+        Object.entries(txDescAddendums ?? {}).forEach(([addendumKey, addendum]) => {
+          const addendumPath = joinPathParts(txDescAddendumsPath, addendumKey);
+          const addendumTitle = getTxDescAddendumTitle(addendum, addendumKey);
+          const addendumReview = buildObjectReview(addendum, addendumKey, txDescAddendumsReview, uuids, editorReviewMap, addendumTitle);
+
+          findReviewRecursive(addendum, addendumPath, uuids, addendumReview, editorReviewMap, drugList);
+          removeLeafNodes(addendumReview);
+
+          if (addendumReview.hasChildren()) {
+            txDescAddendumsReview.addChild(addendumReview);
+          }
+        });
+
+        if (txDescAddendumsReview.hasChildren()) {
+          parentReview.addChild(txDescAddendumsReview);
+        }
+        removeLeafNodes(parentReview);
+        continue;
+      }
+
       if (typeof value === 'object' && !key.includes('_uuid')) {
         const newPath = joinPathParts(currValuePath, key);
         let metaReview = buildObjectReview(value, key, parentReview, uuids, editorReviewMap);
@@ -499,6 +532,19 @@ export const findReviewRecursive = (
 
       if (key.endsWith('_uuid') && uuids.includes(value as string)) {
         const relevantKeys = getRelevantKeysFromUuidKey(key);
+
+        if (relevantKeys.fieldKey === 'cancer_type') {
+          const cancerTypeNameReview = buildTxDescAddendumCancerTypeReview(
+            currObj as TxDescAddendum,
+            currValuePath,
+            relevantKeys,
+            parentReview,
+            uuids,
+            editorReviewMap,
+          );
+          parentReview.addChild(cancerTypeNameReview);
+          continue;
+        }
 
         if (typeof currObj[relevantKeys.fieldKey] === 'string' || relevantKeys.fieldKey === 'associationVariants') {
           const stringReviewLevel = buildStringReview(currObj, currValuePath, relevantKeys, parentReview, uuids, editorReviewMap);
@@ -726,6 +772,51 @@ export const buildCancerTypeNameReview = (
   return metaReview;
 };
 
+const getTxDescAddendumCancerTypeName = (cancerTypeList?: CancerTypeList) => {
+  const addendumCancerType = Object.values(cancerTypeList ?? {})[0];
+  return addendumCancerType ? getCancerTypeName(addendumCancerType) : '';
+};
+
+export const buildTxDescAddendumCancerTypeReview = (
+  addendum: TxDescAddendum,
+  currValuePath: string,
+  relevantKeys: RelevantKeys,
+  parentReview: BaseReviewLevel,
+  uuids: string[],
+  editorReviewMap: EditorReviewMap,
+) => {
+  const { fieldKey, reviewKey, uuidKey } = relevantKeys;
+  const currentCancerTypeName = getTxDescAddendumCancerTypeName(addendum.cancer_type);
+  const lastReviewedCancerTypeList = (addendum as Record<string, any>)[reviewKey]?.lastReviewed as CancerTypeList | undefined;
+  const lastReviewedCancerTypeName = getTxDescAddendumCancerTypeName(lastReviewedCancerTypeList);
+
+  const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
+  historyInfo.fields = [...(parentReview.historyInfo.fields || []), READABLE_FIELD.NAME];
+
+  const cancerTypeNameReview = new ReviewLevel({
+    titleParts: [READABLE_FIELD.NAME],
+    valuePath: joinPathParts(currValuePath, fieldKey),
+    currentVal: currentCancerTypeName,
+    historyLocation: buildHistoryLocation(parentReview, READABLE_FIELD.NAME),
+    reviewInfo: {
+      reviewPath: joinPathParts(currValuePath, reviewKey),
+      review: (addendum as Record<string, any>)[reviewKey],
+      lastReviewedString: lastReviewedCancerTypeName,
+      uuid: (addendum as Record<string, any>)[uuidKey],
+    },
+    historyData: {
+      oldState: lastReviewedCancerTypeName,
+      newState: currentCancerTypeName,
+    },
+    historyInfo,
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+  });
+
+  _.pull(uuids, (addendum as Record<string, any>)[uuidKey]);
+  editorReviewMap.add(cancerTypeNameReview);
+  return cancerTypeNameReview;
+};
+
 export const buildStringReview = (
   obj: Record<string, any>,
   currValuePath: string,
@@ -787,8 +878,9 @@ export const buildObjectReview = (
   parentReview: BaseReviewLevel,
   uuids: string[],
   editorReviewMap: EditorReviewMap,
+  readableKeyOverride?: string,
 ) => {
-  const readableKey = makeFirebaseKeysReadable([key])[0];
+  const readableKey = readableKeyOverride ?? makeFirebaseKeysReadable([key])[0];
 
   const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
   historyInfo.fields = [...(parentReview.historyInfo.fields || []), readableKey as READABLE_FIELD];

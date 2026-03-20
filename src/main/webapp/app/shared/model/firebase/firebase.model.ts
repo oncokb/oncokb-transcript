@@ -104,6 +104,7 @@ export class Treatment {
   description = '';
   description_review?: Review;
   description_uuid: string = generateUuid();
+  description_addendums?: TxDescAddendumList = {};
   indication = '';
   indication_review?: Review;
   indication_uuid: string = generateUuid();
@@ -131,6 +132,17 @@ export class Treatment {
     this.name = name;
   }
 }
+
+export class TxDescAddendum {
+  cancer_type: CancerTypeList = {};
+  cancer_type_review?: Review;
+  cancer_type_uuid: string = generateUuid();
+  description = '';
+  description_review?: Review;
+  description_uuid: string = generateUuid();
+}
+
+export type TxDescAddendumList = Record<string, TxDescAddendum>;
 
 export type AssociationVariant = {
   name: string;

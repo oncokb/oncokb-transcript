@@ -12,7 +12,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import TherapyCollapsible from '../collapsible/TherapyCollapsible';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { ADD_THERAPY_BUTTON_ID } from 'app/config/constants/html-id';
-import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
+import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 
 export interface ITherapiesList extends StoreProps {
   tisPath: string;

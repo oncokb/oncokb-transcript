@@ -10,9 +10,10 @@ import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-util
 import { getTxName, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { get, onValue, ref } from 'firebase/database';
+import { get, onValue, ref, Unsubscribe } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
+import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 import BadgeGroup from '../BadgeGroup';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import RCTButton from '../button/RCTButton';
@@ -21,8 +22,7 @@ import * as styles from './styles.module.scss';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import TherapyDropdownGroup from './TherapyDropdownGroup';
-import { Unsubscribe } from 'firebase/database';
-import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
+import TherapyTxDescAddendumsSection from './TherapyTxDescAddendumsSection';
 
 export interface ITherapyCollapsibleProps extends StoreProps {
   therapyPath: string;
@@ -56,7 +56,6 @@ function TherapyCollapsible({
   const [treatmentName, setTreatmentName] = useState<string | null>(null);
   const [treatmentReview, setTreatmentReview] = useState<Review | null>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
-
   useEffect(() => {
     if (!firebaseDb) {
       return;
@@ -81,6 +80,8 @@ function TherapyCollapsible({
       },
       { onlyOnce: true },
     );
+
+    return () => callbacks.forEach(callback => callback?.());
   }, [therapyPath, firebaseDb]);
 
   async function handleDeleteTherapy() {
@@ -132,7 +133,7 @@ function TherapyCollapsible({
           disabled={readOnly}
           firebasePath={`${therapyPath}/description`}
           inputClass={styles.textarea}
-          label="Description of Evidence"
+          label="Treatment Description"
           labelIcon={
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
@@ -167,6 +168,12 @@ function TherapyCollapsible({
           }
           name="additionalEvidenceDescription"
           parseRefs
+        />
+        <TherapyTxDescAddendumsSection
+          therapyPath={therapyPath}
+          cancerTypePath={cancerTypePath}
+          cancerTypeName={cancerTypeName}
+          treatmentUuid={treatmentUuid}
         />
       </RemovableCollapsible>
       <ModifyTherapyModal

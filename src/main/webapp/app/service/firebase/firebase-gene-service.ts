@@ -11,6 +11,7 @@ import {
   TX_LEVELS,
   Treatment,
   Tumor,
+  TxDescAddendum,
   Vus,
   AssociationVariantList,
 } from 'app/shared/model/firebase/firebase.model';
@@ -239,7 +240,7 @@ export class FirebaseGeneService {
 
   deleteSection = async (
     path: string,
-    sectionObject: Mutation | Tumor | Treatment | GenomicIndicator,
+    sectionObject: Mutation | Tumor | Treatment | GenomicIndicator | TxDescAddendum,
     review: Review | null | undefined,
     uuid: string,
     isDemotedToVus = false,
