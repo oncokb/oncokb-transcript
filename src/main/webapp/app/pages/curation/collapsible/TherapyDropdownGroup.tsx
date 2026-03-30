@@ -29,11 +29,11 @@ export interface ITherapyDropdownGroup extends StoreProps {
 
 const PLACEHOLDER = 'You must select a level';
 
-const TherapyDropdownGroup = ({ firebaseDb, treatmentPath, readOnly }: ITherapyDropdownGroup) => {
+const TherapyDropdownGroup = ({ firebaseDb, treatmentPath, readOnly, isGermline }: ITherapyDropdownGroup) => {
   const [highestLevel, setHighestLevel] = useState<TX_LEVELS>();
-  const [propOptions, setPropOptions] = useState<RealtimeDropdownOptions<LEVELS>[]>();
+  const [propOptions, setPropOptions] = useState<RealtimeDropdownOptions<LEVELS>[] | undefined>();
   const [propFdaLevel, setPropFdaLevel] = useState<FDA_LEVELS>();
-  const [propFdaOptions, setPropFdaOptions] = useState<RealtimeDropdownOptions<LEVELS | ''>[]>();
+  const [propFdaOptions, setPropFdaOptions] = useState<RealtimeDropdownOptions<LEVELS | ''>[] | undefined>();
   const [isPropagationLevelsDisabled, setIsPropagationLevelsDisabled] = useState(true);
   const [isFdaPropagationLevelDisabled, setIsFdaPropagationLevelDisabled] = useState(true);
 
@@ -67,6 +67,9 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath, readOnly }: ITherapyD
     return <></>;
   }
 
+  const showPropagationLevels = !isGermline && !isResistanceLevel(highestLevel);
+  const showFdaLevel = !isGermline;
+
   return (
     <>
       <RealtimeLevelDropdownInput
@@ -80,7 +83,7 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath, readOnly }: ITherapyD
         options={getTxLevelDropdownOptions()}
         placeholder={PLACEHOLDER}
       />
-      {!isResistanceLevel(highestLevel) ? (
+      {showPropagationLevels ? (
         <>
           <RealtimeLevelDropdownInput
             levelOfEvidenceType={LevelOfEvidenceType.PROPAGATED_SOLID}
@@ -108,25 +111,28 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath, readOnly }: ITherapyD
           />
         </>
       ) : undefined}
-      <RealtimeLevelDropdownInput
-        levelOfEvidenceType={LevelOfEvidenceType.PROPAGATED_FDA}
-        isSearchable={false}
-        isClearable={false}
-        isDisabled={isFdaPropagationLevelDisabled || readOnly}
-        firebaseLevelPath={`${treatmentPath}/fdaLevel`}
-        label="FDA Level of Evidence"
-        name="propagationFdaLevel"
-        propagatedFdaLevel={propFdaLevel}
-        options={propFdaOptions ?? []}
-        placeholder={PLACEHOLDER}
-      />
+      {showFdaLevel ? (
+        <RealtimeLevelDropdownInput
+          levelOfEvidenceType={LevelOfEvidenceType.PROPAGATED_FDA}
+          isSearchable={false}
+          isClearable={false}
+          isDisabled={isFdaPropagationLevelDisabled || readOnly}
+          firebaseLevelPath={`${treatmentPath}/fdaLevel`}
+          label="FDA Level of Evidence"
+          name="propagationFdaLevel"
+          propagatedFdaLevel={propFdaLevel}
+          options={propFdaOptions ?? []}
+          placeholder={PLACEHOLDER}
+        />
+      ) : undefined}
     </>
   );
 };
 
-const mapStoreToProps = ({ firebaseAppStore, curationPageStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, curationPageStore, routerStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   readOnly: curationPageStore.readOnly,
+  isGermline: routerStore.isGermline,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
