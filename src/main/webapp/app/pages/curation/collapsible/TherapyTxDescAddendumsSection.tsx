@@ -13,7 +13,7 @@ import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { generateUuid, getCancerTypeName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
-import { onValue, push, ref, remove, set, Unsubscribe } from 'firebase/database';
+import { onValue, ref, set, Unsubscribe } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { Button, Card, CardBody } from 'reactstrap';
@@ -47,7 +47,8 @@ function TherapyTxDescAddendumsSection({
   treatmentUuid,
   readOnly,
   firebaseDb,
-  deleteSection,
+  addTxDescAddendum,
+  deleteTxDescAddendum,
   updateReviewableContent,
 }: ITherapyTxDescAddendumsSectionProps) {
   const [txDescAddendums, setTxDescAddendums] = useState<TxDescAddendumList>({});
@@ -225,35 +226,25 @@ function TherapyTxDescAddendumsSection({
   }, [showAddTumorTypeSpecificDescriptionButton, txDescAddendums]);
 
   async function handleAddTumorTypeSpecificDescription() {
-    if (!firebaseDb || hasIncompleteTxDescAddendum) {
+    if (hasIncompleteTxDescAddendum) {
       return;
     }
 
     try {
-      await push(ref(firebaseDb, `${therapyPath}/description_addendums`), new TxDescAddendum());
+      await addTxDescAddendum?.(therapyPath);
     } catch (error) {
       notifyError(error);
     }
   }
 
   async function handleDeleteTxDescAddendum(addendumKey: string) {
-    if (!deleteSection && !firebaseDb) {
+    const addendum = txDescAddendums[addendumKey];
+    if (!addendum) {
       return;
     }
 
-    const addendum = txDescAddendums[addendumKey];
-
     try {
-      if (deleteSection && addendum?.cancer_type_uuid) {
-        await deleteSection(
-          `${therapyPath}/description_addendums/${addendumKey}/cancer_type`,
-          addendum,
-          addendum.cancer_type_review,
-          addendum.cancer_type_uuid,
-        );
-        return;
-      }
-      await remove(ref(firebaseDb!, `${therapyPath}/description_addendums/${addendumKey}`));
+      await deleteTxDescAddendum?.(therapyPath, addendumKey, addendum);
     } catch (error) {
       notifyError(error);
     }
@@ -363,6 +354,7 @@ function TherapyTxDescAddendumsSection({
                     }}
                     isDisabled={!!readOnly || isPendingDelete || selectableCancerTypes.length === 0}
                     disabledOptions={disabledCancerTypeOptionsByAddendum[addendumKey]}
+                    isClearable={false}
                   />
                 </div>
                 {isPendingDelete ? (
@@ -414,7 +406,8 @@ function TherapyTxDescAddendumsSection({
 
 const mapStoreToProps = ({ firebaseAppStore, firebaseGeneService, firebaseGeneReviewService, curationPageStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
-  deleteSection: firebaseGeneService.deleteSection,
+  addTxDescAddendum: firebaseGeneService.addTxDescAddendum,
+  deleteTxDescAddendum: firebaseGeneService.deleteTxDescAddendum,
   updateReviewableContent: firebaseGeneReviewService.updateReviewableContent,
   readOnly: curationPageStore.readOnly,
 });

@@ -502,6 +502,41 @@ export const findReviewRecursive = (
           const addendumTitle = getTxDescAddendumTitle(addendum, addendumKey);
           const addendumReview = buildObjectReview(addendum, addendumKey, txDescAddendumsReview, uuids, editorReviewMap, addendumTitle);
 
+          if (addendum.cancer_type_review?.removed) {
+            const cancerTypeNameReview = buildTxDescAddendumCancerTypeReview(
+              addendum,
+              addendumPath,
+              {
+                fieldKey: 'cancer_type',
+                reviewKey: 'cancer_type_review',
+                uuidKey: 'cancer_type_uuid',
+              },
+              addendumReview,
+              uuids,
+              editorReviewMap,
+            );
+
+            if (addendum.description_review) {
+              const descriptionReview = buildStringReview(
+                addendum as Record<string, any>,
+                addendumPath,
+                {
+                  fieldKey: 'description',
+                  reviewKey: 'description_review',
+                  uuidKey: 'description_uuid',
+                },
+                cancerTypeNameReview,
+                uuids,
+                editorReviewMap,
+              );
+              descriptionReview.hideLevel = true;
+              cancerTypeNameReview.addChild(descriptionReview);
+            }
+
+            txDescAddendumsReview.addChild(cancerTypeNameReview);
+            return;
+          }
+
           findReviewRecursive(addendum, addendumPath, uuids, addendumReview, editorReviewMap, drugList);
           removeLeafNodes(addendumReview);
 
