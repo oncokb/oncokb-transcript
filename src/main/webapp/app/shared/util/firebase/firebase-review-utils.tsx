@@ -413,6 +413,7 @@ export const isIgnoredKey = (key: string) => {
   }
   if (
     key.startsWith('name') ||
+    key.startsWith('cancer_type') ||
     key.startsWith('cancerTypes') ||
     key.startsWith('excludedCancerTypes') ||
     key.startsWith('excludedRCTs') ||
@@ -500,31 +501,31 @@ export const findReviewRecursive = (
         Object.entries(txDescAddendums ?? {}).forEach(([addendumKey, addendum]) => {
           const addendumPath = joinPathParts(txDescAddendumsPath, addendumKey);
           const addendumTitle = getTxDescAddendumTitle(addendum, addendumKey);
-          const addendumReview = buildObjectReview(addendum, addendumKey, txDescAddendumsReview, uuids, editorReviewMap, addendumTitle);
+          const basedAddendumReview = buildObjectReview(
+            addendum,
+            addendumKey,
+            txDescAddendumsReview,
+            uuids,
+            editorReviewMap,
+            addendumTitle,
+          );
+          const cancerTypeNameReview = addendum.cancer_type_review
+            ? buildTxDescAddendumCancerTypeReview(
+                addendum,
+                addendumPath,
+                getRelevantKeysFromUuidKey('cancer_type_uuid'),
+                basedAddendumReview,
+                uuids,
+                editorReviewMap,
+              )
+            : undefined;
 
-          if (addendum.cancer_type_review?.removed) {
-            const cancerTypeNameReview = buildTxDescAddendumCancerTypeReview(
-              addendum,
-              addendumPath,
-              {
-                fieldKey: 'cancer_type',
-                reviewKey: 'cancer_type_review',
-                uuidKey: 'cancer_type_uuid',
-              },
-              addendumReview,
-              uuids,
-              editorReviewMap,
-            );
-
+          if (addendum.cancer_type_review?.removed && cancerTypeNameReview) {
             if (addendum.description_review) {
               const descriptionReview = buildStringReview(
                 addendum as Record<string, any>,
                 addendumPath,
-                {
-                  fieldKey: 'description',
-                  reviewKey: 'description_review',
-                  uuidKey: 'description_uuid',
-                },
+                getRelevantKeysFromUuidKey('description_uuid'),
                 cancerTypeNameReview,
                 uuids,
                 editorReviewMap,
@@ -537,11 +538,26 @@ export const findReviewRecursive = (
             return;
           }
 
-          findReviewRecursive(addendum, addendumPath, uuids, addendumReview, editorReviewMap, drugList);
-          removeLeafNodes(addendumReview);
+          if (cancerTypeNameReview) {
+            basedAddendumReview.addChild(cancerTypeNameReview);
+          }
 
-          if (addendumReview.hasChildren()) {
-            txDescAddendumsReview.addChild(addendumReview);
+          if (addendum.description_review) {
+            const descriptionReview = buildStringReview(
+              addendum,
+              addendumPath,
+              getRelevantKeysFromUuidKey('description_uuid'),
+              basedAddendumReview,
+              uuids,
+              editorReviewMap,
+            );
+            basedAddendumReview.addChild(descriptionReview);
+          }
+
+          removeLeafNodes(basedAddendumReview);
+
+          if (basedAddendumReview.hasChildren()) {
+            txDescAddendumsReview.addChild(basedAddendumReview);
           }
         });
 
@@ -567,19 +583,6 @@ export const findReviewRecursive = (
 
       if (key.endsWith('_uuid') && uuids.includes(value as string)) {
         const relevantKeys = getRelevantKeysFromUuidKey(key);
-
-        if (relevantKeys.fieldKey === 'cancer_type') {
-          const cancerTypeNameReview = buildTxDescAddendumCancerTypeReview(
-            currObj as TxDescAddendum,
-            currValuePath,
-            relevantKeys,
-            parentReview,
-            uuids,
-            editorReviewMap,
-          );
-          parentReview.addChild(cancerTypeNameReview);
-          continue;
-        }
 
         if (typeof currObj[relevantKeys.fieldKey] === 'string' || relevantKeys.fieldKey === 'associationVariants') {
           const stringReviewLevel = buildStringReview(currObj, currValuePath, relevantKeys, parentReview, uuids, editorReviewMap);

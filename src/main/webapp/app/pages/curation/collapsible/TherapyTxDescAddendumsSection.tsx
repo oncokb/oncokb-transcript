@@ -195,6 +195,8 @@ function TherapyTxDescAddendumsSection({
           queryParams.append('sort', 'subtype,ASC');
           queryParams.append('sort', 'mainType,ASC');
 
+          // Use axios here because the generated client serializes pagination incorrectly for /api/cancer-types
+          // (criteria/pageable objects instead of Spring page/size/sort query params).
           const { data } = await axiosInstance.get<ApiCancerType[]>('/api/cancer-types', { params: queryParams });
           const cancerTypesInPage = data ?? [];
           cancerTypesInPage.forEach((cancerType: ApiCancerType) => {
@@ -340,6 +342,7 @@ function TherapyTxDescAddendumsSection({
       )}
       {Object.entries(txDescAddendums).map(([addendumKey, txDescAddendum]) => {
         const isPendingDelete = isTxDescAddendumPendingDelete(txDescAddendum);
+        const hasSelectedCancerType = Object.keys(txDescAddendum?.cancer_type ?? {}).length > 0;
 
         return (
           <Card key={treatmentUuid + '-tumor-type-specific-description-' + addendumKey} className="mb-2">
@@ -370,7 +373,8 @@ function TherapyTxDescAddendumsSection({
               </div>
               <RealtimeTextAreaInput
                 id={`${treatmentUuid}-tumor-type-specific-description-input-${addendumKey}`}
-                disabled={!!readOnly || isPendingDelete}
+                disabled={!!readOnly || isPendingDelete || !hasSelectedCancerType}
+                disabledMessage={!hasSelectedCancerType ? 'Select cancer type first' : undefined}
                 firebasePath={`${therapyPath}/description_addendums/${addendumKey}/description`}
                 inputClass={styles.textarea}
                 label="Description"

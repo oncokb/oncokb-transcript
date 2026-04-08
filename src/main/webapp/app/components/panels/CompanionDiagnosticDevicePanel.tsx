@@ -283,7 +283,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({
               </div>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <CancerTypeSelect onChange={setCancerTypeValue} value={cancerTypeValue} />
+              <CancerTypeSelect onChange={setCancerTypeValue} value={cancerTypeValue} isClearable />
             </SidebarMenuItem>
             <SidebarMenuItem className="border-top py-2">
               <h6>Input Therapies</h6>
