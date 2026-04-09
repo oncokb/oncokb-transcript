@@ -29,6 +29,7 @@ import { extractArrayPath } from './firebase-path-utils';
 export enum ReviewSectionTitlePrefix {
   CANCER_TYPE = 'Cancer Type',
   THERAPY = 'Therapy',
+  TX_ADDENDUM = 'Tumor Type Specific Drug Description',
 }
 
 export type BaseReviewLevelParams = {
@@ -496,75 +497,12 @@ export const findReviewRecursive = (
         const txDescAddendums = value as TxDescAddendumList;
         const txDescAddendumsPath = joinPathParts(currValuePath, key);
 
-        const txDescAddendumsReview = buildObjectReview(value, key, parentReview, uuids, editorReviewMap);
-
         Object.entries(txDescAddendums ?? {}).forEach(([addendumKey, addendum]) => {
           const addendumPath = joinPathParts(txDescAddendumsPath, addendumKey);
-          const addendumTitle = getTxDescAddendumTitle(addendum, addendumKey);
-          const basedAddendumReview = buildObjectReview(
-            addendum,
-            addendumKey,
-            txDescAddendumsReview,
-            uuids,
-            editorReviewMap,
-            addendumTitle,
-          );
-          const cancerTypeNameReview = addendum.cancer_type_review
-            ? buildTxDescAddendumCancerTypeReview(
-                addendum,
-                addendumPath,
-                getRelevantKeysFromUuidKey('cancer_type_uuid'),
-                basedAddendumReview,
-                uuids,
-                editorReviewMap,
-              )
-            : undefined;
-
-          if (addendum.cancer_type_review?.removed && cancerTypeNameReview) {
-            if (addendum.description_review) {
-              const descriptionReview = buildStringReview(
-                addendum as Record<string, any>,
-                addendumPath,
-                getRelevantKeysFromUuidKey('description_uuid'),
-                cancerTypeNameReview,
-                uuids,
-                editorReviewMap,
-              );
-              descriptionReview.hideLevel = true;
-              cancerTypeNameReview.addChild(descriptionReview);
-            }
-
-            txDescAddendumsReview.addChild(cancerTypeNameReview);
-            return;
-          }
-
-          if (cancerTypeNameReview) {
-            basedAddendumReview.addChild(cancerTypeNameReview);
-          }
-
-          if (addendum.description_review) {
-            const descriptionReview = buildStringReview(
-              addendum,
-              addendumPath,
-              getRelevantKeysFromUuidKey('description_uuid'),
-              basedAddendumReview,
-              uuids,
-              editorReviewMap,
-            );
-            basedAddendumReview.addChild(descriptionReview);
-          }
-
-          removeLeafNodes(basedAddendumReview);
-
-          if (basedAddendumReview.hasChildren()) {
-            txDescAddendumsReview.addChild(basedAddendumReview);
-          }
+          const addendumReview = buildTxDescAddendumReview(addendum, addendumPath, parentReview, uuids, editorReviewMap);
+          parentReview.addChild(addendumReview);
+          removeLeafNodes(parentReview);
         });
-
-        if (txDescAddendumsReview.hasChildren()) {
-          parentReview.addChild(txDescAddendumsReview);
-        }
-        removeLeafNodes(parentReview);
         continue;
       }
 
@@ -792,8 +730,7 @@ export const buildCancerTypeNameReview = (
       reviewPath: `${excludedCancerTypesPath}_review`,
       review: excludedCTReview!,
       lastReviewedString: undefined,
-      // TODO(Calvin): this needs to have a value
-      uuid: '',
+      uuid: tumorNameUuid,
     },
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
@@ -815,44 +752,87 @@ const getTxDescAddendumCancerTypeName = (cancerTypeList?: CancerTypeList) => {
   return addendumCancerType ? getCancerTypeName(addendumCancerType) : '';
 };
 
-export const buildTxDescAddendumCancerTypeReview = (
+export const buildTxDescAddendumReview = (
   addendum: TxDescAddendum,
   currValuePath: string,
-  relevantKeys: RelevantKeys,
   parentReview: BaseReviewLevel,
   uuids: string[],
   editorReviewMap: EditorReviewMap,
 ) => {
-  const { fieldKey, reviewKey, uuidKey } = relevantKeys;
   const currentCancerTypeName = getTxDescAddendumCancerTypeName(addendum.cancer_type);
-  const lastReviewedCancerTypeList = (addendum as Record<string, any>)[reviewKey]?.lastReviewed as CancerTypeList | undefined;
+  const lastReviewedCancerTypeList = addendum.cancer_type_review?.lastReviewed as CancerTypeList | undefined;
   const lastReviewedCancerTypeName = getTxDescAddendumCancerTypeName(lastReviewedCancerTypeList);
 
   const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
   historyInfo.fields = [...(parentReview.historyInfo.fields || []), READABLE_FIELD.NAME];
 
+  const metaReview = new MetaReviewLevel({
+    titleParts: [addSectionTitlePrefix(ReviewSectionTitlePrefix.TX_ADDENDUM, currentCancerTypeName)],
+    valuePath: currValuePath,
+    historyLocation: buildHistoryLocation(parentReview, currentCancerTypeName),
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    historyInfo,
+  });
+
+  if (!addendum.cancer_type_review && !addendum.description_review) {
+    return metaReview;
+  }
+
+  let nameUpdated = false;
+  let oldState, newState;
+  let oldTumorName;
+  if (addendum.cancer_type_review?.removed) {
+    oldState = addendum;
+  } else if (addendum.cancer_type_review?.lastReviewed || addendum.cancer_type_review?.initialUpdate) {
+    nameUpdated = true;
+    oldState = oldTumorName = lastReviewedCancerTypeName;
+    newState = currentCancerTypeName;
+  } else {
+    return metaReview;
+  }
+
   const cancerTypeNameReview = new ReviewLevel({
-    titleParts: [READABLE_FIELD.NAME],
-    valuePath: joinPathParts(currValuePath, fieldKey),
+    titleParts: [nameUpdated ? READABLE_FIELD.NAME : ''],
+    valuePath: joinPathParts(currValuePath, 'cancer_type_review'),
     currentVal: currentCancerTypeName,
     historyLocation: buildHistoryLocation(parentReview, READABLE_FIELD.NAME),
     reviewInfo: {
-      reviewPath: joinPathParts(currValuePath, reviewKey),
-      review: (addendum as Record<string, any>)[reviewKey],
-      lastReviewedString: lastReviewedCancerTypeName,
-      uuid: (addendum as Record<string, any>)[uuidKey],
+      reviewPath: joinPathParts(currValuePath, 'cancer_type_review'),
+      review: addendum.cancer_type_review,
+      lastReviewedString: oldTumorName,
+      uuid: addendum.cancer_type_uuid,
     },
     historyData: {
-      oldState: lastReviewedCancerTypeName,
-      newState: currentCancerTypeName,
+      oldState,
+      newState,
     },
     historyInfo,
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
-  _.pull(uuids, (addendum as Record<string, any>)[uuidKey]);
+  metaReview.addChild(cancerTypeNameReview);
+  _.pull(uuids, addendum.cancer_type_uuid);
   editorReviewMap.add(cancerTypeNameReview);
-  return cancerTypeNameReview;
+
+  if (addendum.cancer_type_review?.removed) {
+    return metaReview;
+  }
+
+  if (addendum.description_review) {
+    const descriptionReview = buildStringReview(
+      addendum,
+      currValuePath,
+      getRelevantKeysFromUuidKey('description_uuid'),
+      metaReview,
+      uuids,
+      editorReviewMap,
+    );
+    metaReview.addChild(descriptionReview);
+    _.pull(uuids, addendum.description_uuid);
+    editorReviewMap.add(descriptionReview);
+  }
+
+  return metaReview;
 };
 
 export const buildStringReview = (
