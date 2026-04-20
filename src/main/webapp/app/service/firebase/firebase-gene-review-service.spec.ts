@@ -329,6 +329,7 @@ describe('Firebase Gene Review Service', () => {
         },
         historyInfo: {},
       });
+      mockFirebaseRepository.get.mockResolvedValue({ val: () => mutation } as any);
       // An entity is created once all its changes have been accepted or rejected.
       await firebaseGeneReviewService.handleCreateAction(hugoSymbol, reviewLevel, false, ActionType.ACCEPT);
       const expectedMutation = _.cloneDeep(mutation);
@@ -350,6 +351,57 @@ describe('Firebase Gene Review Service', () => {
         [`Meta/BRAF/review/${mutation.name_uuid}`]: null,
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
+      });
+    });
+    it('should accept the latest newly created entity from Firebase instead of stale review level state', async () => {
+      const hugoSymbol = 'BRAF';
+      const mutation = new Mutation('V600E');
+      mutation.name_review = new Review('User', undefined, true);
+      mutation.summary = 'Stale summary';
+      mutation.summary_review = new Review('User', '');
+
+      const latestMutation = _.cloneDeep(mutation);
+      latestMutation.summary = 'Latest summary';
+      delete latestMutation.summary_review?.lastReviewed;
+
+      const reviewLevel = new ReviewLevel({
+        titleParts: ['V600E'],
+        valuePath: 'mutations/-mKey/name',
+        historyLocation: 'V600E',
+        currentVal: 'V600E',
+        reviewInfo: {
+          reviewPath: 'mutations/-mKey/name_review',
+          review: mutation.name_review,
+          lastReviewedString: undefined,
+          uuid: mutation.name_uuid,
+          reviewAction: ReviewAction.CREATE,
+        },
+        historyData: {
+          newState: mutation,
+        },
+        historyInfo: {},
+      });
+      mockFirebaseRepository.get.mockResolvedValue({ val: () => latestMutation } as any);
+
+      await firebaseGeneReviewService.handleCreateAction(hugoSymbol, reviewLevel, false, ActionType.ACCEPT);
+
+      const expectedMutation = _.cloneDeep(latestMutation);
+      delete expectedMutation.name_review?.added;
+      expect(mockFirebaseRepository.get).toHaveBeenCalledWith('Genes/BRAF/mutations/-mKey');
+      expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
+        [`History/BRAF/api/${MOCKED_ARRAY_KEYS[0]}`]: {
+          records: [
+            {
+              new: latestMutation,
+            },
+          ],
+        },
+        'Genes/BRAF/mutations/-mKey': expectedMutation,
+      });
+      expect(mockFirebaseRepository.update.mock.calls[0][1]).not.toMatchObject({
+        'Genes/BRAF/mutations/-mKey': {
+          summary: 'Stale summary',
+        },
       });
     });
     it('should remove nested review level uuids from meta collection when accepting a deletion', async () => {

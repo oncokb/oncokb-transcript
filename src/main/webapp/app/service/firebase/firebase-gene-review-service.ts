@@ -244,15 +244,29 @@ export class FirebaseGeneReviewService {
     let updateObject = {};
 
     if (action === ActionType.ACCEPT) {
-      const reviewHistory = buildHistoryFromReviews(this.authStore.fullName, [reviewLevel]);
+      const pathParts = reviewLevel.valuePath.split('/');
+      pathParts.pop(); // Remove name or cancerTypes
+      const createdEntityPath = `${geneFirebasePath}/${pathParts.join('/')}`;
+      const currentCreatedEntity = (await this.firebaseRepository.get(createdEntityPath)).val();
+      if (_.isNil(currentCreatedEntity)) {
+        throw new SentryError('Cannot accept newly created entity because it does not exist in Firebase', {
+          hugoSymbol,
+          reviewLevel,
+          isGermline,
+          action,
+          createdEntityPath,
+        });
+      }
+      const historyReviewLevel = _.cloneDeep(reviewLevel);
+      historyReviewLevel.historyData.newState = currentCreatedEntity;
+      const reviewHistory = buildHistoryFromReviews(this.authStore.fullName, [historyReviewLevel]);
       const historyUpdateObject = this.firebaseHistoryService.getUpdateObject(reviewHistory, hugoSymbol, isGermline);
       updateObject = { ...updateObject, ...historyUpdateObject };
 
-      const pathParts = reviewLevel.valuePath.split('/');
-      pathParts.pop(); // Remove name or cancerTypes
-      clearAllNestedReviews(reviewLevel.historyData.newState);
+      const createdEntity = _.cloneDeep(currentCreatedEntity);
+      clearAllNestedReviews(createdEntity);
 
-      updateObject[`${geneFirebasePath}/${pathParts.join('/')}`] = reviewLevel.historyData.newState;
+      updateObject[createdEntityPath] = createdEntity;
       updateObject = { ...updateObject, ...this.getDeletedUuidUpdateObject(hugoSymbol, reviewLevel, isGermline) };
     } else if (action === ActionType.REJECT) {
       const { firebaseArrayPath, deleteArrayKey } = extractArrayPath(reviewLevel.valuePath);

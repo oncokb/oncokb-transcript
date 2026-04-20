@@ -2,8 +2,8 @@ import {
   BaseReviewLevel,
   EditorReviewMap,
   ReviewLevel,
+  compactReviewTree,
   findReviews,
-  getCompactReviewInfo,
   getGenePathFromValuePath,
 } from 'app/shared/util/firebase/firebase-review-utils';
 import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
@@ -93,9 +93,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     if (geneData && !_.isNil(reviewUuids) && props.drugList) {
       const reviewMap = new EditorReviewMap();
       const reviews = findReviews(props.drugList, geneData, _.clone(reviewUuids), reviewMap);
-      if (reviews.hasChildren()) {
-        reviews.children.forEach((__, index) => (reviews.children[index] = getCompactReviewInfo(reviews.children[index])));
-      }
+      compactReviewTree(reviews);
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
       setIsReviewFinished(!reviews.hasChildren());
@@ -273,9 +271,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
                 db: props.firebaseDb!,
               }}
               rootDelete={isPending => {
-                if (isPending) {
-                  setRootReview(_.cloneDeep(rootReview));
-                } else {
+                if (!isPending) {
                   setRootReview(null);
                   setIsReviewFinished(true);
                 }
