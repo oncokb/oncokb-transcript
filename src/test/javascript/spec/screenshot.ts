@@ -320,11 +320,13 @@ describe('Screenshot Tests', () => {
     const mutationCollapsibleButton = await $(
       `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, mutation)}"]`,
     );
+    await mutationCollapsibleButton.waitForDisplayed();
     await mutationCollapsibleButton.click();
 
     const cancerTypeCollapsibleButton = await $(
       `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, `${mutation}-${cancerType}`)}"]`,
     );
+    await cancerTypeCollapsibleButton.waitForDisplayed();
     await cancerTypeCollapsibleButton.click();
 
     // Open RCT modal
