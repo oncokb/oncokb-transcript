@@ -131,16 +131,31 @@ public class ProteinChangeParser {
     }
 
     public static ParsingStatus<Alteration> parseInframe(String proteinChange) {
-        Pattern p = Pattern.compile("([A-Z]?)([0-9]+)(_[A-Z]?([0-9]+))?(delins|ins|del|dup)(.*)?", CASE_INSENSITIVE);
+        String originalProteinChange = proteinChange;
+        // Normalize delSEQinsINS -> delinsINS (redundant deleted sequence at protein level)
+        proteinChange = proteinChange.replaceAll("(?i)(del)[A-Z]+(ins)", "$1$2");
+        // Normalize del with trailing amino acid sequence -> del
+        proteinChange = proteinChange.replaceAll("(?i)(del)(?!ins)[A-Z]+$", "$1");
+        // Normalize dup with trailing amino acid sequence -> dup
+        proteinChange = proteinChange.replaceAll("(?i)(dup)[A-Z]+$", "$1");
+        boolean wasNormalized = !proteinChange.equalsIgnoreCase(originalProteinChange);
+
+        // Groups: (1)startRef (2)startPos (_((4)endRef)(5)endPos))? (6)type (7)var
+        Pattern p = Pattern.compile("([A-Z]?)([0-9]+)(_([A-Z]?)([0-9]+))?(delins|ins|del|dup)(.*)?", CASE_INSENSITIVE);
         Matcher m = p.matcher(proteinChange);
         ParsingStatus<Alteration> parsingStatus = new ParsingStatus<>();
         if (m.matches()) {
             Alteration alteration = new Alteration();
             String revisedProteinChange = "";
             MutationConsequence term = UNKNOWN;
-            if (m.group(1) != null && m.group(3) == null) {
-                // we only want to specify reference when it's one position ins/del
-                alteration.setRefResidues(m.group(1).toUpperCase());
+            if (m.group(1) != null && !m.group(1).isEmpty()) {
+                if (m.group(3) != null) {
+                    // range variant: store start and end ref AAs (e.g. "VC" for V600_C604del)
+                    String endRef = m.group(4) != null ? m.group(4).toUpperCase() : "";
+                    alteration.setRefResidues(m.group(1).toUpperCase() + endRef);
+                } else {
+                    alteration.setRefResidues(m.group(1).toUpperCase());
+                }
             }
             revisedProteinChange += m.group(1).toUpperCase();
             alteration.setStart(Integer.valueOf(m.group(2)));
@@ -148,9 +163,9 @@ public class ProteinChangeParser {
             if (m.group(3) != null) {
                 revisedProteinChange += m.group(3).toUpperCase();
             }
-            alteration.setEnd(m.group(4) != null ? Integer.valueOf(m.group(4)) : alteration.getStart());
-            String type = m.group(5);
-            String var = Optional.ofNullable(m.group(6)).orElse("").toUpperCase();
+            alteration.setEnd(m.group(5) != null ? Integer.valueOf(m.group(5)) : alteration.getStart());
+            String type = m.group(6);
+            String var = Optional.ofNullable(m.group(7)).orElse("").toUpperCase();
             revisedProteinChange += type + var;
             if (StringUtils.isNotEmpty(var) && !var.matches("[A-Z]+")) {
                 var = "";
@@ -165,7 +180,7 @@ public class ProteinChangeParser {
                 term = INFRAME_DELETION;
             } else if (StringUtils.isNotEmpty(var)) {
                 Integer deletion = alteration.getEnd() - alteration.getStart() + 1;
-                Integer insertion = m.group(6).length();
+                Integer insertion = m.group(7).length();
 
                 if (insertion - deletion > 0) {
                     term = INFRAME_INSERTION;
@@ -183,7 +198,12 @@ public class ProteinChangeParser {
             }
             alteration.setProteinChange(StringUtils.isEmpty(revisedProteinChange) ? proteinChange : revisedProteinChange);
             parsingStatus.setEntity(alteration);
-            parsingStatus.setStatus(EntityStatusType.OK);
+            if (wasNormalized) {
+                parsingStatus.setStatus(EntityStatusType.WARNING);
+                parsingStatus.setMessage("Normalized from '" + originalProteinChange + "' to '" + alteration.getProteinChange() + "'");
+            } else {
+                parsingStatus.setStatus(EntityStatusType.OK);
+            }
         }
         return parsingStatus;
     }

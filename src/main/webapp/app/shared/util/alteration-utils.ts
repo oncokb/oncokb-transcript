@@ -15,6 +15,7 @@ export type AlterationData = {
   proteinEnd?: number;
   refResidues?: string;
   varResidues?: string;
+  warnings?: string[];
   warning?: string;
   error?: string;
   alterationFieldValueWhileFetching?: string;
@@ -56,6 +57,13 @@ export function convertEntityStatusAlterationToAlterationData(
     proteinEnd: alteration?.end,
     refResidues: alteration?.refResidues,
     varResidues: alteration?.variantResidues,
+    warnings: entityStatusAlteration.warning
+      ? entityStatusAlteration.messages && entityStatusAlteration.messages.length > 0
+        ? entityStatusAlteration.messages
+        : entityStatusAlteration.message
+          ? [entityStatusAlteration.message]
+          : undefined
+      : undefined,
     warning: entityStatusAlteration.warning ? entityStatusAlteration.message : undefined,
     error: entityStatusAlteration.error ? entityStatusAlteration.message : undefined,
   };

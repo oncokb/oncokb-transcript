@@ -622,7 +622,7 @@ function AddMutationModal({
       );
     }
 
-    if (tabAlterationData.warning) {
+    if (tabAlterationData.warnings && tabAlterationData.warnings.length > 0) {
       return (
         <span>
           <FaExclamationTriangle className="text-warning me-1 mb-1" />
@@ -666,11 +666,12 @@ function AddMutationModal({
 
     return (
       <>
-        {alterationData.warning && (
-          <Alert color="warning" className="alteration-message" fade={false}>
-            {alterationData.warning}
-          </Alert>
-        )}
+        {alterationData.warnings &&
+          alterationData.warnings.map((msg, i) => (
+            <Alert key={i} color="warning" className="alteration-message" fade={false}>
+              {msg}
+            </Alert>
+          ))}
         <AddMutationModalDropdown
           label="Type"
           options={typeOptions}
