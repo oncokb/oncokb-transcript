@@ -150,9 +150,11 @@ public class ProteinChangeParser {
             MutationConsequence term = UNKNOWN;
             if (m.group(1) != null && !m.group(1).isEmpty()) {
                 if (m.group(3) != null) {
-                    // range variant: store start and end ref AAs (e.g. "VC" for V600_C604del)
+                    // range variant: only store ref AAs when both start and end are present (e.g. "VC" for V600_C604del)
                     String endRef = m.group(4) != null ? m.group(4).toUpperCase() : "";
-                    alteration.setRefResidues(m.group(1).toUpperCase() + endRef);
+                    if (!endRef.isEmpty()) {
+                        alteration.setRefResidues(m.group(1).toUpperCase() + endRef);
+                    }
                 } else {
                     alteration.setRefResidues(m.group(1).toUpperCase());
                 }

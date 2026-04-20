@@ -6,16 +6,16 @@
 
 # missense variants
 N505I,missense_variant,N,I,505,505
-E323_D324delinsKN,missense_variant,,,323,324
+E323_D324delinsKN,missense_variant,ED,,323,324
 814_852mis,missense_variant,,,814,852
 IK744KI,missense_variant,IK,KI,744,745
 
 # inframes
-Q58_Q59insL,inframe_insertion,,,58,59
+Q58_Q59insL,inframe_insertion,QQ,,58,59
 58_Q59insL,inframe_insertion,,,58,59
 Q58_59insL,inframe_insertion,,,58,59
 58_59insL,inframe_insertion,,,58,59
-P68_C77dup,inframe_insertion,,,68,77
+P68_C77dup,inframe_insertion,PC,,68,77
 P68_77dup,inframe_insertion,,,68,77
 68_C77dup,inframe_insertion,,,68,77
 68_77dup,inframe_insertion,,,68,77
@@ -31,10 +31,10 @@ C359del,inframe_deletion,C,,359,359
 359del,inframe_deletion,,,359,359
 IK744A,inframe_deletion,IK,A,744,745
 1459_1468del,inframe_deletion,,,1459,1468
-A1459_D1468del,inframe_deletion,,,1459,1468
+A1459_D1468del,inframe_deletion,AD,,1459,1468
 1459_D1468del,inframe_deletion,,,1459,1468
 A1459_1468del,inframe_deletion,,,1459,1468
-D1161_S1172delinsE,inframe_deletion,,,1161,1172
+D1161_S1172delinsE,inframe_deletion,DS,,1161,1172
 D1161_1172delinsE,inframe_deletion,,,1161,1172
 1161_S1172delinsE,inframe_deletion,,,1161,1172
 1161_1172delinsE,inframe_deletion,,,1161,1172
@@ -70,7 +70,7 @@ A149*,stop_gained,A,*,149,149
 
 # extension
 M1ext-5,inframe_insertion,,,1,1
-M1_L2insRSTV,inframe_insertion,,,1,2
+M1_L2insRSTV,inframe_insertion,ML,,1,2
 *757Kext*36,stop_lost,*,,757,757
 757Kext*36,stop_lost,*,,757,757
 *757ext*36,stop_lost,*,,757,757

@@ -21,6 +21,8 @@ public class AlterationUtils {
     public static final String FUSION_ALTERNATIVE_SEPARATOR = "-";
     private static final String FUSION_REGEX = "\\s*(\\w*)" + FUSION_SEPARATOR + "(\\w*)\\s*(?i)(fusion)?\\s*";
     private static final String FUSION_ALT_REGEX = "\\s*(\\w*)" + FUSION_ALTERNATIVE_SEPARATOR + "(\\w*)\\s+(?i)fusion\\s*";
+    private static final Pattern CDNA_DEL_SEQ = Pattern.compile("(c\\.[0-9+\\-*_]+del)\\w+(ins\\w+)?$", CASE_INSENSITIVE);
+    private static final Pattern CDNA_DUP_SEQ = Pattern.compile("(c\\.[0-9+\\-*_]+dup)\\w+$", CASE_INSENSITIVE);
 
     private Alteration parseFusion(String alteration) {
         Alteration alt = new Alteration();
@@ -69,14 +71,28 @@ public class AlterationUtils {
         return alt;
     }
 
+    private String normalizeCodingDnaChange(String codingDnaChange) {
+        Matcher m = CDNA_DEL_SEQ.matcher(codingDnaChange);
+        if (m.matches()) {
+            String ins = m.group(2);
+            return m.group(1) + (ins != null ? ins : "");
+        }
+        Matcher dupMatcher = CDNA_DUP_SEQ.matcher(codingDnaChange);
+        if (dupMatcher.matches()) {
+            return dupMatcher.group(1);
+        }
+        return codingDnaChange;
+    }
+
     private Alteration parseCodingDnaChange(String codingDnaChange) {
         Alteration alt = new Alteration();
         Consequence consequence = new Consequence();
         consequence.setTerm(UNKNOWN.name());
         alt.setType(AlterationType.CDNA_CHANGE);
         alt.setConsequence(consequence);
-        alt.setAlteration(codingDnaChange);
-        alt.setName(codingDnaChange);
+        String normalized = normalizeCodingDnaChange(codingDnaChange);
+        alt.setAlteration(normalized);
+        alt.setName(normalized);
         return alt;
     }
 
@@ -231,8 +247,13 @@ public class AlterationUtils {
         if (alteration.startsWith("c.")) {
             Alteration alt = parseCodingDnaChange(alteration);
             entityWithStatus.setEntity(alt);
-            entityWithStatus.setType(status);
-            entityWithStatus.setMessage(message);
+            if (!alteration.equals(alt.getAlteration())) {
+                entityWithStatus.setType(EntityStatusType.WARNING);
+                entityWithStatus.setMessage("Normalized from '" + alteration + "' to '" + alt.getAlteration() + "'");
+            } else {
+                entityWithStatus.setType(status);
+                entityWithStatus.setMessage(message);
+            }
             return entityWithStatus;
         }
 
