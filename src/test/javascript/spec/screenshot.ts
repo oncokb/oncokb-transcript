@@ -259,10 +259,14 @@ describe('Screenshot Tests', () => {
 
     const mutation = 'Y220C';
 
-    const trashCanIcon = await $("svg[data-icon='trash-can']");
-    await trashCanIcon.click();
+    const mutationDeleteBtn = await $(`div[data-testid='${getCollapsibleDataTestId(CollapsibleDataTestIdType.CARD, mutation)}']`).$(
+      "svg[data-icon='trash-can']",
+    );
+    await mutationDeleteBtn.waitForDisplayed();
+    await mutationDeleteBtn.click();
 
     const confirmDeleteBtn = await $('button=Confirm');
+    await confirmDeleteBtn.waitForDisplayed();
     await confirmDeleteBtn.click();
 
     // Go to review page to compare collapsible
@@ -285,11 +289,13 @@ describe('Screenshot Tests', () => {
     const mutationCollapsibleButton = await $(
       `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, mutation)}"]`,
     );
+    await mutationCollapsibleButton.waitForDisplayed();
     await mutationCollapsibleButton.click();
 
     const cancerTypeCollapsibleButton = await $(
       `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, `${mutation}-${cancerType}`)}"]`,
     );
+    await cancerTypeCollapsibleButton.waitForDisplayed();
     await cancerTypeCollapsibleButton.click();
 
     const rctButton = await $(
