@@ -257,7 +257,7 @@ public class MainService {
         }
 
         alterationWithStatus.setType(alterationWithEntityStatus.getType());
-        alterationWithStatus.setMessage(alterationWithEntityStatus.getMessage());
+        alterationWithEntityStatus.getMessages().forEach(alterationWithStatus::addMessage);
 
         // update reference genome
         if (alteration.getGenes().size() > 0 && PROTEIN_CHANGE.equals(alteration.getType())) {
