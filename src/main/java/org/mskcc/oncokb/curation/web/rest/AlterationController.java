@@ -1,12 +1,8 @@
 package org.mskcc.oncokb.curation.web.rest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.AlterationAnnotationStatus;
-import org.mskcc.oncokb.curation.domain.EntityStatus;
 import org.mskcc.oncokb.curation.service.MainService;
 import org.mskcc.oncokb.curation.web.rest.model.AnnotateAlterationBody;
 import org.slf4j.Logger;
@@ -18,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 public class AlterationController {
+
+    private static final int DEFAULT_PROTEIN_START = -1;
+    private static final int DEFAULT_PROTEIN_END = 100_000;
 
     private final Logger log = LoggerFactory.getLogger(AlterationController.class);
 
@@ -40,9 +39,22 @@ public class AlterationController {
                 alterationBody.getAlteration()
             );
             annotationStatus.setQueryId(alterationBody.getQueryId());
+            setDefaultProteinPositions(annotationStatus);
             status.add(annotationStatus);
         });
 
         return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    private void setDefaultProteinPositions(AlterationAnnotationStatus annotationStatus) {
+        if (annotationStatus.getEntity() == null) {
+            return;
+        }
+        if (annotationStatus.getEntity().getStart() == null) {
+            annotationStatus.getEntity().setStart(DEFAULT_PROTEIN_START);
+        }
+        if (annotationStatus.getEntity().getEnd() == null) {
+            annotationStatus.getEntity().setEnd(DEFAULT_PROTEIN_END);
+        }
     }
 }
