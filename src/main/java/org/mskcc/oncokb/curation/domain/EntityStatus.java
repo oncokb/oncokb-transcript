@@ -1,12 +1,14 @@
 package org.mskcc.oncokb.curation.domain;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.mskcc.oncokb.curation.domain.enumeration.EntityStatusType;
 
 public class EntityStatus<T> {
 
     T entity;
-    String message;
     EntityStatusType type;
+    List<String> messages = new ArrayList<>();
 
     public T getEntity() {
         return entity;
@@ -16,12 +18,18 @@ public class EntityStatus<T> {
         this.entity = entity;
     }
 
-    public String getMessage() {
-        return message;
+    public List<String> getMessages() {
+        return messages;
+    }
+
+    public void addMessage(String message) {
+        if (message != null && !message.isEmpty()) {
+            this.messages.add(message);
+        }
     }
 
     public void setMessage(String message) {
-        this.message = message;
+        addMessage(message);
     }
 
     public EntityStatusType getType() {

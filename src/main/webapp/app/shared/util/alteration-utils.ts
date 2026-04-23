@@ -15,7 +15,7 @@ export type AlterationData = {
   proteinEnd?: number;
   refResidues?: string;
   varResidues?: string;
-  warning?: string;
+  warnings?: string[];
   error?: string;
   alterationFieldValueWhileFetching?: string;
 };
@@ -56,8 +56,8 @@ export function convertEntityStatusAlterationToAlterationData(
     proteinEnd: alteration?.end,
     refResidues: alteration?.refResidues,
     varResidues: alteration?.variantResidues,
-    warning: entityStatusAlteration.warning ? entityStatusAlteration.message : undefined,
-    error: entityStatusAlteration.error ? entityStatusAlteration.message : undefined,
+    warnings: entityStatusAlteration.warning && entityStatusAlteration.messages?.length ? entityStatusAlteration.messages : undefined,
+    error: entityStatusAlteration.error && entityStatusAlteration.messages?.length ? entityStatusAlteration.messages[0] : undefined,
   };
 
   if (alteration?.alteration !== alterationName) {

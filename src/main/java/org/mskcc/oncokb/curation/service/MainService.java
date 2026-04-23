@@ -77,6 +77,43 @@ public class MainService {
         this.categoricalAlterationService = categoricalAlterationService;
     }
 
+    private void validateReferenceResidues(Alteration alteration, String sequence, AlterationAnnotationStatus alterationWithStatus) {
+        if (StringUtils.isEmpty(alteration.getRefResidues())) {
+            return;
+        }
+        String refResidues = alteration.getRefResidues();
+        Integer start = alteration.getStart();
+        Integer end = alteration.getEnd();
+
+        List<String> mismatches = new ArrayList<>();
+
+        String startRef = String.valueOf(refResidues.charAt(0));
+        if (!"X".equals(startRef)) {
+            String expectedStart = String.valueOf(sequence.charAt(start - 1));
+            if (!expectedStart.equals(startRef)) {
+                mismatches.add("position " + start + " should be " + expectedStart);
+            }
+        }
+
+        if (!start.equals(end) && refResidues.length() >= 2 && end <= sequence.length()) {
+            String endRef = String.valueOf(refResidues.charAt(1));
+            if (!"X".equals(endRef)) {
+                String expectedEnd = String.valueOf(sequence.charAt(end - 1));
+                if (!expectedEnd.equals(endRef)) {
+                    mismatches.add("position " + end + " should be " + expectedEnd);
+                }
+            }
+        }
+
+        if (!mismatches.isEmpty()) {
+            String prefix = mismatches.size() > 1
+                ? "The reference alleles do not match with the transcript: "
+                : "The reference allele does not match with the transcript: ";
+            alterationWithStatus.setMessage(prefix + String.join(", ", mismatches));
+            alterationWithStatus.setType(EntityStatusType.WARNING);
+        }
+    }
+
     public Optional<Sequence> findSequenceByGene(ReferenceGenome referenceGenome, Integer entrezGeneId, SequenceType sequenceType) {
         Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findCanonicalEnsemblGene(entrezGeneId, referenceGenome);
         if (ensemblGeneOptional.isPresent()) {
@@ -219,8 +256,8 @@ public class MainService {
             alteration.setName(alteration.getAlteration());
         }
 
-        alterationWithStatus.setMessage(alterationWithEntityStatus.getMessage());
         alterationWithStatus.setType(alterationWithEntityStatus.getType());
+        alterationWithEntityStatus.getMessages().forEach(alterationWithStatus::addMessage);
 
         // update reference genome
         if (alteration.getGenes().size() > 0 && PROTEIN_CHANGE.equals(alteration.getType())) {
@@ -232,23 +269,23 @@ public class MainService {
                     SequenceType.PROTEIN
                 );
 
-                if (
-                    canonicalSequenceOptional.isPresent() &&
-                    alteration.getStart() < canonicalSequenceOptional.orElseThrow().getSequence().length()
-                ) {
-                    String refRe = String.valueOf(canonicalSequenceOptional.orElseThrow().getSequence().charAt(alteration.getStart() - 1));
-                    if (!StringUtils.isEmpty(refRe)) {
-                        // only set the reference AA when the alteration happens on one position
-                        if (StringUtils.isEmpty(alteration.getRefResidues()) && alteration.getStart().equals(alteration.getEnd())) {
-                            alteration.setRefResidues(refRe);
-                        } else {
-                            // If The AA in alteration is differed from the canonical transcript, and it's not X, we give warning
-                            // X indicates "any AA"
-                            if (!refRe.equals(alteration.getRefResidues()) && !"X".equals(alteration.getRefResidues())) {
-                                alterationWithStatus.setMessage(
-                                    "The reference allele does not match with the transcript. It's supposed to be " + refRe
-                                );
-                                alterationWithStatus.setType(EntityStatusType.WARNING);
+                if (canonicalSequenceOptional.isPresent()) {
+                    String sequence = canonicalSequenceOptional.orElseThrow().getSequence();
+                    if (alteration.getStart() < sequence.length()) {
+                        String refRe = String.valueOf(sequence.charAt(alteration.getStart() - 1));
+                        if (!StringUtils.isEmpty(refRe)) {
+                            // only set the reference AA when the alteration happens on one position
+                            if (StringUtils.isEmpty(alteration.getRefResidues()) && alteration.getStart().equals(alteration.getEnd())) {
+                                alteration.setRefResidues(refRe);
+                            } else {
+                                validateReferenceResidues(alteration, sequence, alterationWithStatus);
+                                if (
+                                    alteration.getConsequence() != null &&
+                                    (MutationConsequence.INFRAME_INSERTION.name().equals(alteration.getConsequence().getTerm()) ||
+                                        MutationConsequence.INFRAME_DELETION.name().equals(alteration.getConsequence().getTerm()))
+                                ) {
+                                    alteration.setRefResidues(null);
+                                }
                             }
                         }
                     }

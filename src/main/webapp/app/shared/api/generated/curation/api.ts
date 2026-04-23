@@ -339,12 +339,6 @@ export interface AlterationAnnotationStatus {
    * @type {string}
    * @memberof AlterationAnnotationStatus
    */
-  message?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof AlterationAnnotationStatus
-   */
   type?: AlterationAnnotationStatusTypeEnum;
   /**
    *
@@ -376,6 +370,12 @@ export interface AlterationAnnotationStatus {
    * @memberof AlterationAnnotationStatus
    */
   error?: boolean;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof AlterationAnnotationStatus
+   */
+  messages?: Array<string>;
 }
 
 export const AlterationAnnotationStatusTypeEnum = {
