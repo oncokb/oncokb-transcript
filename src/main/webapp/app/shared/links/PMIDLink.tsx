@@ -1,5 +1,6 @@
 import React from 'react';
 import WithSeparator from 'react-with-separator';
+import { getPubmedSearchHref } from 'app/shared/util/pubmed';
 
 export interface IPMIDLinkProps {
   pmids: string;
@@ -13,12 +14,7 @@ export const PMIDLink: React.FunctionComponent<IPMIDLinkProps> = props => {
       {props.pmids.split(',').map(pmid => (
         <span key={pmid}>
           PMID:{' '}
-          <a
-            href={`https://pubmed.ncbi.nlm.nih.gov/?term=${pmid}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ whiteSpace: 'nowrap' }}
-          >
+          <a href={getPubmedSearchHref(pmid)} target="_blank" rel="noopener noreferrer" style={{ whiteSpace: 'nowrap' }}>
             {pmid}
           </a>
         </span>
@@ -29,7 +25,7 @@ export const PMIDLink: React.FunctionComponent<IPMIDLinkProps> = props => {
     <span>
       PMID:{' '}
       <a
-        href={`https://pubmed.ncbi.nlm.nih.gov/?term=${props.pmids.split(/[ |,]/g).join(' ')}`}
+        href={getPubmedSearchHref(props.pmids.split(/[ |,]/g).join(' '))}
         target="_blank"
         rel="noopener noreferrer"
         style={{ whiteSpace: 'nowrap' }}

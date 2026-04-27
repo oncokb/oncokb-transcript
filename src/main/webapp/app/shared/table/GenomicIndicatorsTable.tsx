@@ -8,7 +8,7 @@ import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { CellInfo } from 'react-table';
 import RealtimeDropdownInput from '../firebase/input/RealtimeDropdownInput';
-import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from '../firebase/input/RealtimeInputs';
+import { RealtimeCheckedInputGroup, RealtimeRichTextEditor } from '../firebase/input/RealtimeInputs';
 import './genomic-indicators-table.scss';
 import { DeleteSectionButton } from 'app/pages/curation/button/DeleteSectionButton';
 import DefaultBadge from '../badge/DefaultBadge';
@@ -130,7 +130,7 @@ const GenomicIndicatorsTable = ({
 
               return (
                 <>
-                  <RealtimeTextAreaInput
+                  <RealtimeRichTextEditor
                     style={{ height: '60px', marginBottom: isDuplicateName ? 0 : undefined }}
                     firebasePath={`${genomicIndicatorsPath}/${cell.original.arrayKey}/name`}
                     label=""
@@ -189,7 +189,7 @@ const GenomicIndicatorsTable = ({
             firebaseDb={firebaseDb!}
             buildCell={genomicIndicator => {
               return (
-                <RealtimeTextAreaInput
+                <RealtimeRichTextEditor
                   style={{ height: '60px' }}
                   firebasePath={`${genomicIndicatorsPath}/${cell.original.arrayKey}/description`}
                   label=""

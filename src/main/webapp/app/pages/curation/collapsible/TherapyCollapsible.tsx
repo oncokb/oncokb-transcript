@@ -1,7 +1,7 @@
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
 import { READABLE_FIELD } from 'app/config/constants/firebase';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import { RealtimeRichTextEditor } from 'app/shared/firebase/input/RealtimeInputs';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import EditIcon from 'app/shared/icons/EditIcon';
 import ModifyTherapyModal from 'app/shared/modal/ModifyTherapyModal';
@@ -129,7 +129,7 @@ function TherapyCollapsible({
         isPendingDelete={treatmentReview?.removed || false}
       >
         <TherapyDropdownGroup treatmentPath={therapyPath} />
-        <RealtimeTextAreaInput
+        <RealtimeRichTextEditor
           disabled={readOnly}
           firebasePath={`${therapyPath}/description`}
           inputClass={styles.textarea}
@@ -146,10 +146,8 @@ function TherapyCollapsible({
               })}
             />
           }
-          name="evidenceDescription"
-          parseRefs
         />
-        <RealtimeTextAreaInput
+        <RealtimeRichTextEditor
           disabled={readOnly}
           firebasePath={`${therapyPath}/short`}
           inputClass={styles.shortTextarea}
@@ -166,8 +164,6 @@ function TherapyCollapsible({
               })}
             />
           }
-          name="additionalEvidenceDescription"
-          parseRefs
         />
         <TherapyTxDescAddendumsSection
           therapyPath={therapyPath}

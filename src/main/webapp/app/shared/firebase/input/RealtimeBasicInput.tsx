@@ -1,5 +1,4 @@
 import { RADIO_OPTION_NONE } from 'app/config/constants/constants';
-import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { Review } from 'app/shared/model/firebase/firebase.model';
 import { IRootStore } from 'app/stores';
 import { default as classNames, default as classnames } from 'classnames';
@@ -58,7 +57,6 @@ export interface IRealtimeBasicInput extends React.InputHTMLAttributes<HTMLInput
   labelClass?: string;
   labelIcon?: JSX.Element;
   inputClass?: string;
-  parseRefs?: boolean;
   updateMetaData?: boolean;
   disabledMessage?: string;
   inputRef?: React.RefObject<HTMLInputElement>;
@@ -79,7 +77,6 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     id = firebasePath,
     inputClass,
     children,
-    parseRefs = false,
     updateReviewableContent,
     style,
     updateMetaData,
@@ -215,7 +212,6 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
           {inputComponent}
         </>
       )}
-      <div className="mt-2">{parseRefs && !!inputValue ? <AutoParseRefField summary={inputValue} /> : undefined}</div>
     </div>
   );
 };

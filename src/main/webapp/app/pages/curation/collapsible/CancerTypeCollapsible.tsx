@@ -12,7 +12,7 @@ import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { getLevelDropdownOptions } from 'app/shared/util/firebase/firebase-level-utils';
 import { DIAGNOSTIC_LEVELS_ORDERING, READABLE_FIELD, PROGNOSTIC_LEVELS_ORDERING } from 'app/config/constants/firebase';
-import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import { RealtimeRichTextEditor } from 'app/shared/firebase/input/RealtimeInputs';
 import RealtimeLevelDropdownInput, { LevelOfEvidenceType } from 'app/shared/firebase/input/RealtimeLevelDropdownInput';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
@@ -141,7 +141,7 @@ function CancerTypeCollapsible({
         badge={<BadgeGroup firebasePath={cancerTypePath} showDeletedBadge={cancerTypesReview?.removed || false} />}
         isPendingDelete={cancerTypesReview?.removed || false}
       >
-        <RealtimeTextAreaInput
+        <RealtimeRichTextEditor
           disabled={readOnly}
           firebasePath={`${cancerTypePath}/summary`}
           inputClass={styles.summaryTextarea}
@@ -153,9 +153,8 @@ function CancerTypeCollapsible({
               locationIdentifier={getLocationIdentifier({ mutationUuid, cancerTypesUuid, fields: [READABLE_FIELD.SUMMARY] })}
             />
           }
-          name="txSummary"
         />
-        <RealtimeTextAreaInput
+        <RealtimeRichTextEditor
           disabled={readOnly}
           firebasePath={`${cancerTypePath}/diagnosticSummary`}
           inputClass={styles.summaryTextarea}
@@ -167,9 +166,8 @@ function CancerTypeCollapsible({
               locationIdentifier={getLocationIdentifier({ mutationUuid, cancerTypesUuid, fields: [READABLE_FIELD.DIAGNOSTIC_SUMMARY] })}
             />
           }
-          name="dxSummary"
         />
-        <RealtimeTextAreaInput
+        <RealtimeRichTextEditor
           disabled={readOnly}
           firebasePath={`${cancerTypePath}/prognosticSummary`}
           inputClass={styles.summaryTextarea}
@@ -181,7 +179,6 @@ function CancerTypeCollapsible({
               locationIdentifier={getLocationIdentifier({ mutationUuid, cancerTypesUuid, fields: [READABLE_FIELD.PROGNOSTIC_SUMMARY] })}
             />
           }
-          name="pxSummary"
         />
         <Collapsible
           idPrefix={`${mutationName}-${cancerTypeName}-tx-implication`}
@@ -224,13 +221,11 @@ function CancerTypeCollapsible({
             name="diagnosticLevel"
             options={getLevelDropdownOptions(DIAGNOSTIC_LEVELS_ORDERING)}
           />
-          <RealtimeTextAreaInput
+          <RealtimeRichTextEditor
             disabled={readOnly}
             firebasePath={`${cancerTypePath}/diagnostic/description`}
             inputClass={styles.textarea}
             label="Description of Evidence"
-            name="evidenceDescription"
-            parseRefs
           />
         </Collapsible>
         <Collapsible
@@ -255,13 +250,11 @@ function CancerTypeCollapsible({
             name="prognosticLevel"
             options={getLevelDropdownOptions(PROGNOSTIC_LEVELS_ORDERING)}
           />
-          <RealtimeTextAreaInput
+          <RealtimeRichTextEditor
             disabled={readOnly}
             firebasePath={`${cancerTypePath}/prognostic/description`}
             inputClass={styles.textarea}
             label="Description of Evidence"
-            name="evidenceDescription"
-            parseRefs
           />
         </Collapsible>
       </RemovableCollapsible>

@@ -4,7 +4,7 @@ import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import Tabs from './tabs';
 import { CancerRisk } from 'app/shared/model/firebase/firebase.model';
-import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import { RealtimeRichTextEditor } from 'app/shared/firebase/input/RealtimeInputs';
 import { onValue, ref } from 'firebase/database';
 import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
 import { ALLELE_STATE } from 'app/config/constants/firebase';
@@ -45,13 +45,11 @@ function CancerRiskTabs({ cancerRiskPath, firebaseDb, textAreaClass }: ICancerRi
               </div>
             ),
             content: (
-              <RealtimeTextAreaInput
+              <RealtimeRichTextEditor
                 key={lowercaseAlleleState}
                 firebasePath={`${cancerRiskPath}/${lowercaseAlleleState}`}
                 inputClass={textAreaClass ?? undefined}
                 label=""
-                name={lowercaseAlleleState}
-                parseRefs
               />
             ),
           };
