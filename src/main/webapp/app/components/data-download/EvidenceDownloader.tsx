@@ -418,11 +418,8 @@ const groupedDropdownOptions = (isGermline: boolean): GroupBase<OptionType>[] =>
     groupedOptions.push({ label: 'Genomic Indicator Level', options: genomicIndicatorOptions });
   }
 
-  const tumorOptions = isGermline ? tumorLevelOptions.map(option => ({ ...option, isDisabled: true })) : tumorLevelOptions;
-  const treatmentOptions = isGermline ? treatmentLevelOptions.map(option => ({ ...option, isDisabled: true })) : treatmentLevelOptions;
-
-  groupedOptions.push({ label: isGermline ? 'Tumor Level (Coming soon)' : 'Tumor Level', options: tumorOptions });
-  groupedOptions.push({ label: isGermline ? 'Treatment Level (Coming soon)' : 'Treatment Level', options: treatmentOptions });
+  groupedOptions.push({ label: 'Tumor Level', options: tumorLevelOptions });
+  groupedOptions.push({ label: 'Treatment Level', options: treatmentLevelOptions });
 
   return groupedOptions;
 };
@@ -462,11 +459,7 @@ const EvidenceDownloader = () => {
     if (option) {
       const isGermline = option.value === 'germline';
       setSelectedGeneticType(option);
-      if (
-        activeCategory === 'mutation' ||
-        (isGermline && (activeCategory === 'tumor' || activeCategory === 'treatment')) ||
-        (!isGermline && activeCategory === 'genomicIndicator')
-      ) {
+      if (activeCategory === 'mutation' || (!isGermline && activeCategory === 'genomicIndicator')) {
         setSelectedOptions([]);
         setActiveCategory(null);
       }
