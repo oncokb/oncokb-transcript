@@ -265,8 +265,8 @@ const CATEGORY_CONFIGS: {
   treatment: {
     levelEvidenceMap: TreatmentLevelEvidence,
     fileName: 'treatment-level-evidences.tsv',
-    groupingFields: ['hugoSymbol', 'alteration', 'tumorType', 'evidenceId'],
-    outputGroupingFields: ['hugoSymbol', 'alteration', 'tumorType'],
+    groupingFields: ['hugoSymbol', 'alteration', 'tumorType', 'drugs', 'evidenceId'],
+    outputGroupingFields: ['hugoSymbol', 'alteration', 'tumorType', 'drugs'],
   },
 };
 
