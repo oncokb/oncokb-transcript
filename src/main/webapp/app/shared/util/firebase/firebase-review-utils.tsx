@@ -286,6 +286,18 @@ export const getCompactReviewInfo = <T extends BaseReviewLevel>(review: T): T =>
   return childReview as unknown as T;
 };
 
+export const compactReviewTree = (review: BaseReviewLevel): void => {
+  if (!review.children || review.children.length === 0) {
+    return;
+  }
+
+  review.children = review.children.map(childReview => {
+    const newChild = getCompactReviewInfo(childReview);
+    compactReviewTree(newChild);
+    return newChild;
+  });
+};
+
 export const addSectionTitlePrefix = (prefix: ReviewSectionTitlePrefix, title: string) => {
   return `${prefix}: ${title}`;
 };

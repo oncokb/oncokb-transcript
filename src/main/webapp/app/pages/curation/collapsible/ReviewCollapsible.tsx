@@ -4,7 +4,6 @@ import {
   BaseReviewLevel,
   MultiSelectionReviewLevel,
   ReviewLevel,
-  getCompactReviewInfo,
   isCreateReview,
   isDeleteReview,
   reviewLevelSortMethod,
@@ -25,7 +24,6 @@ import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-re
 import { DrugCollection, Gene } from 'app/shared/model/firebase/firebase.model';
 import { IDrug } from 'app/shared/model/drug.model';
 import { ReviewCollapsibleTitle } from './ReviewCollapsibleTitle';
-import { Review } from 'app/shared/model/firebase/firebase.model';
 
 export enum ReviewType {
   CREATE,
@@ -106,11 +104,6 @@ export const ReviewCollapsible = ({
   const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
 
   useEffect(() => {
-    if (baseReviewLevel.hasChildren()) {
-      baseReviewLevel.children.forEach(
-        (value, index) => (baseReviewLevel.children[index] = getCompactReviewInfo(value as BaseReviewLevel & Review)),
-      );
-    }
     setRootReview(baseReviewLevel);
     setReviewChildren(baseReviewLevel.children ?? []);
   }, [baseReviewLevel]);
@@ -159,7 +152,7 @@ export const ReviewCollapsible = ({
       if (parentDelete) {
         parentDelete(rootReview.id, action, allChildrenPending);
       } else {
-        rootDelete?.(allChildrenPending);
+        setReviewChildren(newReviewChildren);
       }
     } else {
       setReviewChildren(newReviewChildren);
@@ -387,7 +380,7 @@ export const ReviewCollapsible = ({
   };
 
   const getCollapsibleBody = () => {
-    const children = rootReview.children;
+    const children = reviewChildren;
 
     if (baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
       return getMultiSelectionReviewContent();
@@ -397,7 +390,7 @@ export const ReviewCollapsible = ({
         // The firebase gene review service should automatically remove all nested reviews.
         return undefined;
       }
-      return rootReview.children?.sort(reviewLevelSortMethod)?.map(childReview => (
+      return [...children].sort(reviewLevelSortMethod).map(childReview => (
         <ReviewCollapsible
           key={childReview.titleParts.join('/')}
           isGermline={isGermline}

@@ -18,6 +18,7 @@ import {
   showAsFirebaseTextArea,
   ReviewSectionTitlePrefix,
   addSectionTitlePrefix,
+  compactReviewTree,
 } from './firebase-review-utils';
 import {
   CancerTypeList,
@@ -660,6 +661,54 @@ describe('Firebase Review Utils', () => {
 
       removeLeafNodes(parentReview);
       expect(parentReview.hasChildren()).toBeFalsy();
+    });
+  });
+
+  describe('compactReviewTree', () => {
+    const buildReviewLevel = (titleParts: string[], valuePath: string) =>
+      new ReviewLevel({
+        titleParts,
+        valuePath,
+        historyLocation: titleParts.join(', '),
+        currentVal: 'new value',
+        reviewInfo: {
+          reviewPath: `${valuePath}_review`,
+          review: new Review('User', 'old value'),
+          lastReviewedString: 'old value',
+          uuid: generateUuid(),
+        },
+        historyData: {
+          oldState: 'old value',
+          newState: 'new value',
+        },
+        historyInfo: {},
+      });
+
+    it('should compact single-child branches at every tree level', () => {
+      const rootReview = new MetaReviewLevel({ titleParts: [''], valuePath: '', historyLocation: '', historyInfo: {} });
+      const parentWithSiblings = new MetaReviewLevel({
+        titleParts: ['Mutation'],
+        valuePath: 'mutations/0',
+        historyLocation: 'Mutation',
+        historyInfo: {},
+      });
+      const singleChildBranch = new MetaReviewLevel({
+        titleParts: ['Summary'],
+        valuePath: 'mutations/0/summary',
+        historyLocation: 'Summary',
+        historyInfo: {},
+      });
+      const reviewLeaf = buildReviewLevel(['Description'], 'mutations/0/summary/description');
+      singleChildBranch.addChild(reviewLeaf);
+      parentWithSiblings.addChild(singleChildBranch);
+      parentWithSiblings.addChild(buildReviewLevel(['Oncogenicity'], 'mutations/0/oncogenicity'));
+      rootReview.addChild(parentWithSiblings);
+
+      compactReviewTree(rootReview);
+
+      const compactedParent = rootReview.children?.[0] as MetaReviewLevel;
+      expect(compactedParent.titleParts).toEqual(['Mutation']);
+      expect(compactedParent.children?.map(child => child.titleParts)).toEqual([['Summary', 'Description'], ['Oncogenicity']]);
     });
   });
 
