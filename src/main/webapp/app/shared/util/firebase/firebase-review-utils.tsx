@@ -15,9 +15,11 @@ import {
   Treatment,
   Tumor,
   TumorList,
+  TxDescAddendum,
+  TxDescAddendumList,
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
-import { generateUuid, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
+import { generateUuid, getCancerTypeName, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
 import { areCancerTypeArraysEqual, getMutationName, getTxName } from './firebase-utils';
 import { FB_COLLECTION, READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -27,6 +29,7 @@ import { extractArrayPath } from './firebase-path-utils';
 export enum ReviewSectionTitlePrefix {
   CANCER_TYPE = 'Cancer Type',
   THERAPY = 'Therapy',
+  TX_ADDENDUM = 'Tumor Type Specific Drug Description',
 }
 
 export type BaseReviewLevelParams = {
@@ -339,6 +342,11 @@ const buildHistoryLocation = (parentReview: BaseReviewLevel, readablePath: strin
   return [parentHistory, ...readablePath.split('/')].filter(part => part !== '').join(', ');
 };
 
+const getTxDescAddendumTitle = (addendum: TxDescAddendum, addendumKey: string) => {
+  const addendumCancerType = Object.values(addendum?.cancer_type ?? {})[0];
+  return addendumCancerType ? getCancerTypeName(addendumCancerType) : addendumKey;
+};
+
 const isNestedUnderCreateOrDelete = (parentReview: BaseReviewLevel) => {
   if (parentReview.reviewLevelType === ReviewLevelType.META) {
     return parentReview.nestedUnderCreateOrDelete;
@@ -406,6 +414,7 @@ export const isIgnoredKey = (key: string) => {
   }
   if (
     key.startsWith('name') ||
+    key.startsWith('cancer_type') ||
     key.startsWith('cancerTypes') ||
     key.startsWith('excludedCancerTypes') ||
     key.startsWith('excludedRCTs') ||
@@ -417,7 +426,7 @@ export const isIgnoredKey = (key: string) => {
 };
 
 export const findReviewRecursive = (
-  currObj: Gene | GenomicIndicator | Mutation | Tumor | Treatment,
+  currObj: Gene | GenomicIndicator | Mutation | Tumor | Treatment | TxDescAddendum,
   currValuePath: string,
   uuids: string[],
   parentReview: BaseReviewLevel,
@@ -481,6 +490,19 @@ export const findReviewRecursive = (
           }
           removeLeafNodes(parentReview);
         }
+        continue;
+      }
+
+      if (key === 'description_addendums') {
+        const txDescAddendums = value as TxDescAddendumList;
+        const txDescAddendumsPath = joinPathParts(currValuePath, key);
+
+        Object.entries(txDescAddendums ?? {}).forEach(([addendumKey, addendum]) => {
+          const addendumPath = joinPathParts(txDescAddendumsPath, addendumKey);
+          const addendumReview = buildTxDescAddendumReview(addendum, addendumPath, parentReview, uuids, editorReviewMap);
+          parentReview.addChild(addendumReview);
+          removeLeafNodes(parentReview);
+        });
         continue;
       }
 
@@ -708,8 +730,7 @@ export const buildCancerTypeNameReview = (
       reviewPath: `${excludedCancerTypesPath}_review`,
       review: excludedCTReview!,
       lastReviewedString: undefined,
-      // TODO(Calvin): this needs to have a value
-      uuid: '',
+      uuid: tumorNameUuid,
     },
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
@@ -721,6 +742,94 @@ export const buildCancerTypeNameReview = (
 
   if (!nameUpdated) {
     return getCompactReviewInfo(metaReview);
+  }
+
+  return metaReview;
+};
+
+const getTxDescAddendumCancerTypeName = (cancerTypeList?: CancerTypeList) => {
+  const addendumCancerType = Object.values(cancerTypeList ?? {})[0];
+  return addendumCancerType ? getCancerTypeName(addendumCancerType) : '';
+};
+
+export const buildTxDescAddendumReview = (
+  addendum: TxDescAddendum,
+  currValuePath: string,
+  parentReview: BaseReviewLevel,
+  uuids: string[],
+  editorReviewMap: EditorReviewMap,
+) => {
+  const currentCancerTypeName = getTxDescAddendumCancerTypeName(addendum.cancer_type);
+  const lastReviewedCancerTypeList = addendum.cancer_type_review?.lastReviewed as CancerTypeList | undefined;
+  const lastReviewedCancerTypeName = getTxDescAddendumCancerTypeName(lastReviewedCancerTypeList);
+
+  const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
+  historyInfo.fields = [...(parentReview.historyInfo.fields || []), READABLE_FIELD.NAME];
+
+  const metaReview = new MetaReviewLevel({
+    titleParts: [addSectionTitlePrefix(ReviewSectionTitlePrefix.TX_ADDENDUM, currentCancerTypeName)],
+    valuePath: currValuePath,
+    historyLocation: buildHistoryLocation(parentReview, currentCancerTypeName),
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    historyInfo,
+  });
+
+  if (!addendum.cancer_type_review && !addendum.description_review) {
+    return metaReview;
+  }
+
+  let nameUpdated = false;
+  let oldState, newState;
+  let oldTumorName;
+  if (addendum.cancer_type_review?.removed) {
+    oldState = addendum;
+  } else if (addendum.cancer_type_review?.lastReviewed || addendum.cancer_type_review?.initialUpdate) {
+    nameUpdated = true;
+    oldState = oldTumorName = lastReviewedCancerTypeName;
+    newState = currentCancerTypeName;
+  } else {
+    return metaReview;
+  }
+
+  const cancerTypeNameReview = new ReviewLevel({
+    titleParts: [nameUpdated ? READABLE_FIELD.NAME : ''],
+    valuePath: joinPathParts(currValuePath, 'cancer_type_review'),
+    currentVal: currentCancerTypeName,
+    historyLocation: buildHistoryLocation(parentReview, READABLE_FIELD.NAME),
+    reviewInfo: {
+      reviewPath: joinPathParts(currValuePath, 'cancer_type_review'),
+      review: addendum.cancer_type_review,
+      lastReviewedString: oldTumorName,
+      uuid: addendum.cancer_type_uuid,
+    },
+    historyData: {
+      oldState,
+      newState,
+    },
+    historyInfo,
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+  });
+
+  metaReview.addChild(cancerTypeNameReview);
+  _.pull(uuids, addendum.cancer_type_uuid);
+  editorReviewMap.add(cancerTypeNameReview);
+
+  if (addendum.cancer_type_review?.removed) {
+    return metaReview;
+  }
+
+  if (addendum.description_review) {
+    const descriptionReview = buildStringReview(
+      addendum,
+      currValuePath,
+      getRelevantKeysFromUuidKey('description_uuid'),
+      metaReview,
+      uuids,
+      editorReviewMap,
+    );
+    metaReview.addChild(descriptionReview);
+    _.pull(uuids, addendum.description_uuid);
+    editorReviewMap.add(descriptionReview);
   }
 
   return metaReview;
@@ -787,8 +896,9 @@ export const buildObjectReview = (
   parentReview: BaseReviewLevel,
   uuids: string[],
   editorReviewMap: EditorReviewMap,
+  readableKeyOverride?: string,
 ) => {
-  const readableKey = makeFirebaseKeysReadable([key])[0];
+  const readableKey = readableKeyOverride ?? makeFirebaseKeysReadable([key])[0];
 
   const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
   historyInfo.fields = [...(parentReview.historyInfo.fields || []), readableKey as READABLE_FIELD];

@@ -127,7 +127,6 @@ const CancerTypeSelect = <IsMulti extends boolean>(props: ICancerTypeSelectProps
       }
       cacheUniqs={[props.value]}
       placeholder="Select cancer type"
-      isClearable
     />
   );
 };

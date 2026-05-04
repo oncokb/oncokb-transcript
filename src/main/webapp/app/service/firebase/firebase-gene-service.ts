@@ -11,6 +11,7 @@ import {
   TX_LEVELS,
   Treatment,
   Tumor,
+  TxDescAddendum,
   Vus,
   AssociationVariantList,
 } from 'app/shared/model/firebase/firebase.model';
@@ -239,7 +240,7 @@ export class FirebaseGeneService {
 
   deleteSection = async (
     path: string,
-    sectionObject: Mutation | Tumor | Treatment | GenomicIndicator,
+    sectionObject: Mutation | Tumor | Treatment | GenomicIndicator | TxDescAddendum,
     review: Review | null | undefined,
     uuid: string,
     isDemotedToVus = false,
@@ -421,6 +422,55 @@ export class FirebaseGeneService {
       }
       return this.firebaseRepository.update('/', updateObject);
     }
+  };
+
+  addTxDescAddendum = async (therapyPath: string) => {
+    const txDescAddendum = new TxDescAddendum();
+    txDescAddendum.cancer_type_review = new Review(this.authStore.fullName, undefined, undefined, undefined, true);
+
+    return this.firebaseRepository.push(`${therapyPath}/description_addendums`, txDescAddendum);
+  };
+
+  deleteTxDescAddendum = async (therapyPath: string, addendumKey: string, addendum: TxDescAddendum) => {
+    const addendumPath = `${therapyPath}/description_addendums/${addendumKey}`;
+    const removeWithoutReview = addendum?.cancer_type_review?.initialUpdate;
+    const pathDetails = parseFirebaseGenePath(addendumPath);
+    const hugoSymbol = pathDetails?.hugoSymbol;
+    const isGermline = addendumPath.toLowerCase().includes(GERMLINE_PATH);
+
+    if (!hugoSymbol) {
+      throw new Error('Cannot delete tumor type specific description addendum');
+    }
+
+    let updateObject = {};
+    if (removeWithoutReview) {
+      const { firebaseArrayPath, deleteArrayKey } = extractArrayPath(`${addendumPath}/cancer_type`);
+      const deleteArrayReturnVal = await this.firebaseRepository.deleteFromArray(firebaseArrayPath, [deleteArrayKey], false);
+      if (deleteArrayReturnVal !== undefined) {
+        updateObject = { ...updateObject, ...deleteArrayReturnVal.updateObject };
+      }
+
+      const uuidsToDelete: Record<string, null> = {};
+      if (addendum.cancer_type_uuid) {
+        uuidsToDelete[addendum.cancer_type_uuid] = null;
+      }
+      if (addendum.description_uuid) {
+        uuidsToDelete[addendum.description_uuid] = null;
+      }
+
+      updateObject = {
+        ...updateObject,
+        ...this.firebaseMetaService.getUpdateObject(hugoSymbol, isGermline, uuidsToDelete),
+      };
+    } else {
+      const review = new Review(this.authStore.fullName, undefined, undefined, true);
+      updateObject = {
+        [`${addendumPath}/cancer_type_review`]: review,
+        ...this.firebaseMetaService.getUpdateObject(hugoSymbol, isGermline, { [addendum.cancer_type_uuid]: true }),
+      };
+    }
+
+    await this.firebaseRepository.update('/', updateObject);
   };
 
   updateMutationName = async (mutationPath: string, allMutationsPath: string, currentMutationName: string, mutation: Mutation) => {
