@@ -20,7 +20,7 @@ import {
   SIMPLE_CONFIRM_MODAL_CONTENT_ID,
   VUS_TABLE_ID,
 } from '../../../main/webapp/app/config/constants/html-id.ts';
-import { createMutationOnCurationPage, getRichTextEditor } from '../shared/utils.ts';
+import { createMutationOnCurationPage, getRichTextEditor, getRichTextEditorBySuffix } from '../shared/utils.ts';
 
 describe('Screenshot Tests', () => {
   let adminApp: admin.app.App;
@@ -241,7 +241,7 @@ describe('Screenshot Tests', () => {
     // Add content to newly created mutation.
     const oncogenicYesRadio = await $("input[id$='/mutation_effect/oncogenic-Yes']");
     await oncogenicYesRadio.click();
-    const mutationEffectDesc = await getRichTextEditor('Genes/EMPTYGENE/mutations/0/mutation_effect/description');
+    const mutationEffectDesc = await getRichTextEditorBySuffix('/mutation_effect/description');
     await mutationEffectDesc.click();
     await mutationEffectDesc.addValue('Sample description');
 
