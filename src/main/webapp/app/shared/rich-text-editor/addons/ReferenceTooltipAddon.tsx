@@ -33,6 +33,8 @@ interface NctReferenceTooltipState {
 interface PmidGroupTooltipState {
   pmids: string[];
   el: HTMLElement;
+  top: number;
+  left: number;
 }
 
 type LinkTooltipState = GenericLinkTooltipState | AbstractReferenceTooltipState | NctReferenceTooltipState;
@@ -107,8 +109,9 @@ export const ReferenceTooltipAddon: React.FC = () => {
   const showPmidGroupTooltip = (el: HTMLElement) => {
     clearHideTimer();
     const pmids: string[] = el.dataset.pmids ? JSON.parse(el.dataset.pmids) : [];
+    const rect = el.getBoundingClientRect();
     setLinkTooltip(null);
-    setPmidGroupTooltip({ pmids, el });
+    setPmidGroupTooltip({ pmids, el, top: rect.bottom, left: rect.left });
   };
 
   const showReferenceNodeTooltip = (el: HTMLElement) => {
@@ -275,6 +278,16 @@ export const ReferenceTooltipAddon: React.FC = () => {
         return true;
       })
       .run();
+    // TipTap replaces the DOM element when attributes change. Re-find the new element
+    // so future updates use a live reference, and cancel any hide timer triggered by
+    // the mouseleave that fires when the old element is removed.
+    requestAnimationFrame(() => {
+      clearHideTimer();
+      const newEl = editor.view.nodeDOM(pos);
+      if (newEl instanceof HTMLElement) {
+        setPmidGroupTooltip(prev => (prev ? { ...prev, el: newEl } : null));
+      }
+    });
   };
 
   const addPmidToGroup = () => {
@@ -604,7 +617,7 @@ export const ReferenceTooltipAddon: React.FC = () => {
         <div
           ref={pmidGroupTooltipRef}
           className={styles.linkTooltip}
-          style={{ top: pmidGroupTooltip.el.getBoundingClientRect().bottom, left: pmidGroupTooltip.el.getBoundingClientRect().left }}
+          style={{ top: pmidGroupTooltip.top, left: pmidGroupTooltip.left }}
           onMouseEnter={keepTooltipOpen}
           onMouseMove={keepTooltipOpen}
           onMouseLeave={scheduleHide}
