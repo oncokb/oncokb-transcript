@@ -1,5 +1,9 @@
 import React, { createRef, MouseEvent, useRef } from 'react';
 import RealtimeBasicInput, { IRealtimeBasicInput, RealtimeInputType } from './RealtimeBasicInput';
+import RealtimeRichTextEditor, { IRealtimeRichTextEditor } from './RealtimeRichTextEditor';
+
+export { RealtimeRichTextEditor };
+export type { IRealtimeRichTextEditor };
 
 /**
  * Text inputs

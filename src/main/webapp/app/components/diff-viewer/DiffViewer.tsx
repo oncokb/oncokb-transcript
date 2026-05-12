@@ -4,7 +4,7 @@ import Tabs from 'app/components/tabs/tabs';
 import { Input } from 'reactstrap';
 import classnames from 'classnames';
 import * as styles from './style.module.scss';
-import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import { RealtimeRichTextEditor } from 'app/shared/firebase/input/RealtimeInputs';
 import { Database, onValue, ref } from 'firebase/database';
 import { Unsubscribe } from 'firebase/database';
 import { useTextareaAutoHeight } from 'app/hooks/useTextareaAutoHeight';
@@ -70,9 +70,7 @@ const TabsDiff = (props: DiffViewerProps) => {
           content: (
             <div>
               {typeof props.new === 'string' && <AutoSizeTextarea value={props.new} className={styles.disabledText} />}
-              {typeof props.new === 'object' && (
-                <RealtimeTextAreaInput firebasePath={props.new.path} label="" name="description" parseRefs updateMetaData={false} />
-              )}
+              {typeof props.new === 'object' && <RealtimeRichTextEditor firebasePath={props.new.path} label="" updateMetaData={false} />}
               <div className={classnames('mb-2', styles.diff)}>
                 <div className={'fw-bold'}>Difference comparing to the old</div>
                 <div dangerouslySetInnerHTML={{ __html: diffHtml }}></div>

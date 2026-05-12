@@ -13,7 +13,7 @@ import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
 import CurationHistoryTab from 'app/components/tabs/CurationHistoryTab';
 import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
 import Tabs from 'app/components/tabs/tabs';
-import { LabelsRefMap, RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import { LabelsRefMap, RealtimeCheckedInputGroup, RealtimeRichTextEditor } from 'app/shared/firebase/input/RealtimeInputs';
 import GeneHeader from './header/GeneHeader';
 import VusTable from 'app/shared/table/VusTable';
 import * as styles from './styles.module.scss';
@@ -230,12 +230,11 @@ export const CurationPage = (props: ICurationPageProps) => {
                 onMouseDown={onGeneTypeClick}
                 labelOnClick={onGeneTypeClick}
               />
-              <RealtimeTextAreaInput
+              <RealtimeRichTextEditor
                 disabled={props.readOnly}
                 firebasePath={`${firebaseGenePath}/summary`}
                 inputClass={styles.textarea}
                 label="Gene Summary"
-                name="geneSummary"
                 labelIcon={
                   <GeneRealtimeComponentHeader
                     tooltip={
@@ -253,13 +252,11 @@ export const CurationPage = (props: ICurationPageProps) => {
           </Row>
           <Row className="mb-3">
             <Col>
-              <RealtimeTextAreaInput
+              <RealtimeRichTextEditor
                 disabled={props.readOnly || isGermline}
                 firebasePath={`${somaticFirebaseGenePath}/background`}
                 inputClass={styles.textarea}
                 label="Background"
-                name="geneBackground"
-                parseRefs
                 labelIcon={
                   <GeneRealtimeComponentHeader
                     tooltip={

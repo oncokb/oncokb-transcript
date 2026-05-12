@@ -1,0 +1,348 @@
+@import '../../variables.scss';
+
+.editorWrapper {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: white;
+  min-height: 60px;
+
+  &.editable {
+    background-color: $text-box-bg;
+  }
+
+  &.invalid {
+    border-color: $danger;
+  }
+}
+
+.toolbarArea {
+  position: relative;
+  border-bottom: 1px solid #ced4da;
+  border-radius: 4px 4px 0 0;
+  background-color: #fff;
+  overflow: visible;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 4px 6px;
+}
+
+.toolbarBtn {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 1px 6px;
+  line-height: 1.4;
+  color: #495057;
+
+  &:hover {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+  }
+
+  &.active {
+    background-color: #dee2e6;
+    border-color: #adb5bd;
+  }
+}
+
+.toolbarItem {
+  position: relative;
+  display: inline-flex;
+}
+
+.toolbarPopover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  z-index: 1050;
+  width: max-content;
+  min-width: 240px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.refPanel {
+  padding: 8px 8px 10px;
+  border-top: 1px solid #ced4da;
+}
+
+.refTabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.refTab {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 2px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #495057;
+
+  &:hover {
+    background-color: #e9ecef;
+  }
+
+  &.active {
+    background-color: #dee2e6;
+    border-color: #adb5bd;
+    font-weight: 500;
+  }
+}
+
+.refForm {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.refInput {
+  flex: 1;
+  min-width: 140px;
+  font: inherit;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  outline: none;
+
+  &:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+  }
+}
+
+.refInsertBtn {
+  padding: 2px 12px;
+  border: 1px solid #0d6efd;
+  border-radius: 3px;
+  background-color: #0d6efd;
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: #0b5ed7;
+    border-color: #0b5ed7;
+  }
+}
+
+.linkTooltip {
+  position: fixed;
+  z-index: 1050;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  padding: 8px 12px;
+  min-width: 0;
+  max-width: 500px;
+}
+
+.linkTooltipContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.linkUrl {
+  color: #0d6efd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 360px;
+}
+
+.linkActions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.linkActionBtn {
+  position: relative;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 2px 5px;
+  cursor: pointer;
+  color: #495057;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+  }
+
+  &[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 1052;
+  }
+
+  &[data-tooltip]:hover::after {
+    opacity: 1;
+  }
+}
+
+.linkActionBtnDanger {
+  &:hover {
+    color: #dc3545;
+    background-color: #fff5f5;
+    border-color: #f5c2c7;
+  }
+}
+
+.linkEditForm {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.linkEditFormStack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 260px;
+}
+
+.linkEditFormActions {
+  display: flex;
+  gap: 5px;
+  justify-content: flex-end;
+}
+
+.linkEditInput {
+  flex: 1;
+  min-width: 180px;
+  padding: 2px 6px;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  outline: none;
+
+  &:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+  }
+}
+
+.linkEditSaveBtn {
+  padding: 2px 8px;
+  border: 1px solid #0d6efd;
+  border-radius: 3px;
+  background-color: #0d6efd;
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: #0b5ed7;
+  }
+}
+
+.linkEditCancelBtn {
+  padding: 2px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  background: none;
+  color: #495057;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: #e9ecef;
+  }
+}
+
+.pmidList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.pmidRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pmidLink {
+  color: #0d6efd;
+  text-decoration: none;
+  flex: 1;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.addPmidForm {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding-top: 6px;
+  border-top: 1px solid #ced4da;
+}
+
+:global([data-pmid-group]) {
+  color: var(--bs-link-color);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--bs-link-hover-color);
+    text-decoration: underline;
+  }
+}
+
+.editorContent {
+  padding: 6px 10px;
+  min-height: 40px;
+
+  :global(.ProseMirror) {
+    outline: none;
+    min-height: 30px;
+
+    p {
+      margin-bottom: 0;
+    }
+
+    ul,
+    ol {
+      padding-left: 1.25rem;
+      margin-bottom: 0;
+    }
+
+    p.is-editor-empty:first-child::before {
+      content: attr(data-placeholder);
+      color: #adb5bd;
+      pointer-events: none;
+      float: left;
+      height: 0;
+    }
+  }
+}
