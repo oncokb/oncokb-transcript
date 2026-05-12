@@ -5,7 +5,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import axiosInstance from 'app/shared/api/axiosInstance';
 import { cancerTypeClient } from 'app/shared/api/clients';
 import { CancerType as ApiCancerType, RelevantCancerTypeQuery } from 'app/shared/api/generated/curation';
-import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import { RealtimeRichTextEditor } from 'app/shared/firebase/input/RealtimeInputs';
 import ActionIcon from 'app/shared/icons/ActionIcon';
 import { CancerType, CancerTypeList, TxDescAddendum, TxDescAddendumList } from 'app/shared/model/firebase/firebase.model';
 import CancerTypeSelect, { CancerTypeSelectOption } from 'app/shared/select/CancerTypeSelect';
@@ -371,15 +371,13 @@ function TherapyTxDescAddendumsSection({
                   />
                 )}
               </div>
-              <RealtimeTextAreaInput
+              <RealtimeRichTextEditor
                 id={`${treatmentUuid}-tumor-type-specific-description-input-${addendumKey}`}
                 disabled={!!readOnly || isPendingDelete || !hasSelectedCancerType}
                 disabledMessage={!hasSelectedCancerType ? 'Select cancer type first' : undefined}
                 firebasePath={`${therapyPath}/description_addendums/${addendumKey}/description`}
                 inputClass={styles.textarea}
                 label="Description"
-                name={`tumorTypeSpecificEvidenceDescription-${addendumKey}`}
-                parseRefs
               />
             </CardBody>
           </Card>
