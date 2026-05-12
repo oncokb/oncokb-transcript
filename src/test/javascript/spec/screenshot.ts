@@ -20,7 +20,7 @@ import {
   SIMPLE_CONFIRM_MODAL_CONTENT_ID,
   VUS_TABLE_ID,
 } from '../../../main/webapp/app/config/constants/html-id.ts';
-import { createMutationOnCurationPage } from '../shared/utils.ts';
+import { createMutationOnCurationPage, getRichTextEditor } from '../shared/utils.ts';
 
 describe('Screenshot Tests', () => {
   let adminApp: admin.app.App;
@@ -210,9 +210,9 @@ describe('Screenshot Tests', () => {
   it('should compare updated gene summary on review page', async () => {
     await browser.url(`${BASE_URL}/curation/TP53/somatic`);
 
-    const mutationEffectDesc = await $("textarea[id='Genes/TP53/summary']");
-    await mutationEffectDesc.waitForDisplayed();
-    await mutationEffectDesc.setValue('TP53 is the most frequently mutated gene in cancer. Additional text.');
+    const geneSummaryEditor = await getRichTextEditor('Genes/TP53/summary');
+    await geneSummaryEditor.click();
+    await geneSummaryEditor.addValue(' Additional text.');
 
     // Go to review page to compare collapsible
     const reviewButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_BUTTON_ID}"]`);
@@ -235,14 +235,15 @@ describe('Screenshot Tests', () => {
     await addMutationButton.click();
 
     // Add a new mutation
-    createMutationOnCurationPage(mutation);
+    await createMutationOnCurationPage(mutation);
 
     // After mutation created, mutation collapsible should be opened.
     // Add content to newly created mutation.
     const oncogenicYesRadio = await $("input[id$='/mutation_effect/oncogenic-Yes']");
     await oncogenicYesRadio.click();
-    const mutationEffectDesc = await $$("textarea[id$='/mutation_effect/description']");
-    await mutationEffectDesc[0].addValue('Sample description');
+    const mutationEffectDesc = await getRichTextEditor('Genes/EMPTYGENE/mutations/0/mutation_effect/description');
+    await mutationEffectDesc.click();
+    await mutationEffectDesc.addValue('Sample description');
 
     // Go to review page to compare collapsible
     const reviewButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_BUTTON_ID}"]`);

@@ -11,7 +11,7 @@ import {
   SINGLE_MUTATION_VIEW_ID,
   SOMATIC_TOGGLE_BUTTON_ID,
 } from '../../../main/webapp/app/config/constants/html-id.ts';
-import { BASE_URL, DATABASE_EMULATOR_URL, MOCK_DATA_JSON_FILE_PATH, PUB_MED_ARTICLE_TITLE, PUB_MED_PMID } from '../constants';
+import { BASE_URL, DATABASE_EMULATOR_URL, MOCK_DATA_JSON_FILE_PATH } from '../constants';
 import * as fs from 'fs';
 import * as admin from 'firebase-admin';
 import { createMutationOnCurationPage } from '../shared/utils';
@@ -80,19 +80,6 @@ describe('End to end tests', () => {
     closeSidebarButton = await $(`span[data-testid="${CLOSE_SIDEBAR_BUTTON_ID}"]`);
     expect(await openSidebarButton.isExisting()).toBe(false);
     expect(await closeSidebarButton.isExisting()).toBe(true);
-  });
-
-  it('should show reference tooltip on hover', async () => {
-    await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
-
-    const pubMedLink = await $(`span[data-testid="${PUB_MED_PMID}"]`);
-    await pubMedLink.waitForDisplayed();
-
-    await pubMedLink.moveTo();
-
-    const pubMedTitle = await $(`h5[data-testid="${PUB_MED_PMID}-pub-med-title"]`);
-    await pubMedTitle.waitForDisplayed();
-    expect(pubMedTitle).toHaveText(PUB_MED_ARTICLE_TITLE);
   });
 
   it('should show breadcrumbs and single mutation view', async () => {

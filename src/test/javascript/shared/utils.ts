@@ -13,3 +13,9 @@ export const createMutationOnCurationPage = async (mutationName: string) => {
 
   return { mutationNameInput, addMutationModal, modalConfirmBtn };
 };
+
+export const getRichTextEditor = async (id: string) => {
+  const editor = await $(`div[id='${id}'] [contenteditable='true'], div[id='${id}'][contenteditable='true']`);
+  await editor.waitForDisplayed();
+  return editor;
+};
