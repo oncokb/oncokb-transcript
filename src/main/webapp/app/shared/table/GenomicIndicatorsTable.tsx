@@ -1,14 +1,14 @@
-import { ALLELE_STATE, INHERITANCE_MECHANISM_OPTIONS, PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
-import { GenomicIndicator, GenomicIndicatorList, Mutation, MutationList, Review } from 'app/shared/model/firebase/firebase.model';
+import { INHERITANCE_MECHANISM_OPTIONS } from 'app/config/constants/firebase';
+import { GenomicIndicator, GenomicIndicatorList, MutationList, Review } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { FilterableColumn } from 'app/shared/table/OncoKBTable';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { Database, Unsubscribe, onValue, ref, update } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
-import { CellInfo } from 'react-table';
 import RealtimeDropdownInput from '../firebase/input/RealtimeDropdownInput';
-import { RealtimeCheckedInputGroup, RealtimeRichTextEditor } from '../firebase/input/RealtimeInputs';
+import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from '../firebase/input/RealtimeInputs';
+import RealtimeRichTextEditor from '../firebase/input/RealtimeRichTextEditor';
 import './genomic-indicators-table.scss';
 import { DeleteSectionButton } from 'app/pages/curation/button/DeleteSectionButton';
 import DefaultBadge from '../badge/DefaultBadge';
@@ -130,7 +130,7 @@ const GenomicIndicatorsTable = ({
 
               return (
                 <>
-                  <RealtimeRichTextEditor
+                  <RealtimeTextAreaInput
                     style={{ height: '60px', marginBottom: isDuplicateName ? 0 : undefined }}
                     firebasePath={`${genomicIndicatorsPath}/${cell.original.arrayKey}/name`}
                     label=""

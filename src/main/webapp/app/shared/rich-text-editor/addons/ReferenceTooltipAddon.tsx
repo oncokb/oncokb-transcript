@@ -45,6 +45,7 @@ export const ReferenceTooltipAddon: React.FC = () => {
   const pmidGroupTooltipRef = useRef<HTMLDivElement>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isEditingLinkRef = useRef(false);
+  const isMouseDownRef = useRef(false);
 
   const [linkTooltip, setLinkTooltip] = useState<LinkTooltipState | null>(null);
   const [isEditingLink, setIsEditingLink] = useState(false);
@@ -144,8 +145,7 @@ export const ReferenceTooltipAddon: React.FC = () => {
     const shell = editorWrapperRef.current;
     if (!shell || !editor) return;
 
-    const handleMouseOver = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
+    const showTooltipForTarget = (target: HTMLElement) => {
       if ('pmidGroup' in target.dataset) {
         showPmidGroupTooltip(target);
         return;
@@ -159,9 +159,26 @@ export const ReferenceTooltipAddon: React.FC = () => {
       }
     };
 
+    const handleMouseDown = () => {
+      isMouseDownRef.current = true;
+    };
+
+    const handleMouseUp = () => {
+      isMouseDownRef.current = false;
+    };
+
+    const handleMouseOver = (event: MouseEvent) => {
+      if (isMouseDownRef.current) return;
+      showTooltipForTarget(event.target as HTMLElement);
+    };
+
+    shell.addEventListener('mousedown', handleMouseDown);
+    shell.addEventListener('mouseup', handleMouseUp);
     shell.addEventListener('mouseover', handleMouseOver);
     shell.addEventListener('mouseleave', scheduleHide);
     return () => {
+      shell.removeEventListener('mousedown', handleMouseDown);
+      shell.removeEventListener('mouseup', handleMouseUp);
       shell.removeEventListener('mouseover', handleMouseOver);
       shell.removeEventListener('mouseleave', scheduleHide);
     };
