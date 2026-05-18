@@ -167,19 +167,19 @@ export const ReferenceTooltipAddon: React.FC = () => {
       isMouseDownRef.current = false;
     };
 
-    const handleMouseOver = (event: MouseEvent) => {
+    const handleMouseMove = (event: MouseEvent) => {
       if (isMouseDownRef.current) return;
       showTooltipForTarget(event.target as HTMLElement);
     };
 
     shell.addEventListener('mousedown', handleMouseDown);
     shell.addEventListener('mouseup', handleMouseUp);
-    shell.addEventListener('mouseover', handleMouseOver);
+    shell.addEventListener('mousemove', handleMouseMove);
     shell.addEventListener('mouseleave', scheduleHide);
     return () => {
       shell.removeEventListener('mousedown', handleMouseDown);
       shell.removeEventListener('mouseup', handleMouseUp);
-      shell.removeEventListener('mouseover', handleMouseOver);
+      shell.removeEventListener('mousemove', handleMouseMove);
       shell.removeEventListener('mouseleave', scheduleHide);
     };
   }, [editor, editorWrapperRef]);
