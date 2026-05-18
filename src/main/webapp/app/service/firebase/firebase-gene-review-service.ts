@@ -79,7 +79,9 @@ export class FirebaseGeneReviewService {
   ) => {
     const isGermline = firebasePath.toLowerCase().includes('germline');
 
-    if (currentValue === updateValue) {
+    // If values are the same, or if both current and updated values are considered "empty", then we do not want to
+    // create a review object or update meta collection.
+    if (currentValue === updateValue || ([null, undefined, ''].includes(currentValue) && [null, undefined, ''].includes(updateValue))) {
       return;
     }
 

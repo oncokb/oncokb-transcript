@@ -90,6 +90,23 @@ describe('Firebase Gene Review Service', () => {
   });
 
   describe('updateReviewableContent', () => {
+    it.each([
+      [null, ''],
+      [undefined, ''],
+      ['', null],
+      ['', undefined],
+    ])('should not update when current value %p and update value %p are both empty', async (currentValue, updateValue) => {
+      await firebaseGeneReviewService.updateReviewableContent(
+        'Genes/BRAF/mutations/0/description',
+        currentValue,
+        updateValue,
+        new Review(mockAuthStore.fullName),
+        DEFAULT_UUID,
+      );
+
+      expect(mockFirebaseRepository.update).not.toHaveBeenCalled();
+    });
+
     it('should update to firebase path with correct object', async () => {
       await firebaseGeneReviewService.updateReviewableContent(
         'Genes/BRAF/mutations/0/description',
