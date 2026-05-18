@@ -1,4 +1,5 @@
-import { RichTextDoc, RichTextInlineNode, RichTextNode, RichTextTextNode } from './richTextSchema';
+import { buildPastedRichTextContent } from './addons/referenceParsing';
+import { RichTextDoc, RichTextInlineNode, RichTextNode, RichTextParagraphNode, RichTextTextNode } from './richTextSchema';
 
 const isInlineNode = (node: RichTextNode): node is RichTextInlineNode =>
   node.type === 'text' ||
@@ -21,6 +22,26 @@ export const plainTextToTipTapDoc = (text: string): RichTextDoc => {
       type: 'paragraph',
       content: line ? [textNode(line)] : [],
     })),
+  };
+};
+
+export const textToTipTapDocWithReferences = (text: string): RichTextDoc => {
+  if (!text) {
+    return { type: 'doc', content: [{ type: 'paragraph' }] };
+  }
+
+  const content = buildPastedRichTextContent(text);
+  if (!content.length) {
+    return { type: 'doc', content: [{ type: 'paragraph' }] };
+  }
+
+  if (content[0].type === 'paragraph') {
+    return { type: 'doc', content: content as RichTextParagraphNode[] };
+  }
+
+  return {
+    type: 'doc',
+    content: [{ type: 'paragraph', content: content as RichTextInlineNode[] }],
   };
 };
 

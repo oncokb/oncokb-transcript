@@ -10,6 +10,10 @@
     background-color: $text-box-bg;
   }
 
+  &.disabled {
+    background-color: var(--bs-secondary-bg, #e9ecef);
+  }
+
   &.invalid {
     border-color: $danger;
   }

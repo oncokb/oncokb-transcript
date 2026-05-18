@@ -17,7 +17,9 @@ import {
   getUpdatedReview,
   isCreateReview,
   isDeleteReview,
+  showAsFirebaseTextArea,
 } from '../../shared/util/firebase/firebase-review-utils';
+import { textToTipTapDocWithReferences } from '../../shared/rich-text-editor/utils';
 import { getFirebaseGenePath, getFirebaseMetaGenePath, getFirebaseVusPath } from '../../shared/util/firebase/firebase-utils';
 import { generateUuid, parseAlterationName } from '../../shared/util/utils';
 import { FirebaseVusService } from './firebase-vus-service';
@@ -55,6 +57,17 @@ export class FirebaseGeneReviewService {
     return updateObject;
   };
 
+  getRejectedRichTextUpdateObject = (hugoSymbol: string, fieldPath: string, revertedValue: unknown, isGermline: boolean) => {
+    if (!showAsFirebaseTextArea(hugoSymbol, fieldPath, isGermline)) {
+      return {};
+    }
+
+    return {
+      [`${getFirebaseGenePath(isGermline, hugoSymbol)}/${fieldPath}_json`]:
+        typeof revertedValue === 'string' ? textToTipTapDocWithReferences(revertedValue) : null,
+    };
+  };
+
   updateReviewableContent = async (
     firebasePath: string,
     currentValue: any,
@@ -66,7 +79,9 @@ export class FirebaseGeneReviewService {
   ) => {
     const isGermline = firebasePath.toLowerCase().includes('germline');
 
-    if (currentValue === updateValue) {
+    // If values are the same, or if both current and updated values are considered "empty", then we do not want to
+    // create a review object or update meta collection.
+    if (currentValue === updateValue || ([null, undefined, ''].includes(currentValue) && [null, undefined, ''].includes(updateValue))) {
       return;
     }
 
@@ -178,12 +193,17 @@ export class FirebaseGeneReviewService {
 
       const resetReview = new Review(this.authStore.fullName);
       if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
+        const revertedValue = review.initialUpdate || review.lastReviewed === undefined ? null : review.lastReviewed;
         const reviewLevelUpdateObject = {
           [`${firebaseGenePath}/${reviewPath}`]: resetReview,
           // When user rejects the initial excludedRCTs, then excludedRCTs field should be cleared.
-          [`${firebaseGenePath}/${fieldPath}`]: review.initialUpdate || review.lastReviewed === undefined ? null : review.lastReviewed,
+          [`${firebaseGenePath}/${fieldPath}`]: revertedValue,
         };
-        updateObject = { ...updateObject, ...reviewLevelUpdateObject };
+        updateObject = {
+          ...updateObject,
+          ...reviewLevelUpdateObject,
+          ...this.getRejectedRichTextUpdateObject(hugoSymbol, fieldPath, revertedValue, isGermline),
+        };
         if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
           const tumorReviewLevel = reviewLevel as TumorReviewLevel;
           const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo?.reviewPath;

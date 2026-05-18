@@ -62,6 +62,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   onChange,
 }) => {
   const [activeToolbarPopover, setActiveToolbarPopover] = useState<string | null>(null);
+  const [isEditorFocused, setIsEditorFocused] = useState(false);
   const editorWrapperRef = useRef<HTMLDivElement>(null);
   const configuredExtensions = useMemo(
     () => [
@@ -88,6 +89,16 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       content: content ?? plainTextToTipTapDoc(plainText ?? ''),
       editable: !disabled,
       editorProps: {
+        handleDOMEvents: {
+          focus() {
+            setIsEditorFocused(true);
+            return false;
+          },
+          blur() {
+            setIsEditorFocused(false);
+            return false;
+          },
+        },
         handlePaste(_, event) {
           const text = event.clipboardData?.getData('text/plain');
           if (!text || !editor) return false;
@@ -105,8 +116,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   useEffect(() => {
     if (!editor) return;
+    if (isEditorFocused) return;
     editor.commands.setContent(content ?? plainTextToTipTapDoc(plainText ?? ''), false);
-  }, [content, editor, plainText]);
+  }, [content, editor, isEditorFocused, plainText]);
 
   useEffect(() => {
     editor?.setEditable(!disabled);
@@ -133,7 +145,15 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   return (
     <RichTextEditorContext.Provider value={contextValue}>
-      <div className={classNames(styles.editorWrapper, !disabled && styles.editable, invalid && styles.invalid, inputClassName)}>
+      <div
+        className={classNames(
+          styles.editorWrapper,
+          !disabled && styles.editable,
+          disabled && styles.disabled,
+          invalid && styles.invalid,
+          inputClassName,
+        )}
+      >
         {!disabled && toolbarAddons && (
           <div className={styles.toolbarArea} onMouseDown={e => e.stopPropagation()}>
             <div className={styles.toolbar}>{toolbarAddons}</div>

@@ -22,12 +22,41 @@ describe('reference rich text parsing', () => {
       {
         type: 'abstractReference',
         attrs: {
-          title: 'ASCO Abstract.',
-          href: 'https://example.com/Abstract',
+          title: 'ASCO abstract.',
+          href: 'https://example.com/abstract',
         },
       },
     ]);
   });
+
+  it('preserves abstract casing inside ASCO abstract URLs', () => {
+    expect(
+      buildPastedRichTextContent('(Abstract: Ou et al. ASCO 2023, Abstract #3140. https://www.asco.org/abstracts-presentations/227039)'),
+    ).toEqual([
+      {
+        type: 'abstractReference',
+        attrs: {
+          title: 'Ou et al. ASCO 2023, Abstract #3140.',
+          href: 'https://www.asco.org/abstracts-presentations/227039',
+        },
+      },
+    ]);
+  });
+
+  // The title "function" has the substring "nct". This test ensures that the presence of "function" in the title does not cause the parser to misinterpret.
+  expect(
+    buildPastedRichTextContent(
+      '(Abstract: Loss-of-Function-of-The-Cell-Cycle-Regulator-Cdh1 https://ashpublications.org/blood/article/122/21/344/83783/Loss-of-Function-of-The-Cell-Cycle-Regulator-Cdh1)',
+    ),
+  ).toEqual([
+    {
+      type: 'abstractReference',
+      attrs: {
+        title: 'Loss-of-Function-of-The-Cell-Cycle-Regulator-Cdh1',
+        href: 'https://ashpublications.org/blood/article/122/21/344/83783/Loss-of-Function-of-The-Cell-Cycle-Regulator-Cdh1',
+      },
+    },
+  ]);
 
   it('converts pasted NCT references into typed NCT nodes', () => {
     expect(buildPastedRichTextContent('(NCT03088176)')).toEqual([

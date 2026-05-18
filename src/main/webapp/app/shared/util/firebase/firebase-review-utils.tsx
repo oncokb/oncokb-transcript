@@ -1091,6 +1091,7 @@ export const showAsFirebaseTextArea = (hugoSymbol: string, valuePath: string, is
   return (
     genePath.endsWith('/description') ||
     genePath.endsWith('/background') ||
+    genePath.endsWith('/short') ||
     genePath.endsWith('/summary') ||
     genePath.endsWith('/diagnosticSummary') ||
     genePath.endsWith('/prognosticSummary')

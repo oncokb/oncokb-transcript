@@ -11,6 +11,7 @@ import { getTumorNameUuid, ReviewLevel, TumorReviewLevel } from 'app/shared/util
 import { ReviewAction } from 'app/config/constants/firebase';
 import _ from 'lodash';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
+import { textToTipTapDocWithReferences } from 'app/shared/rich-text-editor/utils';
 import { generateUuid } from 'app/shared/util/utils';
 import FirebaseAppStore from 'app/stores/firebase/firebase-app.store';
 
@@ -89,6 +90,23 @@ describe('Firebase Gene Review Service', () => {
   });
 
   describe('updateReviewableContent', () => {
+    it.each([
+      [null, ''],
+      [undefined, ''],
+      ['', null],
+      ['', undefined],
+    ])('should not update when current value %p and update value %p are both empty', async (currentValue, updateValue) => {
+      await firebaseGeneReviewService.updateReviewableContent(
+        'Genes/BRAF/mutations/0/description',
+        currentValue,
+        updateValue,
+        new Review(mockAuthStore.fullName),
+        DEFAULT_UUID,
+      );
+
+      expect(mockFirebaseRepository.update).not.toHaveBeenCalled();
+    });
+
     it('should update to firebase path with correct object', async () => {
       await firebaseGeneReviewService.updateReviewableContent(
         'Genes/BRAF/mutations/0/description',
@@ -491,8 +509,76 @@ describe('Firebase Gene Review Service', () => {
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
         'Genes/BRAF/background': '',
+        'Genes/BRAF/background_json': textToTipTapDocWithReferences(''),
         'Genes/BRAF/background_review': { updateTime: DEFAULT_DATE.getTime(), updatedBy: mockAuthStore.fullName },
         [`Meta/BRAF/review/${gene.background_uuid}`]: null,
+        'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
+        'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
+      });
+    });
+    it('should rebuild rich text json with parsed references when rejecting update', async () => {
+      const hugoSymbol = 'BRAF';
+      const gene = new Gene(hugoSymbol);
+      gene.background = 'new background';
+      gene.background_review = new Review('User', 'Evidence (PMID: 123, 456).');
+      const reviewLevel = new ReviewLevel({
+        titleParts: ['Background'],
+        valuePath: 'background',
+        historyLocation: 'Background',
+        currentVal: 'new background',
+        reviewInfo: {
+          reviewPath: 'background_review',
+          review: gene.background_review,
+          lastReviewedString: 'Evidence (PMID: 123, 456).',
+          uuid: gene.background_uuid,
+          reviewAction: ReviewAction.UPDATE,
+        },
+        historyData: {
+          oldState: 'Evidence (PMID: 123, 456).',
+          newState: 'new background',
+        },
+        historyInfo: {},
+      });
+
+      await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
+
+      expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
+        'Genes/BRAF/background': 'Evidence (PMID: 123, 456).',
+        'Genes/BRAF/background_json': textToTipTapDocWithReferences('Evidence (PMID: 123, 456).'),
+      });
+    });
+    it('should clear rich text json when rejecting an initial rich text update', async () => {
+      const hugoSymbol = 'BRAF';
+      const gene = new Gene(hugoSymbol);
+      gene.summary = 'new summary';
+      gene.summary_review = new Review('User', undefined, false, false, true);
+      const reviewLevel = new ReviewLevel({
+        titleParts: ['Summary'],
+        valuePath: 'summary',
+        historyLocation: 'Summary',
+        currentVal: 'new summary',
+        reviewInfo: {
+          reviewPath: 'summary_review',
+          review: gene.summary_review,
+          lastReviewedString: undefined,
+          uuid: gene.summary_uuid,
+          reviewAction: ReviewAction.UPDATE,
+        },
+        historyData: {
+          oldState: '',
+          newState: 'new summary',
+        },
+        historyInfo: {},
+      });
+
+      await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
+
+      expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
+      expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
+        'Genes/BRAF/summary': null,
+        'Genes/BRAF/summary_json': null,
+        'Genes/BRAF/summary_review': { updateTime: DEFAULT_DATE.getTime(), updatedBy: mockAuthStore.fullName },
+        [`Meta/BRAF/review/${gene.summary_uuid}`]: null,
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
       });
