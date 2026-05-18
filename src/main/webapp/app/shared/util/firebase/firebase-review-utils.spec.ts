@@ -856,6 +856,9 @@ describe('Firebase Review Utils', () => {
     it('description should use textarea', () => {
       expect(showAsFirebaseTextArea('BRAF', 'mutations/0/mutation_effect/description')).toBeTruthy();
     });
+    it('short should use textarea', () => {
+      expect(showAsFirebaseTextArea('BRAF', 'mutations/0/tumors/0/TIs/0/short')).toBeTruthy();
+    });
     it('dx/px summaries should use textarea', () => {
       expect(showAsFirebaseTextArea('BRAF', 'fake_path/diagnosticSummary')).toBeTruthy();
       expect(showAsFirebaseTextArea('BRAF', 'fake_path/prognosticSummary')).toBeTruthy();

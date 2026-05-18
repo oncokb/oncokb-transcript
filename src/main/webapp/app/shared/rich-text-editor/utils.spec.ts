@@ -1,5 +1,5 @@
 import { isRichTextDoc } from './richTextSchema';
-import { isSafeHttpUrl, normalizeHttpUrl, plainTextToTipTapDoc, tipTapJsonToPlainText } from './utils';
+import { isSafeHttpUrl, normalizeHttpUrl, plainTextToTipTapDoc, textToTipTapDocWithReferences, tipTapJsonToPlainText } from './utils';
 
 describe('Rich text editor utils', () => {
   describe('plainTextToTipTapDoc', () => {
@@ -23,6 +23,34 @@ describe('Rich text editor utils', () => {
         content: [
           { type: 'paragraph', content: [{ type: 'text', text: 'line 1' }] },
           { type: 'paragraph', content: [{ type: 'text', text: 'line 2' }] },
+        ],
+      });
+    });
+  });
+
+  describe('textToTipTapDocWithReferences', () => {
+    it('preserves reference parsing for PMIDs', () => {
+      expect(textToTipTapDocWithReferences('Evidence (PMID: 123, 456).')).toEqual({
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              { type: 'text', text: 'Evidence ' },
+              { type: 'pmidGroup', attrs: { pmids: ['123', '456'] } },
+              { type: 'text', text: '.' },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('preserves line boundaries as paragraphs', () => {
+      expect(textToTipTapDocWithReferences('A\nB')).toEqual({
+        type: 'doc',
+        content: [
+          { type: 'paragraph', content: [{ type: 'text', text: 'A' }] },
+          { type: 'paragraph', content: [{ type: 'text', text: 'B' }] },
         ],
       });
     });
