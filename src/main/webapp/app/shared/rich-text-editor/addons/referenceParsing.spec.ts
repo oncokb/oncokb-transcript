@@ -43,6 +43,21 @@ describe('reference rich text parsing', () => {
     ]);
   });
 
+  // The title "function" has the substring "nct". This test ensures that the presence of "function" in the title does not cause the parser to misinterpret.
+  expect(
+    buildPastedRichTextContent(
+      '(Abstract: Loss-of-Function-of-The-Cell-Cycle-Regulator-Cdh1 https://ashpublications.org/blood/article/122/21/344/83783/Loss-of-Function-of-The-Cell-Cycle-Regulator-Cdh1)',
+    ),
+  ).toEqual([
+    {
+      type: 'abstractReference',
+      attrs: {
+        title: 'Loss-of-Function-of-The-Cell-Cycle-Regulator-Cdh1',
+        href: 'https://ashpublications.org/blood/article/122/21/344/83783/Loss-of-Function-of-The-Cell-Cycle-Regulator-Cdh1',
+      },
+    },
+  ]);
+
   it('converts pasted NCT references into typed NCT nodes', () => {
     expect(buildPastedRichTextContent('(NCT03088176)')).toEqual([
       {
