@@ -22,8 +22,22 @@ describe('reference rich text parsing', () => {
       {
         type: 'abstractReference',
         attrs: {
-          title: 'ASCO Abstract.',
-          href: 'https://example.com/Abstract',
+          title: 'ASCO abstract.',
+          href: 'https://example.com/abstract',
+        },
+      },
+    ]);
+  });
+
+  it('preserves abstract casing inside ASCO abstract URLs', () => {
+    expect(
+      buildPastedRichTextContent('(Abstract: Ou et al. ASCO 2023, Abstract #3140. https://www.asco.org/abstracts-presentations/227039)'),
+    ).toEqual([
+      {
+        type: 'abstractReference',
+        attrs: {
+          title: 'Ou et al. ASCO 2023, Abstract #3140.',
+          href: 'https://www.asco.org/abstracts-presentations/227039',
         },
       },
     ]);
