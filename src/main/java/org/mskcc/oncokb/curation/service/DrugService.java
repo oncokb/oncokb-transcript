@@ -5,11 +5,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.mskcc.oncokb.curation.config.cache.CacheCategory;
+import org.mskcc.oncokb.curation.config.cache.CacheKeys;
+import org.mskcc.oncokb.curation.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
 import org.mskcc.oncokb.curation.service.criteria.DrugCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +29,19 @@ public class DrugService {
 
     private final DrugRepository drugRepository;
     private final DrugQueryService drugQueryService;
+    private final CacheNameResolver cacheNameResolver;
+    private final Optional<CacheManager> optionalCacheManager;
 
-    public DrugService(DrugRepository drugRepository, DrugQueryService drugQueryService) {
+    public DrugService(
+        DrugRepository drugRepository,
+        DrugQueryService drugQueryService,
+        CacheNameResolver cacheNameResolver,
+        Optional<CacheManager> optionalCacheManager
+    ) {
         this.drugRepository = drugRepository;
         this.drugQueryService = drugQueryService;
+        this.cacheNameResolver = cacheNameResolver;
+        this.optionalCacheManager = optionalCacheManager;
     }
 
     /**
@@ -39,7 +52,9 @@ public class DrugService {
      */
     public Drug save(Drug drug) {
         log.debug("Request to save Drug : {}", drug);
-        return drugRepository.save(drug);
+        Drug savedDrug = drugRepository.save(drug);
+        evictDrugListCache();
+        return savedDrug;
     }
 
     /**
@@ -51,7 +66,7 @@ public class DrugService {
     public Optional<Drug> partialUpdate(Drug drug) {
         log.debug("Request to partially update Drug : {}", drug);
 
-        return drugRepository
+        Optional<Drug> result = drugRepository
             .findById(drug.getId())
             .map(existingDrug -> {
                 if (drug.getUuid() != null) {
@@ -67,6 +82,9 @@ public class DrugService {
                 return existingDrug;
             })
             .map(drugRepository::save);
+
+        evictDrugListCache();
+        return result;
     }
 
     /**
@@ -150,6 +168,16 @@ public class DrugService {
     public void delete(Long id) {
         log.debug("Request to delete Drug : {}", id);
         drugRepository.deleteById(id);
+        evictDrugListCache();
+    }
+
+    private void evictDrugListCache() {
+        String cacheName = cacheNameResolver.getCacheName(CacheCategory.DRUG, CacheKeys.DRUGS_ALL);
+        optionalCacheManager.ifPresent(cacheManager -> {
+            if (cacheManager.getCache(cacheName) != null) {
+                cacheManager.getCache(cacheName).clear();
+            }
+        });
     }
 }
 
