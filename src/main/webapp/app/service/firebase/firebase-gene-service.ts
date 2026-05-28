@@ -28,9 +28,8 @@ import AuthStore from '../../stores/authentication.store';
 import { FirebaseRepository } from '../../stores/firebase/firebase-repository';
 import { FirebaseMetaService } from './firebase-meta-service';
 import { PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
-import { generateUuid, isPromiseOk } from 'app/shared/util/utils';
+import { generateUuid } from 'app/shared/util/utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
 import { getTumorNameUuid, getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
 import { SentryError } from 'app/config/sentry-error';
@@ -43,6 +42,8 @@ import { AxiosResponse } from 'axios';
 import { IGene } from 'app/shared/model/gene.model';
 import { AnnotateAlterationBody, Alteration as ApiAlteration, Gene as ApiGene } from 'app/shared/api/generated/curation';
 import { convertAlterationDataToAlteration, convertEntityStatusAlterationToAlterationData } from 'app/shared/util/alteration-utils';
+
+export class FirebaseDuplicateGeneCreationError extends Error {}
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -290,27 +291,33 @@ export class FirebaseGeneService {
 
   createGene = async (hugoSymbol: string, isGermline: boolean, routeAfter?: string) => {
     const genePath = getFirebaseGenePath(isGermline, hugoSymbol);
-    const results = await Promise.all([
-      isPromiseOk(this.firebaseRepository.create(genePath, new Gene(hugoSymbol))),
-      isPromiseOk(this.firebaseMetaService.createMetaGene(hugoSymbol, isGermline)),
-    ]);
+    const duplicateGeneError = new FirebaseDuplicateGeneCreationError(
+      `Gene ${hugoSymbol} already exists in Firebase. Creation was blocked to avoid overwriting existing data.`,
+    );
+    const duplicateMetaError = new FirebaseDuplicateGeneCreationError(
+      `Gene ${hugoSymbol} already has Firebase metadata. Creation was blocked to avoid overwriting existing data.`,
+    );
 
-    if (results[0].ok && results[1].ok) {
-      // both succeeded
-      if (routeAfter) {
-        window.location.href = routeAfter;
-      }
-    } else if (results[0].ok && !results[1].ok) {
-      // createMetaGene failed
-      notifyError(results[1].error);
-      this.deleteObject(genePath);
-    } else if (results[1].ok && !results[0].ok) {
-      // createGene failed
-      notifyError(results[0].error);
-      this.firebaseMetaService.deleteMetaGene(hugoSymbol, isGermline);
-    } else {
-      // both failed
-      notifyError(new Error(`Errors: ${getErrorMessage(results[0].error as Error)}, ${getErrorMessage(results[1].error as Error)}`));
+    const geneCreateResult = await this.firebaseRepository.createIfAbsent(genePath, new Gene(hugoSymbol));
+    if (!geneCreateResult.committed) {
+      throw duplicateGeneError;
+    }
+
+    let metaCreateResult;
+    try {
+      metaCreateResult = await this.firebaseMetaService.createMetaGene(hugoSymbol, isGermline);
+    } catch (error) {
+      await this.deleteObject(genePath);
+      throw error;
+    }
+
+    if (!metaCreateResult.committed) {
+      await this.deleteObject(genePath);
+      throw duplicateMetaError;
+    }
+
+    if (routeAfter) {
+      window.location.href = routeAfter;
     }
   };
 

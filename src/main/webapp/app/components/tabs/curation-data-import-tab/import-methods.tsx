@@ -1,4 +1,4 @@
-import { FirebaseGeneService } from 'app/service/firebase/firebase-gene-service';
+import { FirebaseDuplicateGeneCreationError, FirebaseGeneService } from 'app/service/firebase/firebase-gene-service';
 import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-review-service';
 import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from 'app/shared/util/firebase/firebase-utils';
 import { DataImportStatus, DataRow } from 'app/components/tabs/curation-data-import-tab/CurationDataImportTab';
@@ -26,6 +26,7 @@ import {
 } from 'app/shared/api/generated/curation';
 import { flow, flowResult } from 'mobx';
 import AlterationStore from 'app/entities/alteration/alteration.store';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 export type GeneDI = {
   hugo_symbol: string;
@@ -117,8 +118,17 @@ export const geneCheck = async (
       return onGeneExists();
     } else {
       if (createGene) {
-        await firebaseGeneService.createGene(hugoSymbol, isGermline);
-        return onGeneExists();
+        try {
+          await firebaseGeneService.createGene(hugoSymbol, isGermline);
+          return onGeneExists();
+        } catch (error) {
+          notifyError(error);
+          if (error instanceof FirebaseDuplicateGeneCreationError) {
+            return onGeneExists();
+          }
+          status.status = 'error';
+          status.message = error instanceof Error ? error.message : 'Failed to create gene';
+        }
       } else {
         status.status = 'error';
         status.message = 'Gene does not exist. Please create before importing';

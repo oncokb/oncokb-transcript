@@ -1,4 +1,4 @@
-import { push, ref, remove, set, update, get, Database } from 'firebase/database';
+import { push, ref, remove, set, update, get, Database, runTransaction } from 'firebase/database';
 import FirebaseAppStore from './firebase-app.store';
 import { SentryError } from 'app/config/sentry-error';
 
@@ -16,6 +16,24 @@ export class FirebaseRepository {
   create = async (path: string, value: unknown) => {
     if (this.firebaseAppStore.firebaseDb) {
       return await set(ref(this.firebaseAppStore.firebaseDb, path), value);
+    } else {
+      throwMissingFirebaseDBError();
+    }
+  };
+
+  createIfAbsent = async (path: string, value: unknown) => {
+    if (this.firebaseAppStore.firebaseDb) {
+      const transactionResult = await runTransaction(
+        ref(this.firebaseAppStore.firebaseDb, path),
+        currentValue => {
+          if (currentValue === null) {
+            return value;
+          }
+          return undefined;
+        },
+        { applyLocally: false },
+      );
+      return transactionResult;
     } else {
       throwMissingFirebaseDBError();
     }

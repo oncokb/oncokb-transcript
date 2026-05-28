@@ -30,6 +30,7 @@ import { getLocationIdentifier, getTooltipHistoryList } from 'app/components/gen
 import GeneticTypeTabs, { GENETIC_TYPE } from './geneticTypeTabs/GeneticTypeTabs';
 import GeneticTypeTabHeader from './header/GeneticTypeTabHeader';
 import ReadOnlyBanner from './header/ReadOnlyBanner';
+import { FirebaseDuplicateGeneCreationError } from 'app/service/firebase/firebase-gene-service';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -61,6 +62,10 @@ export const CurationPage = (props: ICurationPageProps) => {
             await props.createGene(hugoSymbol, isGermline);
           } catch (error) {
             notifyError(error);
+            if (error instanceof FirebaseDuplicateGeneCreationError) {
+              setFirebaseGeneExists(true);
+              return;
+            }
             if (isGermline) {
               history.push(PAGE_ROUTE.CURATION_GERMLINE);
             } else {
