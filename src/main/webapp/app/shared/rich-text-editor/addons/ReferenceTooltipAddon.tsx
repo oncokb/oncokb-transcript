@@ -14,6 +14,7 @@ interface GenericLinkTooltipState {
   href: string;
   text: string;
   el: HTMLElement;
+  left: number;
 }
 
 interface AbstractReferenceTooltipState {
@@ -21,6 +22,7 @@ interface AbstractReferenceTooltipState {
   title: string;
   href: string;
   el: HTMLElement;
+  left: number;
 }
 
 interface NctReferenceTooltipState {
@@ -28,6 +30,7 @@ interface NctReferenceTooltipState {
   nctId: string;
   href: string;
   el: HTMLElement;
+  left: number;
 }
 
 interface PmidGroupTooltipState {
@@ -45,6 +48,7 @@ export const ReferenceTooltipAddon: React.FC = () => {
   const pmidGroupTooltipRef = useRef<HTMLDivElement>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isEditingLinkRef = useRef(false);
+  const isEditingPmidGroupRef = useRef(false);
   const isMouseDownRef = useRef(false);
 
   const [linkTooltip, setLinkTooltip] = useState<LinkTooltipState | null>(null);
@@ -61,6 +65,10 @@ export const ReferenceTooltipAddon: React.FC = () => {
   useEffect(() => {
     isEditingLinkRef.current = isEditingLink;
   }, [isEditingLink]);
+
+  useEffect(() => {
+    isEditingPmidGroupRef.current = editingPmid !== null;
+  }, [editingPmid]);
 
   const clearHideTimer = () => {
     if (hideTimerRef.current) {
@@ -96,7 +104,7 @@ export const ReferenceTooltipAddon: React.FC = () => {
     // before we close. The tooltip's onMouseEnter cancels this timer if the mouse arrives in time.
     clearHideTimer();
     hideTimerRef.current = setTimeout(() => {
-      if (!isEditingLinkRef.current) {
+      if (!isEditingLinkRef.current && !isEditingPmidGroupRef.current) {
         setLinkTooltip(null);
         setPmidGroupTooltip(null);
       }
@@ -107,30 +115,30 @@ export const ReferenceTooltipAddon: React.FC = () => {
     clearHideTimer();
   };
 
-  const showPmidGroupTooltip = (el: HTMLElement) => {
+  const showPmidGroupTooltip = (el: HTMLElement, left: number) => {
     clearHideTimer();
     const pmids: string[] = el.dataset.pmids ? JSON.parse(el.dataset.pmids) : [];
     const rect = el.getBoundingClientRect();
     setLinkTooltip(null);
-    setPmidGroupTooltip({ pmids, el, top: rect.bottom, left: rect.left });
+    setPmidGroupTooltip({ pmids, el, top: rect.bottom, left });
   };
 
-  const showReferenceNodeTooltip = (el: HTMLElement) => {
+  const showReferenceNodeTooltip = (el: HTMLElement, left: number) => {
     clearHideTimer();
     setPmidGroupTooltip(null);
     if ('abstractReference' in el.dataset) {
-      setLinkTooltip({ type: 'abstractReference', title: el.dataset.title ?? '', href: el.getAttribute('href') ?? '', el });
+      setLinkTooltip({ type: 'abstractReference', title: el.dataset.title ?? '', href: el.getAttribute('href') ?? '', el, left });
     } else {
       const nctId = normalizeNctId(el.dataset.nctId ?? '');
-      setLinkTooltip({ type: 'nctReference', nctId, href: getNctHref(nctId), el });
+      setLinkTooltip({ type: 'nctReference', nctId, href: getNctHref(nctId), el, left });
     }
     setIsEditingLink(false);
   };
 
-  const showGenericLinkTooltip = (el: HTMLElement) => {
+  const showGenericLinkTooltip = (el: HTMLElement, left: number) => {
     clearHideTimer();
     setPmidGroupTooltip(null);
-    setLinkTooltip({ type: 'generic', href: el.dataset.href ?? '', text: el.dataset.text ?? '', el });
+    setLinkTooltip({ type: 'generic', href: el.dataset.href ?? '', text: el.dataset.text ?? '', el, left });
     setIsEditingLink(false);
   };
 
@@ -145,17 +153,17 @@ export const ReferenceTooltipAddon: React.FC = () => {
     const shell = editorWrapperRef.current;
     if (!shell || !editor) return;
 
-    const showTooltipForTarget = (target: HTMLElement) => {
+    const showTooltipForTarget = (target: HTMLElement, left: number) => {
       if ('pmidGroup' in target.dataset) {
-        showPmidGroupTooltip(target);
+        showPmidGroupTooltip(target, left);
         return;
       }
       if ('abstractReference' in target.dataset || 'nctReference' in target.dataset) {
-        showReferenceNodeTooltip(target);
+        showReferenceNodeTooltip(target, left);
         return;
       }
       if ('genericLink' in target.dataset) {
-        showGenericLinkTooltip(target);
+        showGenericLinkTooltip(target, left);
       }
     };
 
@@ -169,7 +177,11 @@ export const ReferenceTooltipAddon: React.FC = () => {
 
     const handleMouseMove = (event: MouseEvent) => {
       if (isMouseDownRef.current) return;
-      showTooltipForTarget(event.target as HTMLElement);
+      if (isEditingLinkRef.current) return;
+      if (isEditingPmidGroupRef.current) return;
+      const target = event.target as HTMLElement;
+      if (linkTooltip?.el === target || pmidGroupTooltip?.el === target) return;
+      showTooltipForTarget(target, event.clientX);
     };
 
     shell.addEventListener('mousedown', handleMouseDown);
@@ -182,7 +194,7 @@ export const ReferenceTooltipAddon: React.FC = () => {
       shell.removeEventListener('mousemove', handleMouseMove);
       shell.removeEventListener('mouseleave', scheduleHide);
     };
-  }, [editor, editorWrapperRef]);
+  }, [editor, editorWrapperRef, linkTooltip, pmidGroupTooltip]);
 
   useEffect(() => {
     if (!linkTooltip && !pmidGroupTooltip) return;
@@ -621,7 +633,7 @@ export const ReferenceTooltipAddon: React.FC = () => {
           // We cannot use a react Tooltip component because we are using TipTap's renderHTML (TipTap manages the DOM). There is a ReactNodeViewRenderer, but
           // from my search it has some runtime and setup overhead. The tradeoff is that we have to add this styling so that
           // the tooltip appears in the right place relative to the hovered element.
-          style={{ top: linkTooltip.el.getBoundingClientRect().bottom, left: linkTooltip.el.getBoundingClientRect().left }}
+          style={{ top: linkTooltip.el.getBoundingClientRect().bottom, left: linkTooltip.left }}
           onMouseEnter={keepTooltipOpen}
           onMouseMove={keepTooltipOpen}
           onMouseLeave={scheduleHide}
@@ -655,7 +667,6 @@ export const ReferenceTooltipAddon: React.FC = () => {
                 value={addPmidInput}
                 onChange={event => setAddPmidInput(event.target.value)}
                 onKeyDown={event => event.key === 'Enter' && addPmidToGroup()}
-                autoFocus
               />
               <button type="button" className={styles.refInsertBtn} onClick={addPmidToGroup}>
                 Add
