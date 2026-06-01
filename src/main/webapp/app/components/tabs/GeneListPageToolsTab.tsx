@@ -22,7 +22,6 @@ export interface IGeneListPageToolsTab extends StoreProps {
 
 function GeneListPageToolsTab({ metaData, isDev, createGene, getGeneObject }: IGeneListPageToolsTab) {
   const selectedGene = useRef<string>();
-  const selectionRequestId = useRef(0);
   const [createButtonDisabled, setCreateButtonDisabled] = useState(true);
   const [showGeneExistsWarning, setShowGeneExistsWarning] = useState(false);
   const [downloadPending, setDownloadPending] = useState(false);
@@ -31,7 +30,6 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, getGeneObject }: IG
   async function handleChangeSelectedGene(option) {
     const gene = option?.label;
     selectedGene.current = gene;
-    const requestId = ++selectionRequestId.current;
 
     if (!gene) {
       setCreateButtonDisabled(true);
@@ -53,9 +51,6 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, getGeneObject }: IG
 
     try {
       const snapshot = await getGeneObject?.(getFirebaseGenePath(false, gene));
-      if (selectionRequestId.current !== requestId || selectedGene.current !== gene) {
-        return;
-      }
       if (snapshot?.exists()) {
         setCreateButtonDisabled(true);
         setShowGeneExistsWarning(true);
@@ -64,16 +59,11 @@ function GeneListPageToolsTab({ metaData, isDev, createGene, getGeneObject }: IG
         setShowGeneExistsWarning(false);
       }
     } catch (error) {
-      if (selectionRequestId.current !== requestId) {
-        return;
-      }
       notifyError(error, 'Issue checking whether gene already exists');
       setCreateButtonDisabled(true);
       setShowGeneExistsWarning(false);
     } finally {
-      if (selectionRequestId.current === requestId) {
-        setIsCheckingGeneExists(false);
-      }
+      setIsCheckingGeneExists(false);
     }
   }
 
