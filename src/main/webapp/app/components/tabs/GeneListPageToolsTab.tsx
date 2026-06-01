@@ -14,30 +14,56 @@ import { notifyError, notifyInfo } from 'app/oncokb-commons/components/util/Noti
 import { downloadFile } from 'app/shared/util/file-utils';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import EvidenceDownloader from '../data-download/EvidenceDownloader';
+import { getFirebaseGenePath } from 'app/shared/util/firebase/firebase-utils';
 
 export interface IGeneListPageToolsTab extends StoreProps {
   metaData: MetaCollection | null;
 }
 
-function GeneListPageToolsTab({ metaData, isDev, createGene }: IGeneListPageToolsTab) {
+function GeneListPageToolsTab({ metaData, isDev, createGene, getGeneObject }: IGeneListPageToolsTab) {
   const selectedGene = useRef<string>();
   const [createButtonDisabled, setCreateButtonDisabled] = useState(true);
   const [showGeneExistsWarning, setShowGeneExistsWarning] = useState(false);
   const [downloadPending, setDownloadPending] = useState(false);
+  const [isCheckingGeneExists, setIsCheckingGeneExists] = useState(false);
 
-  function handleChangeSelectedGene(option) {
+  async function handleChangeSelectedGene(option) {
     const gene = option?.label;
     selectedGene.current = gene;
 
     if (!gene) {
       setCreateButtonDisabled(true);
       setShowGeneExistsWarning(false);
-    } else if (metaData && Object.keys(metaData).includes(gene)) {
+      setIsCheckingGeneExists(false);
+      return;
+    }
+
+    if (metaData && Object.keys(metaData).includes(gene)) {
       setCreateButtonDisabled(true);
       setShowGeneExistsWarning(true);
-    } else {
-      setCreateButtonDisabled(false);
+      setIsCheckingGeneExists(false);
+      return;
+    }
+
+    setCreateButtonDisabled(true);
+    setShowGeneExistsWarning(false);
+    setIsCheckingGeneExists(true);
+
+    try {
+      const snapshot = await getGeneObject?.(getFirebaseGenePath(false, gene));
+      if (snapshot?.exists()) {
+        setCreateButtonDisabled(true);
+        setShowGeneExistsWarning(true);
+      } else {
+        setCreateButtonDisabled(false);
+        setShowGeneExistsWarning(false);
+      }
+    } catch (error) {
+      notifyError(error, 'Issue checking whether gene already exists');
+      setCreateButtonDisabled(true);
       setShowGeneExistsWarning(false);
+    } finally {
+      setIsCheckingGeneExists(false);
     }
   }
 
@@ -92,7 +118,8 @@ function GeneListPageToolsTab({ metaData, isDev, createGene }: IGeneListPageTool
                   <span>Gene already exists</span>
                 </div>
               )}
-              <Button color="primary" disabled={createButtonDisabled} onClick={handleCreateGene}>
+              <Button color="primary" disabled={createButtonDisabled || isCheckingGeneExists} onClick={handleCreateGene}>
+                {isCheckingGeneExists && <Spinner size="sm" className="me-2" />}
                 Create
               </Button>
             </div>
@@ -133,6 +160,7 @@ function GeneListPageToolsTab({ metaData, isDev, createGene }: IGeneListPageTool
 
 const mapStoreToProps = ({ firebaseGeneService, authStore, routerStore }: IRootStore) => ({
   createGene: firebaseGeneService.createGene,
+  getGeneObject: firebaseGeneService.getObject,
   isDev: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.DEV]),
 });
 

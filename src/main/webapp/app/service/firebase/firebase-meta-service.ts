@@ -101,7 +101,7 @@ export class FirebaseMetaService {
   };
 
   createMetaGene = async (hugoSymbol: string, isGermline: boolean) => {
-    await this.firebaseRepository.create(getFirebaseMetaGenePath(isGermline, hugoSymbol), new Meta());
+    return await this.firebaseRepository.createIfAbsent(getFirebaseMetaGenePath(isGermline, hugoSymbol), new Meta());
   };
 
   deleteMetaGene = async (hugoSymbol: string, isGermline: boolean) => {
