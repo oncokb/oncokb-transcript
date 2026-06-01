@@ -106,7 +106,8 @@ const mapStoreToProps = ({ geneStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default function <IsMulti extends boolean = false>(props: InjectProps<IGeneSelectProps<IsMulti>, StoreProps>) {
-  const InjectedGeneSelect = connect(mapStoreToProps)<IGeneSelectProps<IsMulti>>(GeneSelect);
-  return <InjectedGeneSelect {...props} />;
-}
+const InjectedGeneSelect = connect(mapStoreToProps)(GeneSelect) as unknown as <IsMulti extends boolean = false>(
+  props: InjectProps<IGeneSelectProps<IsMulti>, StoreProps>,
+) => React.ReactElement;
+
+export default InjectedGeneSelect;
