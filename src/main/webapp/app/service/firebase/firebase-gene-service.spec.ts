@@ -59,13 +59,13 @@ describe('Firebase Gene Service', () => {
       expect(mockFirebaseRepository.delete).not.toHaveBeenCalled();
     });
 
-    it('rolls back the new gene shell when meta already exists', async () => {
+    it('keeps the new gene shell when metadata already exists', async () => {
       mockFirebaseRepository.createIfAbsent.mockResolvedValue({ committed: true } as any);
       mockFirebaseMetaService.createMetaGene.mockResolvedValue({ committed: false } as any);
 
-      await expect(firebaseGeneService.createGene('BRAF', false)).rejects.toThrow(FirebaseDuplicateGeneCreationError);
+      await expect(firebaseGeneService.createGene('BRAF', false)).resolves.toBeUndefined();
 
-      expect(mockFirebaseRepository.delete).toHaveBeenCalledWith('Genes/BRAF');
+      expect(mockFirebaseRepository.delete).not.toHaveBeenCalled();
     });
 
     it('rolls back the new gene shell when meta creation fails', async () => {

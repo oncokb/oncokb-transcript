@@ -294,26 +294,17 @@ export class FirebaseGeneService {
     const duplicateGeneError = new FirebaseDuplicateGeneCreationError(
       `Gene ${hugoSymbol} already exists in Firebase. Creation was blocked to avoid overwriting existing data.`,
     );
-    const duplicateMetaError = new FirebaseDuplicateGeneCreationError(
-      `Gene ${hugoSymbol} already has Firebase metadata. Creation was blocked to avoid overwriting existing data.`,
-    );
 
     const geneCreateResult = await this.firebaseRepository.createIfAbsent(genePath, new Gene(hugoSymbol));
     if (!geneCreateResult.committed) {
       throw duplicateGeneError;
     }
 
-    let metaCreateResult;
     try {
-      metaCreateResult = await this.firebaseMetaService.createMetaGene(hugoSymbol, isGermline);
+      await this.firebaseMetaService.createMetaGene(hugoSymbol, isGermline);
     } catch (error) {
       await this.deleteObject(genePath);
       throw error;
-    }
-
-    if (!metaCreateResult.committed) {
-      await this.deleteObject(genePath);
-      throw duplicateMetaError;
     }
 
     if (routeAfter) {
