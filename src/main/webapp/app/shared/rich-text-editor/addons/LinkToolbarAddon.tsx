@@ -4,24 +4,22 @@ import * as styles from '../RichTextEditor.module.scss';
 import { useRichTextEditorContext } from '../RichTextEditor';
 import { isSafeHttpUrl, normalizeHttpUrl } from '../utils';
 import { GenericLink } from './ReferenceNodeExtensions';
+import { insertAtSavedEditorSelection } from './ReferenceToolbarAddon';
 
 export { GenericLink as genericLinkExtension };
 
 const POPOVER_ID = 'link';
 
 export const LinkToolbarAddon: React.FC = () => {
-  const { activeToolbarPopover, setActiveToolbarPopover, editor } = useRichTextEditorContext();
+  const { activeToolbarPopover, setActiveToolbarPopover, editor, saveEditorSelection, getSavedEditorSelection } =
+    useRichTextEditorContext();
   const [linkUrl, setLinkUrl] = useState('');
   const isOpen = activeToolbarPopover === POPOVER_ID;
 
   const insertGenericLink = () => {
     const href = normalizeHttpUrl(linkUrl);
     if (!href || !editor || !isSafeHttpUrl(href)) return;
-    editor
-      .chain()
-      .focus()
-      .insertContent({ type: 'genericLink', attrs: { href, text: href } })
-      .run();
+    insertAtSavedEditorSelection(editor, getSavedEditorSelection, { type: 'genericLink', attrs: { href, text: href } });
     setLinkUrl('');
     setActiveToolbarPopover(null);
   };
@@ -33,6 +31,7 @@ export const LinkToolbarAddon: React.FC = () => {
         className={classNames(styles.toolbarBtn, isOpen && styles.active)}
         onMouseDown={event => {
           event.preventDefault();
+          saveEditorSelection();
           setActiveToolbarPopover(panel => (panel === POPOVER_ID ? null : POPOVER_ID));
         }}
         title="Link"

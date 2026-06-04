@@ -1,7 +1,9 @@
 import classNames from 'classnames';
+import { Editor } from '@tiptap/core';
 import React, { useState } from 'react';
 import * as styles from '../RichTextEditor.module.scss';
-import { useRichTextEditorContext } from '../RichTextEditor';
+import { RichTextSelectionRange, useRichTextEditorContext } from '../RichTextEditor';
+import { RichTextInlineNode } from '../richTextSchema';
 import { isSafeHttpUrl, normalizeHttpUrl } from '../utils';
 import { buildAbstractReferenceNode, buildNctReferenceNode } from './ReferenceNodeExtensions';
 
@@ -15,14 +17,28 @@ interface ToolbarToggleButtonProps {
   isOpen: boolean;
 }
 
+export const insertAtSavedEditorSelection = (
+  editor: Editor,
+  getSavedEditorSelection: () => RichTextSelectionRange | null,
+  content: RichTextInlineNode,
+) => {
+  const selection = getSavedEditorSelection();
+  const chain = editor.chain().focus();
+  if (selection) {
+    chain.setTextSelection(selection);
+  }
+  return chain.insertContent(content).run();
+};
+
 const ToolbarToggleButton: React.FC<ToolbarToggleButtonProps> = ({ popoverId, label, isOpen }) => {
-  const { setActiveToolbarPopover } = useRichTextEditorContext();
+  const { saveEditorSelection, setActiveToolbarPopover } = useRichTextEditorContext();
   return (
     <button
       type="button"
       className={classNames(styles.toolbarBtn, isOpen && styles.active)}
       onMouseDown={event => {
         event.preventDefault();
+        saveEditorSelection();
         setActiveToolbarPopover(panel => (panel === popoverId ? null : popoverId));
       }}
       title={label}
@@ -33,18 +49,14 @@ const ToolbarToggleButton: React.FC<ToolbarToggleButtonProps> = ({ popoverId, la
 };
 
 export const PmidToolbarAddon: React.FC = () => {
-  const { activeToolbarPopover, setActiveToolbarPopover, editor } = useRichTextEditorContext();
+  const { activeToolbarPopover, setActiveToolbarPopover, editor, getSavedEditorSelection } = useRichTextEditorContext();
   const [pmidInput, setPmidInput] = useState('');
   const isOpen = activeToolbarPopover === PMID_POPOVER_ID;
 
   const insertPmid = () => {
     const pmid = pmidInput.trim();
     if (!pmid || !editor) return;
-    editor
-      .chain()
-      .focus()
-      .insertContent({ type: 'pmidGroup', attrs: { pmids: [pmid] } })
-      .run();
+    insertAtSavedEditorSelection(editor, getSavedEditorSelection, { type: 'pmidGroup', attrs: { pmids: [pmid] } });
     setPmidInput('');
     setActiveToolbarPopover(null);
   };
@@ -75,14 +87,14 @@ export const PmidToolbarAddon: React.FC = () => {
 };
 
 export const NctToolbarAddon: React.FC = () => {
-  const { activeToolbarPopover, setActiveToolbarPopover, editor } = useRichTextEditorContext();
+  const { activeToolbarPopover, setActiveToolbarPopover, editor, getSavedEditorSelection } = useRichTextEditorContext();
   const [nctInput, setNctInput] = useState('');
   const isOpen = activeToolbarPopover === NCT_POPOVER_ID;
 
   const insertNct = () => {
     const nctId = nctInput.trim();
     if (!nctId || !editor) return;
-    editor.chain().focus().insertContent(buildNctReferenceNode(nctId)).run();
+    insertAtSavedEditorSelection(editor, getSavedEditorSelection, buildNctReferenceNode(nctId));
     setNctInput('');
     setActiveToolbarPopover(null);
   };
@@ -113,7 +125,7 @@ export const NctToolbarAddon: React.FC = () => {
 };
 
 export const AbstractToolbarAddon: React.FC = () => {
-  const { activeToolbarPopover, setActiveToolbarPopover, editor } = useRichTextEditorContext();
+  const { activeToolbarPopover, setActiveToolbarPopover, editor, getSavedEditorSelection } = useRichTextEditorContext();
   const [abstractTitle, setAbstractTitle] = useState('');
   const [abstractLink, setAbstractLink] = useState('');
   const isOpen = activeToolbarPopover === ABSTRACT_POPOVER_ID;
@@ -122,7 +134,7 @@ export const AbstractToolbarAddon: React.FC = () => {
     const title = abstractTitle.trim();
     const href = normalizeHttpUrl(abstractLink);
     if (!title || !href || !editor || !isSafeHttpUrl(href)) return;
-    editor.chain().focus().insertContent(buildAbstractReferenceNode(title, href)).run();
+    insertAtSavedEditorSelection(editor, getSavedEditorSelection, buildAbstractReferenceNode(title, href));
     setAbstractTitle('');
     setAbstractLink('');
     setActiveToolbarPopover(null);
