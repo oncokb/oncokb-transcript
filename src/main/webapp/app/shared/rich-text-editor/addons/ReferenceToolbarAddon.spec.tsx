@@ -42,7 +42,7 @@ describe('ReferenceToolbarAddon', () => {
     expect(editor.chain).toHaveBeenCalled();
     expect(getSavedEditorSelection).toHaveBeenCalled();
     expect(chain.focus).toHaveBeenCalled();
-    expect(chain.setTextSelection).toHaveBeenCalledWith(4);
+    expect(chain.setTextSelection).toHaveBeenCalledWith({ from: 4, to: 9 });
     expect(chain.insertContent).toHaveBeenCalledWith({ type: 'pmidGroup', attrs: { pmids: ['12345'] } });
     expect(chain.run).toHaveBeenCalled();
     expect(setActiveToolbarPopover).toHaveBeenCalledWith(null);

@@ -1,7 +1,9 @@
 import classNames from 'classnames';
+import { Editor } from '@tiptap/core';
 import React, { useState } from 'react';
 import * as styles from '../RichTextEditor.module.scss';
-import { useRichTextEditorContext } from '../RichTextEditor';
+import { RichTextSelectionRange, useRichTextEditorContext } from '../RichTextEditor';
+import { RichTextInlineNode } from '../richTextSchema';
 import { isSafeHttpUrl, normalizeHttpUrl } from '../utils';
 import { buildAbstractReferenceNode, buildNctReferenceNode } from './ReferenceNodeExtensions';
 
@@ -14,6 +16,19 @@ interface ToolbarToggleButtonProps {
   label: string;
   isOpen: boolean;
 }
+
+export const insertAtSavedEditorSelection = (
+  editor: Editor,
+  getSavedEditorSelection: () => RichTextSelectionRange | null,
+  content: RichTextInlineNode,
+) => {
+  const selection = getSavedEditorSelection();
+  const chain = editor.chain().focus();
+  if (selection) {
+    chain.setTextSelection(selection);
+  }
+  return chain.insertContent(content).run();
+};
 
 const ToolbarToggleButton: React.FC<ToolbarToggleButtonProps> = ({ popoverId, label, isOpen }) => {
   const { saveEditorSelection, setActiveToolbarPopover } = useRichTextEditorContext();
@@ -41,12 +56,7 @@ export const PmidToolbarAddon: React.FC = () => {
   const insertPmid = () => {
     const pmid = pmidInput.trim();
     if (!pmid || !editor) return;
-    const selection = getSavedEditorSelection();
-    const chain = editor.chain().focus();
-    if (selection) {
-      chain.setTextSelection(selection.from);
-    }
-    chain.insertContent({ type: 'pmidGroup', attrs: { pmids: [pmid] } }).run();
+    insertAtSavedEditorSelection(editor, getSavedEditorSelection, { type: 'pmidGroup', attrs: { pmids: [pmid] } });
     setPmidInput('');
     setActiveToolbarPopover(null);
   };
@@ -84,12 +94,7 @@ export const NctToolbarAddon: React.FC = () => {
   const insertNct = () => {
     const nctId = nctInput.trim();
     if (!nctId || !editor) return;
-    const selection = getSavedEditorSelection();
-    const chain = editor.chain().focus();
-    if (selection) {
-      chain.setTextSelection(selection.from);
-    }
-    chain.insertContent(buildNctReferenceNode(nctId)).run();
+    insertAtSavedEditorSelection(editor, getSavedEditorSelection, buildNctReferenceNode(nctId));
     setNctInput('');
     setActiveToolbarPopover(null);
   };
@@ -129,12 +134,7 @@ export const AbstractToolbarAddon: React.FC = () => {
     const title = abstractTitle.trim();
     const href = normalizeHttpUrl(abstractLink);
     if (!title || !href || !editor || !isSafeHttpUrl(href)) return;
-    const selection = getSavedEditorSelection();
-    const chain = editor.chain().focus();
-    if (selection) {
-      chain.setTextSelection(selection.from);
-    }
-    chain.insertContent(buildAbstractReferenceNode(title, href)).run();
+    insertAtSavedEditorSelection(editor, getSavedEditorSelection, buildAbstractReferenceNode(title, href));
     setAbstractTitle('');
     setAbstractLink('');
     setActiveToolbarPopover(null);

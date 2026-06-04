@@ -4,6 +4,7 @@ import * as styles from '../RichTextEditor.module.scss';
 import { useRichTextEditorContext } from '../RichTextEditor';
 import { isSafeHttpUrl, normalizeHttpUrl } from '../utils';
 import { GenericLink } from './ReferenceNodeExtensions';
+import { insertAtSavedEditorSelection } from './ReferenceToolbarAddon';
 
 export { GenericLink as genericLinkExtension };
 
@@ -18,12 +19,7 @@ export const LinkToolbarAddon: React.FC = () => {
   const insertGenericLink = () => {
     const href = normalizeHttpUrl(linkUrl);
     if (!href || !editor || !isSafeHttpUrl(href)) return;
-    const selection = getSavedEditorSelection();
-    const chain = editor.chain().focus();
-    if (selection) {
-      chain.setTextSelection(selection.from);
-    }
-    chain.insertContent({ type: 'genericLink', attrs: { href, text: href } }).run();
+    insertAtSavedEditorSelection(editor, getSavedEditorSelection, { type: 'genericLink', attrs: { href, text: href } });
     setLinkUrl('');
     setActiveToolbarPopover(null);
   };
