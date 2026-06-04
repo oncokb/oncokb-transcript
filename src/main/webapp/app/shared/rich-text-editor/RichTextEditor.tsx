@@ -15,12 +15,19 @@ export interface RichTextEditorChange {
 
 export type RichTextPasteHandler = (text: string, editor: Editor) => boolean;
 
+export interface RichTextSelectionRange {
+  from: number;
+  to: number;
+}
+
 interface RichTextEditorContextValue {
   editor: Editor | null;
   disabled: boolean;
   activeToolbarPopover: string | null;
   setActiveToolbarPopover: React.Dispatch<React.SetStateAction<string | null>>;
   editorWrapperRef: React.RefObject<HTMLDivElement>;
+  saveEditorSelection: () => void;
+  getSavedEditorSelection: () => RichTextSelectionRange | null;
 }
 
 const RichTextEditorContext = createContext<RichTextEditorContextValue | undefined>(undefined);
@@ -64,6 +71,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const [activeToolbarPopover, setActiveToolbarPopover] = useState<string | null>(null);
   const [isEditorFocused, setIsEditorFocused] = useState(false);
   const editorWrapperRef = useRef<HTMLDivElement>(null);
+  const savedEditorSelectionRef = useRef<RichTextSelectionRange | null>(null);
   const configuredExtensions = useMemo(
     () => [
       // tiptap comes out the box with some of the basic text formattings, but we're
@@ -124,6 +132,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editor?.setEditable(!disabled);
   }, [disabled, editor]);
 
+  const saveEditorSelection = () => {
+    if (!editor) return;
+    const { from, to } = editor.state.selection;
+    savedEditorSelectionRef.current = { from, to };
+  };
+
+  const getSavedEditorSelection = () => savedEditorSelectionRef.current;
+
   useEffect(() => {
     // when we click anywhere other than the toolbar popover, we want to close the popover
     if (!activeToolbarPopover) return;
@@ -141,6 +157,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     activeToolbarPopover,
     setActiveToolbarPopover,
     editorWrapperRef,
+    saveEditorSelection,
+    getSavedEditorSelection,
   };
 
   return (

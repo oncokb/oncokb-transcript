@@ -16,13 +16,14 @@ interface ToolbarToggleButtonProps {
 }
 
 const ToolbarToggleButton: React.FC<ToolbarToggleButtonProps> = ({ popoverId, label, isOpen }) => {
-  const { setActiveToolbarPopover } = useRichTextEditorContext();
+  const { saveEditorSelection, setActiveToolbarPopover } = useRichTextEditorContext();
   return (
     <button
       type="button"
       className={classNames(styles.toolbarBtn, isOpen && styles.active)}
       onMouseDown={event => {
         event.preventDefault();
+        saveEditorSelection();
         setActiveToolbarPopover(panel => (panel === popoverId ? null : popoverId));
       }}
       title={label}
@@ -33,18 +34,19 @@ const ToolbarToggleButton: React.FC<ToolbarToggleButtonProps> = ({ popoverId, la
 };
 
 export const PmidToolbarAddon: React.FC = () => {
-  const { activeToolbarPopover, setActiveToolbarPopover, editor } = useRichTextEditorContext();
+  const { activeToolbarPopover, setActiveToolbarPopover, editor, getSavedEditorSelection } = useRichTextEditorContext();
   const [pmidInput, setPmidInput] = useState('');
   const isOpen = activeToolbarPopover === PMID_POPOVER_ID;
 
   const insertPmid = () => {
     const pmid = pmidInput.trim();
     if (!pmid || !editor) return;
-    editor
-      .chain()
-      .focus()
-      .insertContent({ type: 'pmidGroup', attrs: { pmids: [pmid] } })
-      .run();
+    const selection = getSavedEditorSelection();
+    const chain = editor.chain().focus();
+    if (selection) {
+      chain.setTextSelection(selection.from);
+    }
+    chain.insertContent({ type: 'pmidGroup', attrs: { pmids: [pmid] } }).run();
     setPmidInput('');
     setActiveToolbarPopover(null);
   };
@@ -75,14 +77,19 @@ export const PmidToolbarAddon: React.FC = () => {
 };
 
 export const NctToolbarAddon: React.FC = () => {
-  const { activeToolbarPopover, setActiveToolbarPopover, editor } = useRichTextEditorContext();
+  const { activeToolbarPopover, setActiveToolbarPopover, editor, getSavedEditorSelection } = useRichTextEditorContext();
   const [nctInput, setNctInput] = useState('');
   const isOpen = activeToolbarPopover === NCT_POPOVER_ID;
 
   const insertNct = () => {
     const nctId = nctInput.trim();
     if (!nctId || !editor) return;
-    editor.chain().focus().insertContent(buildNctReferenceNode(nctId)).run();
+    const selection = getSavedEditorSelection();
+    const chain = editor.chain().focus();
+    if (selection) {
+      chain.setTextSelection(selection.from);
+    }
+    chain.insertContent(buildNctReferenceNode(nctId)).run();
     setNctInput('');
     setActiveToolbarPopover(null);
   };
@@ -113,7 +120,7 @@ export const NctToolbarAddon: React.FC = () => {
 };
 
 export const AbstractToolbarAddon: React.FC = () => {
-  const { activeToolbarPopover, setActiveToolbarPopover, editor } = useRichTextEditorContext();
+  const { activeToolbarPopover, setActiveToolbarPopover, editor, getSavedEditorSelection } = useRichTextEditorContext();
   const [abstractTitle, setAbstractTitle] = useState('');
   const [abstractLink, setAbstractLink] = useState('');
   const isOpen = activeToolbarPopover === ABSTRACT_POPOVER_ID;
@@ -122,7 +129,12 @@ export const AbstractToolbarAddon: React.FC = () => {
     const title = abstractTitle.trim();
     const href = normalizeHttpUrl(abstractLink);
     if (!title || !href || !editor || !isSafeHttpUrl(href)) return;
-    editor.chain().focus().insertContent(buildAbstractReferenceNode(title, href)).run();
+    const selection = getSavedEditorSelection();
+    const chain = editor.chain().focus();
+    if (selection) {
+      chain.setTextSelection(selection.from);
+    }
+    chain.insertContent(buildAbstractReferenceNode(title, href)).run();
     setAbstractTitle('');
     setAbstractLink('');
     setActiveToolbarPopover(null);
