@@ -21,4 +21,13 @@ public interface GeneRepository extends JpaRepository<Gene, Long> {
 
     @Query("select distinct g from Gene g left join fetch g.geneAliases ga left join fetch g.ensemblGenes eg")
     List<Gene> findAllWithGeneAliasAndEnsemblGenes();
+
+    @Query(
+        value = "select g.entrez_gene_id as entrezGeneId, g.hugo_symbol as hugoSymbol, eg.reference_genome as referenceGenome, t.ensembl_transcript_id as ensemblTranscriptId " +
+        "from gene g " +
+        "left join ensembl_gene eg on eg.gene_id = g.id and eg.canonical = true and eg.reference_genome in ('GRCh37', 'GRCh38') " +
+        "left join transcript t on t.ensembl_gene_id = eg.id and t.canonical = true",
+        nativeQuery = true
+    )
+    List<CanonicalTranscriptRow> findCanonicalTranscriptRows();
 }

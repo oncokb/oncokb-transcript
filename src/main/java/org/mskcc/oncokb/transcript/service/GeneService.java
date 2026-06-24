@@ -6,8 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,8 +22,10 @@ import org.mskcc.oncokb.transcript.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.transcript.domain.Gene;
 import org.mskcc.oncokb.transcript.domain.GeneAlias;
 import org.mskcc.oncokb.transcript.domain.enumeration.InfoType;
+import org.mskcc.oncokb.transcript.repository.CanonicalTranscriptRow;
 import org.mskcc.oncokb.transcript.repository.GeneAliasRepository;
 import org.mskcc.oncokb.transcript.repository.GeneRepository;
+import org.mskcc.oncokb.transcript.service.dto.CanonicalTranscriptDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
@@ -143,6 +149,62 @@ public class GeneService {
             return Optional.of(geneAliasOptional.get().getGene());
         } else {
             return Optional.empty();
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<CanonicalTranscriptDTO> findAllCanonicalTranscripts() {
+        List<CanonicalTranscriptRow> rows = geneRepository.findCanonicalTranscriptRows();
+        Map<String, CanonicalTranscriptDTO> groupedRows = new LinkedHashMap<>();
+
+        for (CanonicalTranscriptRow row : rows) {
+            String key = row.getEntrezGeneId() + "|" + row.getHugoSymbol();
+            CanonicalTranscriptDTO vm = groupedRows.computeIfAbsent(
+                key,
+                ignored -> {
+                    CanonicalTranscriptDTO item = new CanonicalTranscriptDTO();
+                    item.setEntrezGeneId(row.getEntrezGeneId());
+                    item.setHugoSymbol(row.getHugoSymbol());
+                    return item;
+                }
+            );
+
+            if ("GRCh37".equalsIgnoreCase(row.getReferenceGenome())) {
+                setIsoformWithWarning(vm, row.getEnsemblTranscriptId(), true);
+            } else if ("GRCh38".equalsIgnoreCase(row.getReferenceGenome())) {
+                setIsoformWithWarning(vm, row.getEnsemblTranscriptId(), false);
+            }
+        }
+
+        List<CanonicalTranscriptDTO> result = new ArrayList<>(groupedRows.values());
+        result.sort(Comparator.comparing(CanonicalTranscriptDTO::getHugoSymbol, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+        return result;
+    }
+
+    private void setIsoformWithWarning(CanonicalTranscriptDTO vm, String newIsoform, boolean isGrch37) {
+        if (StringUtils.isBlank(newIsoform)) {
+            return;
+        }
+
+        String existingIsoform = isGrch37 ? vm.getGrch37Isoform() : vm.getGrch38Isoform();
+        if (StringUtils.isBlank(existingIsoform)) {
+            if (isGrch37) {
+                vm.setGrch37Isoform(newIsoform);
+            } else {
+                vm.setGrch38Isoform(newIsoform);
+            }
+            return;
+        }
+
+        if (!existingIsoform.equals(newIsoform)) {
+            log.warn(
+                "Multiple canonical transcripts found for gene {} ({}) {}: keeping {}, ignoring {}",
+                vm.getHugoSymbol(),
+                vm.getEntrezGeneId(),
+                isGrch37 ? "GRCh37" : "GRCh38",
+                existingIsoform,
+                newIsoform
+            );
         }
     }
 

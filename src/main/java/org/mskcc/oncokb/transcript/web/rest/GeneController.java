@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.transcript.domain.Gene;
 import org.mskcc.oncokb.transcript.repository.GeneRepository;
 import org.mskcc.oncokb.transcript.service.GeneService;
+import org.mskcc.oncokb.transcript.service.dto.CanonicalTranscriptDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -52,6 +53,12 @@ public class GeneController {
                 });
         }
         return new ResponseEntity<>(genes, HttpStatus.OK);
+    }
+
+    @GetMapping("/find-canonical-transcripts")
+    public ResponseEntity<List<CanonicalTranscriptDTO>> findCanonicalTranscripts() {
+        log.debug("REST request to get all canonical transcripts");
+        return new ResponseEntity<>(geneService.findAllCanonicalTranscripts(), HttpStatus.OK);
     }
 
     private Optional<Gene> getGeneBySymbol(String symbol) {
