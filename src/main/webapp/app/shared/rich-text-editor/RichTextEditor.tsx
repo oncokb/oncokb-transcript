@@ -88,6 +88,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       extensions: configuredExtensions,
       content: content ?? plainTextToTipTapDoc(plainText ?? ''),
       editable: !disabled,
+      // Copying serializes each block (paragraph) via the clipboard text serializer, which
+      // separates blocks with "\n\n" by default. Our paragraphs map to single lines, so use a
+      // single newline to avoid doubling the blank lines between them.
+      coreExtensionOptions: {
+        clipboardTextSerializer: { blockSeparator: '\n' },
+      },
       editorProps: {
         handleDOMEvents: {
           focus() {
