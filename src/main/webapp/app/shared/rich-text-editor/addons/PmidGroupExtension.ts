@@ -1,5 +1,7 @@
 import { mergeAttributes, Node } from '@tiptap/core';
 import { getPubmedSearchHref } from 'app/shared/util/pubmed';
+import { RichTextInlineNode } from '../richTextSchema';
+import { serializeInlineNode } from '../utils';
 
 export const PMID_GROUP_ATTR = 'data-pmid-group';
 
@@ -33,6 +35,12 @@ export const PmidGroup = Node.create({
   // Tell us how to recognize this node in the DOM. We look for an anchor tag with our custom attribute.
   parseHTML() {
     return [{ tag: `a[${PMID_GROUP_ATTR}]` }];
+  },
+
+  // Provide the plain-text representation used when copying/cutting. Without this, ProseMirror's
+  // default clipboard serializer emits nothing for atom nodes and the reference is silently dropped.
+  renderText({ node }) {
+    return serializeInlineNode({ type: node.type.name, attrs: node.attrs } as RichTextInlineNode);
   },
 
   // You can check the type explanation in HTMLAttributes, but we're returning a tuple

@@ -1,6 +1,12 @@
 import { mergeAttributes, Node } from '@tiptap/core';
-import { RichTextAbstractReferenceNode, RichTextGenericLinkNode, RichTextNctReferenceNode } from '../richTextSchema';
-import { normalizeHttpUrl } from '../utils';
+import { RichTextAbstractReferenceNode, RichTextGenericLinkNode, RichTextInlineNode, RichTextNctReferenceNode } from '../richTextSchema';
+import { normalizeHttpUrl, serializeInlineNode } from '../utils';
+
+// Shared plain-text serializer for the reference atom nodes. ProseMirror's default clipboard
+// serializer emits nothing for atom nodes, so without a renderText the reference label is silently
+// dropped on copy/cut. Delegating to serializeInlineNode keeps the label format single-sourced.
+const renderReferenceText = (node: { type: { name: string }; attrs: Record<string, unknown> }): string =>
+  serializeInlineNode({ type: node.type.name, attrs: node.attrs } as RichTextInlineNode);
 
 export const ABSTRACT_REFERENCE_ATTR = 'data-abstract-reference';
 export const ABSTRACT_TITLE_ATTR = 'data-title';
@@ -65,6 +71,10 @@ export const AbstractReference = Node.create({
     return [{ tag: `a[${ABSTRACT_REFERENCE_ATTR}]` }];
   },
 
+  renderText({ node }) {
+    return renderReferenceText(node);
+  },
+
   renderHTML({ HTMLAttributes }) {
     return [
       'a',
@@ -107,6 +117,10 @@ export const GenericLink = Node.create({
     return [{ tag: `a[${GENERIC_LINK_ATTR}]` }];
   },
 
+  renderText({ node }) {
+    return renderReferenceText(node);
+  },
+
   renderHTML({ HTMLAttributes }) {
     const href = HTMLAttributes[GENERIC_LINK_HREF_ATTR] ?? '';
     const text = HTMLAttributes[GENERIC_LINK_TEXT_ATTR] ?? '';
@@ -132,6 +146,10 @@ export const NctReference = Node.create({
 
   parseHTML() {
     return [{ tag: `a[${NCT_REFERENCE_ATTR}]` }];
+  },
+
+  renderText({ node }) {
+    return renderReferenceText(node);
   },
 
   renderHTML({ HTMLAttributes }) {

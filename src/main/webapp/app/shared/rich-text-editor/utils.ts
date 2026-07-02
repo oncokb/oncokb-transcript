@@ -45,7 +45,7 @@ export const textToTipTapDocWithReferences = (text: string): RichTextDoc => {
   };
 };
 
-const serializeInlineNode = (node: RichTextInlineNode): string => {
+export const serializeInlineNode = (node: RichTextInlineNode): string => {
   if (node.type === 'text') {
     return node.text;
   }
