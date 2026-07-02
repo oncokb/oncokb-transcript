@@ -9,6 +9,7 @@ import { mock, mockReset } from 'jest-mock-extended';
 import { SentryError } from 'app/config/sentry-error';
 import { getTumorNameUuid, ReviewLevel, TumorReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
 import { ReviewAction } from 'app/config/constants/firebase';
+import { NEW_NAME_UUID_VALUE } from 'app/config/constants/constants';
 import _ from 'lodash';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 import { textToTipTapDocWithReferences } from 'app/shared/rich-text-editor/utils';
@@ -128,6 +129,28 @@ describe('Firebase Gene Review Service', () => {
           'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
           'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
           [`Meta/BRAF/review/${DEFAULT_UUID}`]: true,
+        }),
+      );
+    });
+    it('should keep the NEW_NAME_UUID_VALUE sentinel when renaming a not-yet-reviewed added section', async () => {
+      await firebaseGeneReviewService.updateReviewableContent(
+        'Genes/BRAF/mutations/0/name',
+        'old name',
+        'new name',
+        new Review(mockAuthStore.fullName, undefined, true),
+        DEFAULT_UUID,
+      );
+      expect(mockFirebaseRepository.update).toHaveBeenCalledWith(
+        '/',
+        expect.objectContaining({
+          'Genes/BRAF/mutations/0/name': 'new name',
+          'Genes/BRAF/mutations/0/name_review': {
+            added: true,
+            lastReviewed: 'old name',
+            updateTime: DEFAULT_DATE.getTime(),
+            updatedBy: mockAuthStore.fullName,
+          },
+          [`Meta/BRAF/review/${DEFAULT_UUID}`]: NEW_NAME_UUID_VALUE,
         }),
       );
     });
