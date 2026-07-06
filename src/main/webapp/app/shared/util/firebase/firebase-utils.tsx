@@ -90,7 +90,11 @@ export const geneNeedsReview = (meta: Meta | null | undefined) => {
 
 export const mutationNeedsReview = (mutation: Mutation, review: MetaReview) => {
   const ignoreNameChange = mutation.name_review?.added || false;
-  const uuids = Object.keys(review).filter(key => key !== CURRENT_REVIEWER);
+  // A name uuid that was only added (meta value === NEW_NAME_UUID_VALUE) does not require review
+  // on its own, only once other content is curated under the section.
+  const uuids = Object.entries(review)
+    .filter(([key, val]) => key !== CURRENT_REVIEWER && val !== NEW_NAME_UUID_VALUE)
+    .map(([key]) => key);
 
   let nestedObjects = [mutation];
   while (nestedObjects.length > 0) {

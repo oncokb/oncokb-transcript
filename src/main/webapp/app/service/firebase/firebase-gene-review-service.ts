@@ -1,3 +1,4 @@
+import { NEW_NAME_UUID_VALUE } from 'app/config/constants/constants';
 import { ReviewAction } from 'app/config/constants/firebase';
 import { FirebaseHistoryService } from 'app/service/firebase/firebase-history-service';
 import { FirebaseMetaService } from 'app/service/firebase/firebase-meta-service';
@@ -97,7 +98,9 @@ export class FirebaseGeneReviewService {
 
     let updateObject = this.getGeneUpdateObject(updateValue, updatedReview!, firebasePath, uuid!);
     const metaUpdateObject = this.firebaseMetaService.getUpdateObject(hugoSymbol!, isGermline, {
-      [uuid!]: !isChangeReverted ? true : null,
+      // A section that is still a pending create (name_review.added) will keep the NEW_NAME_UUID_VALUE
+      // even when its name is edited. Otherwise fall back to the normal true/null behavior for non name fields.
+      [uuid!]: updatedReview?.added ? NEW_NAME_UUID_VALUE : !isChangeReverted ? true : null,
     });
     updateObject = { ...updateObject, ...metaUpdateObject };
 
