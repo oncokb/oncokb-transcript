@@ -1,9 +1,9 @@
 package org.mskcc.oncokb.curation.web.rest;
 
 import java.util.List;
-import java.util.Map;
 import org.mskcc.oncokb.curation.service.OncoKbDataReleaseService;
 import org.mskcc.oncokb.curation.service.dto.datarelease.SaveGeneJobStatus;
+import org.mskcc.oncokb.curation.service.dto.datarelease.SaveGeneRequest;
 import org.mskcc.oncokb.curation.service.dto.datarelease.SaveGeneResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,15 +26,16 @@ public class OncoKbDataReleaseResource {
     }
 
     @PostMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SaveGeneResponse> triggerSave(@RequestBody(required = false) Map<String, List<Integer>> body) {
+    public ResponseEntity<SaveGeneResponse> triggerSave(@RequestBody(required = false) SaveGeneRequest request) {
         try {
-            List<Integer> ids = body == null ? null : body.get("entrezGeneIds");
+            boolean preview = request != null && request.isPreview();
+            List<Integer> ids = request == null ? null : request.getEntrezGeneIds();
 
             if (ids == null || ids.isEmpty()) {
-                return oncoKbDataReleaseService.triggerSaveAll();
+                return oncoKbDataReleaseService.triggerSaveAll(preview);
             }
 
-            return oncoKbDataReleaseService.triggerSaveByEntrezIds(ids);
+            return oncoKbDataReleaseService.triggerSaveByEntrezIds(ids, preview);
         } catch (HttpClientErrorException e) {
             throw new ResponseStatusException(e.getStatusCode(), e.getResponseBodyAsString());
         } catch (Exception e) {
@@ -44,9 +45,12 @@ public class OncoKbDataReleaseResource {
     }
 
     @GetMapping(value = "/status/{geneId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SaveGeneJobStatus> getGeneStatus(@PathVariable Integer geneId) {
+    public ResponseEntity<SaveGeneJobStatus> getGeneStatus(
+        @PathVariable Integer geneId,
+        @RequestParam(name = "preview", required = false, defaultValue = "false") boolean preview
+    ) {
         try {
-            return oncoKbDataReleaseService.getGeneStatus(geneId);
+            return oncoKbDataReleaseService.getGeneStatus(geneId, preview);
         } catch (HttpClientErrorException e) {
             throw new ResponseStatusException(e.getStatusCode(), e.getResponseBodyAsString());
         } catch (Exception e) {

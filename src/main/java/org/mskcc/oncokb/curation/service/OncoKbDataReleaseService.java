@@ -26,22 +26,27 @@ public class OncoKbDataReleaseService {
         this.applicationProperties = applicationProperties;
     }
 
-    public ResponseEntity<SaveGeneResponse> triggerSaveAll() {
-        String url = applicationProperties.getOncokbDataRelease().getUrl() + "/api/v1/gene-data/save";
-        return restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(null, jsonHeaders()), SaveGeneResponse.class);
-    }
-
-    public ResponseEntity<SaveGeneResponse> triggerSaveByEntrezIds(List<Integer> entrezGeneIds) {
+    public ResponseEntity<SaveGeneResponse> triggerSaveAll(boolean preview) {
         String url = applicationProperties.getOncokbDataRelease().getUrl() + "/api/v1/gene-data/save";
 
         Map<String, Object> payload = new HashMap<>();
-        payload.put("entrezGeneIds", entrezGeneIds);
+        payload.put("preview", preview);
 
         return restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(payload, jsonHeaders()), SaveGeneResponse.class);
     }
 
-    public ResponseEntity<SaveGeneJobStatus> getGeneStatus(Integer geneId) {
-        String url = applicationProperties.getOncokbDataRelease().getUrl() + "/api/v1/gene-data/status/" + geneId;
+    public ResponseEntity<SaveGeneResponse> triggerSaveByEntrezIds(List<Integer> entrezGeneIds, boolean preview) {
+        String url = applicationProperties.getOncokbDataRelease().getUrl() + "/api/v1/gene-data/save";
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("entrezGeneIds", entrezGeneIds);
+        payload.put("preview", preview);
+
+        return restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(payload, jsonHeaders()), SaveGeneResponse.class);
+    }
+
+    public ResponseEntity<SaveGeneJobStatus> getGeneStatus(Integer geneId, boolean preview) {
+        String url = applicationProperties.getOncokbDataRelease().getUrl() + "/api/v1/gene-data/status/" + geneId + "?preview=" + preview;
 
         ResponseEntity<String> raw = restTemplate.getForEntity(url, String.class);
 
