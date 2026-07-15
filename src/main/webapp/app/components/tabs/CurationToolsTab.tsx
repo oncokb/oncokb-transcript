@@ -207,8 +207,9 @@ export function CurationToolsTab({
             </Col>
           </Row>
           <Row className="border-top pt-3">
-            <Col>
+            <Col className="d-flex flex-column gap-3">
               <SaveGeneButton gene={geneToUpdate.current} />
+              <SaveGeneButton gene={geneToUpdate.current} preview />
             </Col>
           </Row>
         </>

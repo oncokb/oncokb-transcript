@@ -722,10 +722,10 @@ export class FirebaseGeneService {
     await this.firebaseGeneReviewService.updateReviewableContent(arrayPath, current ?? {}, newList, review, uuid);
   };
 
-  saveGene = async (hugoSymbolProp: string) => {
-    await this.saveGeneWithData(hugoSymbolProp);
+  saveGene = async (hugoSymbolProp: string, preview = false) => {
+    await this.saveGeneWithData(hugoSymbolProp, preview);
   };
-  saveGeneWithData = async (hugoSymbolProp: string) => {
+  saveGeneWithData = async (hugoSymbolProp: string, preview = false) => {
     const searchResponse = (await flowResult(
       flow(this.geneStore.getSearch.bind(this.geneStore))({ query: hugoSymbolProp, exact: true, noState: true }),
     )) as AxiosResponse<IGene[], any>;
@@ -733,7 +733,7 @@ export class FirebaseGeneService {
     const entrezGeneIds = (data ?? []).map(g => g?.entrezGeneId).filter((id: any) => typeof id === 'number');
     try {
       if (entrezGeneIds.length > 0) {
-        await dataReleaseClient.triggerSave({ headers: { 'Content-Type': 'application/json' }, data: { entrezGeneIds } });
+        await dataReleaseClient.triggerSave({ headers: { 'Content-Type': 'application/json' }, data: { entrezGeneIds, preview } });
       }
     } catch (e) {
       /* eslint-disable no-console */

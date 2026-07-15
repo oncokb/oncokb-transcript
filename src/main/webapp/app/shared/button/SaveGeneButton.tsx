@@ -10,10 +10,15 @@ import { dataReleaseClient } from '../api/clients';
 
 type ISaveGeneButtonProps = StoreProps & {
   gene?: IGene;
+  /**
+   * When true, saves the gene as it is currently curated in Firebase (unreviewed edits
+   * retained) instead of reverting fields to their lastReviewed value.
+   */
+  preview?: boolean;
 } & ButtonProps &
   Omit<React.HTMLAttributes<HTMLButtonElement>, 'onClick' | 'disabled'>;
 
-function SaveGeneButton({ gene, firebaseGeneService, ...buttonProps }: ISaveGeneButtonProps) {
+function SaveGeneButton({ gene, preview = false, firebaseGeneService, ...buttonProps }: ISaveGeneButtonProps) {
   const [isPending, setIsPending] = useState(false);
   const [progressPercent, setProgressPercent] = useState<number | undefined>(undefined);
   const [isQueued, setIsQueued] = useState(false);
@@ -41,7 +46,7 @@ function SaveGeneButton({ gene, firebaseGeneService, ...buttonProps }: ISaveGene
       if (!pollIntervalRef.current) {
         return;
       }
-      const statusResp = await dataReleaseClient.getGeneStatus(entrez);
+      const statusResp = await dataReleaseClient.getGeneStatus(entrez, { params: { preview } });
       if (!statusResp?.data) return;
 
       const { stepIndex, stepTotal, status } = statusResp.data;
@@ -92,7 +97,7 @@ function SaveGeneButton({ gene, firebaseGeneService, ...buttonProps }: ISaveGene
       if (!entrezGeneId) return;
 
       try {
-        const statusResp = await dataReleaseClient.getGeneStatus(entrezGeneId);
+        const statusResp = await dataReleaseClient.getGeneStatus(entrezGeneId, { params: { preview } });
         if (!statusResp?.data) return;
 
         const { stepIndex, stepTotal, status } = statusResp.data;
@@ -132,7 +137,7 @@ function SaveGeneButton({ gene, firebaseGeneService, ...buttonProps }: ISaveGene
         return;
       }
 
-      await firebaseGeneService?.saveGene(hugoSymbol);
+      await firebaseGeneService?.saveGene(hugoSymbol, preview);
       setProgressPercent(0);
       startPolling(entrezGeneId);
     } catch (e) {
@@ -142,10 +147,11 @@ function SaveGeneButton({ gene, firebaseGeneService, ...buttonProps }: ISaveGene
     }
   };
 
-  const confirmText = hugoSymbol === undefined ? 'Save All Genes to Staging' : `Save ${hugoSymbol} to Staging`;
+  const destination = preview ? 'Preview' : 'Staging';
+  const confirmText = hugoSymbol === undefined ? `Save All Genes to ${destination}` : `Save ${hugoSymbol} to ${destination}`;
 
   return (
-    <>
+    <div style={{ maxWidth: '320px' }}>
       <AsyncSaveButton
         {...buttonProps}
         confirmText={confirmText}
@@ -157,7 +163,7 @@ function SaveGeneButton({ gene, firebaseGeneService, ...buttonProps }: ISaveGene
       />
 
       {progressPercent !== undefined && entrezGeneId && (
-        <div className="progress mt-2" style={{ maxWidth: '300px', height: '30px' }}>
+        <div className="progress mt-2 w-100" style={{ height: '30px' }}>
           <div
             className={`progress-bar progress-bar-striped progress-bar-animated ${isQueued ? 'bg-warning' : ''}`}
             role="progressbar"
@@ -167,7 +173,7 @@ function SaveGeneButton({ gene, firebaseGeneService, ...buttonProps }: ISaveGene
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
