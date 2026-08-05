@@ -23,12 +23,14 @@ import {
 } from 'app/config/constants/html-id';
 import { downloadFile, tsvToArray } from 'app/shared/util/file-utils';
 import {
+  ALTERATION_HEADER_KEY,
   geneCheck,
   GenericDI,
   GenomicIndicatorDI,
   GermlineMutationDI,
   saveGenericGeneData,
   saveGenomicIndicator,
+  ORIGINAL_ALTERATION_KEY,
   saveMutation,
   SomaticMutationDI,
 } from 'app/components/tabs/curation-data-import-tab/import-methods';
@@ -41,6 +43,7 @@ import { CellInfo } from 'react-table';
 import { LongText } from 'app/shared/text/LongText';
 import { LONG_TEXT_CUTOFF_COMPACT } from 'app/config/constants/constants';
 import InfoIcon from 'app/shared/icons/InfoIcon';
+import DefaultBadge from 'app/shared/badge/DefaultBadge';
 
 export interface ICurationToolsTabProps extends StoreProps {}
 
@@ -638,13 +641,31 @@ const CurationDataImportTab = observer(
       }
       columns.push(
         ...fileHeaders.map(header => {
+          const isAlterationColumn = header === ALTERATION_HEADER_KEY;
           return {
             disableHeaderFiltering: true,
             accessor: header,
             Header: header,
+            // the normalized badge sits next to the value, so the column needs room for both on one line
+            ...(isAlterationColumn ? { minWidth: 220 } : {}),
             onSearchFilter: (data, keyword) => filterByKeyword(data[header], keyword),
-            Cell({ value }: CellInfo) {
-              return <LongText text={value} cutoff={LONG_TEXT_CUTOFF_COMPACT}></LongText>;
+            Cell({ value, original }: CellInfo) {
+              const originalAlteration = isAlterationColumn ? original[ORIGINAL_ALTERATION_KEY] : undefined;
+              if (!originalAlteration) {
+                return <LongText text={value} cutoff={LONG_TEXT_CUTOFF_COMPACT}></LongText>;
+              }
+              return (
+                <div className={'d-flex align-items-center'}>
+                  <LongText text={value} cutoff={LONG_TEXT_CUTOFF_COMPACT}></LongText>
+                  <DefaultBadge
+                    color={'warning'}
+                    className={'flex-shrink-0'}
+                    tooltipOverlay={<div>Normalized from {originalAlteration}</div>}
+                  >
+                    Normalized
+                  </DefaultBadge>
+                </div>
+              );
             },
           };
         }),

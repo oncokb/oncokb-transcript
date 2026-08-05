@@ -21,7 +21,8 @@ public class AlterationUtils {
     public static final String FUSION_ALTERNATIVE_SEPARATOR = "-";
     private static final String FUSION_REGEX = "\\s*(\\w*)" + FUSION_SEPARATOR + "(\\w*)\\s*(?i)(fusion)?\\s*";
     private static final String FUSION_ALT_REGEX = "\\s*(\\w*)" + FUSION_ALTERNATIVE_SEPARATOR + "(\\w*)\\s+(?i)fusion\\s*";
-    private static final Pattern CDNA_DEL_SEQ = Pattern.compile("(c\\.[0-9+\\-*_]+del)\\w+(ins\\w+)?$", CASE_INSENSITIVE);
+    // The deleted sequence is matched lazily so an insertion, if any, is captured by the ins group instead of being swallowed
+    private static final Pattern CDNA_DEL_SEQ = Pattern.compile("(c\\.[0-9+\\-*_]+del)[a-z0-9]*?(ins[a-z0-9]+)?$", CASE_INSENSITIVE);
     private static final Pattern CDNA_DUP_SEQ = Pattern.compile("(c\\.[0-9+\\-*_]+dup)\\w+$", CASE_INSENSITIVE);
 
     private Alteration parseFusion(String alteration) {

@@ -190,7 +190,7 @@ const GenomicIndicatorsTable = ({
             buildCell={genomicIndicator => {
               return (
                 <RealtimeRichTextEditor
-                  style={{ height: '60px' }}
+                  className="genomic-indicator-description"
                   firebasePath={`${genomicIndicatorsPath}/${cell.original.arrayKey}/description`}
                   label=""
                   disabled={genomicIndicator.name_review?.removed || readOnly || false}
