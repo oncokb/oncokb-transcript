@@ -28,6 +28,10 @@ import { flow, flowResult } from 'mobx';
 import AlterationStore from 'app/entities/alteration/alteration.store';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
+export const ALTERATION_HEADER_KEY = 'alteration';
+// Holds the alteration as it was uploaded, when it differs from the normalized one we curate
+export const ORIGINAL_ALTERATION_KEY = 'original_alteration';
+
 export type GeneDI = {
   hugo_symbol: string;
 };
@@ -246,32 +250,49 @@ export const saveMutation = async (
   mutationList: MutationList,
   vusList: VusObjList,
 ): Promise<DataImportStatus> => {
-  // validate duplication
   const hugoSymbol = dataRow.data.hugo_symbol;
-  const mutation = new Mutation(dataRow.data.alteration);
+  const importedAlteration = dataRow.data.alteration;
+  let mutation: Mutation;
   let mutationImpactStatusUpdated = false;
+  let normalizationMessage = '';
 
-  const existingMuts = getDuplicateMutations(
-    [mutation.name],
-    mutationList,
-    `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`,
-    vusList,
-    {
-      useFullAlterationName: true,
-      exact: true,
-    },
-  );
+  // The alteration is normalized by the annotation endpoint, ie c.4393_4394delAG is normalized to c.4393_4394del. The
+  // normalized alteration is what gets curated, so it also drives the duplication check below.
+  const withNormalizationNote = (status: DataImportStatus): DataImportStatus => {
+    if (!normalizationMessage) {
+      return status;
+    }
+    return {
+      status: status.status,
+      message: [status.message, normalizationMessage].filter(Boolean).join('. '),
+    };
+  };
 
   return geneCheck(firebaseGeneService, isGermline, createGene, hugoSymbol, async () => {
     const request: AnnotateAlterationBody[] = [
       {
         referenceGenome: REFERENCE_GENOME.GRCH37,
-        alteration: { alteration: mutation.name, genes: [{ hugoSymbol } as Gene] } as ApiAlteration,
+        alteration: { alteration: importedAlteration, genes: [{ hugoSymbol } as Gene] } as ApiAlteration,
       },
     ];
     try {
       const annotatedAlterations = await flowResult(flow(alterationStore.annotateAlterations)(request));
       const annotatedAlteration: Alteration = annotatedAlterations[0].entity;
+      const normalizedAlteration = annotatedAlteration.alteration || importedAlteration;
+      if (normalizedAlteration !== importedAlteration) {
+        dataRow.data[ORIGINAL_ALTERATION_KEY] = importedAlteration;
+        dataRow.data.alteration = normalizedAlteration;
+        normalizationMessage = `Normalized alteration from '${importedAlteration}' to '${normalizedAlteration}'`;
+
+        // the description spells the alteration out, so it is rewritten to match what actually gets curated
+        const descriptionParts = dataRow.data.description?.split(importedAlteration) ?? [];
+        const mentions = descriptionParts.length - 1;
+        if (mentions > 0) {
+          dataRow.data.description = descriptionParts.join(normalizedAlteration);
+          normalizationMessage += `, including ${mentions} ${pluralize('mention', mentions)} in the description`;
+        }
+      }
+      mutation = new Mutation(normalizedAlteration);
       let proteinChange = annotatedAlteration.proteinChange;
       if (dataRow.data.protein_change) {
         proteinChange = dataRow.data.protein_change.replace('p.', '').trim();
@@ -279,7 +300,7 @@ export const saveMutation = async (
       mutation.alterations = [
         {
           type: annotatedAlteration.type ?? AlterationTypeEnum.Unknown,
-          alteration: dataRow.data.alteration,
+          alteration: normalizedAlteration,
           name: dataRow.data.name ?? annotatedAlteration.name,
           consequence: annotatedAlteration.consequence?.name ?? '',
           comment: '',
@@ -299,6 +320,18 @@ export const saveMutation = async (
       };
     }
 
+    // validate duplication
+    const existingMuts = getDuplicateMutations(
+      [mutation.name],
+      mutationList,
+      `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`,
+      vusList,
+      {
+        useFullAlterationName: true,
+        exact: true,
+      },
+    );
+
     const isGermlineData = (data: GermlineMutationDI | SomaticMutationDI): data is GermlineMutationDI => {
       return isGermline;
     };
@@ -307,7 +340,7 @@ export const saveMutation = async (
       if (data.pathogenicity) {
         const importStatus: DataImportStatus = pathogenicityCheck(data.pathogenicity);
         if (importStatus.status === 'error') {
-          return importStatus;
+          return withNormalizationNote(importStatus);
         }
       }
       mutation.mutation_effect.pathogenic = data.pathogenicity as PATHOGENICITY;
@@ -322,7 +355,7 @@ export const saveMutation = async (
       if (data.oncogenicity) {
         const importStatus: DataImportStatus = oncogenicityCheck(data.oncogenicity);
         if (importStatus.status === 'error') {
-          return importStatus;
+          return withNormalizationNote(importStatus);
         }
       }
       mutation.mutation_effect.oncogenic = data.oncogenicity as FIREBASE_ONCOGENICITY;
@@ -392,10 +425,10 @@ export const saveMutation = async (
           }
 
           await firebaseGeneService.updateObject('/', updateObject);
-          return {
+          return withNormalizationNote({
             status: 'complete',
             message: 'Overrode existing mutation',
-          };
+          });
         }
       }
     }
@@ -415,15 +448,15 @@ export const saveMutation = async (
             await firebaseMetaService.updateMeta(hugoSymbol, uuid, true, isGermline);
           }
         });
-      return {
+      return withNormalizationNote({
         status: 'complete',
         message: 'Added new mutation',
-      };
+      });
     } catch (error) {
-      return {
+      return withNormalizationNote({
         status: 'error',
         message: 'Failed to add/update mutation.',
-      };
+      });
     }
   });
 };

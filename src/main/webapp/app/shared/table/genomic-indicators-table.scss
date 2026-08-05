@@ -9,3 +9,11 @@
 .genomic-indicators .ReactTable.-striped .rt-tr.-odd {
   background-color: transparent;
 }
+
+// The table cells are `overflow: visible` (so the toolbar popovers and dropdowns can escape the
+// cell), which means a tall description would spill over the rows below it. Keep the editable area
+// bounded and let it scroll internally instead, like the fixed height textarea in the Name column.
+.genomic-indicators .genomic-indicator-description .ProseMirror {
+  max-height: 60px;
+  overflow-y: auto;
+}

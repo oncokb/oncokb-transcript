@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.AlterationAnnotationStatus;
 import org.mskcc.oncokb.curation.domain.EntityStatus;
+import org.mskcc.oncokb.curation.util.AlterationUtils;
 
 public class AlterationUtilsTest {
 
@@ -65,6 +66,43 @@ public class AlterationUtilsTest {
         parseProteinChange(status, "T599delinsIP");
         assertEquals("T599delinsIP", status.getEntity().getProteinChange());
         assertNull(getMessage(status));
+    }
+
+    @Test
+    public void testNormalizeCodingDnaChange() {
+        AlterationUtils alterationUtils = new AlterationUtils();
+        EntityStatus<Alteration> status;
+
+        // del with trailing sequence -> strip sequence, warning message returned
+        status = alterationUtils.parseAlteration("c.4393_4394delAG");
+        assertEquals("c.4393_4394del", status.getEntity().getAlteration());
+        assertEquals("c.4393_4394del", status.getEntity().getName());
+        assertTrue(status.isWarning());
+        assertEquals("Normalized from 'c.4393_4394delAG' to 'c.4393_4394del'", getMessage(status));
+
+        // dup with trailing sequence -> strip sequence
+        status = alterationUtils.parseAlteration("c.4393_4394dupAG");
+        assertEquals("c.4393_4394dup", status.getEntity().getAlteration());
+        assertTrue(status.isWarning());
+
+        // delSEQinsINS -> delinsINS, the inserted sequence is preserved
+        status = alterationUtils.parseAlteration("c.4393_4394delAGinsTT");
+        assertEquals("c.4393_4394delinsTT", status.getEntity().getAlteration());
+        assertTrue(status.isWarning());
+        assertEquals("Normalized from 'c.4393_4394delAGinsTT' to 'c.4393_4394delinsTT'", getMessage(status));
+
+        // already correct forms should be unchanged, no warning
+        status = alterationUtils.parseAlteration("c.4393_4394del");
+        assertEquals("c.4393_4394del", status.getEntity().getAlteration());
+        assertTrue(status.isOk());
+
+        status = alterationUtils.parseAlteration("c.4393_4394delinsTT");
+        assertEquals("c.4393_4394delinsTT", status.getEntity().getAlteration());
+        assertTrue(status.isOk());
+
+        status = alterationUtils.parseAlteration("c.4393_4394dup");
+        assertEquals("c.4393_4394dup", status.getEntity().getAlteration());
+        assertTrue(status.isOk());
     }
 
     private static String getMessage(EntityStatus<?> status) {
