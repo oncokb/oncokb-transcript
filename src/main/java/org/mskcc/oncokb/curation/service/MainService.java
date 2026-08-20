@@ -133,6 +133,58 @@ public class MainService {
         return Optional.empty();
     }
 
+    private Optional<Gene> findGene(Gene gene) {
+        if (gene.getId() != null) {
+            return geneService.findOne(gene.getId());
+        }
+        if (gene.getEntrezGeneId() != null) {
+            return geneService.findGeneByEntrezGeneId(gene.getEntrezGeneId());
+        }
+        if (gene.getHugoSymbol() != null) {
+            Optional<Gene> geneOptional = geneService.findGeneByHugoSymbol(gene.getHugoSymbol());
+            if (geneOptional.isEmpty()) {
+                geneOptional = geneService.findGeneBySynonym(gene.getHugoSymbol());
+            }
+            return geneOptional;
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Rebuilds the fusion name using the hugo symbols from our database, ie bcr::abl1 fusion becomes BCR-ABL1 Fusion.
+     * The gene partner order is preserved. Returns empty when the alteration is not a two gene partner fusion or when
+     * any of the gene partners could not be matched to a gene in our database.
+     */
+    private Optional<String> getNormalizedFusionName(Alteration parsedAlteration, Map<String, Gene> annotatedGeneByQueriedSymbol) {
+        List<String> genePartners = alterationUtils.getGenesStrs(parsedAlteration.getAlteration());
+        if (genePartners.size() != 2) {
+            return Optional.empty();
+        }
+        List<String> hugoSymbols = new ArrayList<>();
+        for (String genePartner : genePartners) {
+            Gene annotatedGene = annotatedGeneByQueriedSymbol.get(genePartner.toLowerCase());
+            if (annotatedGene == null || StringUtils.isEmpty(annotatedGene.getHugoSymbol())) {
+                return Optional.empty();
+            }
+            hugoSymbols.add(annotatedGene.getHugoSymbol());
+        }
+        return Optional.of(String.join(AlterationUtils.FUSION_ALTERNATIVE_SEPARATOR, hugoSymbols) + " Fusion");
+    }
+
+    /**
+     * Whether any of the fusion gene partners was queried with something other than the main hugo symbol we have in
+     * our database, ie the alias ALL resolving to BCR. A separator or casing only change is not a rename.
+     */
+    private boolean hasRenamedFusionPartner(Alteration parsedAlteration, Map<String, Gene> annotatedGeneByQueriedSymbol) {
+        for (String genePartner : alterationUtils.getGenesStrs(parsedAlteration.getAlteration())) {
+            Gene annotatedGene = annotatedGeneByQueriedSymbol.get(genePartner.toLowerCase());
+            if (annotatedGene != null && !genePartner.equalsIgnoreCase(annotatedGene.getHugoSymbol())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public AlterationAnnotationStatus annotateAlteration(ReferenceGenome referenceGenome, Alteration alteration) {
         AlterationAnnotationStatus alterationWithStatus = new AlterationAnnotationStatus();
         alterationWithStatus.setEntity(alteration);
@@ -194,32 +246,42 @@ public class MainService {
         if (STRUCTURAL_VARIANT.equals(parsedAlteration.getType()) && !parsedAlteration.getGenes().isEmpty()) {
             genes = parsedAlteration.getGenes();
         }
-        Set<Gene> annotatedGenes = genes
-            .stream()
-            .map(gene -> {
-                Optional<Gene> geneOptional = Optional.empty();
-                if (gene.getId() != null) {
-                    geneOptional = geneService.findOne(gene.getId());
-                } else if (gene.getEntrezGeneId() != null) {
-                    geneOptional = geneService.findGeneByEntrezGeneId(gene.getEntrezGeneId());
-                } else if (gene.getHugoSymbol() != null) {
-                    geneOptional = geneService.findGeneByHugoSymbol(gene.getHugoSymbol());
-                    if (geneOptional.isEmpty()) {
-                        geneOptional = geneService.findGeneBySynonym(gene.getHugoSymbol());
-                    }
-                }
-                if (geneOptional.isEmpty()) {
-                    geneOptional = Optional.empty();
-                    log.error("No match found for gene {}", gene);
-                }
-                return geneOptional;
-            })
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toSet());
+        // the gene partner order matters for fusions, so the annotated genes keep the order they were queried in
+        Set<Gene> annotatedGenes = new LinkedHashSet<>();
+        Map<String, Gene> annotatedGeneByQueriedSymbol = new HashMap<>();
+        for (Gene gene : genes) {
+            Optional<Gene> geneOptional = findGene(gene);
+            if (geneOptional.isEmpty()) {
+                log.error("No match found for gene {}", gene);
+                continue;
+            }
+            annotatedGenes.add(geneOptional.orElseThrow());
+            if (gene.getHugoSymbol() != null) {
+                annotatedGeneByQueriedSymbol.put(gene.getHugoSymbol().toLowerCase(), geneOptional.orElseThrow());
+            }
+        }
         alteration.setGenes(annotatedGenes);
         alteration.setAlteration(parsedAlteration.getAlteration());
         alteration.setName(parsedAlteration.getName());
+
+        // fusions are stored using the hugo symbols we have in the database so that the same fusion always ends up
+        // with the same name, no matter how the curator typed the gene partners
+        String fusionRenameMessage = null;
+        if (STRUCTURAL_VARIANT.equals(parsedAlteration.getType())) {
+            Optional<String> normalizedFusionName = getNormalizedFusionName(parsedAlteration, annotatedGeneByQueriedSymbol);
+            if (normalizedFusionName.isPresent()) {
+                // only a gene partner being renamed is worth reporting, the separator and casing are house style
+                if (hasRenamedFusionPartner(parsedAlteration, annotatedGeneByQueriedSymbol)) {
+                    fusionRenameMessage = "Normalized from '" +
+                    parsedAlteration.getAlteration() +
+                    "' to '" +
+                    normalizedFusionName.orElseThrow() +
+                    "'";
+                }
+                alteration.setAlteration(normalizedFusionName.orElseThrow());
+                alteration.setName(normalizedFusionName.orElseThrow());
+            }
+        }
 
         if (!alteration.getGenes().isEmpty() && alteration.getGenes().stream().anyMatch(gene -> gene.getEntrezGeneId() < 0)) {
             alteration.setType(NA);
@@ -258,6 +320,11 @@ public class MainService {
 
         alterationWithStatus.setType(alterationWithEntityStatus.getType());
         alterationWithEntityStatus.getMessages().forEach(alterationWithStatus::addMessage);
+
+        if (fusionRenameMessage != null) {
+            alterationWithStatus.setType(EntityStatusType.WARNING);
+            alterationWithStatus.addMessage(fusionRenameMessage);
+        }
 
         // update reference genome
         if (alteration.getGenes().size() > 0 && PROTEIN_CHANGE.equals(alteration.getType())) {

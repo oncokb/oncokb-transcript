@@ -19,8 +19,13 @@ public class AlterationUtils {
 
     public static final String FUSION_SEPARATOR = "::";
     public static final String FUSION_ALTERNATIVE_SEPARATOR = "-";
+    public static final String FUSION_UNDERSCORE_SEPARATOR = "_";
     private static final String FUSION_REGEX = "\\s*(\\w*)" + FUSION_SEPARATOR + "(\\w*)\\s*(?i)(fusion)?\\s*";
     private static final String FUSION_ALT_REGEX = "\\s*(\\w*)" + FUSION_ALTERNATIVE_SEPARATOR + "(\\w*)\\s+(?i)fusion\\s*";
+    // \w matches the underscore itself, so the gene partners are matched on alphanumerics only. The fusion
+    // keyword is required to avoid picking up alterations that use an underscore for a position range.
+    private static final String FUSION_UNDERSCORE_REGEX =
+        "\\s*([a-zA-Z0-9]+)" + FUSION_UNDERSCORE_SEPARATOR + "([a-zA-Z0-9]+)\\s+(?i)fusion\\s*";
     // The deleted sequence is matched lazily so an insertion, if any, is captured by the ins group instead of being swallowed
     private static final Pattern CDNA_DEL_SEQ = Pattern.compile("(c\\.[0-9+\\-*_]+del)[a-z0-9]*?(ins[a-z0-9]+)?$", CASE_INSENSITIVE);
     private static final Pattern CDNA_DUP_SEQ = Pattern.compile("(c\\.[0-9+\\-*_]+dup)\\w+$", CASE_INSENSITIVE);
@@ -33,18 +38,21 @@ public class AlterationUtils {
         alt.setType(AlterationType.STRUCTURAL_VARIANT);
         alt.setConsequence(consequence);
 
-        if (alteration.contains(FUSION_SEPARATOR) || alteration.contains(FUSION_ALTERNATIVE_SEPARATOR)) {
+        List<String> genePartners = getGenesStrs(alteration);
+        if (genePartners.size() == 2) {
+            // the gene partner order is meaningful, so it is preserved instead of being collected into a HashSet
             alt.setGenes(
-                getGenesStrs(alteration)
+                genePartners
                     .stream()
                     .map(hugoSymbol -> {
                         Gene gene = new Gene();
                         gene.setHugoSymbol(hugoSymbol);
                         return gene;
                     })
-                    .collect(Collectors.toSet())
+                    .collect(Collectors.toCollection(LinkedHashSet::new))
             );
-            alt.setAlteration(alt.getGenes().stream().map(Gene::getHugoSymbol).collect(Collectors.joining("-")) + " Fusion");
+            // fusions are always named using a hyphen and a capitalized Fusion keyword
+            alt.setAlteration(String.join(FUSION_ALTERNATIVE_SEPARATOR, genePartners) + " Fusion");
         } else {
             alt.setAlteration(alteration.substring(0, 1).toUpperCase() + alteration.toLowerCase().substring(1));
         }
@@ -274,17 +282,12 @@ public class AlterationUtils {
     public List<String> getGenesStrs(String alteration) {
         if (StringUtils.isNotEmpty(alteration)) {
             List<String> genes = new ArrayList<>();
-            Pattern p = Pattern.compile(FUSION_REGEX);
-            Matcher m = p.matcher(alteration);
-            if (m.matches()) {
-                genes.add(m.group(1));
-                genes.add(m.group(2));
-            } else {
-                p = Pattern.compile(FUSION_ALT_REGEX);
-                m = p.matcher(alteration);
+            for (String regex : List.of(FUSION_REGEX, FUSION_ALT_REGEX, FUSION_UNDERSCORE_REGEX)) {
+                Matcher m = Pattern.compile(regex).matcher(alteration);
                 if (m.matches()) {
                     genes.add(m.group(1));
                     genes.add(m.group(2));
+                    break;
                 }
             }
             return genes;
@@ -324,7 +327,12 @@ public class AlterationUtils {
         if (StringUtils.isEmpty(variant)) {
             return false;
         }
-        if (variant != null && (Pattern.matches(FUSION_REGEX, variant) || Pattern.matches(FUSION_ALT_REGEX, variant))) {
+        if (
+            variant != null &&
+            (Pattern.matches(FUSION_REGEX, variant) ||
+                Pattern.matches(FUSION_ALT_REGEX, variant) ||
+                Pattern.matches(FUSION_UNDERSCORE_REGEX, variant))
+        ) {
             return true;
         }
         if (variant.equalsIgnoreCase("fusions")) {

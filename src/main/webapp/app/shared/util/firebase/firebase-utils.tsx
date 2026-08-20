@@ -26,11 +26,20 @@ import _ from 'lodash';
 import React from 'react';
 import { TextFormat } from 'react-jhipster';
 import { replaceUrlParams } from '../url-utils';
-import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, isUuid, parseAlterationName } from '../utils';
+import {
+  extractPositionFromSingleNucleotideAlteration,
+  getAlterationComparisonName,
+  getCancerTypeName,
+  getFusionPartners,
+  isEqualIgnoreCase,
+  isUuid,
+  parseAlterationName,
+} from '../utils';
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { hasReview } from './firebase-review-utils';
 import { IAddRangeModalProps } from 'app/shared/modal/AddRangeModal';
+import { Database, get, ref } from 'firebase/database';
 
 export const getValueByNestedKey = (obj: any, nestedKey = '', sep = '/') => {
   return nestedKey.split(sep).reduce((currObj, currKey) => {
@@ -361,6 +370,29 @@ export type DuplicateMutationInfo =
       inVusList: boolean;
     };
 
+/**
+ * Builds the comparison names for a mutation name, which may hold multiple comma separated alterations.
+ * Fusion alterations are canonicalized by getAlterationComparisonName so that a swapped gene partner
+ * ordering, ie ABL1-BCR Fusion vs BCR-ABL1 Fusion, is reported as a duplicate.
+ */
+const getMutationComparisonNames = (mutationName: string | undefined, useFullAlterationName?: boolean) => {
+  return (
+    mutationName
+      ?.split(',')
+      .map(alt => {
+        const parsedAlteration = parseAlterationName(alt)[0];
+        const comparisonName = getAlterationComparisonName(parsedAlteration.alteration);
+        if (!useFullAlterationName) {
+          return comparisonName;
+        }
+        const variantName = parsedAlteration.name ? ` [${parsedAlteration.name}]` : '';
+        const excluding = parsedAlteration.excluding.length > 0 ? ` {excluding ${parsedAlteration.excluding.join(' ; ')}}` : '';
+        return `${comparisonName}${variantName}${excluding}`.toLowerCase();
+      })
+      .sort() ?? []
+  );
+};
+
 export const getDuplicateMutations = (
   currentMutations: string[],
   mutationList: MutationList | undefined | null,
@@ -372,32 +404,22 @@ export const getDuplicateMutations = (
     Object.entries(mutationList ?? {})
       ?.filter(([mKey, mutation]) => options.excludedMutationUuid !== mutation.name_uuid)
       .map(([mKey, mutation]) => ({
-        mutationName: mutation.name
-          ?.split(',')
-          .map(alt => {
-            const parsedAlteration = parseAlterationName(alt)[0];
-            const variantName = parsedAlteration.name ? ` [${parsedAlteration.name}]` : '';
-            const excluding = parsedAlteration.excluding.length > 0 ? ` {excluding ${parsedAlteration.excluding.join(' ; ')}}` : '';
-            let mutationName = parsedAlteration.alteration.toLowerCase();
-            if (options.useFullAlterationName) {
-              mutationName = `${parsedAlteration.alteration}${variantName}${excluding}`.toLowerCase();
-            }
-            return mutationName;
-          })
-          .sort(),
+        mutationName: getMutationComparisonNames(mutation.name, options.useFullAlterationName),
         firebaseMutationPath: `${firebaseMutationListPath}/${mKey}`,
       })) || [];
 
   const vusNames = Object.values(vusList || [])
-    .filter(vus => vus.name.toLowerCase() !== options.excludedVusName?.toLowerCase())
+    .filter(vus => getAlterationComparisonName(vus.name) !== getAlterationComparisonName(options.excludedVusName ?? ''))
     .map(vus => {
-      return parseAlterationName(vus.name).map(parsedVus => parsedVus.alteration.toLowerCase());
+      return parseAlterationName(vus.name).map(parsedVus => getAlterationComparisonName(parsedVus.alteration));
     });
 
   const duplicates: DuplicateMutationInfo[] = [];
   if (options.exact) {
     const currentMutationsName = currentMutations.join(', ');
-    const lowerCaseCurrentMutations = currentMutations.map(mut => mut.toLowerCase());
+    const lowerCaseCurrentMutations = currentMutations
+      .flatMap(mut => getMutationComparisonNames(mut, options.useFullAlterationName))
+      .sort();
 
     const matchingMutation = mutationNames.find(mutation => _.isEqual(mutation.mutationName, lowerCaseCurrentMutations));
 
@@ -421,9 +443,10 @@ export const getDuplicateMutations = (
     );
 
     currentMutations.forEach(currAlt => {
+      const currAltComparisonName = getAlterationComparisonName(currAlt);
       flattenedMutationNames.forEach(fmn => {
-        if (fmn.mutationName === currAlt.toLowerCase()) {
-          addDuplicateMutationInfo(duplicates, fmn.mutationName, 'mutation', fmn.firebaseMutationList);
+        if (fmn.mutationName === currAltComparisonName) {
+          addDuplicateMutationInfo(duplicates, currAlt, 'mutation', fmn.firebaseMutationList);
         }
       });
     });
@@ -464,6 +487,70 @@ const addDuplicateMutationInfo = (
       });
     }
   }
+};
+
+export type PartnerGeneDuplicateInfo = {
+  /** The fusion alteration, as entered by the curator */
+  alteration: string;
+  /** The gene collection the same fusion is already curated under */
+  hugoSymbol: string;
+  inMutationList: boolean;
+  inVusList: boolean;
+};
+
+/**
+ * Finds fusions that are already curated under one of their gene partners. A fusion should only live in one
+ * gene collection, so BCR-ABL1 Fusion curated under BCR is a duplicate when it is being added to ABL1.
+ * The gene collection being curated is skipped since getDuplicateMutations already covers it.
+ */
+export const getPartnerGeneDuplicates = async (
+  firebaseDb: Database,
+  isGermline: boolean,
+  hugoSymbol: string | undefined,
+  alterations: string[],
+): Promise<PartnerGeneDuplicateInfo[]> => {
+  const partnersToCheck = new Map<string, string[]>();
+  for (const alteration of alterations) {
+    const partners = getFusionPartners(alteration);
+    if (!partners) {
+      continue;
+    }
+    // a fusion that does not have the gene being curated as a partner cannot be a duplicate of it, that is
+    // reported by getFusionsWithoutCuratedGene instead
+    if (hugoSymbol && !partners.some(partner => isEqualIgnoreCase(partner, hugoSymbol))) {
+      continue;
+    }
+    for (const partner of partners) {
+      if (isEqualIgnoreCase(partner, hugoSymbol ?? '')) {
+        continue;
+      }
+      partnersToCheck.set(partner, [...(partnersToCheck.get(partner) ?? []), alteration]);
+    }
+  }
+
+  const duplicates: PartnerGeneDuplicateInfo[] = [];
+  await Promise.all(
+    Array.from(partnersToCheck.entries()).map(async ([partner, partnerAlterations]) => {
+      const [mutationSnapshot, vusSnapshot] = await Promise.all([
+        get(ref(firebaseDb, `${getFirebaseGenePath(isGermline, partner)}/mutations`)),
+        get(ref(firebaseDb, getFirebaseVusPath(isGermline, partner))),
+      ]);
+      const mutationNames = Object.values((mutationSnapshot.val() ?? {}) as MutationList).flatMap(mutation =>
+        getMutationComparisonNames(mutation.name),
+      );
+      const vusNames = Object.values((vusSnapshot.val() ?? {}) as VusObjList).map(vus => getAlterationComparisonName(vus.name));
+
+      for (const alteration of partnerAlterations) {
+        const comparisonName = getAlterationComparisonName(alteration);
+        const inMutationList = mutationNames.includes(comparisonName);
+        const inVusList = vusNames.includes(comparisonName);
+        if (inMutationList || inVusList) {
+          duplicates.push({ alteration, hugoSymbol: partner, inMutationList, inVusList });
+        }
+      }
+    }),
+  );
+  return duplicates;
 };
 
 export const hasMultipleMutations = (mutationName: string) => {

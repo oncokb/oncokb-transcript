@@ -1,11 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CreatableSelect from 'react-select/creatable';
 import { MutationList, VusObjList } from '../model/firebase/firebase.model';
-import { parseAlterationName } from '../util/utils';
+import { getAlterationComparisonName, getFusionPartners, getFusionsWithoutCuratedGene, parseAlterationName } from '../util/utils';
 import _ from 'lodash';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { notifyError, notifyWarning } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
-import { DuplicateMutationInfo, getDuplicateMutations, getFirebaseGenePath } from '../util/firebase/firebase-utils';
+import {
+  DuplicateMutationInfo,
+  PartnerGeneDuplicateInfo,
+  getDuplicateMutations,
+  getFirebaseGenePath,
+  getPartnerGeneDuplicates,
+} from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
 import { IRootStore } from 'app/stores';
@@ -44,6 +50,7 @@ const AddVusModal = (props: IAddVusModalProps) => {
   const firebaseMutationPath = `${getFirebaseGenePath(props.isGermline, props.hugoSymbol)}/mutations`;
   const [mutationList, setMutationList] = useState<MutationList>();
   const [duplicateAlterations, setDuplicateAlterations] = useState<DuplicateMutationInfo[]>([]);
+  const [partnerGeneDuplicates, setPartnerGeneDuplicates] = useState<PartnerGeneDuplicateInfo[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [variants, setVariants] = useState<readonly Option[]>([]);
 
@@ -77,6 +84,28 @@ const AddVusModal = (props: IAddVusModalProps) => {
       setDuplicateAlterations(dupAlts);
     }
   }, [variants, mutationList, props.vusList]);
+
+  useEffect(() => {
+    if (!props.firebaseDb) {
+      return;
+    }
+    let isCurrent = true;
+    getPartnerGeneDuplicates(
+      props.firebaseDb,
+      props.isGermline,
+      props.hugoSymbol,
+      variants.map(o => o.label),
+    )
+      .then(dups => {
+        if (isCurrent) {
+          setPartnerGeneDuplicates(dups);
+        }
+      })
+      .catch(error => notifyError(error));
+    return () => {
+      isCurrent = false;
+    };
+  }, [variants, props.firebaseDb, props.isGermline, props.hugoSymbol]);
 
   useEffect(() => {
     if (mutationListInitialized) {
@@ -114,19 +143,11 @@ const AddVusModal = (props: IAddVusModalProps) => {
     const alterations = parseAlterationName(variant);
     // should only have a single alteration
     for (const { alteration } of alterations) {
-      const dropdownAlreadyHasVariant = variants.some(({ label }) => {
-        return label.toLowerCase() === alteration.toLowerCase();
-      });
-
-      const vusTableAlreadyHasVariant = Object.values(props.vusList ?? {}).some(({ name }) => {
-        return name.toLowerCase() === alteration.toLowerCase();
-      });
-
-      const alreadyHasVariantInMutationList = Object.values(mutationList ?? {}).some(({ name }) => {
-        return name.toLowerCase() === alteration.toLowerCase();
-      });
-
       let isHotspot = false;
+      // Fusions are stored using the hugo symbols we have in our database, so the name the annotation gives back is
+      // used instead of what was typed. That way BCR-abl1 fusion and the alias ALL-ABL1 Fusion both end up as
+      // BCR-ABL1 Fusion. Everything else keeps the curator's name.
+      let normalizedAlteration = alteration;
       try {
         const request: AnnotateAlterationBody[] = [
           {
@@ -135,22 +156,44 @@ const AddVusModal = (props: IAddVusModalProps) => {
           },
         ];
         const response = await alterationControllerClient.annotateAlterations(request);
-        isHotspot = response.data[0].annotation?.hotspot?.hotspot || false;
+        const annotatedAlteration = response.data[0];
+        isHotspot = annotatedAlteration.annotation?.hotspot?.hotspot || false;
+        if (getFusionPartners(alteration) && annotatedAlteration.entity?.alteration) {
+          normalizedAlteration = annotatedAlteration.entity.alteration;
+        }
+        if (annotatedAlteration.warning && annotatedAlteration.messages?.length) {
+          annotatedAlteration.messages.forEach(message => notifyWarning(new Error(message)));
+        }
       } catch (error) {
         notifyError(`Error annotating alteration: ${error}`);
         continue;
       }
 
+      // Fusions are compared on their canonical name so that a swapped gene partner ordering is still a duplicate
+      const comparisonName = getAlterationComparisonName(normalizedAlteration);
+
+      const dropdownAlreadyHasVariant = variants.some(({ label }) => {
+        return getAlterationComparisonName(label) === comparisonName;
+      });
+
+      const vusTableAlreadyHasVariant = Object.values(props.vusList ?? {}).some(({ name }) => {
+        return getAlterationComparisonName(name) === comparisonName;
+      });
+
+      const alreadyHasVariantInMutationList = Object.values(mutationList ?? {}).some(({ name }) => {
+        return getAlterationComparisonName(name) === comparisonName;
+      });
+
       if (dropdownAlreadyHasVariant) {
-        notifyError(new Error(`${alteration} is already selected. The duplicate alteration(s) was not added.`));
+        notifyError(new Error(`${normalizedAlteration} is already selected. The duplicate alteration(s) was not added.`));
       } else if (vusTableAlreadyHasVariant) {
-        notifyError(new Error(`${alteration} is already in the VUS table. The duplicate alteration(s) was not added.`));
+        notifyError(new Error(`${normalizedAlteration} is already in the VUS table. The duplicate alteration(s) was not added.`));
       } else if (alreadyHasVariantInMutationList) {
-        notifyError(new Error(`${alteration} is already in the Mutation List. The duplicate alteration(s) was not added.`));
+        notifyError(new Error(`${normalizedAlteration} is already in the Mutation List. The duplicate alteration(s) was not added.`));
       } else if (isHotspot) {
-        notifyError(new Error(`${alteration} is a hotspot. The alteration(s) was not added.`));
+        notifyError(new Error(`${normalizedAlteration} is a hotspot. The alteration(s) was not added.`));
       } else {
-        result.push(alteration);
+        result.push(normalizedAlteration);
       }
     }
     return result;
@@ -179,7 +222,7 @@ const AddVusModal = (props: IAddVusModalProps) => {
     />
   );
 
-  const warningMessages: string[] = [];
+  const errorMessages: string[] = [];
   if (duplicateAlterations.length > 0) {
     const alterationsInMutationList: string[] = [];
     const alterationsInVusList: string[] = [];
@@ -195,14 +238,31 @@ const AddVusModal = (props: IAddVusModalProps) => {
     }
 
     if (alterationsInMutationList.length > 0) {
-      warningMessages.push(`${alterationsInMutationList.join(', ')} in mutation list`);
+      errorMessages.push(`${alterationsInMutationList.join(', ')} in mutation list`);
     }
     if (alterationsInVusList.length > 0) {
-      warningMessages.push(`${alterationsInVusList.join(', ')} in VUS list`);
+      errorMessages.push(`${alterationsInVusList.join(', ')} in VUS list`);
     }
     if (alterationsInBoth.length > 0) {
-      warningMessages.push(`${alterationsInBoth.join(', ')} in both mutation list and VUS list`);
+      errorMessages.push(`${alterationsInBoth.join(', ')} in both mutation list and VUS list`);
     }
+  }
+  const invalidFusions = getFusionsWithoutCuratedGene(
+    variants.map(o => o.label),
+    props.hugoSymbol,
+  );
+  for (const fusion of invalidFusions) {
+    errorMessages.push(`${fusion} must include ${props.hugoSymbol} as a gene partner because you are curating under ${props.hugoSymbol}`);
+  }
+  for (const dup of partnerGeneDuplicates) {
+    const lists: string[] = [];
+    if (dup.inMutationList) {
+      lists.push('mutation list');
+    }
+    if (dup.inVusList) {
+      lists.push('VUS list');
+    }
+    errorMessages.push(`${dup.alteration} is already curated under the ${dup.hugoSymbol} ${lists.join(' and ')}`);
   }
 
   const getModalBody = () => {
@@ -230,8 +290,10 @@ const AddVusModal = (props: IAddVusModalProps) => {
       modalBody={getModalBody()}
       onCancel={props.onCancel}
       onConfirm={() => props.onConfirm(variants.map(o => o.label))}
-      confirmButtonDisabled={duplicateAlterations.length > 0 || variants.length < 1}
-      warningMessages={warningMessages}
+      confirmButtonDisabled={
+        duplicateAlterations.length > 0 || partnerGeneDuplicates.length > 0 || invalidFusions.length > 0 || variants.length < 1
+      }
+      errorMessages={errorMessages}
       modalHeader={props.convertOptions?.isConverting ? <div>Demoting Variant(s) to VUS</div> : undefined}
     />
   );

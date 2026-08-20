@@ -19,9 +19,15 @@ import {
   Alteration as ApiAlteration,
 } from '../api/generated/curation';
 import { IGene } from '../model/gene.model';
-import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from '../util/firebase/firebase-utils';
+import {
+  PartnerGeneDuplicateInfo,
+  getDuplicateMutations,
+  getFirebaseGenePath,
+  getFirebaseVusPath,
+  getPartnerGeneDuplicates,
+} from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
-import { hasValue, isEqualIgnoreCase, parseAlterationName } from '../util/utils';
+import { getAlterationComparisonName, getFusionsWithoutCuratedGene, hasValue, isEqualIgnoreCase, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
 import './add-mutation-modal.scss';
 import classNames from 'classnames';
@@ -79,6 +85,7 @@ function AddMutationModal({
   const [excludingInputValue, setExcludingInputValue] = useState('');
   const [excludingCollapsed, setExcludingCollapsed] = useState(true);
   const [mutationAlreadyExists, setMutationAlreadyExists] = useState({ exists: false, inMutationList: false, inVusList: false });
+  const [partnerGeneDuplicates, setPartnerGeneDuplicates] = useState<PartnerGeneDuplicateInfo[]>([]);
   const [mutationToEdit, setMutationToEdit] = useState<Mutation | null>(null);
   const [errorMessagesEnabled, setErrorMessagesEnabled] = useState(true);
   const [isFetchingAlteration, setIsFetchingAlteration] = useState(false);
@@ -142,6 +149,28 @@ function AddMutationModal({
       });
     }
   }, [tabStates, mutationList, vusList]);
+
+  useEffect(() => {
+    if (!firebaseDb) {
+      return;
+    }
+    let isCurrent = true;
+    getPartnerGeneDuplicates(
+      firebaseDb,
+      isGermline,
+      hugoSymbol,
+      tabStates.map(state => state.alteration),
+    )
+      .then(duplicates => {
+        if (isCurrent) {
+          setPartnerGeneDuplicates(duplicates);
+        }
+      })
+      .catch(error => notifyError(error));
+    return () => {
+      isCurrent = false;
+    };
+  }, [tabStates, firebaseDb, isGermline, hugoSymbol]);
 
   useEffect(() => {
     function convertAlterationToAlterationData(alteration: Alteration): AlterationData {
@@ -249,10 +278,10 @@ function AddMutationModal({
           return false;
         }
 
-        const stateName = state.alteration.toLowerCase();
-        const stateExcluding = state.excluding.map(ex => ex.alteration.toLowerCase()).sort();
-        const altName = alt.alteration.toLowerCase();
-        const altExcluding = alt.excluding.map(ex => ex.toLowerCase()).sort();
+        const stateName = getAlterationComparisonName(state.alteration);
+        const stateExcluding = state.excluding.map(ex => getAlterationComparisonName(ex.alteration)).sort();
+        const altName = getAlterationComparisonName(alt.alteration);
+        const altExcluding = alt.excluding.map(ex => getAlterationComparisonName(ex)).sort();
         return stateName === altName && _.isEqual(stateExcluding, altExcluding);
       });
     });
@@ -393,17 +422,17 @@ function AddMutationModal({
     let excluding: string[] = [];
     for (let i = 0; i < currentState.excluding.length; i++) {
       if (i === excludingIndex) {
-        excluding.push(...newParsedAlteration.map(alt => alt.alteration.toLowerCase()));
+        excluding.push(...newParsedAlteration.map(alt => getAlterationComparisonName(alt.alteration)));
       } else {
-        excluding.push(currentState.excluding[excludingIndex].alteration.toLowerCase());
+        excluding.push(getAlterationComparisonName(currentState.excluding[excludingIndex].alteration));
       }
     }
     excluding = excluding.sort();
     if (
       alterationData.some(
         state =>
-          state.alteration.toLowerCase() === alteration &&
-          _.isEqual(state.excluding.map(ex => ex.alteration.toLowerCase()).sort(), excluding),
+          getAlterationComparisonName(state.alteration) === alteration &&
+          _.isEqual(state.excluding.map(ex => getAlterationComparisonName(ex.alteration)).sort(), excluding),
       )
     ) {
       notifyError(new Error('Duplicate alteration(s) removed'));
@@ -563,16 +592,16 @@ function AddMutationModal({
     const newParsedAlteration = parseAlterationName(excludingInputValue);
 
     const currentState = tabStates[alterationIndex];
-    const alteration = currentState.alteration.toLowerCase();
-    let excluding = currentState.excluding.map(ex => ex.alteration.toLowerCase());
-    excluding.push(...newParsedAlteration.map(alt => alt.alteration.toLowerCase()));
+    const alteration = getAlterationComparisonName(currentState.alteration);
+    let excluding = currentState.excluding.map(ex => getAlterationComparisonName(ex.alteration));
+    excluding.push(...newParsedAlteration.map(alt => getAlterationComparisonName(alt.alteration)));
     excluding = excluding.sort();
 
     if (
       tabStates.some(
         state =>
-          state.alteration.toLowerCase() === alteration &&
-          _.isEqual(state.excluding.map(ex => ex.alteration.toLowerCase()).sort(), excluding),
+          getAlterationComparisonName(state.alteration) === alteration &&
+          _.isEqual(state.excluding.map(ex => getAlterationComparisonName(ex.alteration)).sort(), excluding),
       )
     ) {
       notifyError(new Error('Duplicate alteration(s) removed'));
@@ -1026,6 +1055,26 @@ function AddMutationModal({
     }
   }
 
+  const modalErrorMessages = modalErrorMessage ? [modalErrorMessage] : [];
+  for (const dup of partnerGeneDuplicates) {
+    const lists: string[] = [];
+    if (dup.inMutationList) {
+      lists.push('mutation list');
+    }
+    if (dup.inVusList) {
+      lists.push('VUS list');
+    }
+    modalErrorMessages.push(`${dup.alteration} is already curated under the ${dup.hugoSymbol} ${lists.join(' and ')}`);
+  }
+
+  const invalidFusions = getFusionsWithoutCuratedGene(
+    tabStates.map(state => state.alteration),
+    hugoSymbol,
+  );
+  for (const fusion of invalidFusions) {
+    modalErrorMessages.push(`${fusion} must include ${hugoSymbol} as a gene partner because you are curating under ${hugoSymbol}`);
+  }
+
   let modalWarningMessage: string | undefined = undefined;
   if (convertOptions?.isConverting && !isEqualIgnoreCase(convertOptions.alteration, currentMutationNames.join(', '))) {
     modalWarningMessage = 'Name differs from original VUS name';
@@ -1056,11 +1105,13 @@ function AddMutationModal({
           setIsConfirmPending(false);
         }
       }}
-      errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : undefined}
+      errorMessages={modalErrorMessages.length > 0 && errorMessagesEnabled ? modalErrorMessages : undefined}
       warningMessages={modalWarningMessage ? [modalWarningMessage] : undefined}
       confirmButtonDisabled={
         tabStates.length === 0 ||
         mutationAlreadyExists.exists ||
+        partnerGeneDuplicates.length > 0 ||
+        invalidFusions.length > 0 ||
         isFetchingAlteration ||
         isFetchingExcludingAlteration ||
         tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error)) ||

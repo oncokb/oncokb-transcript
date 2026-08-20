@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mskcc.oncokb.curation.util.AlterationUtils.parseProteinChange;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.AlterationAnnotationStatus;
@@ -12,6 +13,40 @@ import org.mskcc.oncokb.curation.domain.EntityStatus;
 import org.mskcc.oncokb.curation.util.AlterationUtils;
 
 public class AlterationUtilsTest {
+
+    @Test
+    public void testParseFusionNormalizesName() {
+        AlterationUtils alterationUtils = new AlterationUtils();
+
+        // the separator is normalized to a hyphen and the fusion keyword is capitalized
+        assertEquals("BCR-ABL1 Fusion", parseAlterationName(alterationUtils, "BCR::ABL1 Fusion"));
+        assertEquals("BCR-ABL1 Fusion", parseAlterationName(alterationUtils, "BCR::ABL1"));
+        assertEquals("BCR-ABL1 Fusion", parseAlterationName(alterationUtils, "BCR-ABL1 fusion"));
+        assertEquals("MAP2K1-SMAD3 Fusion", parseAlterationName(alterationUtils, "MAP2K1_SMAD3 fusion"));
+
+        // the gene partner order the curator entered is preserved
+        assertEquals("ABL1-BCR Fusion", parseAlterationName(alterationUtils, "ABL1::BCR Fusion"));
+
+        // the generic fusion alterations are untouched other than being capitalized
+        assertEquals("Fusions", parseAlterationName(alterationUtils, "fusions"));
+        assertEquals("Fusion", parseAlterationName(alterationUtils, "FUSION"));
+    }
+
+    @Test
+    public void testGetGenesStrs() {
+        AlterationUtils alterationUtils = new AlterationUtils();
+
+        assertEquals(List.of("BCR", "ABL1"), alterationUtils.getGenesStrs("BCR::ABL1 Fusion"));
+        assertEquals(List.of("BCR", "ABL1"), alterationUtils.getGenesStrs("BCR-ABL1 Fusion"));
+        assertEquals(List.of("bcr", "abl1"), alterationUtils.getGenesStrs("bcr_abl1 fusion"));
+        assertEquals(List.of(), alterationUtils.getGenesStrs("Fusions"));
+        // an underscore without the fusion keyword is not a fusion
+        assertEquals(List.of(), alterationUtils.getGenesStrs("118_153trunc"));
+    }
+
+    private String parseAlterationName(AlterationUtils alterationUtils, String alteration) {
+        return alterationUtils.parseAlteration(alteration).getEntity().getAlteration();
+    }
 
     @Test
     public void testRevisedProteinChangeInParseProteinChange() {
