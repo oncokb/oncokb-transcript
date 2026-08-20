@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CreatableSelect from 'react-select/creatable';
 import { MutationList, VusObjList } from '../model/firebase/firebase.model';
-import { getAlterationComparisonName, getFusionPartners, getFusionsWithoutCuratedGene, parseAlterationName } from '../util/utils';
+import { getAlterationComparisonName, getFusionsWithoutCuratedGene, parseAlterationName } from '../util/utils';
 import _ from 'lodash';
 import { notifyError, notifyWarning } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
@@ -20,7 +20,12 @@ import { Button, Col, Row } from 'reactstrap';
 import { GroupBase } from 'react-select';
 import Select from 'react-select/dist/declarations/src/Select';
 import { alterationControllerClient } from '../api/clients';
-import { AnnotateAlterationBody, Alteration as ApiAlteration, Gene as ApiGene } from 'app/shared/api/generated/curation';
+import {
+  AlterationTypeEnum,
+  AnnotateAlterationBody,
+  Alteration as ApiAlteration,
+  Gene as ApiGene,
+} from 'app/shared/api/generated/curation';
 import { REFERENCE_GENOME } from 'app/config/constants/constants';
 
 export interface IAddVusModalProps extends StoreProps {
@@ -158,7 +163,7 @@ const AddVusModal = (props: IAddVusModalProps) => {
         const response = await alterationControllerClient.annotateAlterations(request);
         const annotatedAlteration = response.data[0];
         isHotspot = annotatedAlteration.annotation?.hotspot?.hotspot || false;
-        if (getFusionPartners(alteration) && annotatedAlteration.entity?.alteration) {
+        if (annotatedAlteration.entity?.type === AlterationTypeEnum.StructuralVariant && annotatedAlteration.entity?.alteration) {
           normalizedAlteration = annotatedAlteration.entity.alteration;
         }
         if (annotatedAlteration.warning && annotatedAlteration.messages?.length) {

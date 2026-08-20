@@ -150,23 +150,34 @@ public class MainService {
         return Optional.empty();
     }
 
+    private Optional<Gene> getAnnotatedGenePartner(Gene genePartner, Map<String, Gene> annotatedGeneByQueriedSymbol) {
+        if (StringUtils.isEmpty(genePartner.getHugoSymbol())) {
+            return Optional.empty();
+        }
+        Gene annotatedGene = annotatedGeneByQueriedSymbol.get(genePartner.getHugoSymbol().toLowerCase());
+        if (annotatedGene == null || StringUtils.isEmpty(annotatedGene.getHugoSymbol())) {
+            return Optional.empty();
+        }
+        return Optional.of(annotatedGene);
+    }
+
     /**
-     * Rebuilds the fusion name using the hugo symbols from our database, ie bcr::abl1 fusion becomes BCR-ABL1 Fusion.
-     * The gene partner order is preserved. Returns empty when the alteration is not a two gene partner fusion or when
-     * any of the gene partners could not be matched to a gene in our database.
+     * Rebuilds the fusion name using the hugo symbols we have in our database, ie bcr::abl1 fusion becomes
+     * BCR-ABL1 Fusion. The gene partner order is preserved. Returns empty when the alteration is not a two gene
+     * partner fusion or when any of the gene partners could not be matched to a gene in our database.
      */
     private Optional<String> getNormalizedFusionName(Alteration parsedAlteration, Map<String, Gene> annotatedGeneByQueriedSymbol) {
-        List<String> genePartners = alterationUtils.getGenesStrs(parsedAlteration.getAlteration());
+        List<Gene> genePartners = new ArrayList<>(parsedAlteration.getGenes());
         if (genePartners.size() != 2) {
             return Optional.empty();
         }
         List<String> hugoSymbols = new ArrayList<>();
-        for (String genePartner : genePartners) {
-            Gene annotatedGene = annotatedGeneByQueriedSymbol.get(genePartner.toLowerCase());
-            if (annotatedGene == null || StringUtils.isEmpty(annotatedGene.getHugoSymbol())) {
+        for (Gene genePartner : genePartners) {
+            Optional<Gene> annotatedGene = getAnnotatedGenePartner(genePartner, annotatedGeneByQueriedSymbol);
+            if (annotatedGene.isEmpty()) {
                 return Optional.empty();
             }
-            hugoSymbols.add(annotatedGene.getHugoSymbol());
+            hugoSymbols.add(annotatedGene.orElseThrow().getHugoSymbol());
         }
         return Optional.of(String.join(AlterationUtils.FUSION_ALTERNATIVE_SEPARATOR, hugoSymbols) + " Fusion");
     }
@@ -176,13 +187,51 @@ public class MainService {
      * our database, ie the alias ALL resolving to BCR. A separator or casing only change is not a rename.
      */
     private boolean hasRenamedFusionPartner(Alteration parsedAlteration, Map<String, Gene> annotatedGeneByQueriedSymbol) {
-        for (String genePartner : alterationUtils.getGenesStrs(parsedAlteration.getAlteration())) {
-            Gene annotatedGene = annotatedGeneByQueriedSymbol.get(genePartner.toLowerCase());
-            if (annotatedGene != null && !genePartner.equalsIgnoreCase(annotatedGene.getHugoSymbol())) {
+        for (Gene genePartner : parsedAlteration.getGenes()) {
+            Optional<Gene> annotatedGene = getAnnotatedGenePartner(genePartner, annotatedGeneByQueriedSymbol);
+            if (annotatedGene.isPresent() && !annotatedGene.orElseThrow().getHugoSymbol().equalsIgnoreCase(genePartner.getHugoSymbol())) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Picks the gene partners of a fusion whose partner section can be split in more than one place, which happens
+     * when a hugo symbol contains a hyphen itself, ie NKX2-1-BRAF Fusion is either NKX2 and 1-BRAF or NKX2-1 and
+     * BRAF. Every split is tried and the first one where both partners are genes we know is used, preferring a split
+     * that includes the gene the alteration was queried with.
+     */
+    private Optional<List<Gene>> findFusionGenePartners(String fusionName, Set<Gene> queriedGenes) {
+        List<String> queriedSymbols = queriedGenes
+            .stream()
+            .map(Gene::getHugoSymbol)
+            .filter(StringUtils::isNotEmpty)
+            .map(String::toLowerCase)
+            .collect(Collectors.toList());
+
+        List<Gene> fallback = null;
+        for (List<String> candidate : alterationUtils.getCandidateGenePartners(fusionName)) {
+            List<Gene> genePartners = new ArrayList<>();
+            for (String partner : candidate) {
+                Gene gene = new Gene();
+                gene.setHugoSymbol(partner);
+                if (findGene(gene).isEmpty()) {
+                    break;
+                }
+                genePartners.add(gene);
+            }
+            if (genePartners.size() != candidate.size()) {
+                continue;
+            }
+            if (candidate.stream().anyMatch(partner -> queriedSymbols.contains(partner.toLowerCase()))) {
+                return Optional.of(genePartners);
+            }
+            if (fallback == null) {
+                fallback = genePartners;
+            }
+        }
+        return Optional.ofNullable(fallback);
     }
 
     public AlterationAnnotationStatus annotateAlteration(ReferenceGenome referenceGenome, Alteration alteration) {
@@ -239,6 +288,14 @@ public class MainService {
         Alteration parsedAlteration = alterationWithEntityStatus.getEntity();
         if (parsedAlteration.getType() != null) {
             alteration.setType(parsedAlteration.getType());
+        }
+
+        // the gene partners of a fusion are only left empty by the parsing when the partner section can be split in
+        // more than one place, which needs the genes we have in our database to be told apart
+        if (STRUCTURAL_VARIANT.equals(parsedAlteration.getType()) && parsedAlteration.getGenes().isEmpty()) {
+            findFusionGenePartners(parsedAlteration.getAlteration(), alteration.getGenes()).ifPresent(
+                genePartners -> parsedAlteration.setGenes(new LinkedHashSet<>(genePartners))
+            );
         }
 
         // update associated genes

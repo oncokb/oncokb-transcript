@@ -27,6 +27,9 @@ public class AlterationUtilsTest {
         // the gene partner order the curator entered is preserved
         assertEquals("ABL1-BCR Fusion", parseAlterationName(alterationUtils, "ABL1::BCR Fusion"));
 
+        // an ambiguous partner section is kept as entered, only the fusion keyword is normalized
+        assertEquals("NKX2-1-BRAF Fusion", parseAlterationName(alterationUtils, "NKX2-1-BRAF fusion"));
+
         // the generic fusion alterations are untouched other than being capitalized
         assertEquals("Fusions", parseAlterationName(alterationUtils, "fusions"));
         assertEquals("Fusion", parseAlterationName(alterationUtils, "FUSION"));
@@ -42,6 +45,31 @@ public class AlterationUtilsTest {
         assertEquals(List.of(), alterationUtils.getGenesStrs("Fusions"));
         // an underscore without the fusion keyword is not a fusion
         assertEquals(List.of(), alterationUtils.getGenesStrs("118_153trunc"));
+        // a hugo symbol containing a hyphen makes the gene partners ambiguous, the annotation picks the split
+        assertEquals(List.of(), alterationUtils.getGenesStrs("NKX2-1-BRAF Fusion"));
+    }
+
+    @Test
+    public void testGetCandidateGenePartners() {
+        AlterationUtils alterationUtils = new AlterationUtils();
+
+        // there is nothing to disambiguate when the separator only appears once
+        assertEquals(List.of(List.of("BCR", "ABL1")), alterationUtils.getCandidateGenePartners("BCR::ABL1 Fusion"));
+        assertEquals(List.of(List.of("BCR", "ABL1")), alterationUtils.getCandidateGenePartners("BCR-ABL1 Fusion"));
+        assertEquals(List.of(List.of("bcr", "abl1")), alterationUtils.getCandidateGenePartners("bcr_abl1 fusion"));
+
+        // every split is offered, from the leftmost to the rightmost
+        assertEquals(
+            List.of(List.of("NKX2", "1-BRAF"), List.of("NKX2-1", "BRAF")),
+            alterationUtils.getCandidateGenePartners("NKX2-1-BRAF Fusion")
+        );
+        assertEquals(
+            List.of(List.of("BRAF", "NKX2-1"), List.of("BRAF-NKX2", "1")),
+            alterationUtils.getCandidateGenePartners("BRAF-NKX2-1 Fusion")
+        );
+
+        assertEquals(List.of(), alterationUtils.getCandidateGenePartners("Fusions"));
+        assertEquals(List.of(), alterationUtils.getCandidateGenePartners("V600E"));
     }
 
     private String parseAlterationName(AlterationUtils alterationUtils, String alteration) {
