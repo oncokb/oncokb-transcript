@@ -1,4 +1,10 @@
 import 'jest-expect-message';
+import { get } from 'firebase/database';
+
+jest.mock('firebase/database', () => ({
+  ref: (_db: unknown, path: string) => path,
+  get: jest.fn(),
+}));
 import {
   compareFirebaseOncogenicities,
   compareMutationsByCategoricalAlteration,
@@ -6,7 +12,9 @@ import {
   compareMutationsBySingleAlteration,
   geneNeedsReview,
   getCancerTypeStats,
+  getDuplicateMutations,
   getFirebasePath,
+  getPartnerGeneDuplicates,
   getMutationModifiedTimestamp,
   getMutationName,
   getMutationStats,
@@ -686,6 +694,74 @@ describe('FirebaseUtils', () => {
         };
         expect(JSON.stringify(getCancerTypeStats(null), null, 4)).toEqual(JSON.stringify(expected, null, 4));
       });
+    });
+  });
+
+  describe('getDuplicateMutations', () => {
+    const mutationList = {
+      key1: { ...new Mutation('BCR-ABL1 Fusion'), name_uuid: 'uuid-1' },
+      key2: { ...new Mutation('V600E'), name_uuid: 'uuid-2' },
+    };
+
+    it('should flag a fusion with swapped gene partners as a duplicate', () => {
+      const duplicates = getDuplicateMutations(['ABL1-BCR Fusion'], mutationList, 'Genes/ABL1/mutations', {}, { exact: true });
+      expect(duplicates.length).toEqual(1);
+      expect(duplicates[0].inMutationList).toBeTruthy();
+    });
+
+    it('should flag a fusion using a different separator as a duplicate', () => {
+      const duplicates = getDuplicateMutations(['ABL1::BCR fusion'], mutationList, 'Genes/ABL1/mutations', {}, { exact: false });
+      expect(duplicates.length).toEqual(1);
+      expect(duplicates[0].duplicate).toEqual('ABL1::BCR fusion');
+    });
+
+    it('should flag a fusion already in the VUS list regardless of partner ordering', () => {
+      const vusList = { vusKey: { name: 'TNS3-EGFR Fusion', name_uuid: 'uuid-3', time: { by: { name: '', email: '' }, value: 0 } } };
+      const duplicates = getDuplicateMutations(['EGFR-TNS3 Fusion'], {}, 'Genes/EGFR/mutations', vusList, { exact: true });
+      expect(duplicates.length).toEqual(1);
+      expect(duplicates[0].inVusList).toBeTruthy();
+    });
+
+    it('should not flag a different fusion', () => {
+      const duplicates = getDuplicateMutations(['BCR-ABL2 Fusion'], mutationList, 'Genes/ABL1/mutations', {}, { exact: true });
+      expect(duplicates.length).toEqual(0);
+    });
+  });
+
+  describe('getPartnerGeneDuplicates', () => {
+    // firebase/database is mocked so that ref() returns the path and get() reads from the fixture below
+    const buildDb = (data: Record<string, unknown>) => {
+      (get as jest.Mock).mockImplementation((path: string) => Promise.resolve({ val: () => data[path] ?? null }));
+    };
+
+    it('should flag a fusion already curated under the partner gene mutation list', async () => {
+      buildDb({
+        'Genes/BCR/mutations': { key1: new Mutation('BCR-ABL1 Fusion') },
+      });
+      const duplicates = await getPartnerGeneDuplicates({} as never, false, 'ABL1', ['ABL1-BCR Fusion']);
+      expect(duplicates).toEqual([{ alteration: 'ABL1-BCR Fusion', hugoSymbol: 'BCR', inMutationList: true, inVusList: false }]);
+    });
+
+    it('should flag a fusion already curated under the partner gene VUS list', async () => {
+      buildDb({
+        'VUS/PAX7': { key1: { name: 'PAX7-FOXO1 Fusion' } },
+      });
+      const duplicates = await getPartnerGeneDuplicates({} as never, false, 'FOXO1', ['PAX7-FOXO1 Fusion']);
+      expect(duplicates).toEqual([{ alteration: 'PAX7-FOXO1 Fusion', hugoSymbol: 'PAX7', inMutationList: false, inVusList: true }]);
+    });
+
+    it('should not flag a fusion that does not have the gene being curated as a partner', async () => {
+      buildDb({
+        'Genes/BCR/mutations': { key1: new Mutation('BCR-ABL1 Fusion') },
+        'Genes/ABL1/mutations': { key1: new Mutation('BCR-ABL1 Fusion') },
+      });
+      expect(await getPartnerGeneDuplicates({} as never, false, 'BRAF', ['BCR-ABL1 Fusion'])).toEqual([]);
+    });
+
+    it('should not flag when the partner gene does not have the fusion', async () => {
+      buildDb({});
+      expect(await getPartnerGeneDuplicates({} as never, false, 'ABL1', ['ABL1-BCR Fusion'])).toEqual([]);
+      expect(await getPartnerGeneDuplicates({} as never, false, 'BRAF', ['V600E'])).toEqual([]);
     });
   });
 });

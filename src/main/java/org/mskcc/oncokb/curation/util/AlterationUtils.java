@@ -19,8 +19,18 @@ public class AlterationUtils {
 
     public static final String FUSION_SEPARATOR = "::";
     public static final String FUSION_ALTERNATIVE_SEPARATOR = "-";
+    public static final String FUSION_UNDERSCORE_SEPARATOR = "_";
     private static final String FUSION_REGEX = "\\s*(\\w*)" + FUSION_SEPARATOR + "(\\w*)\\s*(?i)(fusion)?\\s*";
     private static final String FUSION_ALT_REGEX = "\\s*(\\w*)" + FUSION_ALTERNATIVE_SEPARATOR + "(\\w*)\\s+(?i)fusion\\s*";
+    // \w matches the underscore itself, so the gene partners are matched on alphanumerics only. The fusion
+    // keyword is required to avoid picking up alterations that use an underscore for a position range.
+    private static final String FUSION_UNDERSCORE_REGEX =
+        "\\s*([a-zA-Z0-9]+)" + FUSION_UNDERSCORE_SEPARATOR + "([a-zA-Z0-9]+)\\s+(?i)fusion\\s*";
+    // A hugo symbol can contain a hyphen itself, ie NKX2-1, so the partner section of a hyphenated fusion cannot be
+    // split on the separator alone. The whole section is captured here and every possible split is offered by
+    // getCandidateGenePartners, leaving the choice to whoever can look the gene partners up.
+    private static final String FUSION_HYPHENATED_REGEX =
+        "\\s*([a-zA-Z0-9]+(?:" + FUSION_ALTERNATIVE_SEPARATOR + "[a-zA-Z0-9]+)+)\\s+(?i)fusion\\s*";
     // The deleted sequence is matched lazily so an insertion, if any, is captured by the ins group instead of being swallowed
     private static final Pattern CDNA_DEL_SEQ = Pattern.compile("(c\\.[0-9+\\-*_]+del)[a-z0-9]*?(ins[a-z0-9]+)?$", CASE_INSENSITIVE);
     private static final Pattern CDNA_DUP_SEQ = Pattern.compile("(c\\.[0-9+\\-*_]+dup)\\w+$", CASE_INSENSITIVE);
@@ -33,18 +43,26 @@ public class AlterationUtils {
         alt.setType(AlterationType.STRUCTURAL_VARIANT);
         alt.setConsequence(consequence);
 
-        if (alteration.contains(FUSION_SEPARATOR) || alteration.contains(FUSION_ALTERNATIVE_SEPARATOR)) {
+        List<List<String>> candidates = getCandidateGenePartners(alteration);
+        List<String> genePartners = candidates.size() == 1 ? candidates.get(0) : new ArrayList<>();
+        if (genePartners.size() == 2) {
+            // the gene partner order is meaningful, so it is preserved instead of being collected into a HashSet
             alt.setGenes(
-                getGenesStrs(alteration)
+                genePartners
                     .stream()
                     .map(hugoSymbol -> {
                         Gene gene = new Gene();
                         gene.setHugoSymbol(hugoSymbol);
                         return gene;
                     })
-                    .collect(Collectors.toSet())
+                    .collect(Collectors.toCollection(LinkedHashSet::new))
             );
-            alt.setAlteration(alt.getGenes().stream().map(Gene::getHugoSymbol).collect(Collectors.joining("-")) + " Fusion");
+            // fusions are always named using a hyphen and a capitalized Fusion keyword
+            alt.setAlteration(String.join(FUSION_ALTERNATIVE_SEPARATOR, genePartners) + " Fusion");
+        } else if (!candidates.isEmpty()) {
+            // which split is the right one depends on the genes we have in our database, so the gene partners are
+            // left to the annotation and only the fusion keyword is normalized here
+            alt.setAlteration(String.join(FUSION_ALTERNATIVE_SEPARATOR, candidates.get(0)) + " Fusion");
         } else {
             alt.setAlteration(alteration.substring(0, 1).toUpperCase() + alteration.toLowerCase().substring(1));
         }
@@ -272,22 +290,40 @@ public class AlterationUtils {
     }
 
     public List<String> getGenesStrs(String alteration) {
-        if (StringUtils.isNotEmpty(alteration)) {
-            List<String> genes = new ArrayList<>();
-            Pattern p = Pattern.compile(FUSION_REGEX);
-            Matcher m = p.matcher(alteration);
+        List<List<String>> candidates = getCandidateGenePartners(alteration);
+        // more than one candidate means the gene partners cannot be told apart without knowing the genes
+        return candidates.size() == 1 ? candidates.get(0) : new ArrayList<>();
+    }
+
+    /**
+     * Lists every way the gene partners of a fusion can be read, ordered from the leftmost split to the rightmost.
+     * There is a single candidate unless the partners are hyphenated and a hugo symbol contains a hyphen itself,
+     * ie NKX2-1-BRAF Fusion is either NKX2 and 1-BRAF or NKX2-1 and BRAF. An alteration that is not a two gene
+     * partner fusion has no candidates.
+     */
+    public List<List<String>> getCandidateGenePartners(String alteration) {
+        if (StringUtils.isEmpty(alteration)) {
+            return new ArrayList<>();
+        }
+        for (String regex : List.of(FUSION_REGEX, FUSION_UNDERSCORE_REGEX)) {
+            Matcher m = Pattern.compile(regex).matcher(alteration);
             if (m.matches()) {
-                genes.add(m.group(1));
-                genes.add(m.group(2));
-            } else {
-                p = Pattern.compile(FUSION_ALT_REGEX);
-                m = p.matcher(alteration);
-                if (m.matches()) {
-                    genes.add(m.group(1));
-                    genes.add(m.group(2));
-                }
+                return List.of(List.of(m.group(1), m.group(2)));
             }
-            return genes;
+        }
+        Matcher hyphenated = Pattern.compile(FUSION_HYPHENATED_REGEX).matcher(alteration);
+        if (hyphenated.matches()) {
+            List<String> sections = List.of(hyphenated.group(1).split(FUSION_ALTERNATIVE_SEPARATOR));
+            List<List<String>> candidates = new ArrayList<>();
+            for (int splitIndex = 1; splitIndex < sections.size(); splitIndex++) {
+                candidates.add(
+                    List.of(
+                        String.join(FUSION_ALTERNATIVE_SEPARATOR, sections.subList(0, splitIndex)),
+                        String.join(FUSION_ALTERNATIVE_SEPARATOR, sections.subList(splitIndex, sections.size()))
+                    )
+                );
+            }
+            return candidates;
         }
         return new ArrayList<>();
     }
@@ -324,7 +360,13 @@ public class AlterationUtils {
         if (StringUtils.isEmpty(variant)) {
             return false;
         }
-        if (variant != null && (Pattern.matches(FUSION_REGEX, variant) || Pattern.matches(FUSION_ALT_REGEX, variant))) {
+        if (
+            variant != null &&
+            (Pattern.matches(FUSION_REGEX, variant) ||
+                Pattern.matches(FUSION_ALT_REGEX, variant) ||
+                Pattern.matches(FUSION_UNDERSCORE_REGEX, variant) ||
+                Pattern.matches(FUSION_HYPHENATED_REGEX, variant))
+        ) {
             return true;
         }
         if (variant.equalsIgnoreCase("fusions")) {
