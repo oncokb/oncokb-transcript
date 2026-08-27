@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Hotspots are imported from oncokb core, which ships Cancer Hotspots v2 and v3 in the same file.
+        HOTSPOT_V1 never matched the data it held, so it becomes HOTSPOT_V2 and a HOTSPOT_V3 flag is added.
+        The existing alteration associations carry over to HOTSPOT_V2. Re-run the hotspot import afterwards
+        so the v3 residues move onto HOTSPOT_V3.
+    -->
+    <changeSet id="20260826000000-1" author="oncokb">
+        <update tableName="flag">
+            <column name="flag" value="HOTSPOT_V2"/>
+            <column name="name" value="Cancer Hotspots v2"/>
+            <column
+                name="description"
+                value="Single residue, in-frame indel and splice site mutation hotspots identified in 24,592 tumor samples by the algorithm described in [Chang et al. 2017] and [Chang et al. 2016]"
+            />
+            <where>type = 'HOTSPOT' AND flag = 'HOTSPOT_V1'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="20260826000000-2" author="oncokb">
+        <insert tableName="flag">
+            <column name="type" value="HOTSPOT"/>
+            <column name="flag" value="HOTSPOT_V3"/>
+            <column name="name" value="Cancer Hotspots v3"/>
+            <column
+                name="description"
+                value="Single residue mutation hotspots added in version 3 of Cancer Hotspots, identified by the algorithm described in [Bandlamudi et al. 2026]"
+            />
+        </insert>
+        <rollback>
+            <delete tableName="flag">
+                <where>type = 'HOTSPOT' AND flag = 'HOTSPOT_V3'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

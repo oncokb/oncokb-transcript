@@ -69,5 +69,6 @@
     <include file="config/liquibase/changelog/20230525144705_added_entity_constraints_FdaDrug.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20240516000000_added_entity_constraints_User.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
+    <include file="config/liquibase/changelog/20260826000000_updated_hotspot_flags.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

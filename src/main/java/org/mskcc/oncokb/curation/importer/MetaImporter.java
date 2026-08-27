@@ -15,6 +15,7 @@ import org.mskcc.oncokb.curation.model.IntegerRange;
 import org.mskcc.oncokb.curation.service.*;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.service.mapper.TranscriptMapper;
+import org.mskcc.oncokb.curation.util.FileUtils;
 import org.mskcc.oncokb.curation.util.HotspotUtils;
 import org.oncokb.ApiException;
 import org.slf4j.Logger;
@@ -122,6 +123,20 @@ public class MetaImporter {
 
     private final Logger log = LoggerFactory.getLogger(MetaImporter.class);
 
+    private static final String DELIMITER_TSV = "\t";
+
+    // hotspots are maintained in oncokb core so both applications stay on the same dataset
+    private static final String HOTSPOT_URL =
+        "https://raw.githubusercontent.com/oncokb/oncokb/master/core/src/main/resources/data/hotspots_v2_and_3d.txt";
+    private static final String HOTSPOT_COLUMN_HUGO_SYMBOL = "hugo_symbol";
+    private static final String HOTSPOT_COLUMN_RESIDUE = "residue";
+    private static final String HOTSPOT_COLUMN_TYPE = "type";
+    private static final String HOTSPOT_COLUMN_VERSION = "version";
+
+    private static final String HOTSPOT_TYPE_THREE_D = "3d";
+    private static final String HOTSPOT_VERSION_V2 = "v2";
+    private static final String HOTSPOT_VERSION_V3 = "v3";
+
     final String DATA_DIRECTORY;
     final String META_DATA_FOLDER_PATH;
 
@@ -191,23 +206,67 @@ public class MetaImporter {
         }
     }
 
-    private void importHotspot() throws IOException {
-        Flag hotspotFlag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.HOTSPOT_V1.name()).orElseThrow();
+    private int getRequiredColumnIndex(List<String> header, String columnName) throws IOException {
+        int index = header.indexOf(columnName);
+        if (index < 0) {
+            throw new IOException("Column " + columnName + " cannot be found in " + HOTSPOT_URL);
+        }
+        return index;
+    }
+
+    public void importHotspot() throws IOException {
+        Flag hotspotV2Flag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.HOTSPOT_V2.name()).orElseThrow();
+        Flag hotspotV3Flag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.HOTSPOT_V3.name()).orElseThrow();
         Flag threeDFlag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.THREE_D.name()).orElseThrow();
 
-        List<List<String>> hotspotLines = parseTsvMetaFile("cancer_hotspots_gn.tsv");
+        log.info("Fetching hotspots from {}", HOTSPOT_URL);
+        List<String> hotspotFileLines = FileUtils.readTrimmedRemoteLines(HOTSPOT_URL);
+        List<String> header = FileUtils.parseDelimitedHeader(hotspotFileLines, DELIMITER_TSV);
+
+        // the upstream file carries many columns we do not use, so resolve the ones we need by name
+        int hugoSymbolIndex = getRequiredColumnIndex(header, HOTSPOT_COLUMN_HUGO_SYMBOL);
+        int residueIndex = getRequiredColumnIndex(header, HOTSPOT_COLUMN_RESIDUE);
+        int typeIndex = getRequiredColumnIndex(header, HOTSPOT_COLUMN_TYPE);
+        int versionIndex = getRequiredColumnIndex(header, HOTSPOT_COLUMN_VERSION);
+
+        // a residue is repeated once per cluster/chain, but each one only needs to be imported once
+        List<List<String>> hotspotLines = FileUtils.parseDelimitedLines(hotspotFileLines, DELIMITER_TSV, true)
+            .stream()
+            .map(line -> Arrays.asList(line.get(hugoSymbolIndex), line.get(residueIndex), line.get(typeIndex), line.get(versionIndex)))
+            .distinct()
+            .collect(Collectors.toList());
+        log.info("Importing {} unique hotspots", hotspotLines.size());
+
         hotspotLines.forEach(line -> {
             String hugoSymbol = line.get(0);
             log.info("Search for gene {}", hugoSymbol);
             List<Gene> geneList = geneService.findGeneByHugoSymbolOrGeneAliasesIn(hugoSymbol);
             if (geneList.isEmpty()) {
-                log.error("Gene cannot be found {}", line.get(0));
+                log.error("Gene cannot be found {}", hugoSymbol);
                 return;
             }
             Gene gene = geneList.iterator().next();
 
-            String type = line.get(3);
             String residue = line.get(1);
+            String type = line.get(2);
+            String version = line.get(3);
+
+            // 3D hotspots come from a separate dataset that is not versioned alongside Cancer Hotspots
+            Flag flag;
+            // a residue belongs to exactly one Cancer Hotspots version, so drop the flag it is no longer part of
+            Flag supersededFlag = null;
+            if (HOTSPOT_TYPE_THREE_D.equals(type)) {
+                flag = threeDFlag;
+            } else if (HOTSPOT_VERSION_V2.equals(version)) {
+                flag = hotspotV2Flag;
+                supersededFlag = hotspotV3Flag;
+            } else if (HOTSPOT_VERSION_V3.equals(version)) {
+                flag = hotspotV3Flag;
+                supersededFlag = hotspotV2Flag;
+            } else {
+                log.error("Unhandled hotspot version {} for {} {}", version, hugoSymbol, residue);
+                return;
+            }
 
             List<Alteration> alterations = new ArrayList<>();
             if ("splice residue".equals(type) || "splice site".equals(type)) {
@@ -218,17 +277,16 @@ public class MetaImporter {
                 String proteinName = integerRange.getStart() + "_" + integerRange.getEnd();
                 alterations.addAll(fetchAndSaveHotspotAlteration(gene, proteinName + "ins"));
                 alterations.addAll(fetchAndSaveHotspotAlteration(gene, proteinName + "del"));
-            } else if ("single residue".equals(type) || "3d".equals(type)) {
+            } else if ("single residue".equals(type) || HOTSPOT_TYPE_THREE_D.equals(type)) {
                 alterations.addAll(fetchAndSaveHotspotAlteration(gene, residue));
             } else {
                 log.error("Unhandled type of hotspot {}", type);
             }
             for (Alteration alteration : alterations) {
-                if ("3d".equals(type)) {
-                    alteration.addFlag(threeDFlag);
-                } else {
-                    alteration.addFlag(hotspotFlag);
+                if (supersededFlag != null) {
+                    alteration.removeFlag(supersededFlag);
                 }
+                alteration.addFlag(flag);
                 alterationService.save(alteration);
             }
         });

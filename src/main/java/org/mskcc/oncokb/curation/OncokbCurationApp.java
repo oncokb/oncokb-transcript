@@ -1,5 +1,8 @@
 package org.mskcc.oncokb.curation;
 
+import static org.mskcc.oncokb.curation.config.Constants.PROFILE_IMPORTER;
+import static org.mskcc.oncokb.curation.config.Constants.PROFILE_IMPORTER_HOTSPOT;
+
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -92,8 +95,11 @@ public class OncokbCurationApp {
         Collection<String> activeProfiles = Arrays.asList(
             env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()
         );
-        if (activeProfiles.contains("importer")) {
+        if (activeProfiles.contains(PROFILE_IMPORTER)) {
             importer.generalImport();
+        } else if (activeProfiles.contains(PROFILE_IMPORTER_HOTSPOT)) {
+            // the general import already covers hotspots, so this only runs on its own
+            importer.hotspotImport();
         }
     }
 

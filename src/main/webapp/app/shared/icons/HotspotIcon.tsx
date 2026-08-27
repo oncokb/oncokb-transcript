@@ -9,14 +9,17 @@ import _ from 'lodash';
 import InfoIcon from 'app/shared/icons/InfoIcon';
 
 enum HotspotType {
-  HOTSPOT_V1 = 'HOTSPOT_V1',
+  HOTSPOT_V2 = 'HOTSPOT_V2',
+  HOTSPOT_V3 = 'HOTSPOT_V3',
   THREE_D = 'THREE_D',
 }
 
 const getHotspotTypeName = (hotspotType: HotspotType) => {
   switch (hotspotType) {
-    case HotspotType.HOTSPOT_V1:
-      return 'Cancer Hotspots(v1)';
+    case HotspotType.HOTSPOT_V2:
+      return 'Cancer Hotspots(v2)';
+    case HotspotType.HOTSPOT_V3:
+      return 'Cancer Hotspots(v3)';
     case HotspotType.THREE_D:
       return '3D Hotspots';
     default:
@@ -25,12 +28,19 @@ const getHotspotTypeName = (hotspotType: HotspotType) => {
 };
 
 const getHotspotDescription = (hotspotType: string) => {
-  if ((hotspotType as HotspotType) === HotspotType.HOTSPOT_V1) {
+  if ((hotspotType as HotspotType) === HotspotType.HOTSPOT_V2) {
     return (
       <div>
         Identified as a recurrent hotspot (statistically significant) in a population-scale cohort of tumor samples of various cancer types
         using methodology based in part on <Linkout to={getNCBIlink('/pubmed/29247016')}>Chang et al. 2017</Linkout> and{' '}
         <Linkout to={getNCBIlink('/pubmed/26619011')}>Chang et al. 2016</Linkout>.
+      </div>
+    );
+  } else if ((hotspotType as HotspotType) === HotspotType.HOTSPOT_V3) {
+    return (
+      <div>
+        Identified as a recurrent hotspot (statistically significant) in a population-scale cohort of tumor samples of various cancer types
+        using methodology described in Bandlamudi et al. 2026.
       </div>
     );
   } else if ((hotspotType as HotspotType) === HotspotType.THREE_D) {

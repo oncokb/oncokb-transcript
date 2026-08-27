@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 public class FileUtils {
 
+    private static final String COMMENT_PREFIX = "#";
+
     /**
      * read local files and return content
      *
@@ -106,14 +108,55 @@ public class FileUtils {
     }
 
     public static List<List<String>> parseDelimitedFile(String filePath, String delimiter, boolean trim) throws IOException {
-        List<String> readmeFileLines = readTrimmedLinesStream(new FileInputStream(filePath));
+        return parseDelimitedLines(readTrimmedLinesStream(new FileInputStream(filePath)), delimiter, trim);
+    }
+
+    /**
+     * read a remote file and return its trimmed lines
+     *
+     * @param urlToFile
+     * @return
+     * @throws IOException
+     */
+    public static List<String> readTrimmedRemoteLines(String urlToFile) throws IOException {
+        URL url = new URL(urlToFile);
+        return readTrimmedLinesStream(url.openStream());
+    }
+
+    /**
+     * splits each line by a delimiter. Comment lines are ignored and the first remaining line is dropped as the
+     * column headers.
+     *
+     * @param fileLines
+     * @param delimiter
+     * @param trim
+     * @return
+     */
+    public static List<List<String>> parseDelimitedLines(List<String> fileLines, String delimiter, boolean trim) {
+        List<String> lines = fileLines.stream().filter(line -> !line.startsWith(COMMENT_PREFIX)).collect(Collectors.toList());
         // remove the first line which includes the column headers
-        if (readmeFileLines.size() > 0) {
-            String header = readmeFileLines.remove(0);
+        if (lines.size() > 0) {
+            String header = lines.remove(0);
             final int numOfColumns = header.split(delimiter).length;
-            return parseDelimitedFile(readmeFileLines, delimiter, trim, numOfColumns);
+            return parseDelimitedFile(lines, delimiter, trim, numOfColumns);
         }
         return new ArrayList<>();
+    }
+
+    /**
+     * read a delimited file and return the column headers. Comment lines are ignored.
+     *
+     * @param fileLines
+     * @param delimiter
+     * @return the header cells, or an empty list when there is no content
+     */
+    public static List<String> parseDelimitedHeader(List<String> fileLines, String delimiter) {
+        return fileLines
+            .stream()
+            .filter(line -> !line.startsWith(COMMENT_PREFIX))
+            .findFirst()
+            .map(header -> Arrays.stream(header.split(delimiter)).map(String::trim).collect(Collectors.toList()))
+            .orElse(new ArrayList<>());
     }
 
     private static List<List<String>> parseDelimitedFile(List<String> fileLines, String delimiter, boolean trim, int numOfColumns) {
