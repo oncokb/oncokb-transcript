@@ -240,12 +240,12 @@ public class MetaImporter {
         hotspotLines.forEach(line -> {
             String hugoSymbol = line.get(0);
             log.info("Search for gene {}", hugoSymbol);
-            List<Gene> geneList = geneService.findGeneByHugoSymbolOrGeneAliasesIn(hugoSymbol);
-            if (geneList.isEmpty()) {
+            Optional<Gene> geneOptional = geneService.findGeneByHugoSymbolOrGeneAliasesInPreferHugoSymbol(hugoSymbol);
+            if (geneOptional.isEmpty()) {
                 log.error("Gene cannot be found {}", hugoSymbol);
                 return;
             }
-            Gene gene = geneList.iterator().next();
+            Gene gene = geneOptional.orElseThrow();
 
             String residue = line.get(1);
             String type = line.get(2);
