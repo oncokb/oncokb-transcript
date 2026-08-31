@@ -22,5 +22,10 @@ public final class Constants {
 
     public static final String DEFAULT_GENE_SYNONMN_SOURCE = "cBioPortal";
 
+    // Profile that runs the full data import on startup
+    public static final String PROFILE_IMPORTER = "importer";
+    // Profile that only imports hotspots on startup. Requires the flags and genes to be imported already.
+    public static final String PROFILE_IMPORTER_HOTSPOT = "importer-hotspot";
+
     private Constants() {}
 }

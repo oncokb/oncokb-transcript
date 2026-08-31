@@ -421,7 +421,11 @@ public class MainService {
         // 1. check whether alteration is hotspot
         AnnotationDTO annotationDTO = new AnnotationDTO();
         Set<Alteration> relevantAlts = annotationService.findRelevantAlterations(alteration);
-        List<String> hotspotFlags = Arrays.asList(HotspotFlagEnum.HOTSPOT_V1.name(), HotspotFlagEnum.THREE_D.name());
+        List<String> hotspotFlags = Arrays.asList(
+            HotspotFlagEnum.HOTSPOT_V2.name(),
+            HotspotFlagEnum.HOTSPOT_V3.name(),
+            HotspotFlagEnum.THREE_D.name()
+        );
         List<Alteration> hotspots = relevantAlts
             .stream()
             .filter(alt -> !Collections.disjoint(hotspotFlags, alt.getFlags().stream().map(Flag::getFlag).collect(Collectors.toList())))

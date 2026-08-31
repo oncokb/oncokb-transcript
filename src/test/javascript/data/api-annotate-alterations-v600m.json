@@ -36,7 +36,7 @@
       "hotspot": {
         "associatedHotspots": [
           {
-            "type": "HOTSPOT_V1",
+            "type": "HOTSPOT_V2",
             "alteration": "V600"
           },
           {
@@ -44,7 +44,7 @@
             "alteration": "V600"
           },
           {
-            "type": "HOTSPOT_V1",
+            "type": "HOTSPOT_V2",
             "alteration": "V600"
           },
           {

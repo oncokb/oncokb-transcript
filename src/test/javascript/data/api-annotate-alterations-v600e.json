@@ -28,9 +28,9 @@
     "annotation": {
       "hotspot": {
         "associatedHotspots": [
-          { "type": "HOTSPOT_V1", "alteration": "V600" },
+          { "type": "HOTSPOT_V2", "alteration": "V600" },
           { "type": "THREE_D", "alteration": "V600" },
-          { "type": "HOTSPOT_V1", "alteration": "V600" },
+          { "type": "HOTSPOT_V2", "alteration": "V600" },
           { "type": "THREE_D", "alteration": "V600" }
         ],
         "hotspot": true

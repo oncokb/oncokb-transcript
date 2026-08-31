@@ -175,6 +175,24 @@ public class GeneService {
         return geneRepository.findGeneByHugoSymbolOrGeneAliasesIn(hugoSymbol);
     }
 
+    /**
+     * Find the gene for a symbol, preferring the gene that owns the symbol over one that only lists it as an alias.
+     * Symbols such as MET and PIM1 are both a hugo symbol and an alias of an unrelated gene, so the order the
+     * repository returns them in cannot be relied on.
+     *
+     * @param hugoSymbol
+     * @return the gene owning the hugo symbol, otherwise the first gene carrying it as an alias
+     */
+    @Transactional(readOnly = true)
+    public Optional<Gene> findGeneByHugoSymbolOrGeneAliasesInPreferHugoSymbol(String hugoSymbol) {
+        List<Gene> genes = findGeneByHugoSymbolOrGeneAliasesIn(hugoSymbol);
+        return genes
+            .stream()
+            .filter(gene -> hugoSymbol.equalsIgnoreCase(gene.getHugoSymbol()))
+            .findFirst()
+            .or(() -> genes.stream().findFirst());
+    }
+
     @Transactional(readOnly = true)
     public Optional<Gene> findGeneBySynonym(String synonym) {
         Optional<Synonym> synonymOptional = synonymRepository.findByTypeAndSourceAndName("GENE", DEFAULT_GENE_SYNONMN_SOURCE, synonym);

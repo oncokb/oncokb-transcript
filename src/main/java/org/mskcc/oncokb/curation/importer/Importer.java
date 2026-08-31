@@ -108,6 +108,13 @@ public class Importer {
         //        firebaseService.readGene();
     }
 
+    /**
+     * Import hotspots on their own. The flags and genes need to be imported already.
+     */
+    public void hotspotImport() throws IOException {
+        this.metaImporter.importHotspot();
+    }
+
     private void checkOncoKbTranscriptSequenceAcrossRG() throws ApiException {
         for (Gene gene : oncoKbUrlService.getGenes()) {
             if (gene.getEntrezGeneId() <= 0) {
