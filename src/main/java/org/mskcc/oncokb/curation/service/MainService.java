@@ -394,7 +394,8 @@ public class MainService {
                 );
 
                 if (canonicalSequenceOptional.isPresent()) {
-                    String sequence = canonicalSequenceOptional.orElseThrow().getSequence();
+                    Sequence canonicalSequence = canonicalSequenceOptional.orElseThrow();
+                    String sequence = canonicalSequence.getSequence();
                     if (alteration.getStart() < sequence.length()) {
                         String refRe = String.valueOf(sequence.charAt(alteration.getStart() - 1));
                         if (!StringUtils.isEmpty(refRe)) {
@@ -414,6 +415,21 @@ public class MainService {
                         }
                     }
                 }
+
+                log.info(
+                    "Reference residue validation query/result: alteration='{}', geneSymbol={}, entrezGeneId={}, referenceGenome={}, transcriptId={}, sequenceId={}, refResiduesAfterValidation={}, resultType={}, resultMessages={}",
+                    alteration.getAlteration(),
+                    gene.getHugoSymbol(),
+                    gene.getEntrezGeneId(),
+                    referenceGenome,
+                    canonicalSequenceOptional
+                        .map(sequence -> sequence.getTranscript() != null ? sequence.getTranscript().getEnsemblTranscriptId() : null)
+                        .orElse(null),
+                    canonicalSequenceOptional.map(Sequence::getId).orElse(null),
+                    alteration.getRefResidues(),
+                    alterationWithStatus.getType(),
+                    alterationWithStatus.getMessages()
+                );
             }
         }
 
