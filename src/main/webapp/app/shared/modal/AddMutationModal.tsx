@@ -935,7 +935,8 @@ function AddMutationModal({
   }
 
   function getErrorSection(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    const suggestion = new RegExp('The alteration name is invalid, do you mean (.+)\\?').exec(alterationData.error ?? '')?.[1];
+    // matches both the invalid protein change and the hyphen separated fusion messages from the backend
+    const suggestion = new RegExp('do you mean (.+)\\?', 'i').exec(alterationData.error ?? '')?.[1];
 
     return (
       <div>

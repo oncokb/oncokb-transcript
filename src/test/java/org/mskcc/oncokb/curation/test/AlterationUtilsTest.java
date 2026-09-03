@@ -1,8 +1,10 @@
 package org.mskcc.oncokb.curation.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mskcc.oncokb.curation.util.AlterationUtils.isFusionMissingDoubleColon;
 import static org.mskcc.oncokb.curation.util.AlterationUtils.parseProteinChange;
 
 import java.util.List;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.AlterationAnnotationStatus;
 import org.mskcc.oncokb.curation.domain.EntityStatus;
+import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 import org.mskcc.oncokb.curation.util.AlterationUtils;
 
 public class AlterationUtilsTest {
@@ -18,17 +21,16 @@ public class AlterationUtilsTest {
     public void testParseFusionNormalizesName() {
         AlterationUtils alterationUtils = new AlterationUtils();
 
-        // the separator is normalized to a hyphen and the fusion keyword is capitalized
-        assertEquals("BCR-ABL1 Fusion", parseAlterationName(alterationUtils, "BCR::ABL1 Fusion"));
-        assertEquals("BCR-ABL1 Fusion", parseAlterationName(alterationUtils, "BCR::ABL1"));
-        assertEquals("BCR-ABL1 Fusion", parseAlterationName(alterationUtils, "BCR-ABL1 fusion"));
-        assertEquals("MAP2K1-SMAD3 Fusion", parseAlterationName(alterationUtils, "MAP2K1_SMAD3 fusion"));
+        // the fusion keyword is capitalized and added when it is left out
+        assertEquals("BCR::ABL1 Fusion", parseAlterationName(alterationUtils, "BCR::ABL1 Fusion"));
+        assertEquals("BCR::ABL1 Fusion", parseAlterationName(alterationUtils, "BCR::ABL1"));
+        assertEquals("BCR::ABL1 Fusion", parseAlterationName(alterationUtils, "BCR:: ABL1 fusion"));
 
         // the gene partner order the curator entered is preserved
-        assertEquals("ABL1-BCR Fusion", parseAlterationName(alterationUtils, "ABL1::BCR Fusion"));
+        assertEquals("ABL1::BCR Fusion", parseAlterationName(alterationUtils, "ABL1::BCR Fusion"));
 
-        // an ambiguous partner section is kept as entered, only the fusion keyword is normalized
-        assertEquals("NKX2-1-BRAF Fusion", parseAlterationName(alterationUtils, "NKX2-1-BRAF fusion"));
+        // a hugo symbol containing a hyphen is only readable because the partners are separated by the double colon
+        assertEquals("NKX2-1::BRAF Fusion", parseAlterationName(alterationUtils, "NKX2-1::BRAF fusion"));
 
         // the generic fusion alterations are untouched other than being capitalized
         assertEquals("Fusions", parseAlterationName(alterationUtils, "fusions"));
@@ -40,36 +42,16 @@ public class AlterationUtilsTest {
         AlterationUtils alterationUtils = new AlterationUtils();
 
         assertEquals(List.of("BCR", "ABL1"), alterationUtils.getGenesStrs("BCR::ABL1 Fusion"));
-        assertEquals(List.of("BCR", "ABL1"), alterationUtils.getGenesStrs("BCR-ABL1 Fusion"));
-        assertEquals(List.of("bcr", "abl1"), alterationUtils.getGenesStrs("bcr_abl1 fusion"));
+        assertEquals(List.of("bcr", "abl1"), alterationUtils.getGenesStrs("bcr::abl1 fusion"));
+        // a hugo symbol containing a hyphen is read as one partner
+        assertEquals(List.of("HLA-DRB1", "MET"), alterationUtils.getGenesStrs("HLA-DRB1::MET Fusion"));
+        assertEquals(List.of("NKX2-1", "BRAF"), alterationUtils.getGenesStrs("NKX2-1::BRAF Fusion"));
+
+        // only the double colon separates the gene partners
+        assertEquals(List.of(), alterationUtils.getGenesStrs("BCR-ABL1 Fusion"));
+        assertEquals(List.of(), alterationUtils.getGenesStrs("bcr_abl1 fusion"));
         assertEquals(List.of(), alterationUtils.getGenesStrs("Fusions"));
-        // an underscore without the fusion keyword is not a fusion
         assertEquals(List.of(), alterationUtils.getGenesStrs("118_153trunc"));
-        // a hugo symbol containing a hyphen makes the gene partners ambiguous, the annotation picks the split
-        assertEquals(List.of(), alterationUtils.getGenesStrs("NKX2-1-BRAF Fusion"));
-    }
-
-    @Test
-    public void testGetCandidateGenePartners() {
-        AlterationUtils alterationUtils = new AlterationUtils();
-
-        // there is nothing to disambiguate when the separator only appears once
-        assertEquals(List.of(List.of("BCR", "ABL1")), alterationUtils.getCandidateGenePartners("BCR::ABL1 Fusion"));
-        assertEquals(List.of(List.of("BCR", "ABL1")), alterationUtils.getCandidateGenePartners("BCR-ABL1 Fusion"));
-        assertEquals(List.of(List.of("bcr", "abl1")), alterationUtils.getCandidateGenePartners("bcr_abl1 fusion"));
-
-        // every split is offered, from the leftmost to the rightmost
-        assertEquals(
-            List.of(List.of("NKX2", "1-BRAF"), List.of("NKX2-1", "BRAF")),
-            alterationUtils.getCandidateGenePartners("NKX2-1-BRAF Fusion")
-        );
-        assertEquals(
-            List.of(List.of("BRAF", "NKX2-1"), List.of("BRAF-NKX2", "1")),
-            alterationUtils.getCandidateGenePartners("BRAF-NKX2-1 Fusion")
-        );
-
-        assertEquals(List.of(), alterationUtils.getCandidateGenePartners("Fusions"));
-        assertEquals(List.of(), alterationUtils.getCandidateGenePartners("V600E"));
     }
 
     private String parseAlterationName(AlterationUtils alterationUtils, String alteration) {
@@ -166,6 +148,45 @@ public class AlterationUtilsTest {
         status = alterationUtils.parseAlteration("c.4393_4394dup");
         assertEquals("c.4393_4394dup", status.getEntity().getAlteration());
         assertTrue(status.isOk());
+    }
+
+    @Test
+    public void testFusionMustUseDoubleColon() {
+        AlterationUtils alterationUtils = new AlterationUtils();
+        EntityStatus<Alteration> status;
+
+        // a fusion named with a hyphen is rejected and spelled out with the double colon separator
+        status = alterationUtils.parseAlteration("BCR-ABL1 Fusion");
+        assertTrue(status.isError());
+        assertTrue(getMessage(status).contains("Do you mean BCR::ABL1 Fusion?"));
+
+        // an underscore is rejected the same way
+        status = alterationUtils.parseAlteration("MAP2K1_SMAD3 fusion");
+        assertTrue(status.isError());
+        assertTrue(getMessage(status).contains("Do you mean MAP2K1::SMAD3 Fusion?"));
+
+        // a partner section with more than one hyphen cannot be split, so no suggestion is offered
+        status = alterationUtils.parseAlteration("NKX2-1-BRAF Fusion");
+        assertTrue(status.isError());
+        assertFalse(getMessage(status).contains("Do you mean"));
+
+        // the alteration the curator typed is echoed back untouched
+        assertEquals("NKX2-1-BRAF Fusion", status.getEntity().getAlteration());
+
+        // the double colon form is parsed, including a hugo symbol that contains a hyphen
+        status = alterationUtils.parseAlteration("HLA-DRB1::MET Fusion");
+        assertTrue(status.isOk());
+        assertEquals("HLA-DRB1::MET Fusion", status.getEntity().getAlteration());
+        assertEquals(AlterationType.STRUCTURAL_VARIANT, status.getEntity().getType());
+
+        // an alteration that does not name two gene partners has no separator to check
+        assertFalse(isFusionMissingDoubleColon("Fusions"));
+        assertFalse(isFusionMissingDoubleColon("NKX2-1 Fusions"));
+        assertFalse(isFusionMissingDoubleColon("Intragenic fusion"));
+        assertFalse(isFusionMissingDoubleColon("BCR::ABL1 Fusion"));
+        assertFalse(isFusionMissingDoubleColon("V600E"));
+        // an underscore outside of a fusion name is a protein change position range
+        assertFalse(isFusionMissingDoubleColon("118_153trunc"));
     }
 
     private static String getMessage(EntityStatus<?> status) {

@@ -20,17 +20,16 @@ public class AlterationUtils {
     public static final String FUSION_SEPARATOR = "::";
     public static final String FUSION_ALTERNATIVE_SEPARATOR = "-";
     public static final String FUSION_UNDERSCORE_SEPARATOR = "_";
-    private static final String FUSION_REGEX = "\\s*(\\w*)" + FUSION_SEPARATOR + "(\\w*)\\s*(?i)(fusion)?\\s*";
-    private static final String FUSION_ALT_REGEX = "\\s*(\\w*)" + FUSION_ALTERNATIVE_SEPARATOR + "(\\w*)\\s+(?i)fusion\\s*";
-    // \w matches the underscore itself, so the gene partners are matched on alphanumerics only. The fusion
-    // keyword is required to avoid picking up alterations that use an underscore for a position range.
-    private static final String FUSION_UNDERSCORE_REGEX =
-        "\\s*([a-zA-Z0-9]+)" + FUSION_UNDERSCORE_SEPARATOR + "([a-zA-Z0-9]+)\\s+(?i)fusion\\s*";
-    // A hugo symbol can contain a hyphen itself, ie NKX2-1, so the partner section of a hyphenated fusion cannot be
-    // split on the separator alone. The whole section is captured here and every possible split is offered by
-    // getCandidateGenePartners, leaving the choice to whoever can look the gene partners up.
-    private static final String FUSION_HYPHENATED_REGEX =
-        "\\s*([a-zA-Z0-9]+(?:" + FUSION_ALTERNATIVE_SEPARATOR + "[a-zA-Z0-9]+)+)\\s+(?i)fusion\\s*";
+    // A hugo symbol can contain a hyphen itself, ie NKX2-1, so the gene partners are only bounded by the separator
+    // and the surrounding whitespace
+    private static final String FUSION_REGEX = "\\s*([^\\s:]+)\\s*" + FUSION_SEPARATOR + "\\s*([^\\s:]+)\\s*(?i)(fusion)?\\s*";
+    // A fusion named with a hyphen or an underscore instead of the double colon separator. Neither can be read on
+    // its own, a hyphen because a hugo symbol contains one itself and an underscore because a protein change uses
+    // one for a position range, so the fusion keyword is required and the gene partners are never split apart.
+    private static final Pattern FUSION_MISSING_SEPARATOR_PATTERN = Pattern.compile(
+        "\\s*([a-zA-Z0-9]+(?:[" + FUSION_ALTERNATIVE_SEPARATOR + FUSION_UNDERSCORE_SEPARATOR + "][a-zA-Z0-9]+)+)\\s+fusion\\s*",
+        CASE_INSENSITIVE
+    );
     // The deleted sequence is matched lazily so an insertion, if any, is captured by the ins group instead of being swallowed
     private static final Pattern CDNA_DEL_SEQ = Pattern.compile("(c\\.[0-9+\\-*_]+del)[a-z0-9]*?(ins[a-z0-9]+)?$", CASE_INSENSITIVE);
     private static final Pattern CDNA_DUP_SEQ = Pattern.compile("(c\\.[0-9+\\-*_]+dup)\\w+$", CASE_INSENSITIVE);
@@ -43,8 +42,7 @@ public class AlterationUtils {
         alt.setType(AlterationType.STRUCTURAL_VARIANT);
         alt.setConsequence(consequence);
 
-        List<List<String>> candidates = getCandidateGenePartners(alteration);
-        List<String> genePartners = candidates.size() == 1 ? candidates.get(0) : new ArrayList<>();
+        List<String> genePartners = getGenesStrs(alteration);
         if (genePartners.size() == 2) {
             // the gene partner order is meaningful, so it is preserved instead of being collected into a HashSet
             alt.setGenes(
@@ -57,12 +55,8 @@ public class AlterationUtils {
                     })
                     .collect(Collectors.toCollection(LinkedHashSet::new))
             );
-            // fusions are always named using a hyphen and a capitalized Fusion keyword
-            alt.setAlteration(String.join(FUSION_ALTERNATIVE_SEPARATOR, genePartners) + " Fusion");
-        } else if (!candidates.isEmpty()) {
-            // which split is the right one depends on the genes we have in our database, so the gene partners are
-            // left to the annotation and only the fusion keyword is normalized here
-            alt.setAlteration(String.join(FUSION_ALTERNATIVE_SEPARATOR, candidates.get(0)) + " Fusion");
+            // fusions are always named using the double colon separator and a capitalized Fusion keyword
+            alt.setAlteration(String.join(FUSION_SEPARATOR, genePartners) + " Fusion");
         } else {
             alt.setAlteration(alteration.substring(0, 1).toUpperCase() + alteration.toLowerCase().substring(1));
         }
@@ -247,6 +241,19 @@ public class AlterationUtils {
         if (StringUtils.isEmpty(alteration)) {
             return null;
         }
+        if (isFusionMissingDoubleColon(alteration)) {
+            Alteration alt = new Alteration();
+            alt.setAlteration(alteration);
+            alt.setName(alteration);
+            Consequence consequence = new Consequence();
+            consequence.setTerm(SVConsequence.FUSION.name());
+            alt.setConsequence(consequence);
+            entityWithStatus.setEntity(alt);
+            entityWithStatus.setType(EntityStatusType.ERROR);
+            entityWithStatus.setMessage(getFusionSeparatorErrorMessage(alteration));
+            return entityWithStatus;
+        }
+
         if (isFusion(alteration)) {
             Alteration alt = parseFusion(alteration);
             entityWithStatus.setEntity(alt);
@@ -289,41 +296,17 @@ public class AlterationUtils {
         return entityWithStatus;
     }
 
-    public List<String> getGenesStrs(String alteration) {
-        List<List<String>> candidates = getCandidateGenePartners(alteration);
-        // more than one candidate means the gene partners cannot be told apart without knowing the genes
-        return candidates.size() == 1 ? candidates.get(0) : new ArrayList<>();
-    }
-
     /**
-     * Lists every way the gene partners of a fusion can be read, ordered from the leftmost split to the rightmost.
-     * There is a single candidate unless the partners are hyphenated and a hugo symbol contains a hyphen itself,
-     * ie NKX2-1-BRAF Fusion is either NKX2 and 1-BRAF or NKX2-1 and BRAF. An alteration that is not a two gene
-     * partner fusion has no candidates.
+     * The two gene partners of a fusion, in the order they were entered, ie BCR::ABL1 Fusion is BCR and ABL1. An
+     * alteration that is not a two gene partner fusion has none.
      */
-    public List<List<String>> getCandidateGenePartners(String alteration) {
+    public List<String> getGenesStrs(String alteration) {
         if (StringUtils.isEmpty(alteration)) {
             return new ArrayList<>();
         }
-        for (String regex : List.of(FUSION_REGEX, FUSION_UNDERSCORE_REGEX)) {
-            Matcher m = Pattern.compile(regex).matcher(alteration);
-            if (m.matches()) {
-                return List.of(List.of(m.group(1), m.group(2)));
-            }
-        }
-        Matcher hyphenated = Pattern.compile(FUSION_HYPHENATED_REGEX).matcher(alteration);
-        if (hyphenated.matches()) {
-            List<String> sections = List.of(hyphenated.group(1).split(FUSION_ALTERNATIVE_SEPARATOR));
-            List<List<String>> candidates = new ArrayList<>();
-            for (int splitIndex = 1; splitIndex < sections.size(); splitIndex++) {
-                candidates.add(
-                    List.of(
-                        String.join(FUSION_ALTERNATIVE_SEPARATOR, sections.subList(0, splitIndex)),
-                        String.join(FUSION_ALTERNATIVE_SEPARATOR, sections.subList(splitIndex, sections.size()))
-                    )
-                );
-            }
-            return candidates;
+        Matcher m = Pattern.compile(FUSION_REGEX).matcher(alteration);
+        if (m.matches()) {
+            return List.of(m.group(1), m.group(2));
         }
         return new ArrayList<>();
     }
@@ -356,17 +339,40 @@ public class AlterationUtils {
         return exclusionMatch.matches();
     }
 
+    /**
+     * Whether a fusion names its gene partners with a separator other than {@value #FUSION_SEPARATOR}. Only a fusion
+     * that names two gene partners can be spelled with a separator, ie the categorical Fusions has nothing to
+     * separate and is not reported.
+     */
+    public static boolean isFusionMissingDoubleColon(String variant) {
+        return !StringUtils.isEmpty(variant) && FUSION_MISSING_SEPARATOR_PATTERN.matcher(variant).matches();
+    }
+
+    /**
+     * Tells the curator to use {@value #FUSION_SEPARATOR}, spelling the fusion out for them when the gene partners
+     * can only be read one way. A partner section with more than one hyphen cannot be split, ie NKX2-1-BRAF Fusion
+     * is either NKX2 and 1-BRAF or NKX2-1 and BRAF, so no suggestion is offered there.
+     */
+    private static String getFusionSeparatorErrorMessage(String variant) {
+        String message =
+            "A fusion has to be named with \"" +
+            FUSION_SEPARATOR +
+            "\" between the two gene partners, because a hyphen and an underscore are both ambiguous.";
+        Matcher m = FUSION_MISSING_SEPARATOR_PATTERN.matcher(variant);
+        if (m.matches()) {
+            String[] sections = m.group(1).split("[" + FUSION_ALTERNATIVE_SEPARATOR + FUSION_UNDERSCORE_SEPARATOR + "]");
+            if (sections.length == 2) {
+                message += " Do you mean " + String.join(FUSION_SEPARATOR, sections) + " Fusion?";
+            }
+        }
+        return message;
+    }
+
     public static Boolean isFusion(String variant) {
         if (StringUtils.isEmpty(variant)) {
             return false;
         }
-        if (
-            variant != null &&
-            (Pattern.matches(FUSION_REGEX, variant) ||
-                Pattern.matches(FUSION_ALT_REGEX, variant) ||
-                Pattern.matches(FUSION_UNDERSCORE_REGEX, variant) ||
-                Pattern.matches(FUSION_HYPHENATED_REGEX, variant))
-        ) {
+        if (Pattern.matches(FUSION_REGEX, variant)) {
             return true;
         }
         if (variant.equalsIgnoreCase("fusions")) {
