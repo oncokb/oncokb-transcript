@@ -373,7 +373,7 @@ export type DuplicateMutationInfo =
 /**
  * Builds the comparison names for a mutation name, which may hold multiple comma separated alterations.
  * Fusion alterations are canonicalized by getAlterationComparisonName so that a swapped gene partner
- * ordering, ie ABL1-BCR Fusion vs BCR-ABL1 Fusion, is reported as a duplicate.
+ * ordering, ie ABL1::BCR Fusion vs BCR::ABL1 Fusion, is reported as a duplicate.
  */
 const getMutationComparisonNames = (mutationName: string | undefined, useFullAlterationName?: boolean) => {
   return (
@@ -500,7 +500,7 @@ export type PartnerGeneDuplicateInfo = {
 
 /**
  * Finds fusions that are already curated under one of their gene partners. A fusion should only live in one
- * gene collection, so BCR-ABL1 Fusion curated under BCR is a duplicate when it is being added to ABL1.
+ * gene collection, so BCR::ABL1 Fusion curated under BCR is a duplicate when it is being added to ABL1.
  * The gene collection being curated is skipped since getDuplicateMutations already covers it.
  */
 export const getPartnerGeneDuplicates = async (

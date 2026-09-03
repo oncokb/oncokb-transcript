@@ -312,25 +312,22 @@ export function parseAlterationName(
   }));
 }
 
-const FUSION_PARTNER_SEPARATORS = ['::', '-', '_'];
+export const FUSION_SEPARATOR = '::';
 
 /**
- * Parses the two gene partners out of a fusion alteration name, ie "BCR-ABL1 Fusion" -> ['BCR', 'ABL1'].
- * Returns undefined when the alteration is not a two gene partner fusion. That includes the generic
- * "Fusions" alteration and names we cannot split unambiguously, such as a fusion with a partner whose
- * hugo symbol contains a hyphen (NKX2-1).
+ * Parses the two gene partners out of a fusion alteration name, ie "BCR::ABL1 Fusion" -> ['BCR', 'ABL1'].
+ * A fusion has to be named with the double colon separator, which is what makes a hugo symbol containing a
+ * hyphen readable. Returns undefined when the alteration is not a two gene partner fusion, ie the generic
+ * "Fusions" alteration.
  */
 export function getFusionPartners(alteration: string): [string, string] | undefined {
   const fusionSection = /^(.*\S)\s+fusions?$/i.exec(alteration.trim());
   if (!fusionSection) {
     return undefined;
   }
-  const partnerSection = fusionSection[1].trim();
-  for (const separator of FUSION_PARTNER_SEPARATORS) {
-    const partners = partnerSection.split(separator).map(partner => partner.trim());
-    if (partners.length === 2 && partners.every(partner => partner.length > 0)) {
-      return [partners[0], partners[1]];
-    }
+  const partners = fusionSection[1].split(FUSION_SEPARATOR).map(partner => partner.trim());
+  if (partners.length === 2 && partners.every(partner => partner.length > 0)) {
+    return [partners[0], partners[1]];
   }
   return undefined;
 }
@@ -338,7 +335,7 @@ export function getFusionPartners(alteration: string): [string, string] | undefi
 /**
  * Finds the fusions that are not curated under one of their own gene partners. A fusion should only be added to a
  * gene collection when the gene being curated is one of its partners, spelled with the gene's main hugo symbol, so
- * "BCR-ABL Fusion" is rejected under ABL1 both when an alias is used and when the wrong gene is being curated.
+ * "BCR::ABL Fusion" is rejected under ABL1 both when an alias is used and when the wrong gene is being curated.
  * Alterations that are not two gene partner fusions cannot be validated and are ignored.
  */
 export function getFusionsWithoutCuratedGene(alterations: string[], hugoSymbol: string | undefined): string[] {
@@ -356,8 +353,8 @@ export function getFusionsWithoutCuratedGene(alterations: string[], hugoSymbol: 
 
 /**
  * Builds the name used when comparing two alterations for equality. Fusions are canonicalized so that the
- * gene partner ordering and the separator used do not matter, ie "BCR-ABL1 Fusion", "ABL1-BCR Fusion" and
- * "ABL1::BCR fusion" all share the same comparison name. Every other alteration is only lowercased.
+ * gene partner ordering does not matter, ie "BCR::ABL1 Fusion" and "ABL1::BCR fusion" share the same
+ * comparison name. Every other alteration is only lowercased.
  */
 export function getAlterationComparisonName(alteration: string): string {
   const partners = getFusionPartners(alteration);
@@ -367,7 +364,7 @@ export function getAlterationComparisonName(alteration: string): string {
   return `${partners
     .map(partner => partner.toLowerCase())
     .sort()
-    .join('-')} fusion`;
+    .join(FUSION_SEPARATOR)} fusion`;
 }
 
 export function findIndexOfFirstCapital(str: string) {
