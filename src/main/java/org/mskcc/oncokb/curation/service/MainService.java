@@ -179,7 +179,7 @@ public class MainService {
             }
             hugoSymbols.add(annotatedGene.orElseThrow().getHugoSymbol());
         }
-        return Optional.of(String.join(AlterationUtils.FUSION_ALTERNATIVE_SEPARATOR, hugoSymbols) + " Fusion");
+        return Optional.of(String.join(AlterationUtils.FUSION_SEPARATOR, hugoSymbols) + " Fusion");
     }
 
     /**
@@ -194,44 +194,6 @@ public class MainService {
             }
         }
         return false;
-    }
-
-    /**
-     * Picks the gene partners of a fusion whose partner section can be split in more than one place, which happens
-     * when a hugo symbol contains a hyphen itself, ie NKX2-1-BRAF Fusion is either NKX2 and 1-BRAF or NKX2-1 and
-     * BRAF. Every split is tried and the first one where both partners are genes we know is used, preferring a split
-     * that includes the gene the alteration was queried with.
-     */
-    private Optional<List<Gene>> findFusionGenePartners(String fusionName, Set<Gene> queriedGenes) {
-        List<String> queriedSymbols = queriedGenes
-            .stream()
-            .map(Gene::getHugoSymbol)
-            .filter(StringUtils::isNotEmpty)
-            .map(String::toLowerCase)
-            .collect(Collectors.toList());
-
-        List<Gene> fallback = null;
-        for (List<String> candidate : alterationUtils.getCandidateGenePartners(fusionName)) {
-            List<Gene> genePartners = new ArrayList<>();
-            for (String partner : candidate) {
-                Gene gene = new Gene();
-                gene.setHugoSymbol(partner);
-                if (findGene(gene).isEmpty()) {
-                    break;
-                }
-                genePartners.add(gene);
-            }
-            if (genePartners.size() != candidate.size()) {
-                continue;
-            }
-            if (candidate.stream().anyMatch(partner -> queriedSymbols.contains(partner.toLowerCase()))) {
-                return Optional.of(genePartners);
-            }
-            if (fallback == null) {
-                fallback = genePartners;
-            }
-        }
-        return Optional.ofNullable(fallback);
     }
 
     public AlterationAnnotationStatus annotateAlteration(ReferenceGenome referenceGenome, Alteration alteration) {
@@ -288,14 +250,6 @@ public class MainService {
         Alteration parsedAlteration = alterationWithEntityStatus.getEntity();
         if (parsedAlteration.getType() != null) {
             alteration.setType(parsedAlteration.getType());
-        }
-
-        // the gene partners of a fusion are only left empty by the parsing when the partner section can be split in
-        // more than one place, which needs the genes we have in our database to be told apart
-        if (STRUCTURAL_VARIANT.equals(parsedAlteration.getType()) && parsedAlteration.getGenes().isEmpty()) {
-            findFusionGenePartners(parsedAlteration.getAlteration(), alteration.getGenes()).ifPresent(
-                genePartners -> parsedAlteration.setGenes(new LinkedHashSet<>(genePartners))
-            );
         }
 
         // update associated genes

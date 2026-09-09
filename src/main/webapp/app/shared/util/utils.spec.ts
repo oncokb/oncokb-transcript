@@ -138,50 +138,51 @@ describe('Utils', () => {
   });
 
   describe('getFusionPartners', () => {
-    it('should parse gene partners regardless of separator and casing', () => {
-      expect(getFusionPartners('BCR-ABL1 Fusion')).toEqual(['BCR', 'ABL1']);
-      expect(getFusionPartners('BCR::ABL1 fusion')).toEqual(['BCR', 'ABL1']);
-      expect(getFusionPartners('MAP2K1_SMAD3 Fusion')).toEqual(['MAP2K1', 'SMAD3']);
-      expect(getFusionPartners('BCR-ABL1 Fusions')).toEqual(['BCR', 'ABL1']);
+    it('should parse gene partners regardless of casing', () => {
+      expect(getFusionPartners('BCR::ABL1 Fusion')).toEqual(['BCR', 'ABL1']);
+      expect(getFusionPartners('bcr::abl1 fusion')).toEqual(['BCR', 'ABL1'].map(partner => partner.toLowerCase()));
+      expect(getFusionPartners('BCR::ABL1 Fusions')).toEqual(['BCR', 'ABL1']);
+      // the double colon is what makes a hugo symbol containing a hyphen readable
+      expect(getFusionPartners('NKX2-1::BRAF Fusion')).toEqual(['NKX2-1', 'BRAF']);
     });
 
     it('should return undefined when the alteration is not a two gene partner fusion', () => {
       expect(getFusionPartners('Fusions')).toBeUndefined();
       expect(getFusionPartners('V600E')).toBeUndefined();
       expect(getFusionPartners('Intragenic fusion')).toBeUndefined();
-      // we cannot tell where the hugo symbol ends when a partner contains a hyphen
-      expect(getFusionPartners('NKX2-1-BRAF Fusion')).toBeUndefined();
+      // only the double colon separates the gene partners
+      expect(getFusionPartners('BCR-ABL1 Fusion')).toBeUndefined();
+      expect(getFusionPartners('MAP2K1_SMAD3 Fusion')).toBeUndefined();
     });
   });
 
   describe('getFusionsWithoutCuratedGene', () => {
     it('should accept fusions that include the curated gene', () => {
-      expect(getFusionsWithoutCuratedGene(['BCR-ABL1 Fusion', 'ABL1::BCR fusion'], 'ABL1')).toEqual([]);
-      expect(getFusionsWithoutCuratedGene(['bcr-abl1 Fusion'], 'ABL1')).toEqual([]);
+      expect(getFusionsWithoutCuratedGene(['BCR::ABL1 Fusion', 'ABL1::BCR fusion'], 'ABL1')).toEqual([]);
+      expect(getFusionsWithoutCuratedGene(['bcr::abl1 Fusion'], 'ABL1')).toEqual([]);
     });
 
     it('should reject fusions where neither partner is the curated gene', () => {
-      expect(getFusionsWithoutCuratedGene(['BCR-ABL1 Fusion'], 'BRAF')).toEqual(['BCR-ABL1 Fusion']);
+      expect(getFusionsWithoutCuratedGene(['BCR::ABL1 Fusion'], 'BRAF')).toEqual(['BCR::ABL1 Fusion']);
       // ABL is an alias, only the main hugo symbol is accepted
-      expect(getFusionsWithoutCuratedGene(['BCR-ABL Fusion'], 'ABL1')).toEqual(['BCR-ABL Fusion']);
+      expect(getFusionsWithoutCuratedGene(['BCR::ABL Fusion'], 'ABL1')).toEqual(['BCR::ABL Fusion']);
     });
 
     it('should ignore alterations that are not two gene partner fusions', () => {
-      expect(getFusionsWithoutCuratedGene(['Fusions', 'V600E', 'NKX2-1-BRAF Fusion'], 'BRAF')).toEqual([]);
+      expect(getFusionsWithoutCuratedGene(['Fusions', 'V600E'], 'BRAF')).toEqual([]);
     });
 
     it('should ignore everything when there is no gene being curated', () => {
-      expect(getFusionsWithoutCuratedGene(['BCR-ABL1 Fusion'], undefined)).toEqual([]);
+      expect(getFusionsWithoutCuratedGene(['BCR::ABL1 Fusion'], undefined)).toEqual([]);
     });
   });
 
   describe('getAlterationComparisonName', () => {
-    it('should canonicalize fusions so partner ordering and separator do not matter', () => {
-      const expected = 'abl1-bcr fusion';
-      expect(getAlterationComparisonName('BCR-ABL1 Fusion')).toEqual(expected);
-      expect(getAlterationComparisonName('ABL1-BCR Fusion')).toEqual(expected);
-      expect(getAlterationComparisonName('ABL1::BCR fusion')).toEqual(expected);
-      expect(getAlterationComparisonName('bcr_abl1 Fusion')).toEqual(expected);
+    it('should canonicalize fusions so partner ordering does not matter', () => {
+      const expected = 'abl1::bcr fusion';
+      expect(getAlterationComparisonName('BCR::ABL1 Fusion')).toEqual(expected);
+      expect(getAlterationComparisonName('ABL1::BCR Fusion')).toEqual(expected);
+      expect(getAlterationComparisonName('abl1::bcr fusions')).toEqual(expected);
     });
 
     it('should only lowercase non fusion alterations', () => {
