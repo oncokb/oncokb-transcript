@@ -241,7 +241,8 @@ public class AlterationUtils {
         if (StringUtils.isEmpty(alteration)) {
             return null;
         }
-        if (isFusionMissingDoubleColon(alteration)) {
+        Matcher missingSeparator = FUSION_MISSING_SEPARATOR_PATTERN.matcher(alteration);
+        if (missingSeparator.matches()) {
             Alteration alt = new Alteration();
             alt.setAlteration(alteration);
             alt.setName(alteration);
@@ -250,7 +251,7 @@ public class AlterationUtils {
             alt.setConsequence(consequence);
             entityWithStatus.setEntity(alt);
             entityWithStatus.setType(EntityStatusType.ERROR);
-            entityWithStatus.setMessage(getFusionSeparatorErrorMessage(alteration));
+            entityWithStatus.setMessage(getFusionSeparatorErrorMessage(missingSeparator.group(1)));
             return entityWithStatus;
         }
 
@@ -353,17 +354,14 @@ public class AlterationUtils {
      * can only be read one way. A partner section with more than one hyphen cannot be split, ie NKX2-1-BRAF Fusion
      * is either NKX2 and 1-BRAF or NKX2-1 and BRAF, so no suggestion is offered there.
      */
-    private static String getFusionSeparatorErrorMessage(String variant) {
+    private static String getFusionSeparatorErrorMessage(String genePartners) {
         String message =
             "A fusion has to be named with \"" +
             FUSION_SEPARATOR +
             "\" between the two gene partners, because a hyphen and an underscore are both ambiguous.";
-        Matcher m = FUSION_MISSING_SEPARATOR_PATTERN.matcher(variant);
-        if (m.matches()) {
-            String[] sections = m.group(1).split("[" + FUSION_ALTERNATIVE_SEPARATOR + FUSION_UNDERSCORE_SEPARATOR + "]");
-            if (sections.length == 2) {
-                message += " Do you mean " + String.join(FUSION_SEPARATOR, sections) + " Fusion?";
-            }
+        String[] sections = genePartners.split("[" + FUSION_ALTERNATIVE_SEPARATOR + FUSION_UNDERSCORE_SEPARATOR + "]");
+        if (sections.length == 2) {
+            message += " Do you mean " + String.join(FUSION_SEPARATOR, sections) + " Fusion?";
         }
         return message;
     }
