@@ -13,7 +13,7 @@ import {
   VusObjList,
 } from 'app/shared/model/firebase/firebase.model';
 import pluralize from 'pluralize';
-import { GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, REFERENCE_GENOME } from 'app/config/constants/constants';
+import { GERMLINE_INHERITANCE_MECHANISM, MUTATION_EFFECT, PATHOGENICITY, REFERENCE_GENOME } from 'app/config/constants/constants';
 import { uniq } from 'lodash';
 import { FirebaseMetaService } from 'app/service/firebase/firebase-meta-service';
 import { AuthStore } from 'app/stores';
@@ -104,6 +104,10 @@ const oncogenicityCheck = (pathogenicity: string): DataImportStatus => {
 
 const pathogenicityCheck = (pathogenicity: string): DataImportStatus => {
   return importStatusCheck(pathogenicity, Object.values(PATHOGENICITY));
+};
+
+const mutationEffectCheck = (mutationEffect: string): DataImportStatus => {
+  return importStatusCheck(mutationEffect, Object.values(MUTATION_EFFECT));
 };
 
 export const geneCheck = async (
@@ -360,6 +364,15 @@ export const saveMutation = async (
       }
       mutation.mutation_effect.oncogenic = data.oncogenicity as FIREBASE_ONCOGENICITY;
       mutation.mutation_effect.oncogenic_review = new Review(authStore.fullName, '');
+      const mutationEffect = data.mutation_effect?.trim();
+      if (mutationEffect) {
+        const importStatus: DataImportStatus = mutationEffectCheck(mutationEffect);
+        if (importStatus.status === 'error') {
+          return withNormalizationNote(importStatus);
+        }
+        mutation.mutation_effect.effect = mutationEffect as MUTATION_EFFECT;
+        mutation.mutation_effect.effect_review = new Review(authStore.fullName, '');
+      }
       if (data.description) {
         mutation.mutation_effect.description = data.description;
         mutation.mutation_effect.description_review = new Review(authStore.fullName, '');
@@ -408,6 +421,20 @@ export const saveMutation = async (
                 false,
               )),
             };
+            if (mutation.mutation_effect.effect) {
+              updateObject = {
+                ...updateObject,
+                ...(await firebaseGeneReviewService.updateReviewableContent(
+                  `${mut.firebaseMutationPath}/mutation_effect/effect`,
+                  existingMutation.mutation_effect.effect,
+                  mutation.mutation_effect.effect,
+                  existingMutation.mutation_effect.effect_review,
+                  existingMutation.mutation_effect.effect_uuid,
+                  true,
+                  false,
+                )),
+              };
+            }
           }
           if (mutation.mutation_effect.description) {
             updateObject = {
@@ -446,6 +473,9 @@ export const saveMutation = async (
             }
             // I can't use updateReviewableContent here due to lacking of the firebase path
             await firebaseMetaService.updateMeta(hugoSymbol, uuid, true, isGermline);
+            if (!isGermline && mutation.mutation_effect.effect) {
+              await firebaseMetaService.updateMeta(hugoSymbol, mutation.mutation_effect.effect_uuid, true, isGermline);
+            }
           }
         });
       return withNormalizationNote({
