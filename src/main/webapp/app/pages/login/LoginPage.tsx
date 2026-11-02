@@ -3,21 +3,21 @@ import { connect } from 'app/shared/util/typed-inject';
 import { Redirect, useHistory } from 'react-router-dom';
 import { IRootStore } from 'app/stores';
 import { PAGE_ROUTE } from 'app/config/constants/constants';
+import axios from 'axios';
 
-export interface ILoginProps extends StoreProps {}
+interface ILoginProps extends StoreProps {}
 
-export const Login = ({ isAuthenticated, fetchingsession, initialPageLoadUrl }: ILoginProps) => {
+const Login = ({ isAuthenticated, fetchingsession, initialPageLoadUrl }: ILoginProps) => {
   const history = useHistory();
 
   useEffect(() => {
     if (isAuthenticated) {
       history.push(initialPageLoadUrl ?? PAGE_ROUTE.HOME);
+    } else if (!fetchingsession) {
+      window.location.href = '/auth/login';
     }
-  }, [isAuthenticated, history, initialPageLoadUrl]);
+  }, [isAuthenticated, history, initialPageLoadUrl, fetchingsession]);
 
-  if (!fetchingsession) {
-    return <Redirect to={PAGE_ROUTE.OAUTH} />;
-  }
   return <></>;
 };
 

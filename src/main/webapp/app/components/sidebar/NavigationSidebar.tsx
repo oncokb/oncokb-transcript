@@ -210,8 +210,6 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
       .value();
 
     setEntityMenuOrder(order);
-
-    props.getManagementInfo!();
   }, []);
 
   return (
@@ -291,22 +289,12 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
         <div style={{ lineHeight: '5rem', display: 'flex', justifyContent: 'center' }}>
           {isNavSidebarCollapsed ? <MskccLogo className="navbar-brand" size={'sm'} /> : <MskccLogo className="navbar-brand" size={'lg'} />}
         </div>
-        {(props.managementVersion || props.managementCommit) && (
-          <>
-            <MenuDivider />
-            <div className={'d-flex justify-content-center'}>
-              <div>
-                {props.managementVersion} ({props.managementCommit})
-              </div>
-            </div>
-          </>
-        )}
       </div>
     </Sidebar>
   );
 };
 
-const mapStoreToProps = ({ layoutStore, authStore, managementStore }: IRootStore) => ({
+const mapStoreToProps = ({ layoutStore, authStore }: IRootStore) => ({
   toggleNavigationSidebar: layoutStore.toggleNavigationSidebar,
   isNavSidebarCollapsed: layoutStore.isNavigationSidebarCollapsed,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
@@ -316,9 +304,6 @@ const mapStoreToProps = ({ layoutStore, authStore, managementStore }: IRootStore
   isCurator: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.CURATOR]),
   isUser: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.USER]),
   account: authStore.account,
-  managementVersion: managementStore.version,
-  managementCommit: managementStore.commit,
-  getManagementInfo: managementStore.getManagementInfo,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

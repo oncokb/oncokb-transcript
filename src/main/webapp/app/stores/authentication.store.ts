@@ -89,13 +89,12 @@ export class AuthStore extends BaseStore {
     return this.account.firstName + ' ' + this.account.lastName;
   }
 
+  /* eslint-disable require-yield */
   *logoutGen() {
     try {
       this.reset();
       this.rootStore.firebaseAppStore.signOutFromFirebase();
-      const result: AxiosResponse = yield axios.post('/api/logout', {});
-      this.logoutUrl = result.data.logoutUrl;
-      return result;
+      window.location.href = '/auth/logout';
     } catch (e) {
       this.errorMessage = (e as Error).message;
       throw e as Error;
