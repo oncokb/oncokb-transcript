@@ -915,8 +915,8 @@ export const getMutationStats = (
 } => {
   const stats = {
     TT: 0,
-    oncogenicity: mutation?.mutation_effect.oncogenic,
-    mutationEffect: mutation?.mutation_effect.effect,
+    oncogenicity: mutation?.mutation_effect?.oncogenic,
+    mutationEffect: mutation?.mutation_effect?.effect,
     TTS: 0,
     DxS: 0,
     PxS: 0,
