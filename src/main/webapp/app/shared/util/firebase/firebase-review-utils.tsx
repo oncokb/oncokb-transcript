@@ -1086,16 +1086,15 @@ export const getGenePathFromValuePath = (hugoSymbol: string, valuePath: string, 
   return `${collection}/${_hugoSymbol}/${_valuePath}`;
 };
 
+const RICH_TEXT_FIELD_KEYS = ['description', 'background', 'short', 'summary', 'diagnosticSummary', 'prognosticSummary'];
+
+// Rich text fields keep a TipTap copy at `${path}_json` next to the plain text value
+export const isRichTextFieldPath = (firebasePath: string) => {
+  return RICH_TEXT_FIELD_KEYS.some(key => firebasePath.endsWith(`/${key}`));
+};
+
 export const showAsFirebaseTextArea = (hugoSymbol: string, valuePath: string, isGermline = false) => {
-  const genePath = getGenePathFromValuePath(hugoSymbol, valuePath, isGermline);
-  return (
-    genePath.endsWith('/description') ||
-    genePath.endsWith('/background') ||
-    genePath.endsWith('/short') ||
-    genePath.endsWith('/summary') ||
-    genePath.endsWith('/diagnosticSummary') ||
-    genePath.endsWith('/prognosticSummary')
-  );
+  return isRichTextFieldPath(getGenePathFromValuePath(hugoSymbol, valuePath, isGermline));
 };
 
 export const getTumorNameUuid = (cancerTypesUuid: string, excludedCancerTypesUuid: string) => {

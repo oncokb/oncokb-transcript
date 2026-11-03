@@ -132,6 +132,29 @@ describe('Firebase Gene Review Service', () => {
         }),
       );
     });
+    it('should rebuild rich text json with parsed references when updating a rich text field', async () => {
+      await firebaseGeneReviewService.updateReviewableContent(
+        'Genes/BRAF/mutations/0/mutation_effect/description',
+        'Evidence (PMID: 123).',
+        'Evidence (PMID: 456).',
+        new Review(mockAuthStore.fullName),
+        DEFAULT_UUID,
+      );
+      expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
+        'Genes/BRAF/mutations/0/mutation_effect/description': 'Evidence (PMID: 456).',
+        'Genes/BRAF/mutations/0/mutation_effect/description_json': textToTipTapDocWithReferences('Evidence (PMID: 456).'),
+      });
+    });
+    it('should not write rich text json when updating a non rich text field', async () => {
+      await firebaseGeneReviewService.updateReviewableContent(
+        'Genes/BRAF/mutations/0/mutation_effect/oncogenic',
+        'Likely',
+        'Yes',
+        new Review(mockAuthStore.fullName),
+        DEFAULT_UUID,
+      );
+      expect(mockFirebaseRepository.update.mock.calls[0][1]).not.toHaveProperty('Genes/BRAF/mutations/0/mutation_effect/oncogenic_json');
+    });
     it('should keep the NEW_NAME_UUID_VALUE sentinel when renaming a not-yet-reviewed added section', async () => {
       await firebaseGeneReviewService.updateReviewableContent(
         'Genes/BRAF/mutations/0/name',
