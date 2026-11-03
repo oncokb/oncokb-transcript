@@ -18,6 +18,7 @@ import {
   getUpdatedReview,
   isCreateReview,
   isDeleteReview,
+  isRichTextFieldPath,
   showAsFirebaseTextArea,
 } from '../../shared/util/firebase/firebase-review-utils';
 import { textToTipTapDocWithReferences } from '../../shared/rich-text-editor/utils';
@@ -49,11 +50,17 @@ export class FirebaseGeneReviewService {
   }
 
   getGeneUpdateObject = (updateValue: any, updatedReview: Review, firebasePath: string, uuid: string | undefined) => {
-    const updateObject = {
+    const updateObject: Record<string, unknown> = {
       [firebasePath]: updateValue,
       [`${firebasePath}_review`]: updatedReview,
       [`${firebasePath}_uuid`]: uuid ?? generateUuid(),
     };
+
+    // The editor renders `_json` over the plain text, so writers other than the editor (ie the import tool) must rebuild
+    // it or the editor keeps showing the old text. The editor overwrites this with its own json when it saves.
+    if (isRichTextFieldPath(firebasePath)) {
+      updateObject[`${firebasePath}_json`] = typeof updateValue === 'string' ? textToTipTapDocWithReferences(updateValue) : null;
+    }
 
     return updateObject;
   };
