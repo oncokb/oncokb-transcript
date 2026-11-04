@@ -67,18 +67,10 @@ describe('Firebase Gene Review Service', () => {
     });
 
     mockAuthStore.account = {
-      id: '1',
-      login: 'test@oncokb.org',
       firstName: 'test',
       lastName: 'user',
       email: 'test@oncokb.org',
-      activated: true,
-      langKey: '',
       authorities: [],
-      createdBy: '',
-      createdDate: null,
-      lastModifiedBy: '',
-      lastModifiedDate: null,
       imageUrl: '',
     };
 
