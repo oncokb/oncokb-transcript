@@ -135,7 +135,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   }, [content, editor, isEditorFocused, plainText]);
 
   useEffect(() => {
-    editor?.setEditable(!disabled);
+    // TipTap emits an update by default here, which would write the unchanged content back to Firebase
+    editor?.setEditable(!disabled, false);
   }, [disabled, editor]);
 
   const saveEditorSelection = () => {

@@ -82,10 +82,15 @@ export const CurationPage = (props: ICurationPageProps) => {
 
   useEffect(() => {
     props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
+  }, []);
+
+  // The open mutation key belongs to one gene collection. Clear it when switching gene or
+  // somatic/germline so it isn't reused under the other collection's mutations path.
+  useEffect(() => {
     return () => {
       props.setOpenMutationCollapsibleListKey(null);
     };
-  }, []);
+  }, [hugoSymbol, isGermline]);
 
   useEffect(() => {
     if (!props.firebaseDb) {
