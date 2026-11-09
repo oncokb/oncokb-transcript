@@ -1,12 +1,12 @@
-import { HOTSPOT } from 'app/config/colors';
 import React from 'react';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { getNCBIlink } from 'app/oncokb-commons/components/lib/urls';
 import { Linkout } from 'app/shared/links/Linkout';
-import { BsFire } from 'react-icons/bs';
 import { HotspotDTO } from 'app/shared/api/generated/curation';
 import _ from 'lodash';
 import InfoIcon from 'app/shared/icons/InfoIcon';
+import cancerHotspotIcon from '../../../content/images/cancer-hotspots.svg';
+import threeDHotspotIcon from '../../../content/images/3d-hotspots.svg';
 
 enum HotspotType {
   HOTSPOT_V2 = 'HOTSPOT_V2',
@@ -80,11 +80,25 @@ const getHotspotTooltipContent = (associatedHotspots: HotspotDTO[]) => {
     </div>
   );
 };
+
+const HOTSPOT_ICON_STYLE: React.CSSProperties = { height: 18 };
+const THREE_D_HOTSPOT_ICON_STYLE: React.CSSProperties = { height: 23 };
+
 const HotspotIcon: React.FunctionComponent<{ associatedHotspots: HotspotDTO[] }> = props => {
+  const [threeDHotspots, regularHotspots] = _.partition(props.associatedHotspots, hotspot => hotspot.type === HotspotType.THREE_D);
   return (
-    <DefaultTooltip overlay={() => getHotspotTooltipContent(props.associatedHotspots)}>
-      <BsFire color={HOTSPOT} className={'mx-1'} />
-    </DefaultTooltip>
+    <>
+      {regularHotspots.length > 0 && (
+        <DefaultTooltip overlay={() => getHotspotTooltipContent(regularHotspots)}>
+          <img src={cancerHotspotIcon} alt="Cancer Hotspot" className={'mx-1'} style={HOTSPOT_ICON_STYLE} />
+        </DefaultTooltip>
+      )}
+      {threeDHotspots.length > 0 && (
+        <DefaultTooltip overlay={() => getHotspotTooltipContent(threeDHotspots)}>
+          <img src={threeDHotspotIcon} alt="3D Hotspot" className={'mx-1'} style={THREE_D_HOTSPOT_ICON_STYLE} />
+        </DefaultTooltip>
+      )}
+    </>
   );
 };
 
